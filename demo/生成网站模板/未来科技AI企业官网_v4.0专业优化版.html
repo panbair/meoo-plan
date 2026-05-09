@@ -1,0 +1,1572 @@
+<!-- 腾讯CodeBuddy AI企业官网·专业优化版 v4.0 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="智未来IntelliFuture - AI驱动企业数字化转型，提供深度学习、计算机视觉、自然语言处理全栈解决方案">
+  <meta name="keywords" content="AI,人工智能,深度学习,机器学习,企业数字化转型,智能解决方案">
+  <meta name="author" content="智未来IntelliFuture">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://intellifuture.com/">
+  <meta property="og:title" content="智未来 - AI驱动企业数字化转型 | 500+企业信任之选">
+  <meta property="og:description" content="500+企业信任之选，3年平均ROI提升40%。提供AI全栈解决方案，助力企业数字化转型。">
+  <meta property="og:image" content="https://intellifuture.com/images/og-image.jpg">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://intellifuture.com/">
+  <meta name="twitter:title" content="智未来 - AI驱动企业数字化转型 | 500+企业信任之选">
+  <meta name="twitter:description" content="500+企业信任之选，3年平均ROI提升40%。提供AI全栈解决方案，助力企业数字化转型。">
+  <meta name="twitter:image" content="https://intellifuture.com/images/twitter-image.jpg">
+  
+  <title>智未来 | AI驱动企业数字化转型 - 500+企业信任之选</title>
+
+  <!-- GSAP修复引入错误 - 必须带版本号 -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
+
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "智未来IntelliFuture",
+    "url": "https://intellifuture.com",
+    "logo": "https://intellifuture.com/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+86-400-XXX-XXXX",
+      "contactType": "sales"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/company/intellifuture",
+      "https://twitter.com/intellifuture"
+    ],
+    "description": "AI驱动企业数字化转型，提供深度学习、计算机视觉、自然语言处理全栈解决方案",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "深圳市",
+      "addressRegion": "广东省",
+      "addressCountry": "CN"
+    }
+  }
+  </script>
+
+  <style>
+    /* ===== CSS Reset（现代化重置） ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== CSS变量（企业级配色系统） ===== */
+    :root {
+      /* 主色 - 商务蓝（腾讯企业风格） */
+      --primary: #0066CC;
+      --primary-light: #3399FF;
+      --primary-dark: #004499;
+
+      /* 辅助色 */
+      --secondary: #FF6600;
+      --accent: #00CC66;
+      --danger: #FF3333;
+      --warning: #FF9933;
+
+      /* 中性色 - 企业灰 */
+      --dark-1: #0F0F12;
+      --dark-2: #1F1F24;
+      --dark-3: #2D2D34;
+      --light-1: #FFFFFF;
+      --light-2: #F5F5F7;
+      --light-3: #E8E8EB;
+      --light-4: #D1D1D6;
+
+      /* 渐变 - 商务风格 */
+      --gradient-primary: linear-gradient(135deg, #0066CC 0%, #004499 100%);
+      --gradient-accent: linear-gradient(135deg, #00CC66 0%, #00994D 100%);
+      --gradient-dark: linear-gradient(180deg, #0F0F12 0%, #1A1A20 100%);
+
+      /* 阴影系统 */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+      --shadow-primary: 0 8px 32px rgba(0, 102, 204, 0.2);
+    }
+
+    [data-theme="light"] {
+      --dark-1: #FFFFFF;
+      --dark-2: #F5F5F7;
+      --dark-3: #E8E8EB;
+      --light-1: #0F0F12;
+      --light-2: #1F1F24;
+      --light-3: #2D2D34;
+    }
+
+    /* ===== 全局样式 ===== */
+    body {
+      background: var(--dark-1);
+      color: var(--light-1);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ===== GPU加速优化 ===== */
+    .tech-card, .particle, .nav-link, .btn-primary, .feature-item {
+      will-change: transform, opacity;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+
+    /* ===== 企业级玻璃态卡片（优化版） ===== */
+    .cyber-glass {
+      background: rgba(15, 15, 18, 0.85);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(0, 102, 204, 0.15);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+
+    .cyber-glass:hover {
+      border-color: rgba(0, 102, 204, 0.3);
+      box-shadow: var(--shadow-primary);
+      transform: translateY(-4px);
+    }
+
+    /* ===== 按钮样式（企业级） ===== */
+    .btn-primary {
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 6px;
+      padding: 12px 24px;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      border-radius: 6px;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-loading {
+      position: relative;
+      color: transparent;
+      pointer-events: none;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin: -10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== 粒子系统 ===== */
+    .particle {
+      position: fixed;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* ===== 导航栏 ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 40px;
+      background: rgba(15, 15, 18, 0.85);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: padding 0.3s ease, background 0.3s ease;
+    }
+
+    .navbar--scrolled {
+      padding: 12px 40px;
+      background: rgba(15, 15, 18, 0.95);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--light-2);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--primary);
+    }
+
+    .nav-link--active {
+      color: var(--primary);
+    }
+
+    .nav-link--active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+    }
+
+    .nav-cta {
+      background: var(--gradient-primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .nav-cta:hover {
+      box-shadow: var(--shadow-primary);
+      transform: translateY(-2px);
+    }
+
+    .theme-toggle {
+      background: rgba(0, 102, 204, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 20px;
+      padding: 8px 16px;
+      color: var(--primary);
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .theme-toggle:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .hamburger span {
+      width: 24px;
+      height: 2px;
+      background: var(--primary);
+      transition: 0.3s;
+    }
+
+    .hamburger--active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger--active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger--active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -7px);
+    }
+
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 70%;
+      max-width: 300px;
+      height: 100vh;
+      background: var(--dark-2);
+      padding: 80px 30px 30px;
+      transition: 0.3s ease;
+      z-index: 999;
+    }
+
+    .mobile-menu--active {
+      right: 0;
+    }
+
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.3s;
+      z-index: 998;
+    }
+
+    .mobile-menu-overlay--active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-menu-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .mobile-menu-links a {
+      color: var(--light-2);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: 0.3s;
+    }
+
+    .mobile-menu-links a:hover {
+      color: var(--primary);
+    }
+
+    /* ===== 页面加载动画 ===== */
+    .page-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--dark-1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+
+    .page-loader--hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .loader-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(0, 102, 204, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-top: 24px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    /* ===== Hero区域 ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 100px 20px;
+      position: relative;
+      background: var(--gradient-dark);
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      margin-bottom: 20px;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      color: var(--light-2);
+      max-width: 800px;
+      margin-bottom: 40px;
+      line-height: 1.8;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ===== 通用区块样式 ===== */
+    .section {
+      padding: 100px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .section-title span {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-description {
+      font-size: 1.1rem;
+      color: var(--light-2);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* ===== 网格布局 ===== */
+    .grid {
+      display: grid;
+      gap: 30px;
+    }
+
+    .grid--3 {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .grid--4 {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    /* ===== 核心技术卡片（企业级） ===== */
+    .tech-grid {
+      perspective: 1000px;
+    }
+
+    .tech-card {
+      padding: 40px 30px;
+      text-align: center;
+      -webkit-transform-style: preserve-3d;
+      transform-style: preserve-3d;
+      transition: all 0.3s ease;
+    }
+
+    .tech-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-primary);
+    }
+
+    .tech-card-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .tech-card-title {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .tech-card-desc {
+      color: var(--light-2);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    /* ===== 产品卡片 ===== */
+    .product-card {
+      padding: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-primary);
+    }
+
+    .product-image {
+      height: 160px;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+    }
+
+    .product-content {
+      padding: 28px;
+    }
+
+    .product-content h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .product-content p {
+      color: var(--light-2);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ===== 技术数据 ===== */
+    .data-section {
+      background: linear-gradient(180deg, transparent, rgba(0, 102, 204, 0.05), transparent);
+    }
+
+    .data-item {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .data-number {
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .data-label {
+      color: var(--light-2);
+      font-size: 1rem;
+    }
+
+    /* ===== 客户案例 ===== */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 30px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .client-logo {
+      width: 120px;
+      height: 60px;
+      background: var(--light-3);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dark-2);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .client-logo:hover {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* ===== 联系表单 ===== */
+    .form {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(0, 102, 204, 0.2);
+      border-radius: 8px;
+      color: var(--light-1);
+      font-size: 1rem;
+      transition: 0.3s;
+      font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(0, 102, 204, 0.15);
+    }
+
+    .form-textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .form-success {
+      display: none;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .form-success--visible {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    /* ===== 页脚 ===== */
+    footer {
+      padding: 80px 20px 30px;
+      background: var(--dark-2);
+      border-top: 1px solid rgba(0, 102, 204, 0.1);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 50px;
+      max-width: 1400px;
+      margin: 0 auto 60px;
+    }
+
+    .footer-title {
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .footer-link {
+      color: var(--light-2);
+      display: block;
+      margin-bottom: 12px;
+      text-decoration: none;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .footer-link:hover {
+      color: var(--primary);
+      transform: translateX(5px);
+    }
+
+    .footer-text {
+      color: var(--light-2);
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(0, 102, 204, 0.1);
+      color: var(--light-3);
+      font-size: 0.9rem;
+    }
+
+    /* ===== 返回顶部 ===== */
+    .back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-to-top--visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .back-to-top:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-primary);
+    }
+
+    /* ===== 点击粒子效果 ===== */
+    .click-particle {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ===== 响应式设计 ===== */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 12px 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav-cta {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .theme-toggle {
+        display: none;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .section {
+        padding: 60px 20px;
+      }
+
+      .grid--3,
+      .grid--4 {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        width: 100%;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .grid--3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 页面加载动画 -->
+  <div class="page-loader" id="pageLoader">
+    <div class="loader-logo">智未来</div>
+    <div class="loader-spinner"></div>
+  </div>
+
+  <!-- 粒子背景 -->
+  <div id="particles" aria-hidden="true"></div>
+
+  <!-- 导航栏 -->
+  <header class="navbar" role="banner">
+    <a href="#home" class="nav-logo" aria-label="返回首页">
+      <span style="font-size: 1.6rem;">🤖</span>
+      智未来
+    </a>
+
+    <nav>
+      <ul class="nav-links" role="navigation" aria-label="主导航">
+        <li><a href="#home" class="nav-link nav-link--active" data-section="home">首页</a></li>
+        <li><a href="#tech" class="nav-link" data-section="tech">核心技术</a></li>
+        <li><a href="#products" class="nav-link" data-section="products">产品方案</a></li>
+        <li><a href="#cases" class="nav-link" data-section="cases">客户案例</a></li>
+        <li><a href="#contact" class="nav-link" data-section="contact">联系我们</a></li>
+      </ul>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+        <span>🌙</span>
+        <span>主题</span>
+      </button>
+      <a href="#contact" class="nav-cta">立即咨询</a>
+      <button class="hamburger" id="hamburger" aria-label="打开菜单" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 移动端菜单 -->
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+  <aside class="mobile-menu" id="mobileMenu" role="dialog" aria-label="移动端菜单">
+    <ul class="mobile-menu-links">
+      <li><a href="#home" class="mobile-menu-link">首页</a></li>
+      <li><a href="#tech" class="mobile-menu-link">核心技术</a></li>
+      <li><a href="#products" class="mobile-menu-link">产品方案</a></li>
+      <li><a href="#cases" class="mobile-menu-link">客户案例</a></li>
+      <li><a href="#contact" class="mobile-menu-link">联系我们</a></li>
+    </ul>
+  </aside>
+
+  <!-- Hero区域 -->
+  <section class="hero" id="home" aria-label="首页">
+    <h1 class="hero-title">AI驱动 · 智领未来</h1>
+    <p class="hero-subtitle">500+企业信任之选，3年平均ROI提升40%。<br>提供深度学习、计算机视觉、自然语言处理全栈解决方案，助力企业数字化转型。</p>
+    <div class="hero-buttons">
+      <button class="btn-primary">
+        <span>📞</span>
+        立即咨询
+      </button>
+      <button class="btn-secondary">查看产品方案</button>
+    </div>
+  </section>
+
+  <main>
+    <!-- 客户案例 -->
+    <section class="section" aria-labelledby="clients-title">
+      <div class="section-header">
+        <h2 class="section-title" id="clients-title">500+企业的选择</h2>
+        <p class="section-description">包括腾讯、阿里巴巴、华为等知名企业在内</p>
+      </div>
+      <div class="clients-grid">
+        <div class="client-logo">腾讯云</div>
+        <div class="client-logo">阿里云</div>
+        <div class="client-logo">华为云</div>
+        <div class="client-logo">百度智能云</div>
+        <div class="client-logo">字节跳动</div>
+        <div class="client-logo">京东云</div>
+      </div>
+    </section>
+
+    <!-- 核心技术 -->
+    <section class="section" id="tech" aria-labelledby="tech-title">
+      <div class="section-header">
+        <h2 class="section-title" id="tech-title">核心技术</h2>
+        <p class="section-description">深度学习、计算机视觉、自然语言处理等前沿AI技术</p>
+      </div>
+      <div class="grid grid--3 tech-grid">
+        <article class="tech-card cyber-glass">
+          <span class="tech-card-icon">🧠</span>
+          <h3 class="tech-card-title">深度学习</h3>
+          <p class="tech-card-desc">基于深度学习的前沿算法，百万级参数模型，智能决策更精准</p>
+        </article>
+        <article class="tech-card cyber-glass">
+          <span class="tech-card-icon">💬</span>
+          <h3 class="tech-card-title">自然语言处理</h3>
+          <p class="tech-card-desc">理解人类语言的复杂语义，智能对话、文本生成、情感分析</p>
+        </article>
+        <article class="tech-card cyber-glass">
+          <span class="tech-card-icon">👁️</span>
+          <h3 class="tech-card-title">计算机视觉</h3>
+          <p class="tech-card-desc">图像识别、目标检测、场景理解，赋予机器"看见"的能力</p>
+        </article>
+        <article class="tech-card cyber-glass">
+          <span class="tech-card-icon">🎯</span>
+          <h3 class="tech-card-title">强化学习</h3>
+          <p class="tech-card-desc">通过环境反馈持续优化，自主学习进化，智能决策更高效</p>
+        </article>
+        <article class="tech-card cyber-glass">
+          <span class="tech-card-icon">📱</span>
+          <h3 class="tech-card-title">边缘计算</h3>
+          <p class="tech-card-desc">本地化实时推理，低延迟、高效率、隐私安全，部署更灵活</p>
+        </article>
+        <article class="tech-card cyber-glass">
+          <span class="tech-card-icon">🤖</span>
+          <h3 class="tech-card-title">智能决策</h3>
+          <p class="tech-card-desc">基于大数据和机器学习的智能决策系统，提升企业运营效率</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 技术数据 -->
+    <section class="data-section" aria-labelledby="data-title">
+      <div class="section-header">
+        <h2 class="section-title" id="data-title"><span>技术实力</span></h2>
+        <p class="section-description">强大的技术积累和丰富的项目经验</p>
+      </div>
+      <div class="grid grid--4" style="max-width: 1200px; margin: 0 auto;">
+        <div class="data-item">
+          <span class="data-number counter" data-target="500">0</span>
+          <span class="data-label">自研AI模型</span>
+        </div>
+        <div class="data-item">
+          <span class="data-number counter" data-target="100">0</span>
+          <span class="data-label">并发处理(M+ QPS)</span>
+        </div>
+        <div class="data-item">
+          <span class="data-number counter" data-target="500">0</span>
+          <span class="data-label">企业客户</span>
+        </div>
+        <div class="data-item">
+          <span class="data-number counter" data-target="500">0</span>
+          <span class="data-label">核心专利</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 产品方案 -->
+    <section class="section" id="products" aria-labelledby="products-title">
+      <div class="section-header">
+        <h2 class="section-title" id="products-title">产品方案</h2>
+        <p class="section-description">全栈AI产品矩阵，满足企业不同业务需求</p>
+      </div>
+      <div class="grid grid--3">
+        <article class="product-card cyber-glass">
+          <div class="product-image">🤖</div>
+          <div class="product-content">
+            <h3>智能对话AI</h3>
+            <p>多轮对话 · 情感理解 · 知识图谱</p>
+          </div>
+        </article>
+        <article class="product-card cyber-glass">
+          <div class="product-image">👁️</div>
+          <div class="product-content">
+            <h3>图像识别系统</h3>
+            <p>目标检测 · 人脸识别 · 场景理解</p>
+          </div>
+        </article>
+        <article class="product-card cyber-glass">
+          <div class="product-image">📊</div>
+          <div class="product-content">
+            <h3>智能推荐引擎</h3>
+            <p>协同过滤 · 深度学习 · 实时更新</p>
+          </div>
+        </article>
+        <article class="product-card cyber-glass">
+          <div class="product-image">📈</div>
+          <div class="product-content">
+            <h3>数据智能分析</h3>
+            <p>预测分析 · 异常检测 · 趋势洞察</p>
+          </div>
+        </article>
+        <article class="product-card cyber-glass">
+          <div class="product-image">⚡</div>
+          <div class="product-content">
+            <h3>自动化流程</h3>
+            <p>智能OCR · 文档处理 · 审批自动化</p>
+          </div>
+        </article>
+        <article class="product-card cyber-glass">
+          <div class="product-image">✨</div>
+          <div class="product-content">
+            <h3>AI创作平台</h3>
+            <p>文本生成 · 图像创作 · 代码辅助</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 客户案例 -->
+    <section class="section" id="cases" aria-labelledby="cases-title">
+      <div class="section-header">
+        <h2 class="section-title" id="cases-title">客户案例</h2>
+        <p class="section-description">真实案例，见证AI赋能企业数字化转型</p>
+      </div>
+      <div class="grid grid--3">
+        <article class="product-card cyber-glass">
+          <div class="product-image" style="background: var(--gradient-accent);">🏦</div>
+          <div class="product-content">
+            <h3>某国有银行</h3>
+            <p>智能客服系统，客户满意度提升35%，运营成本降低40%</p>
+          </div>
+        </article>
+        <article class="product-card cyber-glass">
+          <div class="product-image" style="background: var(--gradient-accent);">🏭</div>
+          <div class="product-content">
+            <h3>某制造企业</h3>
+            <p>质检效率提升60%，缺陷识别准确率达99.8%</p>
+          </div>
+        </article>
+        <article class="product-card cyber-glass">
+          <div class="product-image" style="background: var(--gradient-accent);">🛒</div>
+          <div class="product-content">
+            <h3>某电商平台</h3>
+            <p>推荐系统CTR提升25%，GMV增长30%</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <section class="section" id="contact" aria-labelledby="contact-title">
+      <div class="section-header">
+        <h2 class="section-title" id="contact-title">联系我们</h2>
+        <p class="section-description">立即获取专业AI解决方案咨询</p>
+      </div>
+
+      <!-- 表单 -->
+      <form class="form cyber-glass" id="contactForm" style="padding: 50px;">
+        <div class="form-group">
+          <input type="text" class="form-input" name="name" placeholder="姓名 *" required aria-label="姓名">
+        </div>
+        <div class="form-group">
+          <input type="tel" class="form-input" name="phone" placeholder="手机号 *" required aria-label="手机号">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-input" name="company" placeholder="企业名称" aria-label="企业名称">
+        </div>
+        <div class="form-group">
+          <input type="email" class="form-input" name="email" placeholder="邮箱地址" aria-label="邮箱地址">
+        </div>
+        <div class="form-group">
+          <textarea class="form-textarea" name="message" placeholder="留言内容 *" required aria-label="留言内容"></textarea>
+        </div>
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span>📩</span>
+          发送留言
+        </button>
+      </form>
+
+      <!-- 成功提示 -->
+      <div class="form-success cyber-glass" id="formSuccess" style="padding: 50px;">
+        <div class="success-icon">✅</div>
+        <h3 style="font-size: 1.6rem; margin-bottom: 15px; color: var(--primary);">提交成功！</h3>
+        <p style="color: var(--light-2); margin-bottom: 20px;">感谢您的留言，我们会在1个工作日内与您联系。</p>
+        <button class="btn-primary" onclick="location.reload()">
+          <span>🔄</span>
+          返回
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer role="contentinfo">
+    <div class="footer-grid">
+      <div>
+        <h4 class="footer-title">网站导航</h4>
+        <a href="#home" class="footer-link">首页</a>
+        <a href="#tech" class="footer-link">核心技术</a>
+        <a href="#products" class="footer-link">产品方案</a>
+        <a href="#cases" class="footer-link">客户案例</a>
+        <a href="#contact" class="footer-link">联系我们</a>
+      </div>
+      <div>
+        <h4 class="footer-title">产品服务</h4>
+        <a href="#" class="footer-link">AI对话引擎</a>
+        <a href="#" class="footer-link">图像识别系统</a>
+        <a href="#" class="footer-link">智能推荐引擎</a>
+        <a href="#" class="footer-link">数据分析平台</a>
+      </div>
+      <div>
+        <h4 class="footer-title">联系我们</h4>
+        <p class="footer-text">📞 商务热线：400-XXX-XXXX</p>
+        <p class="footer-text">📧 邮箱：business@intellifuture.com</p>
+        <p class="footer-text">📍 地址：广东省深圳市南山区科技创新园</p>
+      </div>
+      <div>
+        <h4 class="footer-title">关于我们</h4>
+        <a href="#" class="footer-link">公司简介</a>
+        <a href="#" class="footer-link">加入我们</a>
+        <a href="#" class="footer-link">新闻动态</a>
+        <a href="#" class="footer-link">隐私政策</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 智未来 IntelliFuture. All rights reserved.</p>
+      <p style="margin-top: 8px;">备案号：粤ICP备XXXXXXXX号 | 粤公网安备 XXXXXXXX号</p>
+      <p style="margin-top: 8px;">
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" style="color: var(--light-3); text-decoration: none;">工信部备案查询</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- 返回顶部 -->
+  <button class="back-to-top" id="backToTop" aria-label="返回顶部">
+    <span>↑</span>
+  </button>
+
+  <script>
+    // ===== 全局配置 =====
+    const CONFIG = {
+      particleCount: {
+        mobile: 15,
+        tablet: 20,
+        desktop: 30
+      },
+      scrollThrottle: 100,
+      animationDuration: 0.3
+    };
+
+    // ===== 工具函数：节流 =====
+    function throttle(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // ===== 工具函数：防抖 =====
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // ===== 工具函数：获取设备类型 =====
+    function getDeviceType() {
+      const width = window.innerWidth;
+      if (width < 768) return 'mobile';
+      if (width < 1024) return 'tablet';
+      return 'desktop';
+    }
+
+    // ===== 异常捕获包装器 =====
+    function safeExecute(fn, context = '') {
+      try {
+        return fn();
+      } catch (error) {
+        console.error(`[${context}] Error:`, error);
+        return null;
+      }
+    }
+
+    // ===== 注册GSAP插件 =====
+    safeExecute(() => {
+      gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+    }, 'GSAP注册');
+
+    // ===== 页面加载动画 =====
+    function initPageLoader() {
+      const loader = document.getElementById('pageLoader');
+
+      safeExecute(() => {
+        setTimeout(() => {
+          loader.classList.add('page-loader--hidden');
+        }, 1500);
+      }, '页面加载动画');
+    }
+
+    // ===== 粒子系统（动态适配设备） =====
+    function createParticles() {
+      return safeExecute(() => {
+        const container = document.getElementById('particles');
+        const deviceType = getDeviceType();
+        const count = CONFIG.particleCount[deviceType];
+        const colors = ['#0066CC', '#3399FF', '#00CC66'];
+
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          p.className = 'particle';
+          p.style.left = Math.random() * 100 + '%';
+          p.style.top = Math.random() * 100 + '%';
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+          container.appendChild(p);
+
+          gsap.to(p, {
+            y: -150,
+            x: `+=${Math.random() * 100 - 50}`,
+            opacity: 0,
+            duration: 3 + Math.random() * 2,
+            repeat: -1,
+            delay: Math.random() * 3,
+            ease: 'none',
+            onComplete: () => {
+              p.style.top = '100%';
+              p.style.left = Math.random() * 100 + '%';
+            }
+          });
+        }
+      }, '粒子系统');
+    }
+
+    // ===== 磁力卡片效果（优化角度 - 限制±5deg） =====
+    function initMagneticCards() {
+      safeExecute(() => {
+        document.querySelectorAll('.tech-card').forEach(card => {
+          card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width - 0.5) * 10;
+            const y = ((e.clientY - rect.top) / rect.height - 0.5) * -10;
+
+            gsap.to(card, {
+              rotateY: x * 0.3,
+              rotateX: y * 0.3,
+              duration: CONFIG.animationDuration,
+              ease: 'power2.out'
+            });
+          });
+
+          card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+              rotateY: 0,
+              rotateX: 0,
+              duration: CONFIG.animationDuration,
+              ease: 'power2.out'
+            });
+          });
+        });
+      }, '磁力卡片');
+    }
+
+    // ===== 数字滚动动画 =====
+    function initCounterAnimation() {
+      safeExecute(() => {
+        gsap.utils.toArray('.counter').forEach(counter => {
+          const target = parseInt(counter.dataset.target);
+
+          ScrollTrigger.create({
+            trigger: counter,
+            start: 'top 80%',
+            once: true,
+            onEnter: () => {
+              gsap.to(counter, {
+                innerHTML: target,
+                duration: 2,
+                snap: { innerHTML: 1 },
+                ease: 'power2.out'
+              });
+            }
+          });
+        });
+      }, '数字滚动');
+    }
+
+    // ===== 滚动入场动画 =====
+    function initScrollAnimations() {
+      safeExecute(() => {
+        gsap.utils.toArray('.tech-card, .product-card, .client-logo').forEach((card, i) => {
+          gsap.from(card, {
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse'
+            },
+            y: 40,
+            opacity: 0,
+            duration: 0.5,
+            delay: i * 0.06,
+            ease: 'power2.out'
+          });
+        });
+      }, '滚动入场');
+    }
+
+    // ===== 导航栏滚动高亮 =====
+    function initNavHighlight() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('section[id]');
+
+      const updateActiveNav = throttle(() => {
+        const scrollY = window.scrollY + 100;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          const sectionId = section.getAttribute('id');
+
+          if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+            navLinks.forEach(link => {
+              link.classList.remove('nav-link--active');
+              if (link.dataset.section === sectionId) {
+                link.classList.add('nav-link--active');
+              }
+            });
+          }
+        });
+      }, CONFIG.scrollThrottle);
+
+      window.addEventListener('scroll', updateActiveNav);
+    }
+
+    // ===== 导航栏滚动收缩 =====
+    function initNavbarScroll() {
+      const navbar = document.querySelector('.navbar');
+
+      window.addEventListener('scroll', throttle(() => {
+        if (window.scrollY > 100) {
+          navbar.classList.add('navbar--scrolled');
+        } else {
+          navbar.classList.remove('navbar--scrolled');
+        }
+      }, CONFIG.scrollThrottle));
+    }
+
+    // ===== 平滑滚动 =====
+    function initSmoothScroll() {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            gsap.to(window, {
+              duration: 1,
+              scrollTo: { y: target, offsetY: 80 },
+              ease: 'power3.inOut'
+            });
+
+            closeMobileMenu();
+          }
+        });
+      });
+    }
+
+    // ===== 返回顶部 =====
+    function initBackToTop() {
+      const backToTop = document.getElementById('backToTop');
+
+      window.addEventListener('scroll', throttle(() => {
+        if (window.scrollY > 500) {
+          backToTop.classList.add('back-to-top--visible');
+        } else {
+          backToTop.classList.remove('back-to-top--visible');
+        }
+      }, CONFIG.scrollThrottle));
+
+      backToTop.addEventListener('click', () => {
+        gsap.to(window, {
+          duration: 1,
+          scrollTo: 0,
+          ease: 'power3.inOut'
+        });
+      });
+    }
+
+    // ===== 移动端菜单 =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
+
+    function openMobileMenu() {
+      hamburger.classList.add('hamburger--active');
+      hamburger.setAttribute('aria-expanded', 'true');
+      mobileMenu.classList.add('mobile-menu--active');
+      mobileMenuOverlay.classList.add('mobile-menu-overlay--active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+      hamburger.classList.remove('hamburger--active');
+      hamburger.setAttribute('aria-expanded', 'false');
+      mobileMenu.classList.remove('mobile-menu--active');
+      mobileMenuOverlay.classList.remove('mobile-menu-overlay--active');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', () => {
+      if (hamburger.classList.contains('hamburger--active')) {
+        closeMobileMenu();
+      } else {
+        openMobileMenu();
+      }
+    });
+
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    mobileMenuLinks.forEach(link => link.addEventListener('click', closeMobileMenu));
+
+    // ===== 主题切换 =====
+    function initThemeToggle() {
+      const themeToggle = document.getElementById('themeToggle');
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      themeToggle.innerHTML = savedTheme === 'dark' ? '<span>🌙</span><span>主题</span>' : '<span>☀️</span><span>主题</span>';
+
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeToggle.innerHTML = newTheme === 'dark' ? '<span>🌙</span><span>主题</span>' : '<span>☀️</span><span>主题</span>';
+      });
+    }
+
+    // ===== 点击粒子效果 =====
+    function initClickParticles() {
+      document.addEventListener('click', (e) => {
+        for (let i = 0; i < 6; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'click-particle';
+          particle.style.left = e.clientX + 'px';
+          particle.style.top = e.clientY + 'px';
+          document.body.appendChild(particle);
+
+          const angle = (i / 6) * Math.PI * 2;
+          const distance = 20 + Math.random() * 20;
+
+          gsap.to(particle, {
+            x: Math.cos(angle) * distance,
+            y: Math.sin(angle) * distance,
+            opacity: 0,
+            scale: 0,
+            duration: 0.4,
+            ease: 'power2.out',
+            onComplete: () => particle.remove()
+          });
+        }
+      });
+    }
+
+    // ===== 表单提交 =====
+    function initContactForm() {
+      const form = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const formSuccess = document.getElementById('formSuccess');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        submitBtn.classList.remove('btn-loading');
+        submitBtn.disabled = false;
+
+        form.style.display = 'none';
+        formSuccess.classList.add('form-success--visible');
+      });
+    }
+
+    // ===== 初始化所有功能 =====
+    function initAll() {
+      initPageLoader();
+      createParticles();
+      initMagneticCards();
+      initCounterAnimation();
+      initScrollAnimations();
+      initNavHighlight();
+      initNavbarScroll();
+      initSmoothScroll();
+      initBackToTop();
+      initThemeToggle();
+      initClickParticles();
+      initContactForm();
+    }
+
+    // ===== 页面加载完成后初始化 =====
+    document.addEventListener('DOMContentLoaded', initAll);
+
+    // ===== 窗口大小变化时重新计算 =====
+    window.addEventListener('resize', debounce(() => {
+      // 响应式重新计算逻辑
+    }, 250));
+  </script>
+</body>
+</html>

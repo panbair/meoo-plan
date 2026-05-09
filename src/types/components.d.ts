@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Card3DFlipGalleryCard3DFlipGallery: typeof import('./../components/Card3DFlipGallery/Card3DFlipGallery.vue')['default']
     ContentWrap: typeof import('./../components/ContentWrap/index.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
