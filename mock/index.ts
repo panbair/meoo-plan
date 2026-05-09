@@ -220,6 +220,33 @@ export default [
               }
             }
           ]
+        },
+        {
+          id: 3,
+          path: '/website',
+          name: 'Website',
+          component: 'Layout',
+          menuType: 0,
+          meta: {
+            title: '网站管理',
+            icon: 'Link',
+            keepAlive: true
+          },
+          children: [
+            {
+              id: 31,
+              path: '/website/list',
+              name: 'WebList',
+              component: '/web-list/index',
+              menuType: 1,
+              meta: {
+                title: '网站列表',
+                icon: 'Link',
+                keepAlive: true,
+                permissions: ['web:list:view', 'web:list:add', 'web:list:edit', 'web:list:delete']
+              }
+            }
+          ]
         }
       ])
     }
