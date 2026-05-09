@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- SEO Meta Tags -->
+    <title><%= title %></title>
+    <meta name="description" content="Meeo Plan 管理平台 - 现代化企业级后台管理系统" />
+    <meta name="keywords" content="Vue3, Vite, Element Plus, 管理后台, 后台管理系统" />
+    <meta name="author" content="Meeo Plan Team" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/logo.svg" />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#409eff" />
+    <meta name="msapplication-TileColor" content="#409eff" />
+
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="<%= title %>" />
+    <meta property="og:description" content="现代化企业级后台管理系统" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/logo.svg" />
+
+    <!-- Content Security Policy (生产环境) -->
+    <% if (injectScript) { %>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src 'none';" />
+    <% } %>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+    <noscript>
+      <strong>请启用 JavaScript 以继续使用本系统</strong>
+    </noscript>
+  </body>
+</html>
