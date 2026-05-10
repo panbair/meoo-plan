@@ -264,8 +264,11 @@ const cleanupAnimations = () => {
 onMounted(() => {
   // 使用requestAnimationFrame确保DOM已完全渲染
   rafId = requestAnimationFrame(() => {
-    initEntryAnimation()
-    initScrollFlipAnimation()
+    // 使用nextTick确保Vue响应式更新完成
+    requestAnimationFrame(() => {
+      initEntryAnimation()
+      initScrollFlipAnimation()
+    })
   })
 })
 

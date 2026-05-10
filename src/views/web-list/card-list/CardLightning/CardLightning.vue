@@ -245,7 +245,8 @@ const initAnimations = () => {
 }
 
 onMounted(() => {
-  initAnimations()
+  // 延迟初始化以确保懒加载时 DOM 已完全渲染
+  setTimeout(initAnimations, 100)
 })
 
 onUnmounted(() => {

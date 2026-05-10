@@ -476,9 +476,10 @@ const unbindEvents = () => {
 }
 
 onMounted(() => {
+  // 延迟初始化以确保懒加载时 DOM 已完全渲染
   createBgParticles()
-  initAnimations()
   bindEvents()
+  setTimeout(initAnimations, 100)
 })
 
 onUnmounted(() => {

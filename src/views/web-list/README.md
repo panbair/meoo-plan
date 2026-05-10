@@ -41,116 +41,92 @@ card-time/
 
 ### 每张卡片滚动控制动画ScrollTrigger一定要用
 
-# 动画效果：霓虹节拍网格 · 脉冲扩散
-设计意图
-9 张卡片（3x3 网格）初始暗淡。当滚动触发，从中心卡片开始，一道脉冲向外扩散：每张卡片依次快速闪烁（缩放+透明度+霓虹边框色彩变化），形成类似心脏跳动或迪斯科球扫过的连锁反应，循环一次后归于平静。
-
-html
-<div class="beat-grid">
-  <div class="beat-card">1</div>
-  <div class="beat-card">2</div>
-  <div class="beat-card">3</div>
-  <div class="beat-card">4</div>
-  <div class="beat-card core">5</div>
-  <div class="beat-card">6</div>
-  <div class="beat-card">7</div>
-  <div class="beat-card">8</div>
-  <div class="beat-card">9</div>
-</div>
-css
-body {
-  background: #0d0d1a;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-.beat-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 120px);
-  gap: 20px;
-  justify-content: center;
-}
-.beat-card {
-  height: 140px;
-  background: #1a1a2e;
-  border: 2px solid #2d2d4a;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  color: #6c63ff;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  will-change: transform, opacity, border-color;
-}
-.beat-card.core {
-  background: #6c63ff22;
-  border-color: #6c63ff;
-}
-js
-gsap.registerPlugin(ScrollTrigger);
-
-// 计算卡片距离中心的“环数”，用来决定延迟（中心先动）
-const cards = gsap.utils.toArray(".beat-card");
-const grid = document.querySelector(".beat-grid");
-const centerIndex = 4; // 中间卡片索引 (0-based: 3x3 的中间是第5个)
-
-// 设置初始：全部微缩、暗色
-gsap.set(cards, { scale: 0.9, opacity: 0.6 });
-
-const masterTL = gsap.timeline({
-scrollTrigger: {
-trigger: ".beat-grid",
-start: "top 80%",
-toggleActions: "play none none none",
-}
+# 动画效果：万花筒棱镜·碎片旋转变焦重组（迷幻奢华 视觉冲击）
+逻辑：卡片初始被打散为8个三角形碎片（使用 clip-path 切割），每个碎片随机散布在空间中并带有旋转和模糊。Timeline 驱动所有碎片像万花筒旋转般聚拢，同时反向旋转、缩放并消除模糊，最终拼合为完整卡片。拼合瞬间触发短暂的棱镜色散光晕，最后光晕消散，呈现精致的卡片内容。
+javascript
+const cards = gsap.utils.toArray('.kaleidoscope-card');
+const tl = gsap.timeline({
+defaults: { duration: 0.9, ease: 'power3.inOut' },
+paused: true
 });
 
-// 为每张卡片创建独立脉冲，根据与中心距离设置延迟
-cards.forEach((card, i) => {
-// 曼哈顿距离或欧氏距离决定延迟
-const row = Math.floor(i / 3);
-const col = i % 3;
-const centerRow = 1, centerCol = 1;
-const dist = Math.abs(row - centerRow) + Math.abs(col - centerCol);
-const delay = dist * 0.12;
+cards.forEach((card, index) => {
+const fragments = card.querySelectorAll('.kaleido-fragment');
+const content = card.querySelector('.card-content');
+const prismGlow = card.querySelector('.prism-glow');
 
-// 每张卡片的节拍动画
-const pulse = gsap.timeline();
-pulse.to(card, {
-scale: 1.2,
-opacity: 1,
-borderColor: "#ff4da6",
-boxShadow: "0 0 40px #ff4da6",
-duration: 0.25,
-ease: "power2.out",
-})
-.to(card, {
+// 存储每个碎片的最终位置（相对卡片中心）
+const positions = [
+{ x: -25, y: -25, rotate: 0, clip: 'polygon(0 0, 50% 0, 0 50%)' },
+{ x: 25, y: -25, rotate: 0, clip: 'polygon(50% 0, 100% 0, 100% 50%, 50% 50%)' },
+{ x: -25, y: 25, rotate: 0, clip: 'polygon(0 50%, 50% 50%, 0 100%)' },
+{ x: 25, y: 25, rotate: 0, clip: 'polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%)' },
+{ x: -12, y: -12, rotate: 0, clip: 'polygon(25% 25%, 75% 25%, 50% 50%)' },
+{ x: 12, y: -12, rotate: 0, clip: 'polygon(50% 50%, 75% 25%, 75% 75%)' },
+{ x: -12, y: 12, rotate: 0, clip: 'polygon(25% 75%, 50% 50%, 25% 25%)' },
+{ x: 12, y: 12, rotate: 0, clip: 'polygon(50% 50%, 75% 75%, 25% 75%)' }
+];
+
+// 初始：随机散布
+fragments.forEach((frag, i) => {
+gsap.set(frag, {
+x: gsap.utils.random(-300, 300),
+y: gsap.utils.random(-400, 400),
+scale: gsap.utils.random(0.3, 0.8),
+rotation: gsap.utils.random(-180, 180),
+filter: 'blur(6px)',
+opacity: 0.6,
+clipPath: positions[i].clip
+});
+});
+gsap.set(content, { scale: 0.9, opacity: 0 });
+gsap.set(prismGlow, { opacity: 0, scale: 0.5 });
+
+const cardTl = gsap.timeline();
+
+// 碎片聚拢：转成旋转着飞到目标位置
+cardTl.to(fragments, {
+x: (i) => positions[i].x,
+y: (i) => positions[i].y,
 scale: 1,
-opacity: 0.9,
-borderColor: "#6c63ff",
-boxShadow: "0 0 15px #6c63ff",
-duration: 0.3,
-ease: "power2.out",
+rotation: 0,
+filter: 'blur(0px)',
+opacity: 1,
+duration: 0.8,
+stagger: { amount: 0.3, from: 'random' },
+ease: 'back.out(1.5)'
 })
-.to(card, {
-scale: 0.95,
-borderColor: "#2d2d4a",
-boxShadow: "0 0 0px transparent",
-duration: 0.2,
+// 拼合瞬间：棱镜光晕爆发
+.to(prismGlow, {
+opacity: 1,
+scale: 2.5,
+duration: 0.4,
+ease: 'power2.out'
+})
+.to(prismGlow, {
+opacity: 0,
+scale: 1,
+duration: 0.5,
+ease: 'power2.in'
+}, '-=0.2')
+// 内容显现
+.to(content, {
+opacity: 1,
+scale: 1,
+duration: 0.6,
+ease: 'power3.out'
+}, '-=0.4')
+// 碎片轻微内缩，完成卡片整体感
+.to(fragments, {
+opacity: 0,
+duration: 0.3,
+stagger: 0.02
+}, '-=0.3');
+
+tl.add(cardTl, index * 0.25);
 });
 
-masterTL.add(pulse, delay);
-});
-
-// 最后让所有卡片回归初始状态（或保留微光）
-masterTL.to(cards, { scale: 0.95, opacity: 0.85, duration: 0.3 }, "-=0.1");
-效果：中间卡片率先亮起，边缘闪烁紫色与粉红，然后涟漪般一圈圈向外扩散，每张卡片依次“砰”地放大、发光、再淡回，像夜店的灯光矩阵跟随节拍跳动。如果你想要无限循环，可以给 masterTL 设置 repeat: -1，但企业官网慎用循环。
-
-
-
+tl.play();
 
 ### ScrollTrigger 参数说明
 

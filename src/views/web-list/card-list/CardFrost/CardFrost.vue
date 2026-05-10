@@ -345,8 +345,9 @@ const initAnimations = () => {
 }
 
 onMounted(() => {
+  // 延迟初始化以确保懒加载时 DOM 已完全渲染
   generateSnow()
-  initAnimations()
+  setTimeout(initAnimations, 100)
 })
 
 onBeforeUnmount(() => {
