@@ -41,92 +41,95 @@ card-time/
 
 ### 每张卡片滚动控制动画ScrollTrigger一定要用
 
-# 动画效果：万花筒棱镜·碎片旋转变焦重组（迷幻奢华 视觉冲击）
-逻辑：卡片初始被打散为8个三角形碎片（使用 clip-path 切割），每个碎片随机散布在空间中并带有旋转和模糊。Timeline 驱动所有碎片像万花筒旋转般聚拢，同时反向旋转、缩放并消除模糊，最终拼合为完整卡片。拼合瞬间触发短暂的棱镜色散光晕，最后光晕消散，呈现精致的卡片内容。
+# 动画效果：磁场扭曲·悬浮卡片环绕（超现实交互 艺术装置感）
+逻辑：多张卡片围绕一个无形的中心点呈环形排列，不是平放在网格中，而是悬浮在三维环面上。随着Timeline推进，整个环形结构先缓慢公转，然后每张卡片依次受到“磁场脉冲”发生自转与Z轴弹跳，最终停在面对用户的完美角度。鼠标悬停时卡片会被磁力吸引轻微靠近光标，离开后恢复轨道。
 javascript
-const cards = gsap.utils.toArray('.kaleidoscope-card');
+const cards = gsap.utils.toArray('.magnet-card');
+const container = document.querySelector('.magnet-orbit');
+const total = cards.length;
+const radius = 250;
+
+// 初始排列：绕Y轴均匀分布
+cards.forEach((card, i) => {
+const angle = (i / total) * Math.PI * 2;
+gsap.set(card, {
+rotationY: angle * (180 / Math.PI),
+z: radius,
+x: 0,
+y: 0,
+opacity: 0,
+transformOrigin: 'center center'
+});
+});
+
 const tl = gsap.timeline({
-defaults: { duration: 0.9, ease: 'power3.inOut' },
+defaults: { duration: 1.2, ease: 'power3.inOut' },
 paused: true
 });
 
-cards.forEach((card, index) => {
-const fragments = card.querySelectorAll('.kaleido-fragment');
-const content = card.querySelector('.card-content');
-const prismGlow = card.querySelector('.prism-glow');
-
-// 存储每个碎片的最终位置（相对卡片中心）
-const positions = [
-{ x: -25, y: -25, rotate: 0, clip: 'polygon(0 0, 50% 0, 0 50%)' },
-{ x: 25, y: -25, rotate: 0, clip: 'polygon(50% 0, 100% 0, 100% 50%, 50% 50%)' },
-{ x: -25, y: 25, rotate: 0, clip: 'polygon(0 50%, 50% 50%, 0 100%)' },
-{ x: 25, y: 25, rotate: 0, clip: 'polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%)' },
-{ x: -12, y: -12, rotate: 0, clip: 'polygon(25% 25%, 75% 25%, 50% 50%)' },
-{ x: 12, y: -12, rotate: 0, clip: 'polygon(50% 50%, 75% 25%, 75% 75%)' },
-{ x: -12, y: 12, rotate: 0, clip: 'polygon(25% 75%, 50% 50%, 25% 25%)' },
-{ x: 12, y: 12, rotate: 0, clip: 'polygon(50% 50%, 75% 75%, 25% 75%)' }
-];
-
-// 初始：随机散布
-fragments.forEach((frag, i) => {
-gsap.set(frag, {
-x: gsap.utils.random(-300, 300),
-y: gsap.utils.random(-400, 400),
-scale: gsap.utils.random(0.3, 0.8),
-rotation: gsap.utils.random(-180, 180),
-filter: 'blur(6px)',
-opacity: 0.6,
-clipPath: positions[i].clip
-});
-});
-gsap.set(content, { scale: 0.9, opacity: 0 });
-gsap.set(prismGlow, { opacity: 0, scale: 0.5 });
-
-const cardTl = gsap.timeline();
-
-// 碎片聚拢：转成旋转着飞到目标位置
-cardTl.to(fragments, {
-x: (i) => positions[i].x,
-y: (i) => positions[i].y,
-scale: 1,
-rotation: 0,
-filter: 'blur(0px)',
+// 整体出现并缓慢绕Y轴旋转展示
+tl.to(cards, {
 opacity: 1,
-duration: 0.8,
-stagger: { amount: 0.3, from: 'random' },
-ease: 'back.out(1.5)'
+stagger: 0.1
 })
-// 拼合瞬间：棱镜光晕爆发
-.to(prismGlow, {
-opacity: 1,
-scale: 2.5,
-duration: 0.4,
+.to(container, {
+rotationY: 45,
+duration: 2,
+ease: 'none'
+})
+// 各卡片依次自转弹跳
+.to(cards, {
+rotationY: (i) => (i / total) * 360,  // 转回正面
+z: radius + 30,
+stagger: 0.15,
+yoyo: true,
+repeat: 1,
+ease: 'power2.inOut',
+duration: 0.6
+})
+.to(container, {
+rotationY: 0,
+duration: 1.5,
 ease: 'power2.out'
-})
-.to(prismGlow, {
-opacity: 0,
-scale: 1,
-duration: 0.5,
-ease: 'power2.in'
-}, '-=0.2')
-// 内容显现
-.to(content, {
-opacity: 1,
-scale: 1,
-duration: 0.6,
-ease: 'power3.out'
-}, '-=0.4')
-// 碎片轻微内缩，完成卡片整体感
-.to(fragments, {
-opacity: 0,
-duration: 0.3,
-stagger: 0.02
-}, '-=0.3');
-
-tl.add(cardTl, index * 0.25);
 });
 
 tl.play();
+
+// 鼠标交互：轻微磁力吸引
+container.addEventListener('mousemove', (e) => {
+const rect = container.getBoundingClientRect();
+const mouseX = e.clientX - rect.left - rect.width / 2;
+const mouseY = e.clientY - rect.top - rect.height / 2;
+
+cards.forEach((card, i) => {
+const angle = (i / total) * Math.PI * 2;
+const baseX = Math.cos(angle) * radius;
+const baseY = Math.sin(angle) * radius * 0.3; // 压扁环
+const dist = Math.hypot(mouseX - baseX, mouseY - baseY);
+const pull = Math.max(0, 1 - dist / 400) * 60;
+
+    gsap.to(card, {
+      x: baseX + (mouseX - baseX) * pull * 0.01,
+      y: baseY + (mouseY - baseY) * pull * 0.01,
+      z: radius + pull * 0.5,
+      duration: 0.5,
+      overwrite: 'auto'
+    });
+});
+});
+
+container.addEventListener('mouseleave', () => {
+cards.forEach((card, i) => {
+const angle = (i / total) * Math.PI * 2;
+gsap.to(card, {
+x: 0,
+y: 0,
+z: radius,
+duration: 0.8,
+ease: 'power2.out'
+});
+});
+});
 
 ### ScrollTrigger 参数说明
 
