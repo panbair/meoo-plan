@@ -50,35 +50,41 @@ const propsMap = ref<Map<number, Record<string, unknown>>>(new Map())
 let observer: IntersectionObserver | null = null
 
 // ==================== 动态导入组件 ====================
+// card-list 目录组件
 const modules = import.meta.glob('./card-list/*/[^/]*.vue', { eager: true })
+// card-time 目录组件（精确匹配主文件）
+const modulesTime = import.meta.glob('./card-time/*/CardTime*.vue', { eager: true })
 
 /**
  * 自动化构建组件列表
  */
-// let dirNameList= ['Card3DFlipGallery', 'CardAbstractGeometry', 'CardAllInOne', 'CardAudioWave', 'CardAurora', 'CardAuroraWave', 'CardBioluminescence', 'CardCatalyst', 'CardCelestial', 'CardCircuit', 'CardCrystal', 'CardCyberspace', 'CardDNA', 'CardDataStream', 'CardEclipse', 'CardFadeBlur', 'CardFadeInOut', 'CardFireflies', 'CardFrost', 'CardFullCombo', 'CardFusion', 'CardGalaxy', 'CardGlacier', 'CardGlitch', 'CardGradientWave', 'CardGravity', 'CardGravity2', 'CardHologram', 'CardHolographic', 'CardInfinity', 'CardKaleidoscope', 'CardLightning', 'CardLiquid', 'CardLiquidMetal', 'CardMagma', 'CardMatrix', 'CardMeteor', 'CardMorph', 'CardMosaic', 'CardNebula', 'CardNeon', 'CardNeonCircuit', 'CardNineCombo', 'CardParticle', 'CardPhantom', 'CardPlasma', 'CardPortal', 'CardPrism', 'CardQuantum', 'CardRipple', 'CardRotate', 'CardRotateScaleTranslate', 'CardScale', 'CardShatter', 'CardSixCombo', 'CardSlideEdge', 'CardSolarSystem', 'CardSphere', 'CardSupernova', 'CardSwipe', 'CardTornado', 'CardTranslate', 'CardTranslateRotateScale', 'CardVoid', 'CardVortex', 'CardWave']
+// let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
+let dirNameList=['CardTimeBeat', 'CardTimeBlueprint', 'CardTimeBook', 'CardTimeDrawer', 'CardTimeEqualizer', 'CardTimeLens', 'CardTimeShatter', 'CardTimeTeam', 'CardTimeTrust','CardTimeAether', 'CardTimeCascade', 'CardTimeDepthParallax', 'CardTimeMagicFlip', 'CardTimeMaterialAwakening', 'CardTimeMirage', 'CardTimePerspective', 'CardTimeRipple', 'CardTimeSingularity', 'CardTimeSolarFlare', 'CardTimeTemporal', 'CardTimeTheatre','CardAllInOne', 'CardAudioWave', 'CardAurora', 'CardAuroraWave', 'CardBioluminescence', 'CardCatalyst', 'CardCelestial', 'CardCircuit', 'CardCrystal', 'CardCyberspace', 'CardDNA', 'CardDataStream', 'CardEclipse', 'CardFadeBlur', 'CardFadeInOut', 'CardFireflies', 'CardFrost', 'CardFullCombo', 'CardFusion', 'CardGalaxy', 'CardGlacier', 'CardGlitch', 'CardGradientWave', 'CardGravity', 'CardGravity2', 'CardHologram', 'CardHolographic', 'CardInfinity', 'CardKaleidoscope', 'CardLightning', 'CardLiquid', 'CardLiquidMetal', 'CardMagma', 'CardMatrix', 'CardMeteor', 'CardMorph', 'CardMosaic', 'CardNebula', 'CardNeon', 'CardNeonCircuit', 'CardNineCombo', 'CardParticle', 'CardPhantom', 'CardPlasma', 'CardPortal', 'CardPrism', 'CardQuantum', 'CardRipple', 'CardRotate', 'CardRotateScaleTranslate', 'CardScale', 'CardShatter', 'CardSixCombo', 'CardSlideEdge', 'CardSolarSystem', 'CardSphere', 'CardSupernova', 'CardSwipe', 'CardTornado', 'CardTranslate', 'CardTranslateRotateScale', 'CardVoid', 'CardVortex', 'CardWave']
 
 let dirNameList1=[]
-let dirNameList=[]
+
 
 const cardComponents = computed(() => {
-  return Object.entries(modules)
+  // 处理 card-list 目录组件
+  const listComponents = Object.entries(modules)
       .map(([path, module]) => {
         const match = path.match(/\/card-list\/([^/]+)\/[^/]+\.vue$/)
         const dirName = match?.[1] || ''
         const name = dirName
             .replace(/Card/g, '')
             .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '3D ')
+            .replace(/^/, '')
             .trim()
 
         return {
           dirName,
-          name,
+          name: name || dirName,
           path,
           // 懒加载模式：使用 defineAsyncComponent
           component: LAZY_MODE
               ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-              : (module as any)?.default || null
+              : (module as any)?.default || null,
+          type: 'card-list'
         }
       })
       .filter(item => {
@@ -89,6 +95,40 @@ const cardComponents = computed(() => {
 
         return !dirNameList.includes(item.dirName) && item.component !== null
       })
+
+  // 处理 card-time 目录组件
+  const timeComponents = Object.entries(modulesTime)
+      .map(([path, module]) => {
+        const match = path.match(/\/card-time\/([^/]+)\/[^/]+\.vue$/)
+        const dirName = match?.[1] || ''
+        const name = dirName
+            .replace(/Card/g, '')
+            .replace(/Time/g, ' Time')
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^/, '')
+            .trim()
+
+        return {
+          dirName,
+          name: name || dirName,
+          path,
+          // 懒加载模式：使用 defineAsyncComponent
+          component: LAZY_MODE
+              ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+              : (module as any)?.default || null,
+          type: 'card-time'
+        }
+      })
+      .filter(item => {
+        if(!dirNameList.includes(item.dirName) && item.component !== null){
+          dirNameList1.push(item.dirName)
+          console.log(dirNameList1);
+        }
+        return !dirNameList.includes(item.dirName) && item.component !== null
+      })
+
+  // 合并两个数组，card-time 组件在前
+  return [ ...listComponents, ...timeComponents]
 })
 
 // ==================== 模板引用 ====================

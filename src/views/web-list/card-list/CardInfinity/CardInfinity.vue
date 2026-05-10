@@ -312,6 +312,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+@use 'sass:math';
 .infinity-section {
   width: 100vw;
   height: 100vh;
@@ -370,7 +371,7 @@ onUnmounted(() => {
 
   @for $i from 1 through 30 {
     &:nth-child(#{$i}) {
-      left: random(100) * 1%;
+      left: math.random(100) * 1%;
       animation-delay: #{$i * 0.3}s;
     }
   }

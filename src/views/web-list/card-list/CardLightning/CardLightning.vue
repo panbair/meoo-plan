@@ -255,6 +255,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:math';
 .card-lightning {
   position: relative;
   width: 100vw;
@@ -388,8 +389,8 @@ onUnmounted(() => {
 
   @for $i from 1 through 40 {
     &:nth-child(#{$i}) {
-      left: random(100) * 1%;
-      top: random(100) * 1%;
+      left: math.random(100) * 1%;
+      top: math.random(100) * 1%;
       animation-duration: nth($durations, $i);
       animation-delay: nth($delays, $i);
     }

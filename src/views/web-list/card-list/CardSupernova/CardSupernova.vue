@@ -239,6 +239,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:math';
 .card-supernova {
   position: relative;
   width: 100vw;
@@ -352,7 +353,7 @@ onUnmounted(() => {
 
 @keyframes debrisFly {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate((random(400) - 200) * 1px, (random(400) - 200) * 1px) scale(0); opacity: 0; }
+  100% { transform: translate((math.random(400) - 200) * 1px, (math.random(400) - 200) * 1px) scale(0); opacity: 0; }
 }
 
 .cosmic-dust {
@@ -366,9 +367,9 @@ onUnmounted(() => {
 
   @for $i from 1 through 30 {
     &:nth-child(#{$i}) {
-      left: random(100) * 1%;
-      top: random(100) * 1%;
-      width: 3 + random(5) * 1px;
+      left: math.random(100) * 1%;
+      top: math.random(100) * 1%;
+      width: 3 + math.random(5) * 1px;
       height: width;
       animation: dustFloat 5s ease-in-out infinite;
       animation-delay: -$i * 0.2s;

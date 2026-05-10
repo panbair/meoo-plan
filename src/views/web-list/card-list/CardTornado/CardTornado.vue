@@ -237,6 +237,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:math';
 .card-tornado {
   position: relative;
   width: 100vw;
@@ -326,7 +327,7 @@ onUnmounted(() => {
   @for $i from 1 through 12 {
     &:nth-child(#{$i}) {
       top: 5% + $i * 7%;
-      width: 30% + random(40) * 1%;
+      width: 30% + math.random(40) * 1%;
       animation-delay: -$i * 0.2s;
     }
   }
@@ -354,10 +355,10 @@ onUnmounted(() => {
 
   @for $i from 1 through 15 {
     &:nth-child(#{$i}) {
-      left: 10% + random(80) * 1%;
+      left: 10% + math.random(80) * 1%;
       bottom: 20%;
       animation-delay: -$i * 0.3s;
-      animation-duration: 3 + random(2) * 1s;
+      animation-duration: 3 + math.random(2) * 1s;
     }
   }
 }

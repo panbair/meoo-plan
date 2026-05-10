@@ -243,6 +243,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:math';
 .card-magma {
   position: relative;
   width: 100vw;
@@ -321,7 +322,7 @@ onUnmounted(() => {
   @for $i from 1 through 8 {
     &:nth-child(#{$i}) {
       left: 5% + $i * 10%;
-      width: 15% + random(10) * 1%;
+      width: 15% + math.random(10) * 1%;
       animation-delay: -$i * 0.3s;
     }
   }
@@ -348,10 +349,10 @@ onUnmounted(() => {
 
   @for $i from 1 through 20 {
     &:nth-child(#{$i}) {
-      left: 5% + random(90) * 1%;
-      bottom: 10% + random(30) * 1%;
+      left: 5% + math.random(90) * 1%;
+      bottom: 10% + math.random(30) * 1%;
       animation-delay: -$i * 0.25s;
-      animation-duration: 3 + random(2) * 1s;
+      animation-duration: 3 + math.random(2) * 1s;
     }
   }
 }

@@ -560,6 +560,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+@use 'sass:math';
 // ============================================================
 // 主体
 // ============================================================
@@ -650,8 +651,8 @@ onUnmounted(() => {
 
   @for $i from 1 through 12 {
     &:nth-child(#{$i}) {
-      left: random(80) + 10%;
-      top: random(80) + 10%;
+      left: math.random(80) + 10%;
+      top: math.random(80) + 10%;
       transform: rotate(#{$i * 30}deg);
     }
   }
