@@ -1,0 +1,224 @@
+/* ============================================
+   💎 珠宝企业官网 - CSS变量系统
+   ============================================ */
+
+:root {
+  /* ==================== 基础颜色 ==================== */
+  --color-gold-50: #fefce8;
+  --color-gold-100: #fef9c3;
+  --color-gold-200: #fef08a;
+  --color-gold-300: #fde047;
+  --color-gold-400: #facc15;
+  --color-gold-500: #eab308;
+  --color-gold-600: #ca8a04;
+  --color-gold-700: #a16207;
+  --color-gold-800: #854d0e;
+  --color-gold-900: #713f12;
+
+  --color-rose-50: #fff1f2;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #fecdd3;
+  --color-rose-300: #fda4af;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #b76e79;
+  --color-rose-600: #e11d48;
+  --color-rose-700: #be123c;
+  --color-rose-800: #9f1239;
+  --color-rose-900: #881337;
+
+  --color-platinum-50: #f8fafc;
+  --color-platinum-100: #f1f5f9;
+  --color-platinum-200: #e2e8f0;
+  --color-platinum-300: #cbd5e1;
+  --color-platinum-400: #94a3b8;
+  --color-platinum-500: #64748b;
+  --color-platinum-600: #475569;
+  --color-platinum-700: #334155;
+  --color-platinum-800: #1e293b;
+  --color-platinum-900: #0f172a;
+
+  --color-diamond-50: #f0f9ff;
+  --color-diamond-100: #e0f2fe;
+  --color-diamond-200: #bae6fd;
+  --color-diamond-300: #7dd3fc;
+  --color-diamond-400: #38bdf8;
+  --color-diamond-500: #0ea5e9;
+  --color-diamond-600: #0284c7;
+  --color-diamond-700: #0369a1;
+  --color-diamond-800: #075985;
+  --color-diamond-900: #0c4a6e;
+
+  /* ==================== 背景色 ==================== */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+  --bg-card: rgba(20, 20, 20, 0.8);
+  --bg-card-hover: rgba(30, 30, 30, 0.9);
+
+  /* ==================== 文字色 ==================== */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --text-disabled: rgba(255, 255, 255, 0.3);
+
+  /* ==================== 边框色 ==================== */
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --border-secondary: rgba(255, 255, 255, 0.05);
+  --border-gold: rgba(234, 179, 8, 0.3);
+  --border-gold-hover: rgba(234, 179, 8, 0.6);
+
+  /* ==================== 阴影 ==================== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.7);
+  
+  --shadow-gold: 0 0 20px rgba(234, 179, 8, 0.3);
+  --shadow-gold-lg: 0 0 40px rgba(234, 179, 8, 0.5);
+  --shadow-gold-xl: 0 0 60px rgba(234, 179, 8, 0.7);
+  
+  --glow-gold: 0 0 10px rgba(234, 179, 8, 0.8);
+  --glow-gold-lg: 0 0 20px rgba(234, 179, 8, 1);
+
+  /* ==================== 模糊效果 ==================== */
+  --blur-sm: blur(4px);
+  --blur-md: blur(8px);
+  --blur-lg: blur(16px);
+  --blur-xl: blur(24px);
+  --blur-2xl: blur(40px);
+
+  /* ==================== 动画时间 ==================== */
+  --duration-fast: 0.2s;
+  --duration-normal: 0.4s;
+  --duration-slow: 0.8s;
+  --duration-extra-slow: 1.2s;
+
+  /* ==================== 缓动函数 ==================== */
+  --ease-linear: linear;
+  --ease-in: ease-in;
+  --ease-out: ease-out;
+  --ease-in-out: ease-in-out;
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-elastic: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+
+  /* ==================== 圆角 ==================== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+
+  /* ==================== 间距 ==================== */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* ==================== 字体 ==================== */
+  --font-sans: 'Noto Serif SC', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', 'Noto Serif SC', serif;
+  --font-display: 'Cinzel', serif;
+  --font-mono: 'SF Mono', Monaco, monospace;
+
+  /* ==================== 字号 ==================== */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
+  --text-8xl: 6rem;
+
+  /* ==================== 行高 ==================== */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  --leading-loose: 2;
+
+  /* ==================== 字重 ==================== */
+  --font-thin: 100;
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  --font-black: 900;
+
+  /* ==================== Z-Index ==================== */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* ==================== 过渡 ==================== */
+  --transition-all: all var(--duration-normal) var(--ease-smooth);
+  --transition-colors: color var(--duration-normal) var(--ease-smooth),
+                      background-color var(--duration-normal) var(--ease-smooth),
+                      border-color var(--duration-normal) var(--ease-smooth);
+  --transition-transform: transform var(--duration-normal) var(--ease-smooth);
+  --transition-opacity: opacity var(--duration-normal) var(--ease-smooth);
+  --transition-shadow: box-shadow var(--duration-normal) var(--ease-smooth);
+
+  /* ==================== 渐变 ==================== */
+  --gradient-gold: linear-gradient(135deg, var(--color-gold-400), var(--color-gold-600));
+  --gradient-rose: linear-gradient(135deg, var(--color-rose-400), var(--color-rose-600));
+  --gradient-diamond: linear-gradient(135deg, var(--color-diamond-400), var(--color-diamond-600));
+  --gradient-aurora: linear-gradient(135deg, #667eea, #764ba2, var(--color-gold-500));
+  --gradient-dark: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+
+  /* ==================== 玻璃态 ==================== */
+  --glass-bg: rgba(13, 13, 13, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: var(--blur-2xl);
+  --glass-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* ==================== 暗色主题 ==================== */
+[data-theme='dark'] {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+}
+
+/* ==================== 亮色主题 ==================== */
+[data-theme='light'] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --text-primary: #0a0a0a;
+  --text-secondary: rgba(0, 0, 0, 0.7);
+}
+
+/* ==================== 高对比度 ==================== */
+[data-high-contrast='true'] {
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --border-primary: #ffffff;
+}

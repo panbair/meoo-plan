@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusTech - 引领数字化未来</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --accent: #06b6d4;
+      --accent-2: #f43f5e;
+      --dark: #0f172a;
+      --dark-2: #1e293b;
+      --dark-3: #334155;
+      --light: #f8fafc;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --gradient-1: linear-gradient(135deg, #6366f1, #06b6d4);
+      --gradient-2: linear-gradient(135deg, #f43f5e, #fb923c);
+      --gradient-3: linear-gradient(135deg, #10b981, #06b6d4);
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      --shadow-glow: 0 0 60px rgba(99, 102, 241, 0.4);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { overflow-x: hidden; scroll-behavior: smooth; }
+    body { 
+      font-family: 'Inter', -apple-system, sans-serif; 
+      background: var(--dark); 
+      color: var(--text); 
+      overflow-x: hidden;
+    }
+
+    /* 加载动画 */
+    .loader-27 {
+      position: fixed;
+      inset: 0;
+      background: var(--dark);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .loader-logo-27 {
+      font-size: 80px;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 50px;
+      animation: loaderPulse27 1.5s ease-in-out infinite;
+    }
+    @keyframes loaderPulse27 {
+      0%, 100% { filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.8)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 60px rgba(6, 182, 212, 0.8)); transform: scale(1.05); }
+    }
+    .loader-bar-27 {
+      width: 400px;
+      height: 4px;
+      background: var(--dark-2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loader-progress-27 {
+      height: 100%;
+      width: 0%;
+      background: var(--gradient-1);
+      border-radius: 2px;
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
+    }
+    .loader-text-27 {
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 6px;
+      font-weight: 500;
+    }
+
+    /* 滚动进度条 */
+    .scroll-progress-27 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(255,255,255,0.05);
+      z-index: 1001;
+    }
+    .scroll-progress-bar-27 {
+      height: 100%;
+      width: 0%;
+      background: var(--gradient-1);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+    }
+
+    /* 导航栏 */
+    .navbar-27 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 24px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.4s;
+    }
+    .navbar-27.scrolled {
+      padding: 16px 60px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom-color: var(--primary);
+      box-shadow: 0 0 50px rgba(99, 102, 241, 0.2);
+    }
+    .logo-27 {
+      font-size: 28px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+    }
+    .logo-27 .icon-27 {
+      width: 44px;
+      height: 44px;
+      background: var(--gradient-1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: var(--shadow-glow);
+    }
+    .logo-27 .text-27 {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links-27 { display: flex; gap: 40px; }
+    .nav-link-27 {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: all 0.4s;
+      position: relative;
+      padding: 8px 0;
+    }
+    .nav-link-27::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-1);
+      transition: width 0.4s;
+    }
+    .nav-link-27:hover { color: #fff; }
+    .nav-link-27:hover::after { width: 100%; }
+    .nav-cta-27 {
+      padding: 12px 32px;
+      background: var(--gradient-1);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.4s;
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+    .nav-cta-27:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
+    }
+
+    /* 横向滚动容器 - 核心修复 */
+    .horizontal-wrapper-27 {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .horizontal-container-27 {
+      display: flex;
+      width: fit-content;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 通用面板样式 */
+    .panel-27 {
+      min-width: 100vw;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .panel-content-27 {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      width: 100%;
+      padding: 0 100px;
+    }
+
+    /* 背景装饰 */
+    .bg-grid-27 {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 100px 100px;
+      pointer-events: none;
+    }
+    .bg-glow-27 {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(150px);
+      pointer-events: none;
+    }
+    .bg-glow-1-27 {
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent);
+      top: -20%;
+      right: -10%;
+    }
+    .bg-glow-2-27 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.25), transparent);
+      bottom: -15%;
+      left: -5%;
+    }
+    .bg-glow-3-27 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(244, 63, 94, 0.2), transparent);
+      top: 40%;
+      left: 30%;
+    }
+
+    /* 漂浮装饰 */
+    .float-shape-27 {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+      pointer-events: none;
+    }
+    .shape-1-27 { width: 300px; height: 300px; top: 10%; left: 5%; animation: floatRotate27 20s linear infinite; }
+    .shape-2-27 { width: 200px; height: 200px; bottom: 15%; right: 10%; animation: floatRotate27 25s linear infinite reverse; }
+    .shape-3-27 { width: 150px; height: 150px; top: 60%; left: 80%; animation: floatRotate27 18s linear infinite; }
+    @keyframes floatRotate27 {
+      0% { transform: rotate(0deg) translateY(0); }
+      50% { transform: rotate(180deg) translateY(-30px); }
+      100% { transform: rotate(360deg) translateY(0); }
+    }
+
+    /* Hero 面板 */
+    .hero-panel-27 {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 50%, var(--dark) 100%);
+    }
+    .hero-content-27 {
+      text-align: center;
+      max-width: 1000px;
+    }
+    .hero-badge-27 {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 28px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 50px;
+      font-size: 13px;
+      color: var(--primary-light);
+      margin-bottom: 40px;
+      backdrop-filter: blur(10px);
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+    .hero-badge-27::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: badgePulse27 1.5s ease-in-out infinite;
+      box-shadow: 0 0 15px var(--primary);
+    }
+    @keyframes badgePulse27 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+    }
+    .hero-title-27 {
+      font-size: clamp(60px, 12vw, 140px);
+      font-weight: 900;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #fff 0%, var(--primary-light) 30%, var(--accent) 70%, #fff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      letter-spacing: -3px;
+    }
+    .hero-subtitle-27 {
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-bottom: 60px;
+      letter-spacing: 4px;
+    }
+    .hero-buttons-27 {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary-27 {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 48px;
+      background: var(--gradient-1);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+      text-decoration: none;
+      transition: all 0.5s;
+      box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary-27:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 25px 60px rgba(99, 102, 241, 0.5);
+    }
+    .btn-secondary-27 {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 48px;
+      background: transparent;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+      text-decoration: none;
+      transition: all 0.5s;
+      border: 2px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+    }
+    .btn-secondary-27:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--primary);
+      transform: translateY(-5px);
+    }
+    .hero-stats-27 {
+      display: flex;
+      justify-content: center;
+      gap: 80px;
+      margin-top: 100px;
+    }
+    .hero-stat-27 {
+      text-align: center;
+    }
+    .hero-stat-number-27 {
+      font-size: 56px;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .hero-stat-label-27 {
+      font-size: 14px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* 关于我们面板 */
+    .about-panel-27 {
+      background: linear-gradient(135deg, var(--dark-2) 0%, var(--dark) 50%, var(--dark-2) 100%);
+    }
+    .about-grid-27 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: center;
+    }
+    .about-text-27 h2 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 30px;
+      line-height: 1.1;
+    }
+    .about-text-27 h2 span {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .about-text-27 p {
+      font-size: 18px;
+      color: var(--text-muted);
+      line-height: 2;
+      margin-bottom: 40px;
+    }
+    .about-features-27 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .about-feature-27 {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 24px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      transition: all 0.4s;
+    }
+    .about-feature-27:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary);
+      transform: translateY(-5px);
+    }
+    .about-feature-27 i {
+      font-size: 28px;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      flex-shrink: 0;
+    }
+    .about-feature-27 h4 {
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .about-feature-27 p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+    .about-visual-27 {
+      position: relative;
+    }
+    .about-card-stack-27 {
+      position: relative;
+      width: 100%;
+      height: 500px;
+    }
+    .about-card-27 {
+      position: absolute;
+      width: 80%;
+      height: 70%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .about-card-27:nth-child(1) {
+      top: 0;
+      left: 0;
+      transform: rotate(-8deg);
+    }
+    .about-card-27:nth-child(2) {
+      top: 15%;
+      left: 10%;
+      transform: rotate(-3deg);
+      z-index: 2;
+    }
+    .about-card-27:nth-child(3) {
+      top: 30%;
+      left: 20%;
+      transform: rotate(3deg);
+      z-index: 3;
+    }
+    .about-card-inner-27 {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 40px;
+    }
+    .about-card-inner-27 i {
+      font-size: 60px;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+    .about-card-inner-27 h3 {
+      font-size: 24px;
+      color: #fff;
+      text-align: center;
+    }
+
+    /* 服务面板 */
+    .services-panel-27 {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
+    }
+    .services-header-27 {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    .services-header-27 h2 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .services-header-27 p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .services-grid-27 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .service-card-27 {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 24px;
+      padding: 48px 36px;
+      text-align: center;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card-27::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gradient-1);
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .service-card-27:hover::before { opacity: 0.1; }
+    .service-card-27:hover {
+      transform: translateY(-15px) scale(1.02);
+      border-color: var(--primary);
+      box-shadow: var(--shadow), var(--shadow-glow);
+    }
+    .service-card-27 > * { position: relative; z-index: 1; }
+    .service-icon-27 {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 32px;
+      background: var(--gradient-1);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: #fff;
+      transition: all 0.5s;
+    }
+    .service-card-27:hover .service-icon-27 {
+      transform: rotateY(360deg) scale(1.1);
+      box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+    }
+    .service-card-27 h3 {
+      font-size: 24px;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .service-card-27 p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .service-link-27 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary-light);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .service-link-27:hover {
+      gap: 14px;
+      color: var(--accent);
+    }
+
+    /* 产品展示面板 */
+    .products-panel-27 {
+      background: linear-gradient(135deg, var(--dark-2) 0%, var(--dark) 50%, var(--dark-2) 100%);
+    }
+    .products-grid-27 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .product-card-27 {
+      position: relative;
+      height: 400px;
+      border-radius: 32px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.6s;
+    }
+    .product-card-27:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow), var(--shadow-glow);
+    }
+    .product-bg-27 {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.8s;
+    }
+    .product-card-27:hover .product-bg-27 { transform: scale(1.1); }
+    .product-overlay-27 {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.9) 100%);
+    }
+    .product-content-27 {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 48px;
+    }
+    .product-tag-27 {
+      display: inline-block;
+      padding: 8px 20px;
+      background: var(--gradient-1);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+    .product-content-27 h3 {
+      font-size: 32px;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .product-content-27 p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* 团队面板 */
+    .team-panel-27 {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
+    }
+    .team-header-27 {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    .team-header-27 h2 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .team-grid-27 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .team-card-27 {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 24px;
+      overflow: hidden;
+      transition: all 0.5s;
+      text-align: center;
+    }
+    .team-card-27:hover {
+      transform: translateY(-15px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-glow);
+    }
+    .team-avatar-27 {
+      width: 100%;
+      height: 280px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .team-avatar-27::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(15, 23, 42, 0.9) 100%);
+    }
+    .team-info-27 {
+      padding: 28px;
+    }
+    .team-info-27 h4 {
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .team-info-27 p {
+      font-size: 14px;
+      color: var(--primary-light);
+      margin-bottom: 16px;
+    }
+    .team-social-27 {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .team-social-27 a {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .team-social-27 a:hover {
+      background: var(--gradient-1);
+      border-color: transparent;
+      color: #fff;
+      transform: translateY(-3px);
+    }
+
+    /* 统计面板 */
+    .stats-panel-27 {
+      background: linear-gradient(135deg, var(--dark-2) 0%, var(--dark) 100%);
+    }
+    .stats-grid-27 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .stat-card-27 {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 24px;
+      padding: 48px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s;
+    }
+    .stat-card-27::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-1);
+      transform: scaleX(0);
+      transition: transform 0.5s;
+    }
+    .stat-card-27:hover::before { transform: scaleX(1); }
+    .stat-card-27:hover {
+      transform: translateY(-10px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-glow);
+    }
+    .stat-icon-27 {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: var(--gradient-1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+    }
+    .stat-number-27 {
+      font-size: 56px;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .stat-label-27 {
+      font-size: 18px;
+      color: #fff;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .stat-desc-27 {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* 联系面板 */
+    .contact-panel-27 {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 50%, var(--dark) 100%);
+    }
+    .contact-grid-27 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .contact-info-27 h2 {
+      font-size: clamp(40px, 6vw, 64px);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 24px;
+      line-height: 1.1;
+    }
+    .contact-info-27 h2 span {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .contact-info-27 > p {
+      font-size: 18px;
+      color: var(--text-muted);
+      line-height: 1.9;
+      margin-bottom: 48px;
+    }
+    .contact-list-27 {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .contact-item-27 {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      transition: all 0.4s;
+    }
+    .contact-item-27:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary);
+      transform: translateX(10px);
+    }
+    .contact-item-27 i {
+      width: 56px;
+      height: 56px;
+      background: var(--gradient-1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .contact-item-27 div {
+      flex: 1;
+    }
+    .contact-item-27 h4 {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .contact-item-27 p {
+      font-size: 16px;
+      color: #fff;
+      font-weight: 600;
+    }
+    .contact-form-27 {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 32px;
+      padding: 56px;
+      backdrop-filter: blur(10px);
+    }
+    .form-row-27 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .form-group-27 {
+      margin-bottom: 24px;
+    }
+    .form-group-27 label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .form-group-27 input,
+    .form-group-27 textarea {
+      width: 100%;
+      padding: 18px 24px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      font-size: 15px;
+      color: #fff;
+      font-family: inherit;
+      transition: all 0.4s;
+    }
+    .form-group-27 input::placeholder,
+    .form-group-27 textarea::placeholder {
+      color: var(--text-muted);
+    }
+    .form-group-27 input:focus,
+    .form-group-27 textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    .form-group-27 textarea {
+      height: 140px;
+      resize: none;
+    }
+    .submit-btn-27 {
+      width: 100%;
+      padding: 20px;
+      background: var(--gradient-1);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.5s;
+      box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+    }
+    .submit-btn-27:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(99, 102, 241, 0.5);
+    }
+
+    /* 页脚指示器 */
+    .footer-indicator-27 {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      opacity: 1;
+      transition: opacity 0.4s;
+    }
+    .footer-indicator-27.hidden { opacity: 0; pointer-events: none; }
+    .indicator-text-27 {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .indicator-arrow-27 {
+      width: 30px;
+      height: 30px;
+      border-right: 2px solid var(--primary);
+      border-bottom: 2px solid var(--primary);
+      transform: rotate(45deg);
+      animation: arrowBounce27 1.5s ease-in-out infinite;
+    }
+    @keyframes arrowBounce27 {
+      0%, 100% { transform: rotate(45deg) translateY(0); opacity: 1; }
+      50% { transform: rotate(45deg) translateY(8px); opacity: 0.5; }
+    }
+
+    /* 导航点 */
+    .nav-dots-27 {
+      position: fixed;
+      left: 35px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .nav-dot-27 {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: all 0.4s;
+      position: relative;
+    }
+    .nav-dot-27::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 8px 16px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 20px;
+      font-size: 11px;
+      color: var(--primary-light);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+      backdrop-filter: blur(10px);
+    }
+    .nav-dot-27:hover::before { opacity: 1; }
+    .nav-dot-27.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+      transform: scale(1.3);
+    }
+
+    /* 响应式 */
+    @media (max-width: 1200px) {
+      .about-grid-27 { grid-template-columns: 1fr; gap: 60px; }
+      .about-visual-27 { display: none; }
+      .services-grid-27 { grid-template-columns: repeat(2, 1fr); }
+      .products-grid-27 { grid-template-columns: 1fr; }
+      .team-grid-27 { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid-27 { grid-template-columns: repeat(2, 1fr); }
+      .contact-grid-27 { grid-template-columns: 1fr; gap: 60px; }
+      .nav-dots-27 { display: none; }
+    }
+    @media (max-width: 768px) {
+      .navbar-27 { padding: 16px 24px; }
+      .nav-links-27 { display: none; }
+      .panel-content-27 { padding: 0 24px; }
+      .services-grid-27 { grid-template-columns: 1fr; }
+      .team-grid-27 { grid-template-columns: 1fr; }
+      .stats-grid-27 { grid-template-columns: 1fr; }
+      .form-row-27 { grid-template-columns: 1fr; }
+      .hero-stats-27 { flex-direction: column; gap: 40px; }
+      .about-features-27 { grid-template-columns: 1fr; }
+    }
+
+    /* 动画类 */
+    .reveal-27 { opacity: 0; transform: translateY(60px); }
+    .reveal-left-27 { opacity: 0; transform: translateX(-60px); }
+    .reveal-right-27 { opacity: 0; transform: translateX(60px); }
+    .reveal-scale-27 { opacity: 0; transform: scale(0.85); }
+    
+    /* 首屏元素初始隐藏 - 横向滚动初始化后显示 */
+    .hero-badge-27, .hero-title-27, .hero-subtitle-27, 
+    .hero-buttons-27, .hero-stat-27, .float-shape-27 {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    /* 其他面板元素初始状态 */
+    .about-text-27, .about-feature-27, .about-card-27,
+    .services-header-27, .service-card-27, 
+    .products-grid-27 .product-card-27,
+    .team-header-27, .team-card-27, .stat-card-27,
+    .contact-info-27, .contact-item-27, .contact-form-27 {
+      opacity: 0;
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+  <!-- 加载动画 -->
+  <div class="loader-27">
+    <div class="loader-logo-27">N</div>
+    <div class="loader-bar-27"><div class="loader-progress-27"></div></div>
+    <div class="loader-text-27">LOADING</div>
+  </div>
+
+  <!-- 滚动进度条 -->
+  <div class="scroll-progress-27"><div class="scroll-progress-bar-27"></div></div>
+
+  <!-- 导航栏 -->
+  <nav class="navbar-27" id="navbar27">
+    <div class="logo-27">
+      <div class="icon-27"><i class="fas fa-bolt"></i></div>
+      <span class="text-27">NexusTech</span>
+    </div>
+    <div class="nav-links-27">
+      <a href="#hero" class="nav-link-27">首页</a>
+      <a href="#about" class="nav-link-27">关于我们</a>
+      <a href="#services" class="nav-link-27">服务</a>
+      <a href="#products" class="nav-link-27">产品</a>
+      <a href="#team" class="nav-link-27">团队</a>
+      <a href="#contact" class="nav-link-27">联系我们</a>
+    </div>
+    <a href="#contact" class="nav-cta-27">开始合作</a>
+  </nav>
+
+  <!-- 导航点 -->
+  <div class="nav-dots-27" id="navDots27">
+    <div class="nav-dot-27 active" data-target="hero" data-label="首页"></div>
+    <div class="nav-dot-27" data-target="about" data-label="关于"></div>
+    <div class="nav-dot-27" data-target="services" data-label="服务"></div>
+    <div class="nav-dot-27" data-target="products" data-label="产品"></div>
+    <div class="nav-dot-27" data-target="team" data-label="团队"></div>
+    <div class="nav-dot-27" data-target="stats" data-label="数据"></div>
+    <div class="nav-dot-27" data-target="contact" data-label="联系"></div>
+  </div>
+
+  <!-- 横向滚动容器 -->
+  <div class="horizontal-wrapper-27" id="horizontalWrapper">
+    <div class="horizontal-container-27" id="horizontalContainer">
+      
+      <!-- Hero 面板 -->
+      <section class="panel-27 hero-panel-27" id="hero">
+        <div class="bg-grid-27"></div>
+        <div class="bg-glow-27 bg-glow-1-27"></div>
+        <div class="bg-glow-27 bg-glow-2-27"></div>
+        <div class="bg-glow-27 bg-glow-3-27"></div>
+        <div class="float-shape-27 shape-1-27"></div>
+        <div class="float-shape-27 shape-2-27"></div>
+        <div class="float-shape-27 shape-3-27"></div>
+        <div class="panel-content-27 hero-content-27">
+          <div class="hero-badge-27">数字创新 · 引领未来</div>
+          <h1 class="hero-title-27">NexusTech</h1>
+          <p class="hero-subtitle-27">构建数字化未来的领先力量</p>
+          <div class="hero-buttons-27">
+            <a href="#services" class="btn-primary-27"><i class="fas fa-rocket"></i>探索服务</a>
+            <a href="#about" class="btn-secondary-27"><i class="fas fa-play"></i>了解更多</a>
+          </div>
+          <div class="hero-stats-27">
+            <div class="hero-stat-27">
+              <div class="hero-stat-number-27" data-target="500">0</div>
+              <div class="hero-stat-label-27">企业客户</div>
+            </div>
+            <div class="hero-stat-27">
+              <div class="hero-stat-number-27" data-target="98">0</div>
+              <div class="hero-stat-label-27">% 满意度</div>
+            </div>
+            <div class="hero-stat-27">
+              <div class="hero-stat-number-27" data-target="50">0</div>
+              <div class="hero-stat-label-27">+ 核心技术</div>
+            </div>
+            <div class="hero-stat-27">
+              <div class="hero-stat-number-27" data-target="8">0</div>
+              <div class="hero-stat-label-27">年行业经验</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 关于我们面板 -->
+      <section class="panel-27 about-panel-27" id="about">
+        <div class="bg-grid-27"></div>
+        <div class="bg-glow-27 bg-glow-1-27"></div>
+        <div class="panel-content-27">
+          <div class="about-grid-27">
+            <div class="about-text-27">
+              <h2>关于<span>NexusTech</span></h2>
+              <p>我们是一家专注于企业数字化转型的科技公司，致力于为客户提供最前沿的技术解决方案和卓越的服务体验。</p>
+              <div class="about-features-27">
+                <div class="about-feature-27">
+                  <i class="fas fa-lightbulb"></i>
+                  <div>
+                    <h4>创新驱动</h4>
+                    <p>持续探索前沿技术，为客户创造独特价值</p>
+                  </div>
+                </div>
+                <div class="about-feature-27">
+                  <i class="fas fa-handshake"></i>
+                  <div>
+                    <h4>客户至上</h4>
+                    <p>深入理解需求，提供定制化解决方案</p>
+                  </div>
+                </div>
+                <div class="about-feature-27">
+                  <i class="fas fa-users"></i>
+                  <div>
+                    <h4>专业团队</h4>
+                    <p>汇聚行业精英，技术实力雄厚</p>
+                  </div>
+                </div>
+                <div class="about-feature-27">
+                  <i class="fas fa-shield-alt"></i>
+                  <div>
+                    <h4>安全可靠</h4>
+                    <p>企业级安全标准，数据隐私保护</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="about-visual-27">
+              <div class="about-card-stack-27">
+                <div class="about-card-27">
+                  <div class="about-card-inner-27">
+                    <i class="fas fa-globe"></i>
+                    <h3>全球化布局</h3>
+                  </div>
+                </div>
+                <div class="about-card-27">
+                  <div class="about-card-inner-27">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>持续增长</h3>
+                  </div>
+                </div>
+                <div class="about-card-27">
+                  <div class="about-card-inner-27">
+                    <i class="fas fa-award"></i>
+                    <h3>行业领先</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 服务面板 -->
+      <section class="panel-27 services-panel-27" id="services">
+        <div class="bg-grid-27"></div>
+        <div class="bg-glow-27 bg-glow-2-27"></div>
+        <div class="panel-content-27">
+          <div class="services-header-27">
+            <h2>我们的服务</h2>
+            <p>提供全方位的数字化解决方案，助力企业实现业务增长和数字化转型</p>
+          </div>
+          <div class="services-grid-27">
+            <div class="service-card-27">
+              <div class="service-icon-27"><i class="fas fa-code"></i></div>
+              <h3>软件开发</h3>
+              <p>定制化企业软件、移动应用和Web平台开发，采用敏捷开发方法，确保项目高质量交付。</p>
+              <a href="#" class="service-link-27">了解更多 <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card-27">
+              <div class="service-icon-27"><i class="fas fa-cloud"></i></div>
+              <h3>云服务</h3>
+              <p>云架构设计、迁移和运维服务，多云管理和成本优化，保障业务高可用性。</p>
+              <a href="#" class="service-link-27">了解更多 <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card-27">
+              <div class="service-icon-27"><i class="fas fa-robot"></i></div>
+              <h3>AI 解决方案</h3>
+              <p>人工智能应用开发，机器学习模型训练，智能自动化流程，提升业务效率。</p>
+              <a href="#" class="service-link-27">了解更多 <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card-27">
+              <div class="service-icon-27"><i class="fas fa-shield-alt"></i></div>
+              <h3>网络安全</h3>
+              <p>安全评估、渗透测试、合规咨询和安全培训，构建全方位防护体系。</p>
+              <a href="#" class="service-link-27">了解更多 <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card-27">
+              <div class="service-icon-27"><i class="fas fa-database"></i></div>
+              <h3>数据服务</h3>
+              <p>数据治理、分析平台建设和商业智能报表，数据驱动的决策支持。</p>
+              <a href="#" class="service-link-27">了解更多 <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card-27">
+              <div class="service-icon-27"><i class="fas fa-headset"></i></div>
+              <h3>技术支持</h3>
+              <p>7×24小时技术支持，快速响应和故障排除，确保系统稳定运行。</p>
+              <a href="#" class="service-link-27">了解更多 <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 产品展示面板 -->
+      <section class="panel-27 products-panel-27" id="products">
+        <div class="bg-grid-27"></div>
+        <div class="bg-glow-27 bg-glow-1-27"></div>
+        <div class="bg-glow-27 bg-glow-3-27"></div>
+        <div class="panel-content-27">
+          <div class="services-header-27">
+            <h2>核心产品</h2>
+            <p>自主研发的企业级产品，赋能数字化转型</p>
+          </div>
+          <div class="products-grid-27">
+            <div class="product-card-27">
+              <div class="product-bg-27" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800')"></div>
+              <div class="product-overlay-27"></div>
+              <div class="product-content-27">
+                <span class="product-tag-27">数据分析</span>
+                <h3>NexusData</h3>
+                <p>企业级数据分析和可视化平台，实时洞察业务数据</p>
+              </div>
+            </div>
+            <div class="product-card-27">
+              <div class="product-bg-27" style="background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800')"></div>
+              <div class="product-overlay-27"></div>
+              <div class="product-content-27">
+                <span class="product-tag-27">云计算</span>
+                <h3>NexusCloud</h3>
+                <p>一站式云管理平台，轻松掌控企业云资源</p>
+              </div>
+            </div>
+            <div class="product-card-27">
+              <div class="product-bg-27" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800')"></div>
+              <div class="product-overlay-27"></div>
+              <div class="product-content-27">
+                <span class="product-tag-27">人工智能</span>
+                <h3>NexusAI</h3>
+                <p>智能AI服务平台，快速构建和部署AI应用</p>
+              </div>
+            </div>
+            <div class="product-card-27">
+              <div class="product-bg-27" style="background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800')"></div>
+              <div class="product-overlay-27"></div>
+              <div class="product-content-27">
+                <span class="product-tag-27">安全</span>
+                <h3>NexusGuard</h3>
+                <p>全方位企业安全解决方案，守护数字资产</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 团队面板 -->
+      <section class="panel-27 team-panel-27" id="team">
+        <div class="bg-grid-27"></div>
+        <div class="bg-glow-27 bg-glow-2-27"></div>
+        <div class="panel-content-27">
+          <div class="team-header-27">
+            <h2>核心团队</h2>
+          </div>
+          <div class="team-grid-27">
+            <div class="team-card-27">
+              <div class="team-avatar-27" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400')"></div>
+              <div class="team-info-27">
+                <h4>张明远</h4>
+                <p>首席执行官</p>
+                <div class="team-social-27">
+                  <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                  <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="team-card-27">
+              <div class="team-avatar-27" style="background-image: url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400')"></div>
+              <div class="team-info-27">
+                <h4>李思雨</h4>
+                <p>技术总监</p>
+                <div class="team-social-27">
+                  <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                  <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="team-card-27">
+              <div class="team-avatar-27" style="background-image: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400')"></div>
+              <div class="team-info-27">
+                <h4>王浩然</h4>
+                <p>产品总监</p>
+                <div class="team-social-27">
+                  <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                  <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="team-card-27">
+              <div class="team-avatar-27" style="background-image: url('https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400')"></div>
+              <div class="team-info-27">
+                <h4>陈雅琳</h4>
+                <p>运营总监</p>
+                <div class="team-social-27">
+                  <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                  <a href="#"><i class="fab fa-weixin"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 统计面板 -->
+      <section class="panel-27 stats-panel-27" id="stats">
+        <div class="bg-grid-27"></div>
+        <div class="bg-glow-27 bg-glow-1-27"></div>
+        <div class="bg-glow-27 bg-glow-3-27"></div>
+        <div class="panel-content-27">
+          <div class="services-header-27">
+            <h2>数据成就</h2>
+          </div>
+          <div class="stats-grid-27">
+            <div class="stat-card-27">
+              <div class="stat-icon-27"><i class="fas fa-building"></i></div>
+              <div class="stat-number-27" data-target="500">0</div>
+              <div class="stat-label-27">企业客户</div>
+              <div class="stat-desc-27">覆盖全球500+企业</div>
+            </div>
+            <div class="stat-card-27">
+              <div class="stat-icon-27"><i class="fas fa-project-diagram"></i></div>
+              <div class="stat-number-27" data-target="1200">0</div>
+              <div class="stat-label-27">完成项目</div>
+              <div class="stat-desc-27">成功交付1200+项目</div>
+            </div>
+            <div class="stat-card-27">
+              <div class="stat-icon-27"><i class="fas fa-user-tie"></i></div>
+              <div class="stat-number-27" data-target="200">0</div>
+              <div class="stat-label-27">专业人才</div>
+              <div class="stat-desc-27">200+技术专家团队</div>
+            </div>
+            <div class="stat-card-27">
+              <div class="stat-icon-27"><i class="fas fa-globe-americas"></i></div>
+              <div class="stat-number-27" data-target="20">0</div>
+              <div class="stat-label-27">全球布局</div>
+              <div class="stat-desc-27">覆盖20+国家和地区</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 联系面板 -->
+      <section class="panel-27 contact-panel-27" id="contact">
+        <div class="bg-grid-27"></div>
+        <div class="bg-glow-27 bg-glow-1-27"></div>
+        <div class="bg-glow-27 bg-glow-2-27"></div>
+        <div class="panel-content-27">
+          <div class="contact-grid-27">
+            <div class="contact-info-27">
+              <h2>开启您的<span>数字化之旅</span></h2>
+              <p>无论是产品咨询、技术合作还是投资洽谈，我们都期待与您交流，共同探索数字化转型的无限可能。</p>
+              <div class="contact-list-27">
+                <div class="contact-item-27">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <div>
+                    <h4>总部地址</h4>
+                    <p>北京市朝阳区科技园A座25层</p>
+                  </div>
+                </div>
+                <div class="contact-item-27">
+                  <i class="fas fa-phone-alt"></i>
+                  <div>
+                    <h4>咨询热线</h4>
+                    <p>400-888-6666</p>
+                  </div>
+                </div>
+                <div class="contact-item-27">
+                  <i class="fas fa-envelope"></i>
+                  <div>
+                    <h4>商务邮箱</h4>
+                    <p>business@nexustech.com</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <form class="contact-form-27" onsubmit="event.preventDefault(); alert('感谢您的留言！我们会尽快与您联系~');">
+              <div class="form-row-27">
+                <div class="form-group-27">
+                  <label>您的姓名</label>
+                  <input type="text" placeholder="请输入姓名" required>
+                </div>
+                <div class="form-group-27">
+                  <label>联系电话</label>
+                  <input type="tel" placeholder="请输入电话" required>
+                </div>
+              </div>
+              <div class="form-group-27">
+                <label>电子邮箱</label>
+                <input type="email" placeholder="请输入邮箱" required>
+              </div>
+              <div class="form-group-27">
+                <label>您的需求</label>
+                <textarea placeholder="请描述您的需求或问题..." required></textarea>
+              </div>
+              <button type="submit" class="submit-btn-27"><i class="fas fa-paper-plane"></i> 发送消息</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- 页脚指示器 -->
+  <div class="footer-indicator-27" id="footerIndicator">
+    <span class="indicator-text-27">滚动探索</span>
+    <div class="indicator-arrow-27"></div>
+  </div>
+
+  <!-- GSAP库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+    // 加载动画
+    const loader27 = document.querySelector('.loader-27');
+    const loaderProgress27 = document.querySelector('.loader-progress-27');
+    const loaderText27 = document.querySelector('.loader-text-27');
+
+    const loadTexts = ['INITIALIZING...', 'LOADING ASSETS...', 'READY!'];
+    let loadIndex = 0;
+
+    gsap.to(loaderProgress27, {
+      width: '100%',
+      duration: 2.5,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const progress = this.progress();
+        if (progress < 0.4) loadIndex = 0;
+        else if (progress < 0.8) loadIndex = 1;
+        else loadIndex = 2;
+        loaderText27.textContent = loadTexts[loadIndex];
+      },
+      onComplete: () => {
+        gsap.to(loader27, {
+          opacity: 0,
+          duration: 0.8,
+          onComplete: () => {
+            loader27.style.display = 'none';
+            initAnimations();
+          }
+        });
+      }
+    });
+
+    // 初始化动画
+    function initAnimations() {
+      // 横向滚动设置 - 修复版
+      const wrapper = document.getElementById('horizontalWrapper');
+      const container = document.getElementById('horizontalContainer');
+      const sections = gsap.utils.toArray('.panel-27');
+      const panelCount = sections.length;
+      const viewportWidth = window.innerWidth;
+      
+      // 计算所有面板的总宽度
+      const totalWidth = sections.reduce((sum, panel) => sum + panel.offsetWidth, 0);
+      const scrollDistance = totalWidth - viewportWidth;
+      
+      console.log('[NexusTech] 横向滚动初始化:', {
+        panelCount,
+        viewportWidth,
+        totalWidth,
+        scrollDistance
+      });
+      
+      // 横向滚动主动画
+      const mainScroll = gsap.to(container, {
+        x: () => -scrollDistance,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: wrapper,
+          pin: true,
+          scrub: 0.8,
+          snap: {
+            snapTo: 1 / (panelCount - 1),
+            duration: { min: 0.2, max: 0.4 },
+            delay: 0,
+            ease: 'power1.inOut'
+          },
+          end: () => '+=' + scrollDistance,
+          invalidateOnRefresh: true
+        }
+      });
+
+      // 滚动进度条
+      gsap.to('.scroll-progress-bar-27', {
+        width: '100%',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#horizontalWrapper',
+          start: 'top top',
+          end: () => '+=' + (totalWidth - viewportWidth),
+          scrub: 0.3
+        }
+      });
+
+      // Hero 区域入场动画 - 使用滚动触发，避免闪烁
+      gsap.set('.hero-badge-27', { y: 60, scale: 0.8 });
+      gsap.set('.hero-title-27', { y: 100, scale: 0.5, filter: 'blur(30px)' });
+      gsap.set('.hero-subtitle-27', { y: 50 });
+      gsap.set('.hero-buttons-27', { y: 50, scale: 0.8 });
+      gsap.set('.hero-stat-27', { y: 40, scale: 0.8 });
+      gsap.set('.float-shape-27', { scale: 0 });
+      
+      // Hero 动画 - 横向滚动初始化后播放（使用 onInit 回调）
+      const heroTl = gsap.timeline({ delay: 0.3 });
+      
+      heroTl.to('.hero-badge-27', { y: 0, scale: 1, opacity: 1, visibility: 'visible', duration: 0.8, ease: 'power3.out' })
+            .to('.hero-title-27', { y: 0, scale: 1, opacity: 1, filter: 'blur(0px)', visibility: 'visible', duration: 1.2, ease: 'power3.out' }, '-=0.5')
+            .to('.hero-subtitle-27', { y: 0, opacity: 1, visibility: 'visible', duration: 0.8, ease: 'power3.out' }, '-=0.7')
+            .to('.hero-buttons-27', { y: 0, scale: 1, opacity: 1, visibility: 'visible', duration: 0.6, ease: 'back.out(1.7)' }, '-=0.3')
+            .to('.hero-stat-27', { y: 0, scale: 1, opacity: 1, visibility: 'visible', stagger: 0.12, duration: 0.6, ease: 'back.out(1.4)' }, '-=0.2')
+            .to('.float-shape-27', { scale: 1, opacity: 1, visibility: 'visible', stagger: 0.15, duration: 1, ease: 'power2.out' }, 0);
+
+      // 漂浮形状持续旋转动画
+      gsap.utils.toArray('.float-shape-27').forEach((shape, i) => {
+        gsap.to(shape, {
+          rotation: '+=360',
+          duration: 20 + i * 5,
+          repeat: -1,
+          ease: 'none'
+        });
+      });
+
+      // 各面板入场动画 - 优化时序
+      animatePanel('#about', '.about-text-27', '.about-feature-27', '.about-card-27');
+      animatePanel('#services', '.services-header-27', '.service-card-27');
+      animatePanel('#products', '.products-grid-27 .product-card-27');
+      animatePanel('#team', '.team-header-27', '.team-card-27');
+      animatePanel('#stats', '.services-header-27', '.stat-card-27');
+      animatePanel('#contact', '.contact-info-27', '.contact-item-27', '.contact-form-27');
+
+      // 数字递增动画
+      animateNumbers();
+
+      // 背景光效跟随滚动 - 优化参数
+      gsap.to('.bg-glow-1-27', {
+        x: 150,
+        y: 80,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#horizontalWrapper',
+          start: 'left left',
+          end: 'right right',
+          scrub: 3
+        }
+      });
+
+      gsap.to('.bg-glow-2-27', {
+        x: -100,
+        y: -60,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#horizontalWrapper',
+          start: 'left left',
+          end: 'right right',
+          scrub: 4
+        }
+      });
+
+      gsap.to('.bg-glow-3-27', {
+        x: 80,
+        y: 120,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#horizontalWrapper',
+          start: 'left left',
+          end: 'right right',
+          scrub: 3.5
+        }
+      });
+    }
+
+    // 面板入场动画 - 优化版，防止闪烁
+    function animatePanel(trigger, ...elements) {
+      // 获取横向滚动的 ScrollTrigger
+      const horizontalST = ScrollTrigger.getAll().find(st => st.vars?.pin === true && st.animation);
+      const containerAnim = horizontalST ? horizontalST.animation : null;
+      
+      elements.forEach((el, index) => {
+        gsap.utils.toArray(el).forEach((item, i) => {
+          // 先设置初始状态
+          gsap.set(item, { y: 80, opacity: 0, scale: 0.9, visibility: 'hidden' });
+          
+          // 再设置动画
+          gsap.to(item, {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            visibility: 'visible',
+            duration: 0.8,
+            delay: i * 0.1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: trigger,
+              containerAnimation: containerAnim,
+              start: 'left 85%',
+              end: 'left 60%',
+              toggleActions: 'play none none reverse'
+            }
+          });
+        });
+      });
+    }
+
+    // 数字递增 - 优化版
+    function animateNumbers() {
+      const horizontalST = ScrollTrigger.getAll().find(st => st.vars?.pin === true && st.animation);
+      const containerAnim = horizontalST ? horizontalST.animation : null;
+      
+      document.querySelectorAll('[data-target]').forEach(num => {
+        const target = parseInt(num.dataset.target);
+        
+        gsap.set(num, { textContent: 0 });
+        
+        gsap.to(num, {
+          textContent: target,
+          duration: 2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: num,
+            containerAnimation: containerAnim,
+            start: 'left 80%',
+            toggleActions: 'play none none none'
+          },
+          snap: { textContent: 1 },
+          onUpdate: function() {
+            num.textContent = Math.round(this.targets()[0].textContent).toLocaleString();
+          }
+        });
+      });
+    }
+
+    // 导航栏
+    const navbar27 = document.getElementById('navbar27');
+    ScrollTrigger.create({
+      start: 100,
+      onUpdate: (self) => navbar27.classList.toggle('scrolled', self.scroll() > 100)
+    });
+
+    // 导航链接 - 修复版
+    document.querySelectorAll('.nav-link-27, .nav-cta-27').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').substring(1);
+        const sectionIds = ['hero', 'about', 'services', 'products', 'team', 'stats', 'contact'];
+        const targetIndex = sectionIds.indexOf(targetId);
+        
+        if (targetIndex === -1) return;
+        
+        const horizontalST = ScrollTrigger.getAll().find(st => st.vars?.pin === true);
+        if (horizontalST) {
+          const progress = targetIndex / (sectionIds.length - 1);
+          const targetScroll = horizontalST.start + (horizontalST.end - horizontalST.start) * progress;
+          
+          gsap.to(window, {
+            duration: 1.2,
+            scrollTo: { y: targetScroll, autoKill: false },
+            ease: 'power3.inOut'
+          });
+        }
+      });
+    });
+
+    // 导航点 - 修复版
+    const sectionIds = ['hero', 'about', 'services', 'products', 'team', 'stats', 'contact'];
+    document.querySelectorAll('.nav-dot-27').forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        const horizontalST = ScrollTrigger.getAll().find(st => st.vars?.pin === true);
+        if (horizontalST) {
+          const progress = i / (sectionIds.length - 1);
+          const targetScroll = horizontalST.start + (horizontalST.end - horizontalST.start) * progress;
+          
+          gsap.to(window, {
+            duration: 1.2,
+            scrollTo: { y: targetScroll, autoKill: false },
+            ease: 'power3.inOut'
+          });
+        }
+      });
+    });
+
+    // 卡片悬停效果
+    document.querySelectorAll('.service-card-27, .team-card-27, .stat-card-27, .product-card-27').forEach(card => {
+      card.addEventListener('mousemove', function(e) {
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (centerX - x) / 20;
+        
+        gsap.to(this, {
+          rotateX: rotateX,
+          rotateY: rotateY,
+          transformPerspective: 1000,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      });
+
+      card.addEventListener('mouseleave', function() {
+        gsap.to(this, {
+          rotateX: 0,
+          rotateY: 0,
+          duration: 0.6,
+          ease: 'power2.out'
+        });
+      });
+    });
+
+    // 导航点高亮更新
+    const navDots = gsap.utils.toArray('.nav-dot-27');
+    const sectionCount = sectionIds.length;
+    
+    ScrollTrigger.create({
+      trigger: '#horizontalWrapper',
+      start: 'top top',
+      end: () => '+=' + (document.getElementById('horizontalContainer').offsetWidth - window.innerWidth),
+      onUpdate: (self) => {
+        const progress = self.progress;
+        const currentIndex = Math.round(progress * (sectionCount - 1));
+        
+        navDots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentIndex);
+        });
+      }
+    });
+
+    // 响应式处理
+    window.addEventListener('resize', () => {
+      ScrollTrigger.refresh();
+    });
+
+    // 清理
+    window.addEventListener('beforeunload', () => {
+      ScrollTrigger.getAll().forEach(st => st.kill());
+    });
+  </script>
+</body>
+</html>

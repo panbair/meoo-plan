@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>爪爪乐园 - 萌宠生活馆</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #FF8A80;
+      --primary-dark: #FF6B6B;
+      --primary-light: #FFB5A7;
+      --bg-warm: #FFF8F0;
+      --bg-cream: #FFEEE8;
+      --bg-mint: #E8F5F0;
+      --text-dark: #5D4E37;
+      --text-light: #8B7355;
+      --shadow-pink: rgba(255, 181, 167, 0.15);
+      --shadow-mint: rgba(184, 224, 210, 0.2);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { overflow-x: hidden; }
+    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: var(--bg-warm); color: var(--text-dark); }
+
+    /* 背景装饰 */
+    .bg-decoration { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-shape { position: absolute; border-radius: 50%; opacity: 0.15; animation: floatShape 8s ease-in-out infinite; }
+    .bg-shape-1 { width: 400px; height: 400px; background: linear-gradient(135deg, var(--primary-light), #FCD5CE); top: -100px; right: -100px; animation-duration: 8s; }
+    .bg-shape-2 { width: 300px; height: 300px; background: linear-gradient(135deg, var(--bg-mint), #D6EADF); bottom: -50px; left: -50px; animation: floatShape 10s ease-in-out infinite reverse; }
+    .bg-shape-3 { width: 200px; height: 200px; background: linear-gradient(135deg, #FFCAD4, #F4ACB7); top: 40%; left: 10%; animation: floatShape 6s ease-in-out infinite 1s; }
+    .bg-shape-4 { width: 250px; height: 250px; background: linear-gradient(135deg, #FFE5D9, #FFCDB2); bottom: 30%; right: 5%; animation: floatShape 7s ease-in-out infinite 2s; }
+    @keyframes floatShape { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(10deg); } }
+
+    /* 导航栏 */
+    .navbar-270 { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255, 248, 240, 0.95); backdrop-filter: blur(15px); padding: 18px 50px; border-bottom: 2px solid rgba(255, 181, 167, 0.3); transition: all 0.3s ease; }
+    .navbar-270.scrolled { padding: 12px 50px; background: rgba(255, 255, 255, 0.98); box-shadow: 0 4px 20px var(--shadow-pink); }
+    .navbar-content-270 { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .logo-270 { font-size: 28px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+    .logo-270 span { background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links-270 { display: flex; gap: 36px; }
+    .nav-link-270 { text-decoration: none; color: #7D6B5D; font-size: 15px; font-weight: 600; transition: all 0.3s ease; padding: 8px 16px; border-radius: 25px; }
+    .nav-link-270:hover { color: var(--primary); background: rgba(255, 138, 128, 0.1); }
+
+    /* Hero 区域 */
+    .hero-section-270 { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .hero-bg-wrapper { position: absolute; inset: -50px; z-index: 1; }
+    .hero-bg-270 { position: absolute; width: 120%; height: 120%; top: -10%; left: -10%; object-fit: cover; will-change: transform; }
+    .hero-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,248,240,0.92) 0%, rgba(255,238,232,0.88) 40%, rgba(255,224,218,0.82) 100%); z-index: 2; }
+    .hero-paw-bg { position: absolute; inset: 0; z-index: 3; opacity: 0.06; display: flex; flex-wrap: wrap; justify-content: space-around; align-content: space-around; font-size: 80px; pointer-events: none; }
+    .hero-content-270 { position: relative; z-index: 10; text-align: center; max-width: 900px; padding: 0 20px; will-change: transform, opacity; }
+    .hero-badge-270 { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: linear-gradient(135deg, rgba(255, 181, 167, 0.2), rgba(255, 205, 205, 0.3)); border: 2px solid rgba(255, 138, 128, 0.3); border-radius: 50px; font-size: 14px; color: var(--primary); margin-bottom: 30px; font-weight: 600; backdrop-filter: blur(10px); }
+    .hero-title-270 { font-size: clamp(48px, 10vw, 96px); font-weight: 900; margin-bottom: 24px; background: linear-gradient(135deg, var(--primary), var(--primary-dark), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 4px 8px rgba(255, 138, 128, 0.3)); }
+    .hero-subtitle-270 { font-size: clamp(18px, 3vw, 26px); font-weight: 400; margin-bottom: 40px; color: var(--text-light); letter-spacing: 2px; }
+    .hero-cta-270 { display: inline-flex; align-items: center; gap: 12px; padding: 18px 44px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; font-size: 17px; font-weight: 700; border-radius: 50px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 8px 30px rgba(255, 107, 107, 0.4); }
+    .hero-cta-270:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 40px rgba(255, 107, 107, 0.5); }
+    .hero-tags-270 { display: flex; justify-content: center; gap: 16px; margin-top: 50px; flex-wrap: wrap; }
+    .hero-tag-270 { padding: 14px 28px; background: #fff; border: 2px solid rgba(255, 181, 167, 0.4); border-radius: 25px; font-size: 15px; color: #7D6B5D; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 4px 15px var(--shadow-pink); }
+    .hero-tag-270:hover { background: var(--bg-cream); border-color: var(--primary-light); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 181, 167, 0.25); }
+    .hero-emoji-270 { position: absolute; font-size: 60px; z-index: 5; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1)); animation: bounceEmoji 3s ease-in-out infinite; }
+    .hero-emoji-1 { top: 15%; left: 8%; }
+    .hero-emoji-2 { top: 25%; right: 10%; animation-delay: 0.5s; }
+    .hero-emoji-3 { bottom: 20%; left: 12%; animation-delay: 1s; }
+    .hero-emoji-4 { bottom: 15%; right: 8%; animation-delay: 1.5s; }
+    @keyframes bounceEmoji { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.1); } }
+
+    /* 通用区块样式 */
+    .section-270 { min-height: 100vh; padding: 120px 80px; position: relative; z-index: 10; }
+    .section-header-270 { text-align: center; margin-bottom: 70px; }
+    .section-title-270 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: var(--text-dark); margin-bottom: 16px; position: relative; display: inline-block; }
+    .section-title-270::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-light), var(--primary)); border-radius: 2px; }
+    .section-subtitle-270 { font-size: 18px; color: var(--text-light); letter-spacing: 2px; margin-top: 16px; }
+
+    /* 卡片通用样式 */
+    .card-hover { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .card-hover:hover { transform: translateY(-12px); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; max-width: 1200px; margin: 0 auto; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px; max-width: 1200px; margin: 0 auto; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 1100px; margin: 0 auto; }
+
+    /* 萌宠展示区 */
+    .pets-section-270 { background: linear-gradient(180deg, var(--bg-warm) 0%, #FFF5EE 100%); }
+    .pet-card-270 { background: #fff; border-radius: 30px; padding: 40px 30px; text-align: center; box-shadow: 0 10px 40px var(--shadow-pink); }
+    .pet-card-270:hover { transform: translateY(-15px) scale(1.02); border-color: var(--primary-light); box-shadow: 0 25px 60px rgba(255, 181, 167, 0.25); }
+    .pet-avatar-270 { width: 140px; height: 140px; border-radius: 50%; margin: 0 auto 24px; overflow: hidden; border: 4px solid var(--primary-light); box-shadow: 0 8px 25px rgba(255, 181, 167, 0.3); transition: all 0.4s ease; }
+    .pet-avatar-270 img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .pet-card-270:hover .pet-avatar-270 { transform: scale(1.1) rotate(5deg); border-color: var(--primary); }
+    .pet-card-270:hover .pet-avatar-270 img { transform: scale(1.15); }
+    .pet-name-270 { font-size: 26px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .pet-breed-270 { font-size: 14px; color: var(--primary); margin-bottom: 16px; font-weight: 600; }
+    .pet-desc-270 { font-size: 14px; color: var(--text-light); line-height: 1.7; margin-bottom: 20px; }
+    .pet-tags-270 { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .pet-tag-270 { padding: 6px 18px; background: linear-gradient(135deg, #FFE5D9, #FFF0E6); border-radius: 20px; font-size: 12px; color: #7D6B5D; font-weight: 600; }
+
+    /* 瀑布流画廊 */
+    .gallery-section-270 { background: linear-gradient(180deg, #FFF5EE 0%, var(--bg-cream) 50%, var(--bg-warm) 100%); }
+    .gallery-grid-270 { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 280px; gap: 24px; max-width: 1400px; margin: 0 auto; }
+    .gallery-item-270 { border-radius: 24px; overflow: hidden; position: relative; cursor: pointer; transition: all 0.4s ease; }
+    .gallery-item-270:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 25px 50px rgba(255, 138, 128, 0.25); z-index: 10; }
+    .gallery-item-270.size-large { grid-column: span 2; grid-row: span 2; }
+    .gallery-item-270.size-medium { grid-row: span 2; }
+    .gallery-item-270 img { width: 100%; height: 100%; object-fit: cover; transition: all 0.5s ease; }
+    .gallery-item-270:hover img { transform: scale(1.1); }
+    .gallery-overlay-270 { position: absolute; inset: 0; background: linear-gradient(to top, rgba(93, 78, 55, 0.9) 0%, rgba(93, 78, 55, 0.3) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; opacity: 0; transition: all 0.4s ease; }
+    .gallery-item-270:hover .gallery-overlay-270 { opacity: 1; }
+    .gallery-item-title-270 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .gallery-item-desc-270 { font-size: 14px; color: rgba(255,255,255,0.8); }
+
+    /* 服务项目 & 统计数据 */
+    .services-section-270, .stats-section-270 { background: linear-gradient(180deg, var(--bg-warm) 0%, var(--bg-mint) 50%, var(--bg-warm) 100%); }
+    .service-card-270, .stat-card-270 { background: #fff; border-radius: 28px; overflow: hidden; box-shadow: 0 10px 40px var(--shadow-mint); }
+    .service-card-270:hover, .stat-card-270:hover { border-color: var(--bg-mint); box-shadow: 0 25px 60px rgba(184, 224, 210, 0.3); }
+    .service-icon-270 { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 90px; background: linear-gradient(135deg, var(--bg-mint), #D6EADF); }
+    .stat-icon-270 { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 80px; background: linear-gradient(135deg, #FFE5D9, #FFF0E6); }
+    .service-card-270:hover .service-icon-270, .stat-card-270:hover .stat-icon-270 { background: linear-gradient(135deg, #FFB5A7, #FFCDB2); }
+    .service-info-270, .stat-info-270 { padding: 32px; }
+    .stat-info-270 { text-align: center; }
+    .service-title-270 { font-size: 24px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+    .service-desc-270 { font-size: 14px; color: var(--text-light); line-height: 1.7; }
+    .stat-number-270 { font-size: 48px; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+    .stat-label-270 { font-size: 20px; color: var(--text-dark); font-weight: 700; margin-bottom: 8px; }
+    .stat-desc-270 { font-size: 14px; color: var(--text-light); line-height: 1.6; }
+
+    /* 养宠知识 */
+    .knowledge-section-270 { background: linear-gradient(180deg, var(--bg-warm) 0%, #F0E6FF 50%, var(--bg-warm) 100%); }
+    .knowledge-card-270 { background: #fff; padding: 44px; border-radius: 28px; box-shadow: 0 10px 40px rgba(224, 214, 255, 0.2); }
+    .knowledge-card-270:hover { transform: translateY(-10px); border-color: #E0D6FF; box-shadow: 0 25px 60px rgba(224, 214, 255, 0.3); }
+    .knowledge-icon-270 { font-size: 52px; margin-bottom: 20px; }
+    .knowledge-title-270 { font-size: 26px; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; }
+    .knowledge-desc-270 { font-size: 15px; color: var(--text-light); line-height: 1.8; margin-bottom: 20px; }
+    .knowledge-list-270 { list-style: none; padding: 0; }
+    .knowledge-list-270 li { font-size: 14px; color: #7D6B5D; margin-bottom: 12px; padding-left: 28px; position: relative; }
+    .knowledge-list-270 li::before { content: '🐾'; position: absolute; left: 0; }
+
+    /* 特色展示 */
+    .features-section-270 { background: linear-gradient(180deg, var(--bg-warm) 0%, #FFE5D9 100%); }
+    .feature-card-270 { background: linear-gradient(135deg, #fff, var(--bg-warm)); padding: 48px 36px; border-radius: 32px; text-align: center; box-shadow: 0 15px 50px var(--shadow-pink); position: relative; overflow: hidden; }
+    .feature-card-270::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--primary-light), var(--primary), var(--primary-dark)); border-radius: 32px 32px 0 0; transform: scaleX(0); transition: transform 0.4s ease; }
+    .feature-card-270:hover::before { transform: scaleX(1); }
+    .feature-card-270:hover { transform: translateY(-12px); border-color: var(--primary-light); box-shadow: 0 30px 70px rgba(255, 138, 128, 0.25); }
+    .feature-icon-270 { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 28px; display: flex; align-items: center; justify-content: center; font-size: 48px; transition: all 0.4s ease; }
+    .feature-card-270:nth-child(1) .feature-icon-270 { background: linear-gradient(135deg, #FFE5D9, #FFF0E6); }
+    .feature-card-270:nth-child(2) .feature-icon-270 { background: linear-gradient(135deg, var(--bg-mint), #D6EADF); }
+    .feature-card-270:nth-child(3) .feature-icon-270 { background: linear-gradient(135deg, #E0D6FF, #F0E6FF); }
+    .feature-card-270:hover .feature-icon-270 { transform: scale(1.15) rotate(10deg); }
+    .feature-title-270 { font-size: 26px; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; }
+    .feature-desc-270 { font-size: 15px; color: var(--text-light); line-height: 1.8; }
+
+    /* 联系区域 */
+    .contact-section-270 { min-height: 100vh; padding: 120px 80px; background: linear-gradient(180deg, var(--bg-warm) 0%, var(--bg-mint) 100%); display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; }
+    .contact-content-270 { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1200px; width: 100%; }
+    .contact-info-270 h2 { font-size: clamp(36px, 5vw, 52px); font-weight: 800; color: var(--text-dark); margin-bottom: 24px; }
+    .contact-info-270 p { font-size: 17px; color: var(--text-light); margin-bottom: 32px; line-height: 1.8; }
+    .contact-items-270 { display: flex; flex-direction: column; gap: 18px; }
+    .contact-item-270 { display: flex; align-items: center; gap: 16px; padding: 20px; background: #fff; border-radius: 18px; transition: all 0.3s ease; box-shadow: 0 4px 15px var(--shadow-pink); }
+    .contact-item-270:hover { transform: translateX(10px); box-shadow: 0 8px 25px rgba(255, 181, 167, 0.2); border-left: 4px solid var(--primary); }
+    .contact-item-270 i { font-size: 26px; color: var(--primary); width: 40px; }
+    .contact-form-270 { background: #fff; padding: 48px; border-radius: 32px; box-shadow: 0 15px 50px var(--shadow-pink); }
+    .form-group-270 { margin-bottom: 22px; }
+    .form-group-270 label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark); }
+    .form-group-270 input, .form-group-270 textarea, .form-group-270 select { width: 100%; padding: 16px 20px; background: var(--bg-warm); border: 2px solid #FFE5D9; border-radius: 14px; font-size: 15px; color: var(--text-dark); transition: all 0.3s ease; }
+    .form-group-270 input:focus, .form-group-270 textarea:focus, .form-group-270 select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 138, 128, 0.15); background: #fff; }
+    .form-group-270 textarea { height: 130px; resize: none; }
+    .form-group-270 select option { background: #fff; color: var(--text-dark); }
+    .submit-btn-270 { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3); }
+    .submit-btn-270:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4); }
+
+    /* 页脚 */
+    .footer-270 { background: linear-gradient(180deg, var(--bg-warm) 0%, var(--bg-cream) 100%); border-top: 2px solid rgba(255, 181, 167, 0.2); padding: 80px 80px 40px; position: relative; z-index: 10; }
+    .footer-content-270 { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 50px; margin-bottom: 50px; }
+    .footer-section-270 h3 { font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 22px; }
+    .footer-section-270 p { font-size: 14px; color: var(--text-light); line-height: 1.8; margin-bottom: 10px; }
+    .footer-section-270 a { color: var(--text-light); text-decoration: none; transition: color 0.3s ease; }
+    .footer-section-270 a:hover { color: var(--primary); }
+    .social-links-270 { display: flex; gap: 14px; margin-top: 18px; }
+    .social-link-270 { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 2px solid #FFE5D9; display: flex; align-items: center; justify-content: center; color: var(--primary); transition: all 0.3s ease; }
+    .social-link-270:hover { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-color: transparent; color: #fff; transform: translateY(-5px); }
+    .footer-bottom-270 { max-width: 120px; margin: 0 auto; text-align: center; padding-top: 35px; border-top: 1px solid rgba(255, 181, 167, 0.2); }
+    .footer-bottom-270 p { color: var(--text-light); font-size: 14px; }
+
+    /* 返回顶部 & 导航点 */
+    .back-to-top-270 { position: fixed; bottom: 40px; right: 40px; z-index: 999; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; border-radius: 50%; cursor: pointer; box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4); opacity: 0; visibility: hidden; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .back-to-top-270.visible { opacity: 1; visibility: visible; }
+    .back-to-top-270:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(255, 107, 107, 0.5); }
+    .nav-dots-270 { position: fixed; right: 35px; top: 50%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: 14px; }
+    .nav-dot-270 { width: 12px; height: 12px; border-radius: 50%; background: rgba(255, 138, 128, 0.3); cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+    .nav-dot-270.active { background: var(--primary); border-color: #fff; box-shadow: 0 0 15px rgba(255, 138, 128, 0.5); transform: scale(1.3); }
+
+    /* 响应式 */
+    @media (max-width: 1200px) {
+      .grid-3, .features-grid-270 { grid-template-columns: repeat(2, 1fr); }
+      .gallery-grid-270 { grid-template-columns: repeat(2, 1fr); }
+      .gallery-item-270.size-large, .gallery-item-270.size-medium { grid-column: span 1; grid-row: span 1; }
+      .grid-4, .stats-grid-270 { grid-template-columns: repeat(2, 1fr); }
+      .footer-content-270 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .navbar-270 { padding: 15px 20px; }
+      .nav-links-270 { display: none; }
+      .section-270, .pets-section-270, .gallery-section-270, .services-section-270, .stats-section-270, .knowledge-section-270, .features-section-270, .contact-section-270, .footer-270 { padding: 80px 20px 40px; }
+      .grid-3, .grid-4, .grid-2, .features-grid-270, .knowledge-grid-270, .stats-grid-270, .gallery-grid-270 { grid-template-columns: 1fr; }
+      .contact-content-270 { grid-template-columns: 1fr; gap: 40px; }
+      .footer-content-270 { grid-template-columns: 1fr; gap: 30px; }
+      .nav-dots-270 { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景装饰 -->
+  <div class="bg-decoration">
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    <div class="bg-shape bg-shape-3"></div>
+    <div class="bg-shape bg-shape-4"></div>
+  </div>
+
+  <!-- 导航栏 -->
+  <nav class="navbar-270" id="navbar">
+    <div class="navbar-content-270">
+      <div class="logo-270">🐾 <span>爪爪乐园</span></div>
+      <div class="nav-links-270">
+        <a href="#hero" class="nav-link-270">首页</a>
+        <a href="#pets" class="nav-link-270">萌宠展示</a>
+        <a href="#gallery" class="nav-link-270">宠物相册</a>
+        <a href="#services" class="nav-link-270">服务项目</a>
+        <a href="#stats" class="nav-link-270">关于我们</a>
+        <a href="#contact" class="nav-link-270">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 导航点 -->
+  <div class="nav-dots-270" id="navDots">
+    <div class="nav-dot-270 active" data-target="hero"></div>
+    <div class="nav-dot-270" data-target="pets"></div>
+    <div class="nav-dot-270" data-target="gallery"></div>
+    <div class="nav-dot-270" data-target="services"></div>
+    <div class="nav-dot-270" data-target="knowledge"></div>
+    <div class="nav-dot-270" data-target="stats"></div>
+    <div class="nav-dot-270" data-target="features"></div>
+    <div class="nav-dot-270" data-target="contact"></div>
+  </div>
+
+  <!-- Hero 区域 -->
+  <section class="hero-section-270" id="hero">
+    <div class="hero-bg-wrapper">
+      <img class="hero-bg-270" id="heroBg" src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1920&q=80" alt="萌宠背景">
+      <div class="hero-bg-overlay"></div>
+    </div>
+    <div class="hero-paw-bg"><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span></div>
+    <div class="hero-emoji-270 hero-emoji-1" id="emoji1">🐕</div>
+    <div class="hero-emoji-270 hero-emoji-2" id="emoji2">🐱</div>
+    <div class="hero-emoji-270 hero-emoji-3" id="emoji3">🐰</div>
+    <div class="hero-emoji-270 hero-emoji-4" id="emoji4">🦜</div>
+    <div class="hero-content-270" id="heroContent">
+      <div class="hero-badge-270"><span>✨</span><span>用心陪伴每一刻</span></div>
+      <h1 class="hero-title-270">爪爪乐园</h1>
+      <p class="hero-subtitle-270">萌宠 · 爱心 · 温暖的家</p>
+      <a href="#pets" class="hero-cta-270"><span>🐾</span><span>遇见你的小可爱</span></a>
+      <div class="hero-tags-270">
+        <span class="hero-tag-270">🐕 汪星人</span>
+        <span class="hero-tag-270">🐱 喵星人</span>
+        <span class="hero-tag-270">🐰 小萌兔</span>
+        <span class="hero-tag-270">🦜 可爱小鸟</span>
+        <span class="hero-tag-270">🐹 仓鼠</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 萌宠展示 -->
+  <section class="pets-section-270 section-270" id="pets">
+    <div class="section-header-270">
+      <h2 class="section-title-270">明星萌宠</h2>
+      <p class="section-subtitle-270">认识我们的可爱小伙伴</p>
+    </div>
+    <div class="pets-grid-270 grid-3">
+      <div class="pet-card-270 card-hover">
+        <div class="pet-avatar-270"><img src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop" alt="金毛"></div>
+        <h3 class="pet-name-270">豆豆</h3>
+        <p class="pet-breed-270">金毛寻回犬</p>
+        <p class="pet-desc-270">活泼开朗的金毛，擅长捡球和撒娇，最爱和主人一起散步</p>
+        <div class="pet-tags-270"><span class="pet-tag-270">3岁</span><span class="pet-tag-270">男孩</span><span class="pet-tag-270">已绝育</span></div>
+      </div>
+      <div class="pet-card-270 card-hover">
+        <div class="pet-avatar-270"><img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop" alt="橘猫"></div>
+        <h3 class="pet-name-270">小橘</h3>
+        <p class="pet-breed-270">橘猫</p>
+        <p class="pet-desc-270">温柔可爱的小橘猫，喜欢晒太阳和蹭人，是个粘人的小妖精</p>
+        <div class="pet-tags-270"><span class="pet-tag-270">2岁</span><span class="pet-tag-270">女孩</span><span class="pet-tag-270">已绝育</span></div>
+      </div>
+      <div class="pet-card-270 card-hover">
+        <div class="pet-avatar-270"><img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop" alt="柴犬"></div>
+        <h3 class="pet-name-270">旺财</h3>
+        <p class="pet-breed-270">柴犬</p>
+        <p class="pet-desc-270">表情包本包，标志性微笑，精力充沛但很听话</p>
+        <div class="pet-tags-270"><span class="pet-tag-270">1.5岁</span><span class="pet-tag-270">男孩</span><span class="pet-tag-270">疫苗齐全</span></div>
+      </div>
+      <div class="pet-card-270 card-hover">
+        <div class="pet-avatar-270"><img src="https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=400&h=400&fit=crop" alt="兔子"></div>
+        <h3 class="pet-name-270">棉花糖</h3>
+        <p class="pet-breed-270">垂耳兔</p>
+        <p class="pet-desc-270">软萌可爱的小白兔，擅长蹦蹦跳跳，最爱吃胡萝卜</p>
+        <div class="pet-tags-270"><span class="pet-tag-270">1岁</span><span class="pet-tag-270">女孩</span><span class="pet-tag-270">温顺</span></div>
+      </div>
+      <div class="pet-card-270 card-hover">
+        <div class="pet-avatar-270"><img src="https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=400&h=400&fit=crop" alt="鹦鹉"></div>
+        <h3 class="pet-name-270">小蓝</h3>
+        <p class="pet-breed-270">蓝金刚鹦鹉</p>
+        <p class="pet-desc-270">聪明伶俐的鹦鹉，会说话会唱歌，是家里的开心果</p>
+        <div class="pet-tags-270"><span class="pet-tag-270">5岁</span><span class="pet-tag-270">男孩</span><span class="pet-tag-270">会说话</span></div>
+      </div>
+      <div class="pet-card-270 card-hover">
+        <div class="pet-avatar-270"><img src="https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=400&h=400&fit=crop" alt="仓鼠"></div>
+        <h3 class="pet-name-270">团子</h3>
+        <p class="pet-breed-270">金丝熊仓鼠</p>
+        <p class="pet-desc-270">圆滚滚的小仓鼠，喜欢囤粮和滚轮跑步，超级可爱</p>
+        <div class="pet-tags-270"><span class="pet-tag-270">8个月</span><span class="pet-tag-270">女孩</span><span class="pet-tag-270">夜行性</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 瀑布流画廊 -->
+  <section class="gallery-section-270 section-270" id="gallery">
+    <div class="section-header-270">
+      <h2 class="section-title-270">宠物相册</h2>
+      <p class="section-subtitle-270">记录萌宠的每一个可爱瞬间</p>
+    </div>
+    <div class="gallery-grid-270">
+      <div class="gallery-item-270 size-large">
+        <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=800" alt="萨摩耶">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">微笑天使毛毛</span><span class="gallery-item-desc-270">萨摩耶 · 3岁</span></div>
+      </div>
+      <div class="gallery-item-270 size-medium">
+        <img src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=600" alt="布偶猫">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">温柔糖糖</span><span class="gallery-item-desc-270">布偶猫 · 2岁</span></div>
+      </div>
+      <div class="gallery-item-270">
+        <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600" alt="柯基">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">小短腿</span><span class="gallery-item-desc-270">柯基 · 2岁</span></div>
+      </div>
+      <div class="gallery-item-270">
+        <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=600" alt="柴犬">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">表情包阿柴</span><span class="gallery-item-desc-270">柴犬 · 1岁</span></div>
+      </div>
+      <div class="gallery-item-270">
+        <img src="https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=600" alt="兔子">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">棉花糖</span><span class="gallery-item-desc-270">垂耳兔 · 1岁</span></div>
+      </div>
+      <div class="gallery-item-270 size-medium">
+        <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=600" alt="猫咪">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">慵懒小喵</span><span class="gallery-item-desc-270">英短 · 3岁</span></div>
+      </div>
+      <div class="gallery-item-270">
+        <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600" alt="金毛">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">暖男豆豆</span><span class="gallery-item-desc-270">金毛 · 4岁</span></div>
+      </div>
+      <div class="gallery-item-270 size-large">
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800" alt="萌宠合集">
+        <div class="gallery-overlay-270"><span class="gallery-item-title-270">萌宠大家庭</span><span class="gallery-item-desc-270">汪星人 · 喵星人</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 服务项目 -->
+  <section class="services-section-270 section-270" id="services">
+    <div class="section-header-270">
+      <h2 class="section-title-270">我们的服务</h2>
+      <p class="section-subtitle-270">一站式宠物服务体验</p>
+    </div>
+    <div class="services-grid-270 grid-3">
+      <div class="service-card-270 card-hover">
+        <div class="service-icon-270">🏥</div>
+        <div class="service-info-270"><h3 class="service-title-270">宠物医疗</h3><p class="service-desc-270">专业宠物医生团队，提供疫苗接种、体检、手术等医疗服务</p></div>
+      </div>
+      <div class="service-card-270 card-hover">
+        <div class="service-icon-270">✂️</div>
+        <div class="service-info-270"><h3 class="service-title-270">美容造型</h3><p class="service-desc-270">专业美容师为您的宠物打造时尚造型，洗澡、剪毛、染毛服务</p></div>
+      </div>
+      <div class="service-card-270 card-hover">
+        <div class="service-icon-270">🏠</div>
+        <div class="service-info-270"><h3 class="service-title-270">宠物寄养</h3><p class="service-desc-270">温馨舒适的寄养环境，专业人员24小时照顾</p></div>
+      </div>
+      <div class="service-card-270 card-hover">
+        <div class="service-icon-270">🎓</div>
+        <div class="service-info-270"><h3 class="service-title-270">行为训练</h3><p class="service-desc-270">专业训导师帮助宠物养成好习惯，解决行为问题</p></div>
+      </div>
+      <div class="service-card-270 card-hover">
+        <div class="service-icon-270">🍖</div>
+        <div class="service-info-270"><h3 class="service-title-270">宠物食品</h3><p class="service-desc-270">精选优质宠物食品和零食，营养均衡，健康美味</p></div>
+      </div>
+      <div class="service-card-270 card-hover">
+        <div class="service-icon-270">🚗</div>
+        <div class="service-info-270"><h3 class="service-title-270">宠物出行</h3><p class="service-desc-270">宠物专车接送服务，安全舒适的出行体验</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 统计数据 -->
+  <section class="stats-section-270 section-270" id="stats">
+    <div class="section-header-270">
+      <h2 class="section-title-270">我们的成就</h2>
+      <p class="section-subtitle-270">用爱心创造美好</p>
+    </div>
+    <div class="stats-grid-270 grid-4">
+      <div class="stat-card-270 card-hover">
+        <div class="stat-icon-270">🏠</div>
+        <div class="stat-info-270"><div class="stat-number-270" data-target="2800">0</div><div class="stat-label-270">成功领养</div><div class="stat-desc-270">让2800+宠物找到温暖的家</div></div>
+      </div>
+      <div class="stat-card-270 card-hover">
+        <div class="stat-icon-270">👨‍⚕️</div>
+        <div class="stat-info-270"><div class="stat-number-270" data-target="15600">0</div><div class="stat-label-270">医疗服务</div><div class="stat-desc-270">专业医疗团队服务上万次</div></div>
+      </div>
+      <div class="stat-card-270 card-hover">
+        <div class="stat-icon-270">⭐</div>
+        <div class="stat-info-270"><div class="stat-number-270" data-target="98">0</div><div class="stat-label-270">满意度</div><div class="stat-desc-270">客户好评如潮，值得信赖</div></div>
+      </div>
+      <div class="stat-card-270 card-hover">
+        <div class="stat-icon-270">💝</div>
+        <div class="stat-info-270"><div class="stat-number-270" data-target="68">0</div><div class="stat-label-270">志愿者</div><div class="stat-desc-270">爱心志愿者团队</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 养宠知识 -->
+  <section class="knowledge-section-270 section-270" id="knowledge">
+    <div class="section-header-270">
+      <h2 class="section-title-270">养宠知识</h2>
+      <p class="section-subtitle-270">科学养宠，健康相伴</p>
+    </div>
+    <div class="knowledge-grid-270 grid-2">
+      <div class="knowledge-card-270 card-hover">
+        <div class="knowledge-icon-270">🍖</div>
+        <h3 class="knowledge-title-270">科学喂养</h3>
+        <p class="knowledge-desc-270">了解不同宠物的营养需求，科学搭配饮食，让您的宠物健康成长</p>
+        <ul class="knowledge-list-270"><li>根据年龄选择合适的食物</li><li>定时定量，规律进食</li><li>新鲜水源随时供应</li><li>避免人类食物中的禁忌</li></ul>
+      </div>
+      <div class="knowledge-card-270 card-hover">
+        <div class="knowledge-icon-270">💚</div>
+        <h3 class="knowledge-title-270">健康护理</h3>
+        <p class="knowledge-desc-270">定期体检和疫苗接种，预防疾病，让您的宠物远离病痛</p>
+        <ul class="knowledge-list-270"><li>每年定期体检</li><li>按时接种疫苗</li><li>定期驱虫防虫</li><li>注意口腔卫生</li></ul>
+      </div>
+      <div class="knowledge-card-270 card-hover">
+        <div class="knowledge-icon-270">🎾</div>
+        <h3 class="knowledge-title-270">运动娱乐</h3>
+        <p class="knowledge-desc-270">适当的运动和娱乐对宠物的身心健康至关重要</p>
+        <ul class="knowledge-list-270"><li>每天定时遛弯散步</li><li>互动玩具增进感情</li><li>户外活动释放精力</li><li>社交训练培养性格</li></ul>
+      </div>
+      <div class="knowledge-card-270 card-hover">
+        <div class="knowledge-icon-270">🏡</div>
+        <h3 class="knowledge-title-270">舒适环境</h3>
+        <p class="knowledge-desc-270">为宠物打造安全舒适的居住环境</p>
+        <ul class="knowledge-list-270"><li>保持环境清洁卫生</li><li>适宜的温度和湿度</li><li>安全无毒的用品</li><li>专属的休息空间</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 特色展示 -->
+  <section class="features-section-270 section-270" id="features">
+    <div class="section-header-270">
+      <h2 class="section-title-270">我们的优势</h2>
+      <p class="section-subtitle-270">专业、爱心、责任</p>
+    </div>
+    <div class="features-grid-270 grid-3">
+      <div class="feature-card-270 card-hover">
+        <div class="feature-icon-270">⚡</div>
+        <h3 class="feature-title-270">极速响应</h3>
+        <p class="feature-desc-270">7×24小时在线客服，随时解答您的疑问，提供及时的宠物护理建议和服务支持。</p>
+      </div>
+      <div class="feature-card-270 card-hover">
+        <div class="feature-icon-270">🔒</div>
+        <h3 class="feature-title-270">安全保障</h3>
+        <p class="feature-desc-270">严格的宠物安全标准，所有服务人员经过专业培训，让您的宠物享受安全可靠的服务。</p>
+      </div>
+      <div class="feature-card-270 card-hover">
+        <div class="feature-icon-270">💚</div>
+        <h3 class="feature-title-270">健康至上</h3>
+        <p class="feature-desc-270">与知名宠物医院合作，提供专业的健康检查和医疗服务，守护每一只宠物的健康。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系我们 -->
+  <section class="contact-section-270" id="contact">
+    <div class="contact-content-270">
+      <div class="contact-info-270">
+        <h2>联系我们</h2>
+        <p>我们期待与您一起，为宠物创造更美好的世界。立即联系我们，开启您和宠物的幸福之旅。</p>
+        <div class="contact-items-270">
+          <div class="contact-item-270"><i class="fas fa-map-marker-alt"></i><span>上海市浦东新区萌宠街888号</span></div>
+          <div class="contact-item-270"><i class="fas fa-phone"></i><span>400-888-6688</span></div>
+          <div class="contact-item-270"><i class="fas fa-envelope"></i><span>love@pawpark.com</span></div>
+          <div class="contact-item-270"><i class="fas fa-clock"></i><span>周一至周日 9:00-21:00</span></div>
+        </div>
+      </div>
+      <form class="contact-form-270" onsubmit="event.preventDefault(); alert('感谢您的留言！我们会尽快与您联系~');">
+        <div class="form-group-270"><label>您的称呼</label><input type="text" placeholder="请输入您的姓名" required></div>
+        <div class="form-group-270"><label>联系电话</label><input type="tel" placeholder="请输入您的电话" required></div>
+        <div class="form-group-270"><label>宠物类型</label>
+          <select required><option value="">请选择宠物类型</option><option value="dog">🐕 狗狗</option><option value="cat">🐱 猫咪</option><option value="rabbit">🐰 兔子</option><option value="bird">🦜 鸟类</option><option value="hamster">🐹 仓鼠</option><option value="other">其他宠物</option></select>
+        </div>
+        <div class="form-group-270"><label>留言内容</label><textarea placeholder="请输入您想咨询的内容" required></textarea></div>
+        <button type="submit" class="submit-btn-270">发送留言 🐾</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer-270">
+    <div class="footer-content-270">
+      <div class="footer-section-270">
+        <h3>关于我们</h3>
+        <p>爪爪乐园是一家专注于宠物服务的高新技术企业，致力于为宠物和宠物主人提供最优质的服务体验。</p>
+        <p>成立于2016年，总部位于上海，在全国拥有50+家门店。</p>
+        <div class="social-links-270">
+          <a href="#" class="social-link-270"><i class="fab fa-weixin"></i></a>
+          <a href="#" class="social-link-270"><i class="fab fa-weibo"></i></a>
+          <a href="#" class="social-link-270"><i class="fab fa-douyin"></i></a>
+          <a href="#" class="social-link-270"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-section-270">
+        <h3>快速链接</h3>
+        <p><a href="#hero">首页</a></p><p><a href="#pets">萌宠展示</a></p><p><a href="#gallery">宠物相册</a></p><p><a href="#services">服务项目</a></p><p><a href="#contact">联系我们</a></p>
+      </div>
+      <div class="footer-section-270">
+        <h3>联系方式</h3>
+        <p>📍 上海市浦东新区萌宠街888号</p><p>📞 400-888-6688</p><p>📧 love@pawpark.com</p><p>🕐 周一至周日 9:00-21:00</p>
+      </div>
+      <div class="footer-section-270">
+        <h3>关注我们</h3>
+        <p>🐾 微信公众号：爪爪乐园</p><p>🐾 官方微博：@爪爪乐园</p><p>🐾 抖音：爪爪乐园</p><p>🐾 小红书：爪爪乐园</p>
+      </div>
+    </div>
+    <div class="footer-bottom-270"><p>© 2024 爪爪乐园 版权所有 | 沪ICP备12345678号</p></div>
+  </footer>
+
+  <!-- 返回顶部 -->
+  <button class="back-to-top-270" id="backToTop"><i class="fas fa-paw"></i></button>
+
+  <!-- GSAP库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+    // Hero动画
+    const initHeroAnimation = () => {
+      const tl = gsap.timeline();
+      tl.fromTo('.hero-badge-270', { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' })
+        .fromTo('.hero-title-270', { y: 80, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 1, ease: 'back.out(1.7)' }, '-=0.4')
+        .fromTo('.hero-subtitle-270', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+        .fromTo('.hero-cta-270', { y: 40, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.3')
+        .fromTo('.hero-tag-270', { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+        .fromTo('.hero-emoji-270', { scale: 0, rotation: -180 }, { scale: 1, rotation: 0, stagger: 0.15, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.5');
+      
+      // 背景图视差滚动 (速度最慢，0.3)
+      gsap.to('#heroBg', {
+        yPercent: 30,
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero-section-270', start: 'top top', end: 'bottom top', scrub: true }
+      });
+      
+      // 遮罩层渐变视差
+      gsap.to('.hero-bg-overlay', {
+        yPercent: 15,
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero-section-270', start: 'top top', end: 'bottom top', scrub: true }
+      });
+      
+      // 爪印背景视差
+      gsap.to('.hero-paw-bg', {
+        yPercent: 50,
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero-section-270', start: 'top top', end: 'bottom top', scrub: true }
+      });
+      
+      // Emoji视差滚动
+      const emojiConfigs = [
+        { el: '#emoji1', y: -120, r: 20, s: 1.5, x: 30 },
+        { el: '#emoji2', y: -150, r: -25, s: 1.8, x: -40 },
+        { el: '#emoji3', y: -100, r: 15, s: 2, x: 50 },
+        { el: '#emoji4', y: -130, r: -18, s: 1.6, x: -25 }
+      ];
+      emojiConfigs.forEach(cfg => {
+        gsap.to(cfg.el, {
+          y: cfg.y,
+          x: cfg.x,
+          rotation: cfg.r,
+          ease: 'none',
+          scrollTrigger: { trigger: '.hero-section-270', start: 'top top', end: 'bottom top', scrub: cfg.s }
+        });
+      });
+      
+      // 内容区域视差
+      gsap.to('.hero-content-270', {
+        y: 100,
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero-section-270', start: 'center top', end: 'bottom top', scrub: true }
+      });
+    };
+
+    // 导航栏 & 导航点
+    const initNavbar = () => {
+      const navbar = document.getElementById('navbar');
+      ScrollTrigger.create({ start: 100, onUpdate: (self) => navbar.classList.toggle('scrolled', self.scroll() > 100) });
+      document.querySelectorAll('.nav-link-270').forEach(link => {
+        link.addEventListener('click', e => { e.preventDefault(); const target = document.querySelector(link.getAttribute('href')); target && gsap.to(window, { duration: 1, scrollTo: target, ease: 'power3.inOut' }); });
+      });
+    };
+
+    // 卡片入场动画
+    const initScrollAnimations = () => {
+      gsap.utils.toArray('.card-hover').forEach((card, i) => {
+        gsap.fromTo(card, { y: 80, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, delay: i * 0.08, ease: 'back.out(1.7)', scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none reverse' } });
+      });
+      gsap.utils.toArray('.gallery-item-270').forEach((item, i) => {
+        gsap.fromTo(item, { y: 60, opacity: 0, rotation: -5 }, { y: 0, opacity: 1, rotation: 0, duration: 0.7, delay: i * 0.08, ease: 'back.out(1.5)', scrollTrigger: { trigger: item, start: 'top 85%', toggleActions: 'play none none reverse' } });
+      });
+      gsap.utils.toArray('.section-title-270').forEach(title => {
+        gsap.fromTo(title, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: title, start: 'top 80%', toggleActions: 'play none none reverse' } });
+      });
+    };
+
+    // 统计数据动画
+    const initStatsAnimation = () => {
+      document.querySelectorAll('.stat-number-270').forEach(num => {
+        const target = parseInt(num.dataset.target);
+        gsap.to(num, { textContent: target, duration: 2, ease: 'power1.out', snap: { textContent: 1 }, scrollTrigger: { trigger: '.stats-section-270', start: 'top 60%', toggleActions: 'play none none reverse' }, onUpdate: function() { num.textContent = Math.round(this.targets()[0].textContent); } });
+      });
+    };
+
+    // 导航点
+    const initNavDots = () => {
+      const sections = ['hero', 'pets', 'gallery', 'services', 'knowledge', 'stats', 'features', 'contact'];
+      document.querySelectorAll('.nav-dot-270').forEach((dot, i) => {
+        ScrollTrigger.create({ trigger: `#${sections[i]}`, start: 'top center', end: 'bottom center', onEnter: () => dot.classList.add('active'), onLeaveBack: () => dot.classList.remove('active') });
+        dot.addEventListener('click', () => { const target = document.querySelector(`#${sections[i]}`); target && gsap.to(window, { duration: 1, scrollTo: target, ease: 'power3.inOut' }); });
+      });
+    };
+
+    // 返回顶部
+    const initBackToTop = () => {
+      const btn = document.getElementById('backToTop');
+      ScrollTrigger.create({ trigger: '.hero-section-270', start: 'top+=200 top', onEnter: () => btn.classList.add('visible'), onLeaveBack: () => btn.classList.remove('visible') });
+      btn.addEventListener('click', () => gsap.to(window, { duration: 1, scrollTo: 0, ease: 'power3.inOut' }));
+    };
+
+    document.addEventListener('DOMContentLoaded', () => { initHeroAnimation(); initNavbar(); initScrollAnimations(); initStatsAnimation(); initNavDots(); initBackToTop(); });
+    window.addEventListener('beforeunload', () => ScrollTrigger.getAll().forEach(st => st.kill()));
+  </script>
+</body>
+</html>
