@@ -219,7 +219,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
 

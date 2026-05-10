@@ -312,7 +312,6 @@ onUnmounted(() => {
   if (portalBgRef.value) {
     portalBgRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

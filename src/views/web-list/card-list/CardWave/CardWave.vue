@@ -415,18 +415,19 @@ const initScrollAnimations = () => {
   waveRefsMap.value.forEach((wave, index) => {
     const duration = 4 + index * 2
     const direction = index % 2 === 0 ? 1 : -1
-    gsap.to(wave, {
+    const waveTween = gsap.to(wave, {
       attr: { d: generateWavePath(index, 0.5) },
       duration: duration,
       ease: 'sine.inOut',
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => waveTween.kill())
   })
 
-  // 5. 散点漂浮
+  // 5. 散点漂浮 - 添加清理
   dotRefsMap.value.forEach((dot) => {
-    gsap.to(dot, {
+    const dotTween = gsap.to(dot, {
       y: 'random(-30, 30)',
       x: 'random(-20, 20)',
       scale: 'random(0.5, 1.5)',
@@ -436,6 +437,7 @@ const initScrollAnimations = () => {
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => dotTween.kill())
   })
 
   // 6. 图标脉冲
@@ -458,9 +460,9 @@ const initScrollAnimations = () => {
     cleanupFns.push(() => trigger.kill())
   })
 
-  // 7. 液滴效果
+  // 7. 液滴效果 - 添加清理
   liquidRefsMap.value.forEach((liquid, index) => {
-    gsap.to(liquid, {
+    const liquidTween = gsap.to(liquid, {
       y: -10,
       borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%',
       duration: 2 + index * 0.5,
@@ -468,19 +470,21 @@ const initScrollAnimations = () => {
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => liquidTween.kill())
   })
 
-  // 8. 进度条闪光
+  // 8. 进度条闪光 - 添加清理
   meterRefsMap.value.forEach((meter) => {
     const shine = meter.querySelector('.meter-shine') as HTMLElement
     if (shine) {
-      gsap.to(shine, {
+      const shineTween = gsap.to(shine, {
         x: '200%',
         duration: 1.5,
         ease: 'power2.inOut',
         repeat: -1,
         delay: 1
       })
+      cleanupFns.push(() => shineTween.kill())
     }
   })
 
@@ -529,7 +533,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

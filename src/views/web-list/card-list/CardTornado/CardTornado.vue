@@ -135,6 +135,7 @@ const initAnimations = () => {
         ease: 'none',
         repeat: -1
       })
+      cleanupFns.push(() => gsap.killTweensOf(iconSvg))
     }
 
     // Hover animation
@@ -232,7 +233,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
 

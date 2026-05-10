@@ -555,7 +555,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(t => t.kill())
   cancelAnimationFrame(animationFrame)
 })
 </script>

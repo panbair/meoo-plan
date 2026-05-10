@@ -494,10 +494,7 @@ const initAnimations = () => {
     
     // 标题滚动消失
     if (headerRef.value) {
-      gsap.to(headerRef.value, {
-        y: -150,
-        opacity: 0,
-        rotation: 5,
+      const headerTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.value,
           start: 'top top',
@@ -505,10 +502,16 @@ const initAnimations = () => {
           scrub: 1
         }
       })
+      headerTl.to(headerRef.value, {
+        y: -150,
+        opacity: 0,
+        rotation: 5
+      })
+      cleanupFns.push(() => headerTl.kill())
     }
     
     // 背景渐变滚动
-    gsap.to('.liquid-gradient', {
+    const bgTl = gsap.to('.liquid-gradient', {
       backgroundPosition: '100% 100%',
       scrollTrigger: {
         trigger: sectionRef.value,
@@ -517,6 +520,7 @@ const initAnimations = () => {
         scrub: 2
       }
     })
+    cleanupFns.push(() => bgTl.scrollTrigger?.kill())
   }
 }
 
@@ -525,7 +529,6 @@ const initAnimations = () => {
 // ============================================================
 
 const cleanupAnimations = () => {
-  ScrollTrigger.getAll().forEach(trigger => trigger.kill())
   cleanupFns.forEach(fn => fn())
   cleanupFns.length = 0
   

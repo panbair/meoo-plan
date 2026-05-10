@@ -338,7 +338,6 @@ onUnmounted(() => {
   if (rayBgRef.value) {
     rayBgRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

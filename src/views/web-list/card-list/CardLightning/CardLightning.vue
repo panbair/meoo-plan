@@ -251,7 +251,6 @@ onMounted(() => {
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
   if (lightningInterval) clearInterval(lightningInterval)
-  ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
 

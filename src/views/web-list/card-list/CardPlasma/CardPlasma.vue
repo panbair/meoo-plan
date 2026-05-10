@@ -319,7 +319,6 @@ onUnmounted(() => {
   if (waveFieldRef.value) {
     waveFieldRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

@@ -368,6 +368,7 @@ const initAnimations = () => {
       ease: 'none',
       repeat: -1
     })
+    cleanupFns.push(() => gsap.killTweensOf(cardsOrbitRef.value))
   }
 
   // 卡片悬浮动画
@@ -382,6 +383,7 @@ const initAnimations = () => {
       delay: i * 0.2
     })
   })
+  cleanupFns.push(() => gsap.killTweensOf(cardRefs.value))
 
   // 滚动动画
   if (sectionRef.value) {
@@ -441,7 +443,6 @@ onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
   if (animationId) cancelAnimationFrame(animationId)
   window.removeEventListener('resize', handleResize)
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

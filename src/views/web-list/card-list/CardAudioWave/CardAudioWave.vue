@@ -127,7 +127,8 @@ const spectrumGlow = ref<HTMLElement | null>(null)
 const bgCanvas = ref<HTMLCanvasElement | null>(null)
 const cleanupFns: (() => void)[] = []
 let bgCtx: CanvasRenderingContext2D | null = null
-let animationFrame: number
+let bgAnimationFrame: number | null = null
+let waveformAnimationFrame: number | null = null
 let audioAnimations: gsap.core.Tween[] = []
 
 // ============================================================
@@ -238,7 +239,7 @@ const initBackgroundWaves = () => {
 
     bgCtx.globalAlpha = 1
     phase += 0.02
-    animationFrame = requestAnimationFrame(animate)
+    bgAnimationFrame = requestAnimationFrame(animate)
   }
   animate()
 }
@@ -297,7 +298,7 @@ const drawWaveform = (canvas: HTMLCanvasElement, color: string) => {
     ctx.globalAlpha = 1
 
     phase += 0.05
-    animationFrame = requestAnimationFrame(animate)
+    waveformAnimationFrame = requestAnimationFrame(animate)
   }
   animate()
 }
@@ -537,7 +538,8 @@ onMounted(() => {
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
   ScrollTrigger.getAll().forEach(t => t.kill())
-  cancelAnimationFrame(animationFrame)
+  if (bgAnimationFrame) cancelAnimationFrame(bgAnimationFrame)
+  if (waveformAnimationFrame) cancelAnimationFrame(waveformAnimationFrame)
   audioAnimations.forEach(anim => anim.kill())
 })
 </script>

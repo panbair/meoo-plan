@@ -54,8 +54,32 @@ let cleanupFns: TweenCleanup[] = []
 
 1 保存清理函数
 
-2 组件卸载时清理动画
+2 组件卸载时清理动画,这个组件所有gsap动画全部清理掉.
 
 # 注意获取元素要用vue3的方式 ref获取dom
 gsap获取元素要用vue3的方式，如果直接用classname,有重复classname可能会造成冲突， 比如：tl.fromTo('.header-badge'）,tl.to('.header-badge'）等，都是不行的
 
+
+
+
+
+ 
+'CardAudioWave', 'CardAurora', 'CardAuroraWave', 1
+'CardBioluminescence', 'CardCatalyst', 'CardCelestial', 1
+'CardCircuit', 'CardCrystal', 'CardCyberspace', 1
+'CardDNA', 'CardDataStream', 'CardEclipse', 1
+'CardFadeBlur', 'CardFadeInOut', 'CardFireflies', 1
+'CardFrost', 'CardFullCombo', 'CardFusion', 1
+'CardGalaxy', 'CardGlacier', 'CardGlitch', 1
+'CardGradientWave', 'CardGravity', 'CardGravity2', 1
+'CardHologram', 'CardHolographic', 'CardInfinity', 1
+'CardKaleidoscope', 'CardLightning', 'CardLiquid', 1
+'CardLiquidMetal', 'CardMagma', 'CardMatrix', 'CardMeteor', 'CardMorph', 'CardMosaic',1
+'CardNebula', 'CardNeon', 'CardNeonCircuit', 'CardNineCombo', 'CardParticle',1
+'CardPhantom', 'CardPlasma', 'CardPortal', 'CardPrism', 'CardQuantum',1
+'CardRipple', 'CardRotate', 'CardRotateScaleTranslate', 'CardScale',1
+'CardShatter', 'CardSixCombo', 'CardSlideEdge', 'CardSolarSystem', 1
+'CardSphere', 'CardSupernova', 'CardSwipe', 'CardTornado', 'CardTranslate',1
+'CardTranslateRotateScale', 'CardVoid', 'CardVortex', 'CardWave'
+
+检查一下:'CardTranslateRotateScale', 'CardVoid', 'CardVortex', 'CardWave'组件的 onUnmounted 清理逻辑，看看是否正确清理了 ScrollTrigger 和其他动画。有的就处理。

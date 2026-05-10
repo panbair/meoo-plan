@@ -259,7 +259,6 @@ onUnmounted(() => {
   if (swipeLinesRef.value) {
     swipeLinesRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

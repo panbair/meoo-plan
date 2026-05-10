@@ -123,6 +123,10 @@ const cardsData = [
 ]
 
 let cleanupFns: TweenCleanup[] = []
+let fragmentAnims: gsap.core.Tween[] = []
+let lightRayAnims: gsap.core.Tween[] = []
+let satelliteAnims: gsap.core.Tween[] = []
+let facetAnims: gsap.core.Tween[] = []
 
 const generateFragments = () => {
   if (!fragmentsRef.value) return
@@ -259,7 +263,7 @@ const initAnimations = () => {
   // 碎片漂浮动画
   const fragments = fragmentsRef.value?.querySelectorAll('.fragment')
   fragments?.forEach((fragment, i) => {
-    gsap.to(fragment, {
+    const anim = gsap.to(fragment, {
       y: -20 - Math.random() * 30,
       x: (Math.random() - 0.5) * 20,
       opacity: 0.3 + Math.random() * 0.7,
@@ -269,6 +273,7 @@ const initAnimations = () => {
       ease: 'sine.inOut',
       delay: i * 0.1
     })
+    fragmentAnims.push(anim)
   })
 
   // 水晶脉动动画
@@ -285,18 +290,19 @@ const initAnimations = () => {
 
   // 光线旋转动画
   if (lightRaysRef.value) {
-    gsap.to(lightRaysRef.value, {
+    const anim = gsap.to(lightRaysRef.value, {
       rotation: 360,
       duration: 30,
       repeat: -1,
       ease: 'none'
     })
+    lightRayAnims.push(anim)
   }
 
   // 卫星水晶动画
   const satellites = document.querySelectorAll('.crystal-satellite')
   satellites.forEach((satellite, index) => {
-    gsap.to(satellite, {
+    const anim = gsap.to(satellite, {
       y: -15 - index * 5,
       scale: 1.1 + index * 0.05,
       duration: 2 + index * 0.5,
@@ -305,12 +311,13 @@ const initAnimations = () => {
       ease: 'sine.inOut',
       delay: index * 0.3
     })
+    satelliteAnims.push(anim)
   })
 
   // 棱面闪烁动画
   const facets = document.querySelectorAll('.crystal-facet')
   facets.forEach((facet, index) => {
-    gsap.to(facet, {
+    const anim = gsap.to(facet, {
       opacity: 0.3 + Math.random() * 0.7,
       duration: 1 + Math.random() * 2,
       repeat: -1,
@@ -318,6 +325,7 @@ const initAnimations = () => {
       ease: 'sine.inOut',
       delay: index * 0.2
     })
+    facetAnims.push(anim)
   })
 }
 
@@ -328,6 +336,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cleanupFns.forEach(fn => fn())
+  fragmentAnims.forEach(a => a.kill())
+  lightRayAnims.forEach(a => a.kill())
+  satelliteAnims.forEach(a => a.kill())
+  facetAnims.forEach(a => a.kill())
 })
 </script>
 

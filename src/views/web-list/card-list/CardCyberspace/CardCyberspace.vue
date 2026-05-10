@@ -317,7 +317,6 @@ onUnmounted(() => {
   if (nodeBgRef.value) {
     nodeBgRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

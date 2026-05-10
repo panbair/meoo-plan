@@ -320,7 +320,6 @@ onUnmounted(() => {
   if (waveBgRef.value) {
     waveBgRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

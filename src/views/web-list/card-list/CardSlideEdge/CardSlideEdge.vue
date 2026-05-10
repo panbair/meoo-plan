@@ -128,6 +128,8 @@ const initAnimations = () => {
     '-=0.3'
   )
 
+  triggers.push(tl)
+
   // 滚动动画 - 每个卡片独立触发，带边缘滑出效果
   cards.forEach((card, i) => {
     const scrollAnim = [

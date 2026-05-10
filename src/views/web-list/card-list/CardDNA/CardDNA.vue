@@ -409,7 +409,6 @@ onUnmounted(() => {
   tweens = []
   triggers.forEach(t => t.kill())
   triggers = []
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

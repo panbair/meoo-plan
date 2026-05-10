@@ -277,65 +277,76 @@ const initAnimations = () => {
     })
 
     // 波浪背景滚动加速
-    gsap.to('.wave-1', {
-      y: '-30%',
-      scrollTrigger: {
+    if (sectionRef.value) {
+      const wave1St = ScrollTrigger.create({
         trigger: sectionRef.value,
         start: 'top top',
         end: 'bottom top',
-        scrub: 1
-      }
-    })
+        scrub: 1,
+        onUpdate: (self) => {
+          gsap.set('.wave-1', { y: -30 * self.progress + '%' })
+        }
+      })
+      cleanupFns.push(() => wave1St.kill())
 
-    gsap.to('.wave-2', {
-      y: '-50%',
-      scrollTrigger: {
+      const wave2St = ScrollTrigger.create({
         trigger: sectionRef.value,
         start: 'top top',
         end: 'bottom top',
-        scrub: 0.8
-      }
-    })
+        scrub: 0.8,
+        onUpdate: (self) => {
+          gsap.set('.wave-2', { y: -50 * self.progress + '%' })
+        }
+      })
+      cleanupFns.push(() => wave2St.kill())
 
-    gsap.to('.wave-3', {
-      y: '-70%',
-      scrollTrigger: {
+      const wave3St = ScrollTrigger.create({
         trigger: sectionRef.value,
         start: 'top top',
         end: 'bottom top',
-        scrub: 1.2
-      }
-    })
+        scrub: 1.2,
+        onUpdate: (self) => {
+          gsap.set('.wave-3', { y: -70 * self.progress + '%' })
+        }
+      })
+      cleanupFns.push(() => wave3St.kill())
 
-    // 标题滚动消失：位移 + 旋转 + 缩放 + 渐变
-    if (headerRef.value) {
-      gsap.to(headerRef.value, {
-        y: -150,
-        rotationY: 30,
-        rotationX: 10,
-        scale: 0.6,
-        opacity: 0,
-        scrollTrigger: {
+      // 标题滚动消失：位移 + 旋转 + 缩放 + 渐变
+      if (headerRef.value) {
+        const headerSt = ScrollTrigger.create({
           trigger: sectionRef.value,
           start: 'top top',
           end: '30% top',
-          scrub: 1
-        }
-      })
-    }
+          scrub: 1,
+          onUpdate: (self) => {
+            gsap.set(headerRef.value, {
+              y: -150 * self.progress,
+              rotationY: 30 * self.progress,
+              rotationX: 10 * self.progress,
+              scale: 1 - 0.4 * self.progress,
+              opacity: 1 - self.progress
+            })
+          }
+        })
+        cleanupFns.push(() => headerSt.kill())
+      }
 
-    // 底部装饰滚动消失
-    if (footerRef.value) {
-      gsap.to(footerRef.value, {
-        y: 100,
-        opacity: 0,
-        scrollTrigger: {
+      // 底部装饰滚动消失
+      if (footerRef.value) {
+        const footerSt = ScrollTrigger.create({
           trigger: sectionRef.value,
           start: 'top top',
           end: '50% top',
-          scrub: 1
-        }
-      })
+          scrub: 1,
+          onUpdate: (self) => {
+            gsap.set(footerRef.value, {
+              y: 100 * self.progress,
+              opacity: 1 - self.progress
+            })
+          }
+        })
+        cleanupFns.push(() => footerSt.kill())
+      }
     }
   }
 }
@@ -350,7 +361,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
 

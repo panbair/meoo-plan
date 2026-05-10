@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 
@@ -328,6 +328,8 @@ const initAnimations = () => {
 
   cleanupFns.push(() => scrollTriggerInstance.kill())
 
+  cleanupFns.push(() => tl.kill())
+
   // 持续的循环动画
 
   // 幽灵身体呼吸动画
@@ -410,7 +412,7 @@ onMounted(() => {
   initAnimations()
 })
 
-onBeforeUnmount(() => {
+onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
   continuousAnims.forEach(anim => anim.kill())
 })

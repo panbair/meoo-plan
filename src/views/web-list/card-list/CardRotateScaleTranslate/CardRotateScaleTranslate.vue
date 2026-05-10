@@ -109,6 +109,8 @@ const initAnimations = () => {
     '-=0.3'
   )
 
+  triggers.push(tl)
+
   // ========== 滚动动画 ==========
   // 初始化状态
   gsap.set('.combo-card', { x: 0, y: 0, opacity: 1, scale: 1, rotation: 0, skewY: 0, skewX: 0, filter: 'blur(0px)' })
@@ -194,7 +196,6 @@ onMounted(() => initAnimations())
 onUnmounted(() => {
   triggers.forEach(t => t.kill())
   triggers = []
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

@@ -422,18 +422,21 @@ const initAnimations = () => {
     })
     
     // 标题滚动消失
-    if (headerRef.value) {
-      gsap.to(headerRef.value, {
-        y: -200,
-        opacity: 0,
-        scale: 0.8,
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top top',
-          end: '30% top',
-          scrub: 1
+    if (headerRef.value && sectionRef.value) {
+      const headerSt = ScrollTrigger.create({
+        trigger: sectionRef.value,
+        start: 'top top',
+        end: '30% top',
+        scrub: 1,
+        onUpdate: (self) => {
+          gsap.set(headerRef.value, {
+            y: -200 * self.progress,
+            opacity: 1 - self.progress,
+            scale: 1 - 0.2 * self.progress
+          })
         }
       })
+      cleanupFns.push(() => headerSt.kill())
     }
     
     // 扫描线加速
@@ -458,6 +461,9 @@ const initAnimations = () => {
         from: 'random'
       }
     })
+    
+    cleanupFns.push(() => gsap.killTweensOf('.card-scanline'))
+    cleanupFns.push(() => gsap.killTweensOf('.particle'))
   }
 }
 
@@ -466,7 +472,6 @@ const initAnimations = () => {
 // ============================================================
 
 const cleanupAnimations = () => {
-  ScrollTrigger.getAll().forEach(trigger => trigger.kill())
   cleanupFns.forEach(fn => fn())
   cleanupFns.length = 0
   cardRefsMap.value.clear()

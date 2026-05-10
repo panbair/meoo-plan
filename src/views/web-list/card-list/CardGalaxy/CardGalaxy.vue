@@ -402,6 +402,11 @@ const initScrollAnimations = () => {
       yoyo: true
     })
   })
+  cleanupFns.push(() => {
+    blackHoleRefsMap.value.forEach((hole) => {
+      gsap.killTweensOf(hole)
+    })
+  })
 
   // 3. 轨道旋转
   orbitRefsMap.value.forEach((orbit, index) => {
@@ -411,6 +416,11 @@ const initScrollAnimations = () => {
       ease: 'none',
       repeat: -1,
       transformOrigin: 'center center'
+    })
+  })
+  cleanupFns.push(() => {
+    orbitRefsMap.value.forEach((orbit) => {
+      gsap.killTweensOf(orbit)
     })
   })
 
@@ -431,6 +441,11 @@ const initScrollAnimations = () => {
       ease: 'sine.inOut',
       repeat: -1,
       yoyo: true
+    })
+  })
+  cleanupFns.push(() => {
+    planetRefsMap.value.forEach((planet) => {
+      gsap.killTweensOf(planet)
     })
   })
 
@@ -481,6 +496,11 @@ const initScrollAnimations = () => {
       ease: 'none',
       repeat: -1,
       transformOrigin: 'center center'
+    })
+  })
+  cleanupFns.push(() => {
+    raysRefsMap.value.forEach((rays) => {
+      gsap.killTweensOf(rays)
     })
   })
 
@@ -555,7 +575,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(t => t.kill())
   cancelAnimationFrame(animationFrame)
 })
 </script>

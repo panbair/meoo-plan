@@ -212,37 +212,35 @@ const initAnimations = () => {
   }
 
   // 指示器动画
-  if (indicatorRef.value) {
-    gsap.to(indicatorRef.value, {
-      scaleX: 1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: sectionRef.value,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.5
+  if (indicatorRef.value && sectionRef.value) {
+    const indicatorSt = ScrollTrigger.create({
+      trigger: sectionRef.value,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.5,
+      onUpdate: (self) => {
+        gsap.set(indicatorRef.value, { scaleX: self.progress })
       }
     })
+    cleanupFns.push(() => indicatorSt.kill())
   }
 
   // 背景网格动画
   const gridLines = sectionRef.value?.querySelectorAll('.grid-line')
-  if (gridLines) {
-    gsap.to(gridLines, {
-      opacity: 0.3,
-      scaleY: 1.5,
-      stagger: {
-        each: 0.1,
-        from: 'center'
-      },
-      duration: 1,
-      scrollTrigger: {
-        trigger: sectionRef.value,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 1
+  if (gridLines && sectionRef.value) {
+    const gridSt = ScrollTrigger.create({
+      trigger: sectionRef.value,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: 1,
+      onUpdate: (self) => {
+        gsap.set(gridLines, {
+          opacity: 0.1 + 0.2 * self.progress,
+          scaleY: 1 + 0.5 * self.progress
+        })
       }
     })
+    cleanupFns.push(() => gridSt.kill())
   }
 
   // 波纹动画
@@ -268,7 +266,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(trigger => trigger.kill())
 })
 </script>
 

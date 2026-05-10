@@ -138,6 +138,7 @@ const cardsData = [
 let cleanupFns: TweenCleanup[] = []
 let anims: gsap.core.Tween[] = []
 let timelines: gsap.core.Timeline[] = []
+let tentacleAnims: gsap.core.Tween[] = []
 
 // 生成焦散纹理
 const generateCaustics = () => {
@@ -476,7 +477,7 @@ const initAnimations = () => {
   // 水母触须摆动
   const tentacles = document.querySelectorAll('.tentacle')
   tentacles.forEach((t, i) => {
-    gsap.to(t, {
+    const anim = gsap.to(t, {
       attr: {
         d: `M${30 + i * 15} ${70 + Math.floor(i / 4) * 5} Q${25 + i * 15} ${100 + Math.floor(i / 2) * 10} ${30 + i * 15} ${135}`
       },
@@ -485,6 +486,7 @@ const initAnimations = () => {
       yoyo: true,
       ease: 'sine.inOut'
     })
+    tentacleAnims.push(anim)
   })
 }
 
@@ -505,6 +507,7 @@ onBeforeUnmount(() => {
   cleanupFns.forEach(fn => fn())
   anims.forEach(a => a.kill())
   timelines.forEach(t => t.kill())
+  tentacleAnims.forEach(a => a.kill())
 })
 </script>
 

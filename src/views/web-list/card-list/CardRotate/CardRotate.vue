@@ -106,6 +106,8 @@ const initAnimations = () => {
     '-=0.2'
   )
 
+  triggers.push(tl)
+
   // 滚动动画 - 每个卡片独立触发
   cards.forEach((card, i) => {
     const scrollAnim = [

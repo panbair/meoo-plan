@@ -293,7 +293,6 @@ onUnmounted(() => {
   if (circuitBgRef.value) {
     circuitBgRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

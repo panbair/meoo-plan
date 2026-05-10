@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 
@@ -240,11 +240,12 @@ const initAnimations = () => {
 
   // 星星闪烁动画
   const starLayers = [stars1Ref.value, stars2Ref.value, stars3Ref.value]
+  const starTweens: gsap.core.Tween[] = []
   starLayers.forEach((layer, index) => {
     if (!layer) return
     const stars = layer.querySelectorAll('.star')
     stars.forEach((star, i) => {
-      gsap.to(star, {
+      const tween = gsap.to(star, {
         opacity: 0.2 + Math.random() * 0.8,
         scale: 0.5 + Math.random() * 1,
         duration: 1 + Math.random() * 2,
@@ -253,8 +254,10 @@ const initAnimations = () => {
         ease: 'sine.inOut',
         delay: i * 0.05
       })
+      starTweens.push(tween)
     })
   })
+  cleanupFns.push(() => starTweens.forEach(t => t.kill()))
 
   // 星云飘动动画
   const nebulaMoveTl = gsap.timeline({ repeat: -1, yoyo: true })
@@ -294,16 +297,18 @@ const initAnimations = () => {
   }
 
   // 环旋转动画
-  const ringTl = gsap.timeline({ repeat: -1 })
+  const ringTweens: gsap.core.Tween[] = []
   const rings = document.querySelectorAll('.nebula-ring')
   rings.forEach((ring, index) => {
-    gsap.to(ring, {
+    const tween = gsap.to(ring, {
       rotation: index % 2 === 0 ? 360 : -360,
       duration: 10 + index * 5,
       ease: 'none',
       repeat: -1
     })
+    ringTweens.push(tween)
   })
+  cleanupFns.push(() => ringTweens.forEach(t => t.kill()))
 }
 
 onMounted(() => {
@@ -311,7 +316,7 @@ onMounted(() => {
   initAnimations()
 })
 
-onBeforeUnmount(() => {
+onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
 })
 </script>

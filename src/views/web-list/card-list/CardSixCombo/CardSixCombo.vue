@@ -109,6 +109,8 @@ const initAnimations = () => {
     '-=0.2'
   )
 
+  triggers.push(tl)
+
   // 滚动动画配置
   const scrollConfigs = [
     { x: 80, y: -50, rotation: 20, scale: 0.8 },    // 卡片1: 右上+旋转

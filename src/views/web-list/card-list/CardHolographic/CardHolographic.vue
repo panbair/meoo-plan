@@ -329,7 +329,6 @@ onUnmounted(() => {
   if (holoBgRef.value) {
     holoBgRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

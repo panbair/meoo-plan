@@ -94,6 +94,7 @@ const cardsData = [
 
 let cleanupFns: TweenCleanup[] = []
 let continuousAnims: gsap.core.Tween[] = []
+let ringAnims: gsap.core.Tween[] = []
 
 // 生成星星
 const generateStars = () => {
@@ -359,6 +360,7 @@ const initAnimations = () => {
       ease: 'none'
     })
     continuousAnims.push(ringAnim)
+    ringAnims.push(ringAnim)
   })
 
   // 核心脉动
@@ -405,6 +407,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cleanupFns.forEach(fn => fn())
   continuousAnims.forEach(anim => anim.kill())
+  ringAnims.forEach(anim => anim.kill())
 })
 </script>
 

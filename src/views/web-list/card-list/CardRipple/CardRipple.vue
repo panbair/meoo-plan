@@ -267,7 +267,6 @@ onUnmounted(() => {
   if (rippleBgRef.value) {
     rippleBgRef.value.innerHTML = ''
   }
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

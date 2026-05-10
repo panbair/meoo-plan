@@ -540,10 +540,8 @@ const initAnimations = () => {
     })
     
     // 标题滚动消失
-    if (headerRef.value) {
-      gsap.to(headerRef.value, {
-        y: -200,
-        opacity: 0,
+    if (headerRef.value && sectionRef.value) {
+      const headerTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.value,
           start: 'top top',
@@ -551,6 +549,11 @@ const initAnimations = () => {
           scrub: 1
         }
       })
+      headerTl.to(headerRef.value, {
+        y: -200,
+        opacity: 0
+      })
+      cleanupFns.push(() => headerTl.kill())
     }
     
     // 电路线条脉冲动画
@@ -570,6 +573,9 @@ const initAnimations = () => {
       ease: 'sine.inOut',
       stagger: 0.1
     })
+    
+    cleanupFns.push(() => gsap.killTweensOf('.line-path'))
+    cleanupFns.push(() => gsap.killTweensOf('.circuit-dot'))
   }
 }
 
@@ -578,7 +584,6 @@ const initAnimations = () => {
 // ============================================================
 
 const cleanupAnimations = () => {
-  ScrollTrigger.getAll().forEach(trigger => trigger.kill())
   cleanupFns.forEach(fn => fn())
   cleanupFns.length = 0
   cardRefsMap.value.clear()

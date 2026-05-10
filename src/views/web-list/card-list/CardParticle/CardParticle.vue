@@ -289,12 +289,13 @@ const initAnimations = () => {
     connections.value = newConnections
   }
 
-  ScrollTrigger.create({
+  const connectionTrigger = ScrollTrigger.create({
     trigger: sectionRef.value,
     start: 'top top',
     end: 'bottom bottom',
     onUpdate: updateConnections
   })
+  cleanupFns.push(() => connectionTrigger.kill())
 
   // 滚动粒子效果
   const scrollParticles = sectionRef.value?.querySelectorAll('.scroll-particle')
@@ -323,7 +324,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(trigger => trigger.kill())
 })
 </script>
 

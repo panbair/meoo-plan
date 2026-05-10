@@ -191,7 +191,6 @@ onMounted(() => initAnimations())
 onUnmounted(() => {
   triggers.forEach(t => t.kill())
   triggers = []
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

@@ -236,8 +236,8 @@ const setBorderRef = (el: Element | null, index: number) => {
 // ============================================================
 const initFireflies = () => {
   fireflyRefsMap.value.forEach((firefly) => {
-    // 随机移动动画
-    gsap.to(firefly, {
+    // 随机移动动画 - 添加清理
+    const moveTween = gsap.to(firefly, {
       x: `var(--x-end)`,
       y: `var(--y-end)`,
       duration: parseFloat(firefly.style.getPropertyValue('--duration')),
@@ -246,9 +246,10 @@ const initFireflies = () => {
       yoyo: true,
       delay: parseFloat(firefly.style.getPropertyValue('--delay'))
     })
+    cleanupFns.push(() => moveTween.kill())
 
-    // 发光闪烁
-    gsap.to(firefly, {
+    // 发光闪烁 - 添加清理
+    const glowTween = gsap.to(firefly, {
       opacity: 0.2,
       scale: 0.5,
       boxShadow: '0 0 3px var(--glow-color)',
@@ -258,6 +259,7 @@ const initFireflies = () => {
       yoyo: true,
       delay: Math.random() * 2
     })
+    cleanupFns.push(() => glowTween.kill())
   })
 }
 
@@ -395,10 +397,10 @@ const initScrollAnimations = () => {
     cleanupFns.push(() => trigger.kill())
   })
 
-  // 2. 光晕脉冲
+  // 2. 光晕脉冲 - 添加清理
   auraRefsMap.value.forEach((aura, index) => {
     const color = CARDS_DATA[index].color
-    gsap.to(aura, {
+    const auraTween = gsap.to(aura, {
       scale: 1.3,
       opacity: 0.6,
       boxShadow: `0 0 60px ${color}, 0 0 100px ${color}`,
@@ -407,14 +409,15 @@ const initScrollAnimations = () => {
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => auraTween.kill())
   })
 
-  // 3. 浮动光点动画
+  // 3. 浮动光点动画 - 添加清理
   orbRefsMap.value.forEach((orb, key) => {
     const color = orb.style.getPropertyValue('--orb-color')
     const delay = parseFloat(orb.style.getPropertyValue('--orb-delay'))
 
-    gsap.to(orb, {
+    const orbMoveTween = gsap.to(orb, {
       y: -40,
       x: 'random(-30, 30)',
       opacity: 0.8,
@@ -424,28 +427,31 @@ const initScrollAnimations = () => {
       yoyo: true,
       delay: delay
     })
+    cleanupFns.push(() => orbMoveTween.kill())
 
-    gsap.to(orb, {
+    const orbGlowTween = gsap.to(orb, {
       boxShadow: `0 0 15px ${color}, 0 0 30px ${color}`,
       duration: 1.5,
       ease: 'sine.inOut',
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => orbGlowTween.kill())
   })
 
-  // 4. 环形旋转
+  // 4. 环形旋转 - 添加清理
   ringRefsMap.value.forEach((ring, index) => {
     const color = CARDS_DATA[index].color
-    gsap.to(ring, {
+    const ringRotateTween = gsap.to(ring, {
       rotation: 360,
       duration: 8,
       ease: 'none',
       repeat: -1,
       transformOrigin: 'center center'
     })
+    cleanupFns.push(() => ringRotateTween.kill())
 
-    gsap.to(ring, {
+    const ringColorTween = gsap.to(ring, {
       borderColor: color,
       opacity: 0.6,
       duration: 2,
@@ -453,6 +459,7 @@ const initScrollAnimations = () => {
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => ringColorTween.kill())
   })
 
   // 5. 图标脉冲
@@ -476,14 +483,14 @@ const initScrollAnimations = () => {
     cleanupFns.push(() => trigger.kill())
   })
 
-  // 6. 粒子动画
+  // 6. 粒子动画 - 添加清理
   particleRefsMap.value.forEach((particle, key) => {
     const [index] = key.split('-').map(Number)
     const pIndex = parseInt(key.split('-')[1])
     const color = CARDS_DATA[index].color
     const angle = (pIndex - 1) * 45
 
-    gsap.to(particle, {
+    const particleMoveTween = gsap.to(particle, {
       x: Math.cos(angle * Math.PI / 180) * 60,
       y: Math.sin(angle * Math.PI / 180) * 60,
       opacity: 0,
@@ -493,8 +500,9 @@ const initScrollAnimations = () => {
       repeat: -1,
       delay: pIndex * 0.2
     })
+    cleanupFns.push(() => particleMoveTween.kill())
 
-    gsap.to(particle, {
+    const particleColorTween = gsap.to(particle, {
       backgroundColor: color,
       boxShadow: `0 0 6px ${color}`,
       duration: 1,
@@ -502,12 +510,13 @@ const initScrollAnimations = () => {
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => particleColorTween.kill())
   })
 
-  // 7. 发光边框动画
+  // 7. 发光边框动画 - 添加清理
   borderRefsMap.value.forEach((border, index) => {
     const color = CARDS_DATA[index].color
-    gsap.to(border, {
+    const borderTween = gsap.to(border, {
       opacity: 0.8,
       boxShadow: `0 0 20px ${color}, inset 0 0 20px ${color}`,
       duration: 2,
@@ -515,6 +524,7 @@ const initScrollAnimations = () => {
       repeat: -1,
       yoyo: true
     })
+    cleanupFns.push(() => borderTween.kill())
   })
 
   // 8. 卡片间距
@@ -550,7 +560,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 

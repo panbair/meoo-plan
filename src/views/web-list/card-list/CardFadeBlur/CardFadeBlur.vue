@@ -139,73 +139,88 @@ const initAnimations = () => {
   if (sectionRef.value) {
     // 标题滚动消失
     if (headerRef.value) {
-      gsap.to(headerRef.value, {
-        y: -80,
-        opacity: 0,
-        filter: 'blur(10px)',
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top top',
-          end: '40% top',
-          scrub: 1
+      const st1 = ScrollTrigger.create({
+        trigger: sectionRef.value,
+        start: 'top top',
+        end: '40% top',
+        scrub: 1,
+        onUpdate: (self) => {
+          gsap.set(headerRef.value, {
+            y: -80 * self.progress,
+            opacity: 1 - self.progress,
+            filter: `blur(${10 * self.progress}px)`
+          })
         }
       })
+      cleanupFns.push(() => st1.kill())
     }
 
     // 卡片1: 向上漂浮消失
     if (cards[0]) {
-      gsap.to(cards[0], {
-        y: -60,
-        opacity: 0.6,
-        scrollTrigger: {
-          trigger: cards[0],
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
+      const st2 = ScrollTrigger.create({
+        trigger: cards[0],
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+        onUpdate: (self) => {
+          gsap.set(cards[0], {
+            y: -60 * self.progress,
+            opacity: 1 - 0.4 * self.progress
+          })
         }
       })
+      cleanupFns.push(() => st2.kill())
     }
 
     // 卡片2: 向上漂浮消失
     if (cards[1]) {
-      gsap.to(cards[1], {
-        y: -60,
-        opacity: 0.6,
-        scrollTrigger: {
-          trigger: cards[1],
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
+      const st3 = ScrollTrigger.create({
+        trigger: cards[1],
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+        onUpdate: (self) => {
+          gsap.set(cards[1], {
+            y: -60 * self.progress,
+            opacity: 1 - 0.4 * self.progress
+          })
         }
       })
+      cleanupFns.push(() => st3.kill())
     }
 
     // 卡片3: 向上漂浮消失
     if (cards[2]) {
-      gsap.to(cards[2], {
-        y: -60,
-        opacity: 0.6,
-        scrollTrigger: {
-          trigger: cards[2],
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
+      const st4 = ScrollTrigger.create({
+        trigger: cards[2],
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+        onUpdate: (self) => {
+          gsap.set(cards[2], {
+            y: -60 * self.progress,
+            opacity: 1 - 0.4 * self.progress
+          })
         }
       })
+      cleanupFns.push(() => st4.kill())
     }
 
     // 底部滚动消失
     if (footerRef.value) {
-      gsap.to(footerRef.value, {
-        y: 30,
-        opacity: 0,
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: '80% top',
-          end: 'bottom top',
-          scrub: 1
+      const st5 = ScrollTrigger.create({
+        trigger: sectionRef.value,
+        start: '80% top',
+        end: 'bottom top',
+        scrub: 1,
+        onUpdate: (self) => {
+          gsap.set(footerRef.value, {
+            y: 30 * self.progress,
+            opacity: 1 - self.progress
+          })
         }
       })
+      cleanupFns.push(() => st5.kill())
     }
   }
 }
@@ -214,7 +229,6 @@ onMounted(() => initAnimations())
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
 

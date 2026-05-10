@@ -493,7 +493,6 @@ onUnmounted(() => {
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId)
   }
-  ScrollTrigger.getAll().forEach(st => st.kill())
 })
 </script>
 

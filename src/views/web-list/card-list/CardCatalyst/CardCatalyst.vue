@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -9,6 +9,12 @@ type TweenCleanup = () => void
 
 const parent = ref<HTMLElement | null>(null)
 const cleanupFns: TweenCleanup[] = []
+let rippleAnims: gsap.core.Tween[] = []
+let corePulseAnims: gsap.core.Tween[] = []
+let arcAnims: gsap.core.Tween[] = []
+let dataAnims: gsap.core.Tween[] = []
+let particleAnims: gsap.core.Tween[] = []
+let lineAnims: gsap.core.Tween[] = []
 
 interface CardItem {
   id: string
@@ -190,17 +196,18 @@ const initAnimations = () => {
 
   // 能量波纹扩散
   gsap.utils.toArray<HTMLElement>('.cat-ripple').forEach((ripple) => {
-    gsap.to(ripple, {
+    const anim = gsap.to(ripple, {
       scale: 2,
       opacity: 0,
       duration: 3,
       repeat: -1,
       ease: 'power1.out'
     })
+    rippleAnims.push(anim)
   })
 
   // 脉冲核心
-  gsap.to('.cat-core-pulse', {
+  const corePulseAnim = gsap.to('.cat-core-pulse', {
     scale: 1.4,
     opacity: 0.2,
     duration: 1.5,
@@ -208,31 +215,34 @@ const initAnimations = () => {
     yoyo: true,
     ease: 'sine.inOut'
   })
+  corePulseAnims.push(corePulseAnim)
 
   // 电弧闪烁
   gsap.utils.toArray<HTMLElement>('.cat-arc').forEach((arc) => {
-    gsap.to(arc, {
+    const anim = gsap.to(arc, {
       opacity: 0.2 + Math.random() * 0.8,
       duration: 0.1 + Math.random() * 0.2,
       repeat: -1,
       yoyo: true,
       ease: 'steps(2)'
     })
+    arcAnims.push(anim)
   })
 
   // 数据流下落
   gsap.utils.toArray<HTMLElement>('.cat-data-item').forEach((item) => {
-    gsap.to(item, {
+    const anim = gsap.to(item, {
       y: '+=150vh',
       duration: 4 + Math.random() * 4,
       repeat: -1,
       ease: 'none'
     })
+    dataAnims.push(anim)
   })
 
   // 粒子漂浮
   gsap.utils.toArray<HTMLElement>('.cat-particle').forEach((p) => {
-    gsap.to(p, {
+    const anim = gsap.to(p, {
       y: `-=${20 + Math.random() * 50}`,
       x: `+=${(Math.random() - 0.5) * 30}`,
       scale: 0.4 + Math.random() * 0.8,
@@ -242,11 +252,12 @@ const initAnimations = () => {
       yoyo: true,
       ease: 'sine.inOut'
     })
+    particleAnims.push(anim)
   })
 
   // 网格线脉冲
   gsap.utils.toArray<HTMLElement>('.cat-line').forEach((line, i) => {
-    gsap.to(line, {
+    const anim = gsap.to(line, {
       opacity: 0.2 + Math.random() * 0.3,
       duration: 1 + Math.random() * 1.5,
       repeat: -1,
@@ -254,6 +265,7 @@ const initAnimations = () => {
       ease: 'sine.inOut',
       delay: i * 0.1
     })
+    lineAnims.push(anim)
   })
 
   // ===== ScrollTrigger =====
@@ -309,8 +321,14 @@ onMounted(() => {
   initAnimations()
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   cleanupFns.forEach((fn) => fn())
+  rippleAnims.forEach((a) => a.kill())
+  corePulseAnims.forEach((a) => a.kill())
+  arcAnims.forEach((a) => a.kill())
+  dataAnims.forEach((a) => a.kill())
+  particleAnims.forEach((a) => a.kill())
+  lineAnims.forEach((a) => a.kill())
 })
 </script>
 

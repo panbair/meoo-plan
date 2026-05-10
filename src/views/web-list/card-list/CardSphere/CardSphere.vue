@@ -387,6 +387,11 @@ const initScrollAnimations = () => {
       yoyo: true
     })
   })
+  cleanupFns.push(() => {
+    particleRefsMap.value.forEach((particle) => {
+      gsap.killTweensOf(particle)
+    })
+  })
 
   // 4. 标题发光效果
   titleRefsMap.value.forEach((title, index) => {
@@ -462,7 +467,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 
