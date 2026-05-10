@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试 ScrollModernCards 组件</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .test-result {
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+  </style>
+</head>
+<body>
+  <h1>ScrollModernCards 组件测试</h1>
+  <div id="results"></div>
+
+  <script type="module">
+    const resultsDiv = document.getElementById('results');
+
+    function addResult(message, type) {
+      const div = document.createElement('div');
+      div.className = `test-result ${type}`;
+      div.textContent = message;
+      resultsDiv.appendChild(div);
+    }
+
+    addResult('开始测试...', 'info');
+
+    try {
+      // 尝试动态导入组件
+      addResult('尝试导入组件文件...', 'info');
+
+      const componentModule = await import('./src/views/web/components/ScrollModernCards.vue');
+
+      if (componentModule && componentModule.default) {
+        addResult('✓ 组件文件加载成功！', 'success');
+        addResult(`✓ 组件名称: ${componentModule.default.name || 'N/A'}`, 'success');
+        addResult(`✓ 导出对象包含以下属性: ${Object.keys(componentModule).join(', ')}`, 'success');
+      } else {
+        addResult('✗ 组件加载成功，但缺少默认导出', 'error');
+      }
+    } catch (error) {
+      addResult(`✗ 组件加载失败: ${error.message}`, 'error');
+      addResult(`错误详情: ${error.stack}`, 'error');
+    }
+  </script>
+</body>
+</html>

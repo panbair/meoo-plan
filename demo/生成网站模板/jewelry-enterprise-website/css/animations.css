@@ -1,0 +1,472 @@
+/* ============================================
+   💎 珠宝企业官网 - 动画样式
+   ============================================ */
+
+/* ==================== 水晶棱镜 ==================== */
+.crystal-prism {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: var(--transition-all);
+}
+
+.scp-icon {
+  font-size: 4rem;
+  z-index: 10;
+  filter: var(--glow-gold);
+}
+
+.scp-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--color-gold-500);
+  font-weight: var(--font-bold);
+  margin-top: var(--space-4);
+  z-index: 10;
+}
+
+.scp-desc {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin-top: var(--space-2);
+  z-index: 10;
+}
+
+.scp-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.scp-light-ray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 200px;
+  background: linear-gradient(to top, var(--color-gold-500), transparent);
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+
+/* ==================== 优雅卡片 ==================== */
+.elegant-card {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-lg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  text-align: center;
+  overflow: hidden;
+  transition: var(--transition-all);
+}
+
+.elegant-card:hover {
+  transform: translateY(-8px);
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-gold);
+}
+
+.card-number {
+  position: absolute;
+  top: var(--space-5);
+  left: var(--space-5);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-extrabold);
+  color: var(--color-gold-500);
+  opacity: 0.3;
+}
+
+.symbol-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-4);
+  border: 2px solid rgba(234, 179, 8, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.symbol-icon {
+  font-size: var(--text-2xl);
+  color: var(--color-gold-500);
+}
+
+.card-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.card-desc {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.card-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.1), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+}
+
+.elegant-card:hover .card-glow {
+  opacity: 1;
+}
+
+/* ==================== 全息投影 ==================== */
+.hologram-item {
+  position: relative;
+  height: 450px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.hologram-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 40px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-500), transparent);
+  border-radius: 50%;
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.shg-beam-160 {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 380px;
+  background: linear-gradient(180deg, transparent, rgba(234, 179, 8, 0.3), rgba(234, 179, 8, 0.1));
+  pointer-events: none;
+}
+
+.hologram-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(183, 110, 121, 0.1));
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.shg-hologram-image-160 {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.shg-scanline-160 {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 49%, rgba(234, 179, 8, 0.1) 50%, transparent 51%);
+  background-size: 100% 8px;
+  pointer-events: none;
+}
+
+.shg-noise-160 {
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.1"/></svg>');
+  pointer-events: none;
+}
+
+.hologram-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.hologram-icon {
+  font-size: 5rem;
+  margin-bottom: var(--space-4);
+  filter: var(--glow-gold-lg);
+}
+
+.hologram-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--color-gold-500);
+  margin-bottom: var(--space-2);
+}
+
+.hologram-desc {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  max-width: 80%;
+}
+
+.base-ring {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 220px;
+  border: 2px solid rgba(234, 179, 8, 0.3);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.status-indicator {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 12px;
+  height: 12px;
+  background: var(--color-gold-500);
+  border-radius: 50%;
+  box-shadow: var(--glow-gold);
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ==================== 霓虹棱镜 ==================== */
+.neon-prism-card {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-lg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  text-align: center;
+  transition: var(--transition-all);
+  transform-style: preserve-3d;
+}
+
+.neon-prism-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-gold-lg);
+}
+
+.npr-icon {
+  font-size: 5rem;
+  margin-bottom: var(--space-4);
+  filter: var(--glow-gold-lg);
+}
+
+.npr-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--color-gold-500);
+  margin-bottom: var(--space-2);
+}
+
+.npr-desc {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-4);
+}
+
+.npr-energy-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(234, 179, 8, 0.2);
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}
+
+.npr-energy-fill {
+  height: 100%;
+  background: var(--gradient-gold);
+  width: 0%;
+  transition: width var(--duration-slow) var(--ease-smooth);
+}
+
+.npr-neon-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.neon-prism-card:hover .npr-neon-glow {
+  opacity: 1;
+}
+
+.npr-energy-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(234, 179, 8, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.npr-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--color-gold-500);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: var(--glow-gold);
+}
+
+/* ==================== 粒子 ==================== */
+.particle {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ==================== 动画触发器 ==================== */
+[data-scroll] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* ==================== 减少动画模式 ==================== */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ==================== 键盘导航高亮 ==================== */
+.keyboard-navigation *:focus {
+  outline: 3px solid var(--color-gold-500) !important;
+  outline-offset: 2px !important;
+}
+
+/* ==================== 玻璃态 ==================== */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* ==================== 加载动画 ==================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== 装饰性动画 ==================== */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--color-gold-500);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--color-gold-500), 0 0 30px var(--color-gold-500);
+  }
+}
