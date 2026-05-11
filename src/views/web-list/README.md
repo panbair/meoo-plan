@@ -3,7 +3,7 @@
 
 # 在这个文件（meoo-plan/src/views/web-list/card-time）里面开发卡片，酷炫的卡片，震撼的卡片
 
-# 重点检查这个文件（meoo-plan/src/views/web-list/card-time）里面的组件，不要创建重复了，不能覆盖已经有的组件。
+# 开发前，重点检查这个文件（meoo-plan/src/views/web-list/card-time）里面的组件，不要创建重复了，不能覆盖已经有的组件。
 
 ## 代码严格符合vue3组件开源规范
 
@@ -41,92 +41,82 @@ card-time/
 
 ### 每张卡片滚动控制动画ScrollTrigger一定要用
 
-# 动画效果：万花筒棱镜·碎片旋转变焦重组（迷幻奢华 视觉冲击）
-逻辑：卡片初始被打散为8个三角形碎片（使用 clip-path 切割），每个碎片随机散布在空间中并带有旋转和模糊。Timeline 驱动所有碎片像万花筒旋转般聚拢，同时反向旋转、缩放并消除模糊，最终拼合为完整卡片。拼合瞬间触发短暂的棱镜色散光晕，最后光晕消散，呈现精致的卡片内容。
-javascript
-const cards = gsap.utils.toArray('.kaleidoscope-card');
-const tl = gsap.timeline({
-defaults: { duration: 0.9, ease: 'power3.inOut' },
-paused: true
-});
+# 动画效果：量子跃迁面板 - 滚动触发的多维空间折叠动画，极致视觉冲击
+效果特点
+初始状态：所有面板压缩为一维线条，隐藏在视口中心，透明度 0
+滚动触发：向下滚动触发空间展开，面板沿 Z 轴立体弹射、X/Y 轴错位扩散
+动态特效：伴随旋转扭曲、光影闪烁、边缘辉光，模拟多维空间撕裂
+双向无缝：向上滚动自动反向折叠，回归初始线条状态，滚动丝滑无卡顿
+层级递进：面板按随机顺序先后动画，形成错落有致的爆炸式视觉效果
+技术实现
+GSAP Timeline：串联立体位移、旋转、透明度、缩放复合动画
+ScrollTrigger：精准绑定滚动进度，支持 scrub 双向跟随、pin 固定容器
+GSAP stagger：随机序列 stagger，打造无序宇宙扩散的震撼感
+Vue 3 + TS：Composition API + ref 绑定 DOM，类型安全
+动画效果参考代码
+typescript
+运行
+import { ref, onMounted } from 'vue'
+import gsap from 'gsap/all'
 
-cards.forEach((card, index) => {
-const fragments = card.querySelectorAll('.kaleido-fragment');
-const content = card.querySelector('.card-content');
-const prismGlow = card.querySelector('.prism-glow');
+// 注册插件（必须）
+gsap.registerPlugin(gsap.Timeline, gsap.ScrollTrigger)
 
-// 存储每个碎片的最终位置（相对卡片中心）
-const positions = [
-{ x: -25, y: -25, rotate: 0, clip: 'polygon(0 0, 50% 0, 0 50%)' },
-{ x: 25, y: -25, rotate: 0, clip: 'polygon(50% 0, 100% 0, 100% 50%, 50% 50%)' },
-{ x: -25, y: 25, rotate: 0, clip: 'polygon(0 50%, 50% 50%, 0 100%)' },
-{ x: 25, y: 25, rotate: 0, clip: 'polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%)' },
-{ x: -12, y: -12, rotate: 0, clip: 'polygon(25% 25%, 75% 25%, 50% 50%)' },
-{ x: 12, y: -12, rotate: 0, clip: 'polygon(50% 50%, 75% 25%, 75% 75%)' },
-{ x: -12, y: 12, rotate: 0, clip: 'polygon(25% 75%, 50% 50%, 25% 25%)' },
-{ x: 12, y: 12, rotate: 0, clip: 'polygon(50% 50%, 75% 75%, 25% 75%)' }
-];
+const quantumPanelRef = ref<HTMLDivElement>()
+const panelItems = ref<HTMLDivElement[]>([])
 
-// 初始：随机散布
-fragments.forEach((frag, i) => {
-gsap.set(frag, {
-x: gsap.utils.random(-300, 300),
-y: gsap.utils.random(-400, 400),
-scale: gsap.utils.random(0.3, 0.8),
-rotation: gsap.utils.random(-180, 180),
-filter: 'blur(6px)',
-opacity: 0.6,
-clipPath: positions[i].clip
-});
-});
-gsap.set(content, { scale: 0.9, opacity: 0 });
-gsap.set(prismGlow, { opacity: 0, scale: 0.5 });
+onMounted(() => {
+const panels = panelItems.value
+if (!panels.length) return
 
-const cardTl = gsap.timeline();
-
-// 碎片聚拢：转成旋转着飞到目标位置
-cardTl.to(fragments, {
-x: (i) => positions[i].x,
-y: (i) => positions[i].y,
-scale: 1,
-rotation: 0,
-filter: 'blur(0px)',
-opacity: 1,
-duration: 0.8,
-stagger: { amount: 0.3, from: 'random' },
-ease: 'back.out(1.5)'
-})
-// 拼合瞬间：棱镜光晕爆发
-.to(prismGlow, {
-opacity: 1,
-scale: 2.5,
-duration: 0.4,
-ease: 'power2.out'
-})
-.to(prismGlow, {
+// 1. 初始化：所有面板压缩为一维线条，聚集在中心
+gsap.set(panels, {
+xPercent: 50,
+yPercent: 50,
+scaleX: 0.01, // 水平压缩
+scaleY: 1,
+rotation: gsap.utils.random(-180, 180), // 随机初始角度
 opacity: 0,
-scale: 1,
-duration: 0.5,
-ease: 'power2.in'
-}, '-=0.2')
-// 内容显现
-.to(content, {
-opacity: 1,
-scale: 1,
-duration: 0.6,
-ease: 'power3.out'
-}, '-=0.4')
-// 碎片轻微内缩，完成卡片整体感
-.to(fragments, {
-opacity: 0,
-duration: 0.3,
-stagger: 0.02
-}, '-=0.3');
+z: -500, // 深度层级
+filter: 'brightness(0) blur(20px)'
+})
 
-tl.add(cardTl, index * 0.25);
-});
+// 2. 创建滚动驱动时间线
+const quantumTl = gsap.timeline({
+scrollTrigger: {
+trigger: quantumPanelRef.value,
+start: 'top 70%',
+end: 'top 20%',
+scrub: 1.5, // 滚动跟随平滑度
+pin: false,
+toggleActions: 'play reverse play reverse'
+}
+})
 
-tl.play();
+// 3. 核心动画：量子跃迁展开效果
+quantumTl.to(panels, {
+// 空间展开
+xPercent: 0,
+yPercent: 0,
+scaleX: 1,
+scaleY: 1,
+z: 0,
+
+    // 视觉特效
+    rotation: 0,
+    opacity: 1,
+    filter: 'brightness(1.2) blur(0px)',
+    
+    // 动画参数
+    duration: 1.8,
+    stagger: {
+      each: 0.06,
+      from: 'random', // 随机顺序扩散
+      amount: 1
+    },
+    ease: 'expo.out', // 强力弹性缓动
+})
+})
 
 ### ScrollTrigger 参数说明
 
