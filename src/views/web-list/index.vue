@@ -19,12 +19,21 @@ let observer: IntersectionObserver | null = null
 const modules = import.meta.glob('./card-list/*/[^/]*.vue', { eager: true })
 // card-time 目录组件（精确匹配主文件）
 const modulesTime = import.meta.glob('./card-time/*/CardTime*.vue', { eager: true })
+// card-3d 目录组件
+const modules3d = import.meta.glob('./card-3d/*/[^/]*.vue', { eager: true })
+// card-img 目录组件
+const modulesImg = import.meta.glob('./card-img/*/[^/]*.vue', { eager: true })
 
 /**
  * 自动化构建组件列表
  */
 // let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
 const dirNameList = [
+  'Card3dCube',
+  'Card3dEntanglement',
+  'Card3dSpectrum',
+  'Card3dWormhole',
+  'CardTimeOrbitFlip',
   'CardTimeAether',
   'CardTimeBeat',
   'CardTimeBlackHole',
@@ -208,10 +217,73 @@ const cardComponents = computed(() => {
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
 
+  // 处理 card-3d 目录组件
+  const d3dComponents = Object.entries(modules3d)
+    .map(([path, module]) => {
+      const match = path.match(/\/card-3d\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/3d/g, ' 3D')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
+
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：使用 defineAsyncComponent
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
+        type: 'card-3d'
+      }
+    })
+    .filter((item) => {
+      if (!dirNameList.includes(item.dirName) && item.component !== null) {
+        dirNameList1.push(item.dirName)
+      }
+      return !dirNameList.includes(item.dirName) && item.component !== null
+    })
+
   console.log([...listComponents].map((item) => item.dirName))
   console.log([...timeComponents].map((item) => item.dirName))
-  // 合并两个数组，card-time 组件在前
-  return [...listComponents, ...timeComponents]
+  console.log([...d3dComponents].map((item) => item.dirName))
+
+  // 处理 card-img 目录组件
+  const imgComponents = Object.entries(modulesImg)
+    .map(([path, module]) => {
+      const match = path.match(/\/card-img\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/Img/g, ' Image')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
+
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：使用 defineAsyncComponent
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
+        type: 'card-img'
+      }
+    })
+    .filter((item) => {
+      if (!dirNameList.includes(item.dirName) && item.component !== null) {
+        dirNameList1.push(item.dirName)
+      }
+      return !dirNameList.includes(item.dirName) && item.component !== null
+    })
+
+  console.log([...imgComponents].map((item) => item.dirName))
+  // 合并数组：card-img 组件在前，card-3d 其次，card-time 再次，card-list 最后
+  return [...imgComponents, ...d3dComponents, ...timeComponents, ...listComponents]
 })
 
 // ==================== 模板引用 ====================
@@ -261,10 +333,10 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    { root: null,
+    {root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
-    },
+    }
   )
 
   // 观察所有页面
