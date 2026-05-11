@@ -14,7 +14,7 @@ const components = {
   InfiniteScroll,
   Skeleton,
   ErrorBoundary,
-  ImagePreview
+  ImagePreview,
 }
 
 export function registerComponents(app: App) {
@@ -23,8 +23,7 @@ export function registerComponents(app: App) {
   })
 }
 
-export default {
-  install: (app: App) => {
+export default { install: (app: App) => {
     registerComponents(app)
   }
 }
