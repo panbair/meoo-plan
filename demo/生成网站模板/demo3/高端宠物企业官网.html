@@ -1,0 +1,3335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>爪爪星球 | PawsPlanet - 打造宠物幸福生活</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
+  <style>
+    :root {
+      --primary: #ff6b9d;
+      --primary-light: #ff8fb3;
+      --primary-dark: #e84a7f;
+      --accent: #ffd93d;
+      --accent2: #6bcb77;
+      --accent3: #4d96ff;
+      --accent4: #9b59b6;
+      --bg-dark: #050510;
+      --bg-dark2: #0a0a1a;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --gradient-1: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #ff8fb3 100%);
+      --gradient-2: linear-gradient(135deg, #ffd93d 0%, #ff9a3c 100%);
+      --gradient-3: linear-gradient(135deg, #6bcb77 0%, #4ade80 100%);
+      --gradient-4: linear-gradient(135deg, #4d96ff 0%, #667eea 100%);
+      --gradient-5: linear-gradient(135deg, #9b59b6 0%, #e056fd 100%);
+      --gradient-rainbow: linear-gradient(90deg, #ff6b9d, #ffd93d, #6bcb77, #4d96ff, #9b59b6);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      perspective: 2000px;
+    }
+
+    /* 加载动画 */
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      perspective: 1000px;
+    }
+    .loader-paw {
+      width: 100px;
+      height: 100px;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: pawFloat 2s ease-in-out infinite, pawRotate 4s ease-in-out infinite;
+    }
+    .loader-paw div {
+      position: absolute;
+      background: var(--gradient-1);
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(255, 107, 157, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    .loader-paw .pad {
+      width: 50px;
+      height: 50px;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%) translateZ(20px);
+    }
+    .loader-paw .toe {
+      width: 22px;
+      height: 22px;
+    }
+    .loader-paw .toe:nth-child(2) { top: 5px; left: 50%; transform: translateX(-50%) translateZ(30px); }
+    .loader-paw .toe:nth-child(3) { top: 20px; left: 15px; transform: translateZ(25px); }
+    .loader-paw .toe:nth-child(4) { top: 20px; right: 15px; transform: translateZ(25px); }
+    @keyframes pawFloat {
+      0%, 100% { transform: translateY(0) rotateX(10deg) rotateY(0deg); }
+      50% { transform: translateY(-30px) rotateX(-10deg) rotateY(180deg); }
+    }
+    @keyframes pawRotate {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.8)); }
+      50% { filter: drop-shadow(0 0 40px rgba(255, 107, 157, 1)); }
+    }
+    .loader-text {
+      margin-top: 40px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+    }
+    .loader-bar {
+      width: 200px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 25px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+    }
+    .loader-progress {
+      height: 100%;
+      background: var(--gradient-1);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 15px rgba(255, 107, 157, 0.8);
+    }
+
+    /* 滚动进度条 */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--accent3));
+      z-index: 10000;
+      transform-origin: left;
+      transform: scaleX(0);
+      box-shadow: 0 0 10px rgba(255, 107, 157, 0.8);
+    }
+
+    /* 返回顶部按钮 - 固定定位 */
+    #backToTop {
+      position: fixed !important;
+      bottom: 40px !important;
+      right: 40px !important;
+      width: 60px !important;
+      height: 60px !important;
+      background: var(--gradient-1) !important;
+      border: none !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: white !important;
+      cursor: pointer !important;
+      z-index: 99999 !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(30px) scale(0.8);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+      box-shadow: 0 10px 40px rgba(255, 107, 157, 0.5), 0 0 60px rgba(255, 107, 157, 0.3) !important;
+    }
+    #backToTop.visible {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateY(0) scale(1) !important;
+    }
+    #backToTop:hover {
+      transform: translateY(-10px) scale(1.15) !important;
+      box-shadow: 0 20px 50px rgba(255, 107, 157, 0.6), 0 0 100px rgba(255, 107, 157, 0.4) !important;
+    }
+    #backToTop:active {
+      transform: scale(0.9) !important;
+    }
+    #backToTop svg {
+      transition: transform 0.3s ease;
+    }
+    #backToTop:hover svg {
+      transform: translateY(-3px);
+    }
+    @media (max-width: 768px) {
+      #backToTop {
+        bottom: 25px !important;
+        right: 25px !important;
+        width: 52px !important;
+        height: 52px !important;
+      }
+    }
+
+    /* 导航栏 */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      transition: all 0.4s ease;
+      transform-style: preserve-3d;
+    }
+    .navbar.scrolled {
+      background: rgba(5, 5, 16, 0.9);
+      backdrop-filter: blur(25px);
+      padding: 15px 60px;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.6), 0 0 80px rgba(255, 107, 157, 0.15);
+      border-bottom: 1px solid rgba(255, 107, 157, 0.25);
+    }
+    .nav-logo {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+      cursor: pointer;
+    }
+    .nav-logo-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      transform: rotateX(15deg) rotateY(-10deg);
+      box-shadow: 0 10px 30px rgba(255, 107, 157, 0.5), 0 0 50px rgba(255, 107, 157, 0.3);
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+    .nav-logo:hover .nav-logo-icon {
+      transform: rotateX(0deg) rotateY(0deg) scale(1.15);
+    }
+    .nav-links {
+      display: flex;
+      gap: 45px;
+      align-items: center;
+    }
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+      padding: 10px 0;
+      transition: all 0.3s ease;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-1);
+      transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 0 15px rgba(255, 107, 157, 0.8);
+    }
+    .nav-link:hover {
+      color: var(--text-primary);
+      transform: translateY(-3px);
+      text-shadow: 0 0 25px rgba(255, 107, 157, 0.6);
+    }
+    .nav-link:hover::after { width: 100%; }
+    .nav-cta {
+      background: var(--gradient-1);
+      padding: 16px 35px;
+      border-radius: 35px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 40px rgba(255, 107, 157, 0.5), 0 0 60px rgba(255, 107, 157, 0.25);
+    }
+    .nav-cta:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 20px 50px rgba(255, 107, 157, 0.6), 0 0 80px rgba(255, 107, 157, 0.35);
+    }
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 7px;
+      cursor: pointer;
+      padding: 12px;
+      z-index: 101;
+    }
+    .menu-toggle span {
+      width: 32px;
+      height: 3px;
+      background: var(--text-primary);
+      border-radius: 3px;
+      transition: all 0.4s ease;
+      box-shadow: 0 0 12px rgba(255, 107, 157, 0.6);
+    }
+    .menu-toggle:hover span:nth-child(1) { transform: translateX(5px); }
+    .menu-toggle:hover span:nth-child(3) { transform: translateX(-5px); }
+
+    /* Hero区域 - 3D沉浸式 */
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 100px 60px;
+      perspective: 1500px;
+      transform-style: preserve-3d;
+    }
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      transform-style: preserve-3d;
+    }
+    
+    /* 3D分层背景 */
+    .hero-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+    }
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.7;
+      transform-style: preserve-3d;
+    }
+    .hero-orb-1 {
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(255, 107, 157, 0.9) 0%, rgba(196, 69, 105, 0.5) 50%, transparent 70%);
+      top: -300px;
+      right: -250px;
+      transform: translateZ(-100px) scale(1.3);
+      box-shadow: 0 0 120px rgba(255, 107, 157, 0.7), inset 0 0 120px rgba(255, 107, 157, 0.4);
+    }
+    .hero-orb-2 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(77, 150, 255, 0.9) 0%, rgba(102, 126, 234, 0.5) 50%, transparent 70%);
+      bottom: -200px;
+      left: -200px;
+      transform: translateZ(-200px) scale(1.2);
+      box-shadow: 0 0 100px rgba(77, 150, 255, 0.7), inset 0 0 100px rgba(77, 150, 255, 0.4);
+    }
+    .hero-orb-3 {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(255, 217, 61, 0.8) 0%, rgba(255, 154, 60, 0.4) 50%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translateZ(-150px) translateX(-50%) translateY(-50%);
+      box-shadow: 0 0 80px rgba(255, 217, 61, 0.6);
+    }
+    .hero-orb-4 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(155, 89, 182, 0.7) 0%, transparent 70%);
+      bottom: 25%;
+      right: 25%;
+      transform: translateZ(-80px);
+      box-shadow: 0 0 60px rgba(155, 89, 182, 0.6);
+    }
+    
+    /* 3D透视网格地板 */
+    .hero-grid {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 250%;
+      height: 70%;
+      background-image: 
+        linear-gradient(rgba(255, 107, 157, 0.2) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255, 107, 157, 0.2) 2px, transparent 2px);
+      background-size: 80px 80px;
+      transform: translateX(-50%) rotateX(70deg) translateZ(-50px);
+      transform-origin: bottom center;
+      mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+    }
+    .hero-grid-line {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      background: linear-gradient(to top, var(--primary), transparent);
+      transform-origin: bottom center;
+    }
+    
+    /* 3D浮动粒子 */
+    .hero-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+    }
+    .hero-particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 15px rgba(255, 107, 157, 0.9);
+    }
+    
+    /* 3D内容区 */
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 1100px;
+      transform-style: preserve-3d;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 107, 157, 0.12);
+      border: 1px solid rgba(255, 107, 157, 0.5);
+      padding: 12px 28px;
+      border-radius: 35px;
+      font-size: 0.95rem;
+      color: var(--primary-light);
+      margin-bottom: 40px;
+      backdrop-filter: blur(15px);
+      transform: translateZ(60px);
+      box-shadow: 0 12px 50px rgba(255, 107, 157, 0.25), inset 0 0 25px rgba(255, 107, 157, 0.15);
+    }
+    .hero-badge-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: pulse3d 2s infinite;
+      box-shadow: 0 0 25px var(--primary);
+    }
+    @keyframes pulse3d {
+      0%, 100% { transform: scale(1) translateZ(6px); opacity: 1; }
+      50% { transform: scale(1.6) translateZ(12px); opacity: 0.6; }
+    }
+    .hero-title {
+      font-size: clamp(4rem, 11vw, 7rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 40px;
+      transform-style: preserve-3d;
+    }
+    .hero-title-line {
+      display: block;
+      overflow: hidden;
+      perspective: 1000px;
+    }
+    .hero-title-word {
+      display: inline-block;
+      transform: translateY(100%) rotateX(-90deg);
+      transform-origin: bottom;
+      text-shadow: 0 0 80px rgba(255, 107, 157, 0.6), 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+    .hero-title-gradient {
+      background: var(--gradient-rainbow);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 300% auto;
+      animation: gradientFlow 4s linear infinite;
+      filter: drop-shadow(0 0 40px rgba(255, 107, 157, 0.9));
+    }
+    @keyframes gradientFlow {
+      to { background-position: 300% center; }
+    }
+    .hero-subtitle {
+      font-size: 1.6rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin: 0 auto 60px;
+      line-height: 2;
+      transform: translateZ(40px);
+      text-shadow: 0 3px 25px rgba(0, 0, 0, 0.6);
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+      transform-style: preserve-3d;
+    }
+    .hero-btn {
+      padding: 22px 50px;
+      border-radius: 55px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+    .hero-btn-primary {
+      background: var(--gradient-1);
+      color: white;
+      box-shadow: 0 18px 60px rgba(255, 107, 157, 0.6), 0 0 100px rgba(255, 107, 157, 0.35), inset 0 -6px 25px rgba(0, 0, 0, 0.25);
+      transform: translateZ(50px);
+    }
+    .hero-btn-primary:hover {
+      transform: translateY(-10px) translateZ(70px) scale(1.08);
+      box-shadow: 0 30px 70px rgba(255, 107, 157, 0.7), 0 0 120px rgba(255, 107, 157, 0.45);
+    }
+    .hero-btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      color: white;
+      backdrop-filter: blur(25px);
+      transform: translateZ(40px);
+      box-shadow: 0 12px 50px rgba(0, 0, 0, 0.4), inset 0 0 40px rgba(255, 255, 255, 0.08);
+    }
+    .hero-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--primary);
+      transform: translateY(-10px) translateZ(60px) scale(1.08);
+      box-shadow: 0 25px 60px rgba(255, 107, 157, 0.35), 0 0 80px rgba(255, 107, 157, 0.25);
+    }
+    
+    /* 3D悬浮卡片 */
+    .hero-floating-cards {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      transform-style: preserve-3d;
+    }
+    .floating-card {
+      position: absolute;
+      width: 220px;
+      height: 290px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(35px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px;
+      transform-style: preserve-3d;
+      box-shadow: 
+        0 35px 70px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(255, 107, 157, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .floating-card-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border: 5px solid rgba(255, 107, 157, 0.6);
+      box-shadow: 0 0 40px rgba(255, 107, 157, 0.5), 0 15px 40px rgba(0, 0, 0, 0.4);
+      transform: translateZ(35px);
+      transition: all 0.5s ease;
+    }
+    .floating-card:hover .floating-card-img {
+      transform: translateZ(45px) scale(1.1);
+      box-shadow: 0 0 60px rgba(255, 107, 157, 0.7), 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+    .floating-card-name {
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+      transform: translateZ(25px);
+    }
+    .floating-card-breed {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      transform: translateZ(18px);
+    }
+    .floating-card-1 { top: 10%; left: 2%; transform: translateZ(100px) rotateY(18deg) rotateX(-6deg); }
+    .floating-card-2 { top: 12%; right: 2%; transform: translateZ(120px) rotateY(-22deg) rotateX(6deg); }
+    .floating-card-3 { bottom: 12%; left: 6%; transform: translateZ(70px) rotateY(12deg) rotateX(10deg); }
+    .floating-card-4 { bottom: 10%; right: 6%; transform: translateZ(110px) rotateY(-18deg) rotateX(-10deg); }
+    
+    /* 统计数据 */
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 100px;
+      margin-top: 120px;
+      transform-style: preserve-3d;
+    }
+    .hero-stat {
+      text-align: center;
+      transform: translateZ(50px);
+      position: relative;
+    }
+    .hero-stat::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: var(--gradient-1);
+      box-shadow: 0 0 20px var(--primary);
+      border-radius: 2px;
+    }
+    .hero-stat-number {
+      font-size: 4rem;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 50px rgba(255, 107, 157, 0.6);
+    }
+    .hero-stat-label {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-top: 12px;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    /* 3D装饰线 */
+    .hero-decoration {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform-style: preserve-3d;
+    }
+    .hero-line {
+      position: absolute;
+      background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+      opacity: 0.4;
+    }
+    .hero-line-1 { left: 12%; height: 45%; bottom: 0; width: 3px; transform: translateZ(-60px); }
+    .hero-line-2 { right: 18%; height: 55%; bottom: 0; width: 3px; transform: translateZ(-100px); }
+
+    /* 品牌故事 - 3D时间线 */
+    .story {
+      padding: 180px 60px;
+      position: relative;
+      overflow: hidden;
+      perspective: 2500px;
+      transform-style: preserve-3d;
+    }
+    .story-bg {
+      position: absolute;
+      width: 160%;
+      height: 160%;
+      top: -30%;
+      left: -30%;
+      background: 
+        radial-gradient(ellipse at 30% 20%, rgba(255, 107, 157, 0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(77, 150, 255, 0.12) 0%, transparent 50%);
+      transform: translateZ(-250px);
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 120px;
+      transform-style: preserve-3d;
+      transform: translateZ(60px);
+    }
+    .section-label {
+      display: inline-block;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 5px;
+      color: var(--primary);
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      text-shadow: 0 0 40px rgba(255, 107, 157, 0.6);
+    }
+    .section-title {
+      font-size: clamp(3.5rem, 7vw, 5rem);
+      font-weight: 900;
+      margin-bottom: 30px;
+      text-shadow: 0 0 80px rgba(255, 107, 157, 0.4), 0 15px 50px rgba(0, 0, 0, 0.6);
+    }
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.35rem;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 2;
+      text-shadow: 0 3px 25px rgba(0, 0, 0, 0.6);
+    }
+    .story-timeline {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      transform-style: preserve-3d;
+    }
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      background: linear-gradient(to bottom, var(--primary), var(--accent3), var(--accent));
+      border-radius: 4px;
+      transform: translateX(-50%) translateZ(-25px);
+      box-shadow: 0 0 40px rgba(255, 107, 157, 0.6), 0 0 80px rgba(77, 150, 255, 0.4);
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 100px;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+    .timeline-item:nth-child(odd) { flex-direction: row; }
+    .timeline-item:nth-child(even) { flex-direction: row-reverse; }
+    .timeline-content {
+      width: 46%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 32px;
+      padding: 55px;
+      position: relative;
+      backdrop-filter: blur(25px);
+      transform-style: preserve-3d;
+      box-shadow: 
+        0 35px 90px rgba(0, 0, 0, 0.5),
+        0 0 60px rgba(255, 107, 157, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .timeline-content:hover {
+      transform: translateZ(30px) scale(1.02);
+      box-shadow: 
+        0 45px 100px rgba(0, 0, 0, 0.6),
+        0 0 80px rgba(255, 107, 157, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    .timeline-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 32px;
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.12) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) translateZ(40px);
+      width: 35px;
+      height: 35px;
+      background: var(--gradient-1);
+      border-radius: 50%;
+      border: 6px solid var(--bg-dark);
+      z-index: 2;
+      box-shadow: 0 0 50px rgba(255, 107, 157, 0.9), 0 0 100px rgba(255, 107, 157, 0.5);
+    }
+    .timeline-year {
+      font-size: 4rem;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 22px;
+      text-shadow: 0 0 50px rgba(255, 107, 157, 0.6);
+      transform: translateZ(25px);
+    }
+    .timeline-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      transform: translateZ(18px);
+    }
+    .timeline-text {
+      color: var(--text-secondary);
+      line-height: 1.9;
+      transform: translateZ(12px);
+    }
+    .timeline-icon {
+      font-size: 4rem;
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      opacity: 0.3;
+      transform: translateZ(6px);
+    }
+
+    /* 服务项目 - 3D卡片 */
+    .services {
+      padding: 180px 60px;
+      position: relative;
+      perspective: 2500px;
+      transform-style: preserve-3d;
+    }
+    .services::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(255, 107, 157, 0.06) 50%, transparent 100%);
+      pointer-events: none;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      transform-style: preserve-3d;
+    }
+    .service-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 36px;
+      padding: 60px 45px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+      box-shadow: 
+        0 35px 90px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: var(--card-gradient);
+      transform: scaleX(0);
+      transition: transform 0.6s ease;
+      box-shadow: 0 0 25px var(--card-gradient);
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.18) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    .service-card:hover::after { opacity: 1; }
+    .service-card:hover {
+      transform: translateY(-25px) translateZ(60px) rotateX(6deg);
+      border-color: rgba(255, 107, 157, 0.5);
+      box-shadow: 
+        0 55px 110px rgba(0, 0, 0, 0.6),
+        0 0 100px rgba(255, 107, 157, 0.25);
+    }
+    .service-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 40px;
+      background: var(--card-gradient);
+      border-radius: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      transition: all 0.7s ease;
+      transform: translateZ(35px);
+      box-shadow: 
+        0 18px 50px rgba(255, 107, 157, 0.5),
+        0 0 80px rgba(255, 107, 157, 0.25),
+        inset 0 -6px 25px rgba(0, 0, 0, 0.25);
+    }
+    .service-card:hover .service-icon {
+      transform: translateZ(60px) rotateY(360deg) scale(1.15);
+      box-shadow: 
+        0 25px 60px rgba(255, 107, 157, 0.6),
+        0 0 100px rgba(255, 107, 157, 0.35);
+    }
+    .service-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 22px;
+      transform: translateZ(25px);
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+    }
+    .service-desc {
+      color: var(--text-secondary);
+      line-height: 1.9;
+      margin-bottom: 32px;
+      transform: translateZ(18px);
+    }
+    .service-price {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: var(--card-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transform: translateZ(30px);
+      text-shadow: 0 0 40px rgba(255, 107, 157, 0.4);
+    }
+    .service-price span {
+      font-size: 1.1rem;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+    .service-card:nth-child(1) { --card-gradient: var(--gradient-1); }
+    .service-card:nth-child(2) { --card-gradient: var(--gradient-2); }
+    .service-card:nth-child(3) { --card-gradient: var(--gradient-3); }
+    .service-card:nth-child(4) { --card-gradient: var(--gradient-4); }
+    .service-card:nth-child(5) { --card-gradient: var(--gradient-5); }
+    .service-card:nth-child(6) { --card-gradient: var(--gradient-1); }
+
+    /* 明星宠物画廊 - 3D堆叠 */
+    .pets {
+      padding: 180px 60px;
+      position: relative;
+      perspective: 3000px;
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
+    .pets-bg {
+      position: absolute;
+      width: 160%;
+      height: 160%;
+      top: -30%;
+      left: -30%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(255, 217, 61, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(77, 150, 255, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(155, 89, 182, 0.1) 0%, transparent 50%);
+      transform: translateZ(-350px);
+    }
+    .pets-showcase {
+      max-width: 1600px;
+      margin: 0 auto;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+    .pets-mosaic {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 300px);
+      gap: 30px;
+      transform-style: preserve-3d;
+    }
+    .pet-card {
+      position: relative;
+      border-radius: 32px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+      box-shadow: 
+        0 35px 90px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .pet-card:nth-child(1) { 
+      grid-column: span 2; 
+      grid-row: span 2;
+      transform: translateZ(80px) rotateX(-4deg);
+    }
+    .pet-card:nth-child(4) { 
+      grid-column: span 2;
+      transform: translateZ(50px) rotateX(3deg);
+    }
+    .pet-card:nth-child(7) { 
+      grid-column: span 2;
+      transform: translateZ(60px) rotateX(-3deg);
+    }
+    .pet-card:nth-child(2) { transform: translateZ(35px) rotateY(6deg); }
+    .pet-card:nth-child(3) { transform: translateZ(40px) rotateY(-4deg); }
+    .pet-card:nth-child(5) { transform: translateZ(28px) rotateY(4deg); }
+    .pet-card:nth-child(6) { transform: translateZ(22px) rotateY(-6deg); }
+    .pet-card:nth-child(8) { transform: translateZ(50px) rotateY(3deg); }
+    
+    .pet-card:hover {
+      z-index: 100;
+      transform: translateZ(120px) scale(1.1) rotateX(0deg) rotateY(0deg) !important;
+      box-shadow: 
+        0 60px 140px rgba(0, 0, 0, 0.7),
+        0 0 120px rgba(255, 107, 157, 0.4);
+    }
+    .pet-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease;
+      filter: brightness(0.92) contrast(1.08);
+    }
+    .pet-card:hover .pet-card-img {
+      transform: scale(1.2);
+      filter: brightness(1.02) contrast(1.12);
+    }
+    .pet-card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 40px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+      transform: translateY(110%) translateZ(25px);
+      transition: transform 0.6s ease;
+    }
+    .pet-card:hover .pet-card-overlay {
+      transform: translateY(0) translateZ(35px);
+    }
+    .pet-card-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.9);
+    }
+    .pet-card-info {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1.05rem;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+    }
+    .pet-card-badge {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      background: var(--gradient-1);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 12px 40px rgba(255, 107, 157, 0.6);
+      transform: translateZ(35px);
+    }
+
+    /* 健康数据仪表盘 - 3D立体 */
+    .health {
+      padding: 180px 60px;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark2) 50%, var(--bg-dark) 100%);
+      position: relative;
+      overflow: hidden;
+      perspective: 2500px;
+      transform-style: preserve-3d;
+    }
+    .health::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 160%;
+      height: 160%;
+      background: 
+        radial-gradient(ellipse at center, rgba(255, 107, 157, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 30%, rgba(255, 217, 61, 0.1) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 70%, rgba(77, 150, 255, 0.1) 0%, transparent 40%);
+      transform: translate(-50%, -50%) translateZ(-120px);
+      pointer-events: none;
+    }
+    .health-dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-top: 80px;
+      transform-style: preserve-3d;
+    }
+    .health-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 36px;
+      padding: 50px 35px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      box-shadow: 
+        0 35px 90px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.6s ease;
+    }
+    .health-card:hover {
+      transform: translateY(-20px) translateZ(50px);
+      box-shadow: 
+        0 55px 120px rgba(0, 0, 0, 0.6),
+        0 0 100px rgba(255, 107, 157, 0.25);
+    }
+    .health-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: var(--health-gradient);
+      box-shadow: 0 0 40px var(--health-gradient);
+    }
+    .health-card::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -60%;
+      width: 220%;
+      height: 220%;
+      background: radial-gradient(circle, var(--health-gradient) 0%, transparent 70%);
+      opacity: 0.06;
+      pointer-events: none;
+    }
+    .health-ring {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 35px;
+      position: relative;
+      transform: translateZ(35px);
+      perspective: 600px;
+    }
+    .health-ring::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 155px;
+      height: 155px;
+      background: rgba(5, 5, 16, 0.85);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) translateZ(-25px);
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+    }
+    .health-ring svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      filter: drop-shadow(0 0 25px rgba(255, 107, 157, 0.6));
+    }
+    .health-ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 14;
+    }
+    .health-ring-progress {
+      fill: none;
+      stroke: url(#healthGradient);
+      stroke-width: 14;
+      stroke-linecap: round;
+      stroke-dasharray: 500;
+      stroke-dashoffset: 500;
+      transition: stroke-dashoffset 2.5s ease;
+      filter: drop-shadow(0 0 12px rgba(255, 107, 157, 0.9));
+    }
+    .health-ring-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) translateZ(12px);
+      font-size: 3.2rem;
+      font-weight: 900;
+      text-shadow: 0 0 40px rgba(255, 107, 157, 0.6);
+    }
+    .health-title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      transform: translateZ(25px);
+    }
+    .health-desc {
+      color: var(--text-muted);
+      font-size: 1rem;
+      transform: translateZ(12px);
+    }
+    .health-card:nth-child(1) { --health-gradient: var(--gradient-1); }
+    .health-card:nth-child(2) { --health-gradient: var(--gradient-2); }
+    .health-card:nth-child(3) { --health-gradient: var(--gradient-3); }
+    .health-card:nth-child(4) { --health-gradient: var(--gradient-4); }
+
+    /* 团队展示 - 3D翻转卡 */
+    .team {
+      padding: 180px 60px;
+      position: relative;
+      perspective: 2500px;
+      transform-style: preserve-3d;
+    }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      transform-style: preserve-3d;
+    }
+    .team-card {
+      perspective: 1800px;
+      height: 480px;
+      transform-style: preserve-3d;
+    }
+    .team-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+    }
+    .team-card:hover .team-card-inner {
+      transform: rotateY(180deg) translateZ(25px);
+    }
+    .team-card-front, .team-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 
+        0 35px 90px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .team-card-front {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 50px;
+      transform: translateZ(50px);
+    }
+    .team-avatar {
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 32px;
+      border: 6px solid var(--primary);
+      box-shadow: 
+        0 0 50px rgba(255, 107, 157, 0.6),
+        0 18px 50px rgba(0, 0, 0, 0.4);
+      transform: translateZ(35px);
+      transition: all 0.6s ease;
+    }
+    .team-card:hover .team-avatar {
+      transform: translateZ(60px) scale(1.12);
+      box-shadow: 
+        0 0 70px rgba(255, 107, 157, 0.8),
+        0 25px 60px rgba(0, 0, 0, 0.5);
+    }
+    .team-name {
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      transform: translateZ(30px);
+    }
+    .team-role {
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 500;
+      transform: translateZ(25px);
+    }
+    .team-card-back {
+      background: var(--gradient-1);
+      transform: rotateY(180deg) translateZ(50px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 50px;
+      text-align: center;
+      box-shadow: 
+        0 35px 90px rgba(255, 107, 157, 0.5),
+        inset 0 0 80px rgba(255, 255, 255, 0.25);
+    }
+    .team-bio {
+      color: rgba(255, 255, 255, 0.97);
+      line-height: 2;
+      margin-bottom: 35px;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+    }
+    .team-social {
+      display: flex;
+      gap: 22px;
+    }
+    .team-social-link {
+      width: 55px;
+      height: 55px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: all 0.5s ease;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+      transform: translateZ(35px);
+    }
+    .team-social-link:hover {
+      background: white;
+      color: var(--primary);
+      transform: translateZ(50px) scale(1.18);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    /* 评价系统 */
+    .testimonials {
+      padding: 180px 60px;
+      background: linear-gradient(180deg, var(--bg-dark2) 0%, var(--bg-dark) 100%);
+      position: relative;
+      overflow: hidden;
+      perspective: 2500px;
+      transform-style: preserve-3d;
+    }
+    .testimonials::before {
+      content: '';
+      position: absolute;
+      width: 160%;
+      height: 160%;
+      top: -30%;
+      left: -30%;
+      background: radial-gradient(ellipse at center, rgba(255, 107, 157, 0.12) 0%, transparent 60%);
+      transform: translateZ(-250px);
+    }
+    .testimonials-slider {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      perspective: 1800px;
+      transform-style: preserve-3d;
+    }
+    .testimonial-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 40px;
+      padding: 80px;
+      text-align: center;
+      position: relative;
+      transform-style: preserve-3d;
+      box-shadow: 
+        0 45px 120px rgba(0, 0, 0, 0.5),
+        0 0 100px rgba(255, 107, 157, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .testimonial-quote {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%) translateZ(35px);
+      font-size: 9rem;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0.3;
+      line-height: 1;
+      text-shadow: 0 0 80px rgba(255, 107, 157, 0.6);
+    }
+    .testimonial-text {
+      font-size: 1.75rem;
+      line-height: 2;
+      margin-bottom: 50px;
+      color: var(--text-primary);
+      transform: translateZ(30px);
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.6);
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      transform: translateZ(25px);
+    }
+    .testimonial-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid var(--primary);
+      box-shadow: 0 0 40px rgba(255, 107, 157, 0.6), 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+    .testimonial-info {
+      text-align: left;
+    }
+    .testimonial-name {
+      font-weight: 700;
+      font-size: 1.45rem;
+      margin-bottom: 8px;
+    }
+    .testimonial-role {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+    .testimonial-rating {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 40px;
+      transform: translateZ(18px);
+    }
+    .testimonial-star {
+      color: var(--accent);
+      font-size: 2rem;
+      text-shadow: 0 0 25px rgba(255, 217, 61, 0.9);
+    }
+    .testimonial-dots {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 60px;
+      transform: translateZ(25px);
+    }
+    .testimonial-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: all 0.5s ease;
+      box-shadow: 0 0 18px rgba(255, 107, 157, 0.35);
+    }
+    .testimonial-dot.active {
+      background: var(--gradient-1);
+      width: 50px;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(255, 107, 157, 0.7);
+    }
+
+    /* 联系方式 */
+    .contact {
+      padding: 180px 60px;
+      position: relative;
+      overflow: hidden;
+      perspective: 2500px;
+      transform-style: preserve-3d;
+    }
+    .contact-bg {
+      position: absolute;
+      width: 160%;
+      height: 160%;
+      top: -30%;
+      left: -30%;
+      background: radial-gradient(ellipse at center, rgba(255, 107, 157, 0.15) 0%, transparent 60%);
+      transform: translateZ(-250px);
+    }
+    .contact-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 120px;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      transform-style: preserve-3d;
+    }
+    .contact-info {
+      transform: translateZ(60px);
+    }
+    .contact-info h3 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      text-shadow: 0 0 50px rgba(255, 107, 157, 0.4);
+    }
+    .contact-info p {
+      color: var(--text-secondary);
+      line-height: 2;
+      margin-bottom: 50px;
+      font-size: 1.2rem;
+    }
+    .contact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 35px;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      transform: translateZ(25px);
+      transition: all 0.4s ease;
+    }
+    .contact-item:hover {
+      transform: translateZ(35px) translateX(12px);
+    }
+    .contact-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--gradient-1);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 
+        0 18px 50px rgba(255, 107, 157, 0.5),
+        0 0 80px rgba(255, 107, 157, 0.25);
+      transform: translateZ(18px);
+      transition: all 0.4s ease;
+    }
+    .contact-item:hover .contact-icon {
+      transform: translateZ(28px) scale(1.1);
+      box-shadow: 
+        0 25px 60px rgba(255, 107, 157, 0.6),
+        0 0 100px rgba(255, 107, 157, 0.35);
+    }
+    .contact-item-text h4 {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 1.2rem;
+    }
+    .contact-item-text span {
+      color: var(--text-muted);
+    }
+    .contact-form {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 40px;
+      padding: 60px;
+      backdrop-filter: blur(35px);
+      transform-style: preserve-3d;
+      transform: translateZ(50px);
+      box-shadow: 
+        0 45px 120px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .form-group {
+      margin-bottom: 32px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transform: translateZ(12px);
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 22px 32px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      font-family: inherit;
+      transition: all 0.5s ease;
+      transform: translateZ(18px);
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 50px rgba(255, 107, 157, 0.4), 0 0 100px rgba(255, 107, 157, 0.15);
+      transform: translateZ(25px);
+    }
+    .form-group textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+    .form-submit {
+      width: 100%;
+      padding: 25px;
+      background: var(--gradient-1);
+      border: none;
+      border-radius: 22px;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.6s ease;
+      transform: translateZ(35px);
+      box-shadow: 
+        0 18px 60px rgba(255, 107, 157, 0.6),
+        0 0 100px rgba(255, 107, 157, 0.35);
+    }
+    .form-submit:hover {
+      transform: translateZ(55px) translateY(-6px);
+      box-shadow: 
+        0 30px 70px rgba(255, 107, 157, 0.7),
+        0 0 120px rgba(255, 107, 157, 0.45);
+    }
+
+    /* 页脚 */
+    .footer {
+      padding: 100px 60px 50px;
+      background: linear-gradient(180deg, var(--bg-dark2) 0%, #050510 100%);
+      border-top: 1px solid rgba(255, 107, 157, 0.12);
+      transform-style: preserve-3d;
+    }
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr repeat(3, 1fr);
+      gap: 80px;
+      margin-bottom: 80px;
+    }
+    .footer-brand h3 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 30px;
+      text-shadow: 0 0 50px rgba(255, 107, 157, 0.6);
+    }
+    .footer-brand p {
+      color: var(--text-muted);
+      line-height: 2;
+      margin-bottom: 35px;
+    }
+    .footer-social {
+      display: flex;
+      gap: 22px;
+    }
+    .footer-social a {
+      width: 55px;
+      height: 55px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: all 0.5s ease;
+      transform: translateZ(12px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+    .footer-social a:hover {
+      background: var(--gradient-1);
+      color: white;
+      transform: translateZ(25px) translateY(-10px);
+      box-shadow: 0 25px 50px rgba(255, 107, 157, 0.5);
+    }
+    .footer-column h4 {
+      font-weight: 700;
+      margin-bottom: 32px;
+      font-size: 1.25rem;
+    }
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.4s ease;
+      transform: translateZ(6px);
+    }
+    .footer-links a:hover {
+      color: var(--primary);
+      transform: translateZ(12px) translateX(10px);
+      text-shadow: 0 0 25px rgba(255, 107, 157, 0.6);
+    }
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-top: 55px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* 滚动动画优化 */
+    .reveal-text {
+      overflow: hidden;
+    }
+    .reveal-text span {
+      display: inline-block;
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    
+    /* Section 背景光效 */
+    .section-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .section-glow-1 { background: radial-gradient(circle, rgba(255, 107, 157, 0.6) 0%, transparent 70%); }
+    .section-glow-2 { background: radial-gradient(circle, rgba(77, 150, 255, 0.6) 0%, transparent 70%); }
+    .section-glow-3 { background: radial-gradient(circle, rgba(255, 217, 61, 0.6) 0%, transparent 70%); }
+    
+    /* 滚动进度指示器 */
+    .scroll-indicator {
+      position: fixed;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 100;
+    }
+    .scroll-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(255, 107, 157, 0.5);
+      cursor: pointer;
+      transition: all 0.4s ease;
+      position: relative;
+    }
+    .scroll-dot::after {
+      content: attr(data-label);
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .scroll-dot:hover::after {
+      opacity: 1;
+      right: 40px;
+    }
+    .scroll-dot.active {
+      background: var(--gradient-1);
+      border-color: var(--primary);
+      transform: scale(1.3);
+      box-shadow: 0 0 20px rgba(255, 107, 157, 0.8);
+    }
+    
+    /* 3D装饰元素 */
+    .float-element {
+      position: absolute;
+      pointer-events: none;
+    }
+    .float-circle {
+      width: 300px;
+      height: 300px;
+      border: 2px solid rgba(255, 107, 157, 0.15);
+      border-radius: 50%;
+    }
+    .float-dots {
+      width: 150px;
+      height: 150px;
+      border: 2px dashed rgba(77, 150, 255, 0.2);
+      border-radius: 50%;
+    }
+    .float-cross {
+      font-size: 3rem;
+      color: rgba(255, 217, 61, 0.2);
+      font-weight: 100;
+    }
+
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .pets-mosaic { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+      .pet-card:nth-child(1) { grid-column: span 2; grid-row: span 1; transform: translateZ(35px); }
+      .pet-card:nth-child(4) { grid-column: span 1; }
+      .pet-card:nth-child(7) { grid-column: span 2; }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .health-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-content { grid-template-columns: repeat(2, 1fr); }
+      .scroll-indicator { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 15px 20px; }
+      .nav-links { display: none; }
+      .menu-toggle { display: flex; }
+      .hero { padding: 100px 20px; }
+      .hero-stats { flex-direction: column; gap: 50px; }
+      .hero-floating-cards { display: none; }
+      .story, .services, .pets, .health, .team, .testimonials, .contact { padding: 100px 20px; }
+      .timeline-line { display: none; }
+      .timeline-item { flex-direction: column !important; }
+      .timeline-content { width: 100%; }
+      .services-grid { grid-template-columns: 1fr; }
+      .pets-mosaic { grid-template-columns: 1fr; }
+      .pet-card:nth-child(1), .pet-card:nth-child(4), .pet-card:nth-child(7) { grid-column: span 1; }
+      .health-grid { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
+      .contact-content { grid-template-columns: 1fr; gap: 60px; }
+      .footer-content { grid-template-columns: 1fr; gap: 50px; }
+      .footer-bottom { flex-direction: column; gap: 22px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 加载动画 -->
+  <div class="loader">
+    <div class="loader-paw">
+      <div class="pad"></div>
+      <div class="toe"></div>
+      <div class="toe"></div>
+      <div class="toe"></div>
+    </div>
+    <div class="loader-text">爪爪星球</div>
+    <div class="loader-bar"><div class="loader-progress"></div></div>
+  </div>
+
+  <!-- 滚动进度条 -->
+  <div class="scroll-progress"></div>
+  
+  <!-- 滚动进度指示器 -->
+  <div class="scroll-indicator">
+    <div class="scroll-dot active" data-label="首页" data-target="home"></div>
+    <div class="scroll-dot" data-label="故事" data-target="story"></div>
+    <div class="scroll-dot" data-label="服务" data-target="services"></div>
+    <div class="scroll-dot" data-label="萌宠" data-target="pets"></div>
+    <div class="scroll-dot" data-label="健康" data-target="health"></div>
+    <div class="scroll-dot" data-label="团队" data-target="team"></div>
+    <div class="scroll-dot" data-label="联系" data-target="contact"></div>
+  </div>
+
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">🐾</div>
+      <span>爪爪星球</span>
+    </div>
+    <div class="nav-links">
+      <a href="#home" class="nav-link">首页</a>
+      <a href="#story" class="nav-link">品牌故事</a>
+      <a href="#services" class="nav-link">服务项目</a>
+      <a href="#pets" class="nav-link">明星宠物</a>
+      <a href="#team" class="nav-link">专业团队</a>
+      <a href="#contact" class="nav-link">联系我们</a>
+    </div>
+    <a href="#contact" class="nav-cta">立即预约</a>
+    <div class="menu-toggle">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- Hero区域 -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <!-- 3D分层光球 -->
+      <div class="hero-layer">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-orb hero-orb-3"></div>
+        <div class="hero-orb hero-orb-4"></div>
+      </div>
+      
+      <!-- 3D透视网格 -->
+      <div class="hero-grid"></div>
+      
+      <!-- 3D装饰线 -->
+      <div class="hero-decoration">
+        <div class="hero-line hero-line-1"></div>
+        <div class="hero-line hero-line-2"></div>
+      </div>
+      
+      <!-- 粒子 -->
+      <div class="hero-particles"></div>
+    </div>
+
+    <!-- 3D悬浮卡片 -->
+    <div class="hero-floating-cards">
+      <div class="floating-card floating-card-1">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200" alt="金毛" class="floating-card-img">
+        <div class="floating-card-name">豆豆</div>
+        <div class="floating-card-breed">金毛寻回犬</div>
+      </div>
+      <div class="floating-card floating-card-2">
+        <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200" alt="英短" class="floating-card-img">
+        <div class="floating-card-name">团子</div>
+        <div class="floating-card-breed">英国短毛猫</div>
+      </div>
+      <div class="floating-card floating-card-3">
+        <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=200" alt="柯基" class="floating-card-img">
+        <div class="floating-card-name">旺财</div>
+        <div class="floating-card-breed">彭布罗克威尔士柯基</div>
+      </div>
+      <div class="floating-card floating-card-4">
+        <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200" alt="布偶" class="floating-card-img">
+        <div class="floating-card-name">雪球</div>
+        <div class="floating-card-breed">布偶猫</div>
+      </div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        <span>专业宠物服务领先品牌</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="hero-title-line">
+          <span class="hero-title-word">给爱宠</span>
+        </span>
+        <span class="hero-title-line">
+          <span class="hero-title-word hero-title-gradient">五星级的家</span>
+        </span>
+      </h1>
+      <p class="hero-subtitle">
+        爪爪星球专注于为每一位毛孩子提供最专业、最贴心的服务。<br>
+        从健康成长到快乐陪伴，我们用爱守护每一个小生命。
+      </p>
+      <div class="hero-buttons">
+        <a href="#services" class="hero-btn hero-btn-primary">探索服务</a>
+        <a href="#pets" class="hero-btn hero-btn-secondary">认识萌宠</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-number" data-value="50">0</div>
+          <div class="hero-stat-label">专业服务团队</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number" data-value="10000">0</div>
+          <div class="hero-stat-label">服务萌宠数量</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number" data-value="98">0</div>
+          <div class="hero-stat-label">客户满意度 %</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number" data-value="8">0</div>
+          <div class="hero-stat-label">年服务经验</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 品牌故事 -->
+  <section class="story" id="story">
+    <div class="story-bg"></div>
+    <div class="section-glow section-glow-1"></div>
+    <div class="section-glow section-glow-2"></div>
+    <!-- 3D装饰元素 -->
+    <div class="float-element float-circle" style="top: 15%; left: 5%;"></div>
+    <div class="float-element float-dots" style="top: 60%; right: 8%;"></div>
+    <div class="section-header">
+      <div class="section-label">OUR STORY</div>
+      <h2 class="section-title">品牌故事</h2>
+      <p class="section-desc">从一个小小的宠物店，到如今的专业宠物服务平台，我们始终坚持"以爱为本"的理念</p>
+    </div>
+    <div class="story-timeline">
+      <div class="timeline-line"></div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2016</div>
+          <div class="timeline-title">梦想起航</div>
+          <div class="timeline-text">创始人小王在自家客厅开设了第一家宠物店，只为给社区的毛孩子们提供一个温馨的聚集地。</div>
+          <div class="timeline-icon">🏠</div>
+        </div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2018</div>
+          <div class="timeline-title">专业升级</div>
+          <div class="timeline-text">引入国际先进的宠物护理理念，建立专业培训体系，服务范围扩展至医疗、美容、寄宿等全方位服务。</div>
+          <div class="timeline-icon">🏥</div>
+        </div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2020</div>
+          <div class="timeline-title">数字化转型</div>
+          <div class="timeline-text">推出线上预约、智能养宠管理系统，让每一位宠物主人都能随时随地掌握爱宠的健康动态。</div>
+          <div class="timeline-icon">📱</div>
+        </div>
+        <div class="timeline-dot"></div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-year">2024</div>
+          <div class="timeline-title">行业标杆</div>
+          <div class="timeline-text">成为本地最具影响力的宠物服务平台，拥有5家直营门店，服务超过10000只萌宠，满意度高达98%。</div>
+          <div class="timeline-icon">🏆</div>
+        </div>
+        <div class="timeline-dot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 服务项目 -->
+  <section class="services" id="services">
+    <div class="section-glow section-glow-3"></div>
+    <div class="float-element float-cross" style="top: 20%; right: 10%;">✦</div>
+    <div class="float-element float-circle" style="bottom: 10%; left: 8%; opacity: 0.5;"></div>
+    <div class="section-header">
+      <div class="section-label">OUR SERVICES</div>
+      <h2 class="section-title">专业服务</h2>
+      <p class="section-desc">一站式宠物服务解决方案，让您的爱宠享受全方位呵护</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">🛁</div>
+        <h3 class="service-title">精致洗护</h3>
+        <p class="service-desc">采用天然有机洗护产品，为不同肤质宠物定制护理方案，让毛发柔顺亮泽</p>
+        <div class="service-price">¥88 <span>起</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">✂️</div>
+        <h3 class="service-title">创意美容</h3>
+        <p class="service-desc">专业美容师打造时尚造型，从经典到潮流，满足不同品种的美容需求</p>
+        <div class="service-price">¥128 <span>起</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">💊</div>
+        <h3 class="service-title">健康医疗</h3>
+        <p class="service-desc">专业兽医团队，先进医疗设备，提供体检、疫苗、手术等全方位医疗服务</p>
+        <div class="service-price">¥199 <span>起</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🍖</div>
+        <h3 class="service-title">营养膳食</h3>
+        <p class="service-desc">宠物营养师定制食谱，科学配比，均衡营养，让爱宠健康快乐成长</p>
+        <div class="service-price">¥68 <span>起</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏠</div>
+        <h3 class="service-title">舒适寄宿</h3>
+        <p class="service-desc">温馨舒适的住宿环境，24小时贴心照护，让您出行无忧</p>
+        <div class="service-price">¥158 <span>起</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎓</div>
+        <h3 class="service-title">行为训练</h3>
+        <p class="service-desc">专业训导师一对一指导，纠正不良行为，培养良好习惯</p>
+        <div class="service-price">¥268 <span>起</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 明星宠物画廊 -->
+  <section class="pets" id="pets">
+    <div class="pets-bg"></div>
+    <div class="section-glow section-glow-1"></div>
+    <div class="float-element float-dots" style="top: 30%; left: 3%;"></div>
+    <div class="float-element float-circle" style="bottom: 20%; right: 5%;"></div>
+    <div class="section-header">
+      <div class="section-label">STAR PETS</div>
+      <h2 class="section-title">明星萌宠</h2>
+      <p class="section-desc">认识一下我们的小明星，它们在爪爪星球快乐生活</p>
+    </div>
+    <div class="pets-showcase">
+      <div class="pets-mosaic">
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="金毛" class="pet-card-img">
+          <div class="pet-card-badge">人气冠军</div>
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">豆豆</div>
+            <div class="pet-card-info">金毛寻回犬 · 3岁 · 男孩子</div>
+          </div>
+        </div>
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600" alt="英短" class="pet-card-img">
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">团子</div>
+            <div class="pet-card-info">英国短毛猫 · 2岁</div>
+          </div>
+        </div>
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=600" alt="柯基" class="pet-card-img">
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">旺财</div>
+            <div class="pet-card-info">柯基犬 · 4岁</div>
+          </div>
+        </div>
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=800" alt="布偶" class="pet-card-img">
+          <div class="pet-card-badge">可爱担当</div>
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">雪球</div>
+            <div class="pet-card-info">布偶猫 · 1.5岁</div>
+          </div>
+        </div>
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600" alt="杜宾" class="pet-card-img">
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">黑豹</div>
+            <div class="pet-card-info">杜宾犬 · 2岁</div>
+          </div>
+        </div>
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=600" alt="美短" class="pet-card-img">
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">花花</div>
+            <div class="pet-card-info">美国短毛猫 · 3岁</div>
+          </div>
+        </div>
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1477884213360-7e9d7dcc1e48?w=800" alt="萨摩耶" class="pet-card-img">
+          <div class="pet-card-badge">微笑天使</div>
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">小白</div>
+            <div class="pet-card-info">萨摩耶 · 2.5岁</div>
+          </div>
+        </div>
+        <div class="pet-card">
+          <img src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=600" alt="橘猫" class="pet-card-img">
+          <div class="pet-card-overlay">
+            <div class="pet-card-name">橘子</div>
+            <div class="pet-card-info">橘猫 · 5岁</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 健康数据仪表盘 -->
+  <section class="health" id="health">
+    <div class="section-glow section-glow-2"></div>
+    <svg style="position:absolute;width:0;height:0;">
+      <defs>
+        <linearGradient id="healthGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#ff6b9d"/>
+          <stop offset="100%" style="stop-color:#ffd93d"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="health-dashboard">
+      <div class="section-header">
+        <div class="section-label">HEALTH DATA</div>
+        <h2 class="section-title">健康数据</h2>
+        <p class="section-desc">科学监测，数据驱动，让每一只萌宠都健康快乐</p>
+      </div>
+      <div class="health-grid">
+        <div class="health-card">
+          <div class="health-ring">
+            <svg viewBox="0 0 200 200">
+              <circle class="health-ring-bg" cx="100" cy="100" r="80"/>
+              <circle class="health-ring-progress" cx="100" cy="100" r="80" data-percent="95"/>
+            </svg>
+            <div class="health-ring-value" style="background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+          </div>
+          <h3 class="health-title">疫苗接种率</h3>
+          <p class="health-desc">全面疫苗接种计划</p>
+        </div>
+        <div class="health-card">
+          <div class="health-ring">
+            <svg viewBox="0 0 200 200">
+              <circle class="health-ring-bg" cx="100" cy="100" r="80"/>
+              <circle class="health-ring-progress" cx="100" cy="100" r="80" data-percent="88"/>
+            </svg>
+            <div class="health-ring-value" style="background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+          </div>
+          <h3 class="health-title">营养均衡率</h3>
+          <p class="health-desc">个性化膳食方案</p>
+        </div>
+        <div class="health-card">
+          <div class="health-ring">
+            <svg viewBox="0 0 200 200">
+              <circle class="health-ring-bg" cx="100" cy="100" r="80"/>
+              <circle class="health-ring-progress" cx="100" cy="100" r="80" data-percent="92"/>
+            </svg>
+            <div class="health-ring-value" style="background: var(--gradient-3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+          </div>
+          <h3 class="health-title">定期体检率</h3>
+          <p class="health-desc">季度全面体检</p>
+        </div>
+        <div class="health-card">
+          <div class="health-ring">
+            <svg viewBox="0 0 200 200">
+              <circle class="health-ring-bg" cx="100" cy="100" r="80"/>
+              <circle class="health-ring-progress" cx="100" cy="100" r="80" data-percent="97"/>
+            </svg>
+            <div class="health-ring-value" style="background: var(--gradient-4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+          </div>
+          <h3 class="health-title">客户满意度</h3>
+          <p class="health-desc">五星好评如潮</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 专业团队 -->
+  <section class="team" id="team">
+    <div class="section-glow section-glow-1"></div>
+    <div class="float-element float-cross" style="top: 25%; left: 8%;">✦</div>
+    <div class="section-header">
+      <div class="section-label">OUR TEAM</div>
+      <h2 class="section-title">专业团队</h2>
+      <p class="section-desc">热爱宠物，专业可靠，每一位成员都是萌宠的健康守护者</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-card-inner">
+          <div class="team-card-front">
+            <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300" alt="张医生" class="team-avatar">
+            <div class="team-name">张明远</div>
+            <div class="team-role">首席兽医师</div>
+          </div>
+          <div class="team-card-back">
+            <p class="team-bio">10年宠物医疗经验，擅长宠物内科与外科手术，曾任多家知名宠物医院主诊医生。</p>
+            <div class="team-social">
+              <a href="#" class="team-social-link">📧</a>
+              <a href="#" class="team-social-link">💬</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-card-inner">
+          <div class="team-card-front">
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300" alt="李美容师" class="team-avatar">
+            <div class="team-name">李婉清</div>
+            <div class="team-role">高级美容师</div>
+          </div>
+          <div class="team-card-back">
+            <p class="team-bio">国际认证宠物美容师，精通各类犬种美容造型，为上千只萌宠打造完美形象。</p>
+            <div class="team-social">
+              <a href="#" class="team-social-link">📧</a>
+              <a href="#" class="team-social-link">💬</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-card-inner">
+          <div class="team-card-front">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="王训导师" class="team-avatar">
+            <div class="team-name">王志强</div>
+            <div class="team-role">首席训导师</div>
+          </div>
+          <div class="team-card-back">
+            <p class="team-bio">国家认证训犬师，擅长行为矫正和技能训练，帮助数百只狗狗成为乖巧听话的好孩子。</p>
+            <div class="team-social">
+              <a href="#" class="team-social-link">📧</a>
+              <a href="#" class="team-social-link">💬</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-card-inner">
+          <div class="team-card-front">
+            <img src="https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=300" alt="陈营养师" class="team-avatar">
+            <div class="team-name">陈雨晴</div>
+            <div class="team-role">宠物营养师</div>
+          </div>
+          <div class="team-card-back">
+            <p class="team-bio">动物营养学硕士，为不同年龄、不同体质的宠物制定科学膳食方案。</p>
+            <div class="team-social">
+              <a href="#" class="team-social-link">📧</a>
+              <a href="#" class="team-social-link">💬</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 客户评价 -->
+  <section class="testimonials" id="testimonials">
+    <div class="section-glow section-glow-3"></div>
+    <div class="section-header">
+      <div class="section-label">TESTIMONIALS</div>
+      <h2 class="section-title">客户心声</h2>
+      <p class="section-desc">听听宠爸宠妈们怎么说</p>
+    </div>
+    <div class="testimonials-slider">
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">自从带豆豆来到爪爪星球，我们全家都放心多了！专业的医疗团队、贴心的服务，让豆豆每次来都超级开心。特别是张医生，特别有耐心！</p>
+        <div class="testimonial-author">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="用户" class="testimonial-avatar">
+          <div class="testimonial-info">
+            <div class="testimonial-name">刘先生</div>
+            <div class="testimonial-role">金毛"豆豆"的主人</div>
+          </div>
+        </div>
+        <div class="testimonial-rating">
+          <span class="testimonial-star">★</span>
+          <span class="testimonial-star">★</span>
+          <span class="testimonial-star">★</span>
+          <span class="testimonial-star">★</span>
+          <span class="testimonial-star">★</span>
+        </div>
+      </div>
+      <div class="testimonial-dots">
+        <div class="testimonial-dot active"></div>
+        <div class="testimonial-dot"></div>
+        <div class="testimonial-dot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系方式 -->
+  <section class="contact" id="contact">
+    <div class="contact-bg"></div>
+    <div class="section-glow section-glow-1"></div>
+    <div class="float-element float-circle" style="top: 20%; right: 10%;"></div>
+    <div class="section-header">
+      <div class="section-label">CONTACT US</div>
+      <h2 class="section-title">联系我们</h2>
+      <p class="section-desc">期待与您和萌宠相遇，开启幸福之旅</p>
+    </div>
+    <div class="contact-content">
+      <div class="contact-info">
+        <h3>开启您的萌宠之旅</h3>
+        <p>无论是预约服务、咨询问题，还是想要了解更多关于我们的信息，我们都随时恭候您的到来。</p>
+        <div class="contact-list">
+          <div class="contact-item">
+            <div class="contact-icon">📍</div>
+            <div class="contact-item-text">
+              <h4>门店地址</h4>
+              <span>上海市浦东新区陆家嘴环路1000号萌宠大厦1-3层</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">📞</div>
+            <div class="contact-item-text">
+              <h4>预约热线</h4>
+              <span>400-888-8888 (9:00-21:00)</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">✉️</div>
+            <div class="contact-item-text">
+              <h4>电子邮箱</h4>
+              <span>hello@pawstar.cn</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🕐</div>
+            <div class="contact-item-text">
+              <h4>营业时间</h4>
+              <span>周一至周日 9:00 - 21:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form">
+        <div class="form-group">
+          <label>您的姓名</label>
+          <input type="text" placeholder="请输入您的姓名">
+        </div>
+        <div class="form-group">
+          <label>联系电话</label>
+          <input type="tel" placeholder="请输入您的手机号">
+        </div>
+        <div class="form-group">
+          <label>宠物类型</label>
+          <input type="text" placeholder="如：金毛、英短、仓鼠等">
+        </div>
+        <div class="form-group">
+          <label>留言内容</label>
+          <textarea placeholder="请描述您想咨询的服务或问题..."></textarea>
+        </div>
+        <button type="submit" class="form-submit">立即预约</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>🐾 爪爪星球</h3>
+        <p>专注宠物服务8年，用爱守护每一只毛孩子。让每一位宠物主人都能安心、放心、省心。</p>
+        <div class="footer-social">
+          <a href="#">📱</a>
+          <a href="#">💬</a>
+          <a href="#">📧</a>
+          <a href="#">🎵</a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h4>快速链接</h4>
+        <div class="footer-links">
+          <a href="#services">服务项目</a>
+          <a href="#pets">明星萌宠</a>
+          <a href="#team">专业团队</a>
+          <a href="#contact">预约咨询</a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h4>服务项目</h4>
+        <div class="footer-links">
+          <a href="#">精致洗护</a>
+          <a href="#">创意美容</a>
+          <a href="#">健康医疗</a>
+          <a href="#">舒适寄宿</a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h4>帮助支持</h4>
+        <div class="footer-links">
+          <a href="#">常见问题</a>
+          <a href="#">养宠知识</a>
+          <a href="#">会员权益</a>
+          <a href="#">隐私政策</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 爪爪星球 PawsPlanet. All rights reserved.</span>
+      <span>沪ICP备12345678号-1</span>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <button id="backToTop" class="back-to-top">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+    // 加载动画
+    const loader = document.querySelector('.loader');
+    const loaderProgress = document.querySelector('.loader-progress');
+    let progress = 0;
+    const loadInterval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(loadInterval);
+        setTimeout(() => {
+          gsap.to(loader, { 
+            opacity: 0, 
+            duration: 0.6, 
+            ease: 'power2.inOut',
+            onComplete: () => {
+              loader.style.display = 'none';
+              initAnimations();
+            }
+          });
+        }, 300);
+      }
+      loaderProgress.style.width = progress + '%';
+    }, 100);
+
+    // 粒子效果
+    function createParticles() {
+      const container = document.querySelector('.hero-particles');
+      if (!container) return;
+      
+      for (let i = 0; i < 80; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'hero-particle';
+        const size = Math.random() * 6 + 2;
+        const isGlowing = Math.random() > 0.75;
+        particle.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          ${isGlowing ? 'background: rgba(255, 107, 157, 0.95); box-shadow: 0 0 20px rgba(255, 107, 157, 0.95);' : ''}
+        `;
+        container.appendChild(particle);
+        gsap.to(particle, {
+          y: `-=${120 + Math.random() * 250}`,
+          x: `random(-60, 60)`,
+          opacity: 0,
+          duration: `random(5, 12)`,
+          repeat: -1,
+          delay: `random(0, 5)`,
+          ease: 'none'
+        });
+      }
+    }
+
+    // 数字动画
+    function animateNumbers() {
+      document.querySelectorAll('.hero-stat-number').forEach(num => {
+        const value = parseInt(num.dataset.value);
+        if (!value) return;
+        
+        gsap.to(num, {
+          textContent: value,
+          duration: 3,
+          ease: 'power2.out',
+          snap: { textContent: 1 },
+          scrollTrigger: { trigger: num, start: 'top 85%', once: true }
+        });
+      });
+    }
+
+    // 健康数据环形动画
+    function animateHealthRings() {
+      document.querySelectorAll('.health-ring-progress').forEach(ring => {
+        const percent = parseInt(ring.dataset.percent);
+        if (!percent) return;
+        
+        const circumference = 2 * Math.PI * 80;
+        const offset = circumference - (circumference * percent / 100);
+        
+        gsap.to(ring, {
+          strokeDashoffset: offset,
+          duration: 3,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: ring, start: 'top 85%', once: true }
+        });
+
+        const healthCard = ring.closest('.health-card');
+        const valueEl = healthCard ? healthCard.querySelector('.health-ring-value') : null;
+        if (valueEl) {
+          gsap.to({ val: 0 }, {
+            val: percent,
+            duration: 3,
+            ease: 'power2.out',
+            onUpdate: function() { 
+              if (valueEl) valueEl.textContent = Math.round(this.targets()[0].val) + '%'; 
+            },
+            scrollTrigger: { trigger: ring, start: 'top 85%', once: true }
+          });
+        }
+      });
+    }
+
+    // Hero区域动画
+    function initHeroAnimation() {
+      gsap.from('.hero-badge', { y: 50, opacity: 0, duration: 1.2, delay: 0.3, ease: 'back.out(1.6)' });
+      gsap.to('.hero-title-word', {
+        y: 0,
+        rotateX: 0,
+        stagger: 0.35,
+        duration: 1.4,
+        delay: 0.6,
+        ease: 'back.out(1.6)'
+      });
+      gsap.from('.hero-subtitle', { y: 50, opacity: 0, duration: 1.2, delay: 1.4 });
+      gsap.from('.hero-btn', { y: 50, opacity: 0, stagger: 0.25, duration: 1, delay: 1.7, ease: 'back.out(1.6)' });
+      gsap.from('.hero-stat', { y: 80, opacity: 0, stagger: 0.18, duration: 1, delay: 2, ease: 'back.out(1.6)' });
+      gsap.from('.floating-card', { scale: 0, opacity: 0, stagger: 0.25, duration: 1.2, delay: 0.9, ease: 'back.out(1.6)' });
+      
+      // 浮动卡片持续3D动画
+      gsap.to('.floating-card-1', { y: -30, rotationZ: 6, rotationY: 18, duration: 4.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.floating-card-2', { y: -25, rotationZ: -6, rotationY: -25, duration: 4, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.6 });
+      gsap.to('.floating-card-3', { y: -35, rotationZ: 4, rotationY: 12, duration: 5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.2 });
+      gsap.to('.floating-card-4', { y: -28, rotationZ: -4, rotationY: -18, duration: 4.2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.8 });
+      
+      // 3D光球动画
+      gsap.to('.hero-orb-1', { x: 180, y: 100, scale: 1.4, duration: 30, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.hero-orb-2', { x: -150, y: -100, scale: 1.3, duration: 35, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.hero-orb-3', { scale: 2, opacity: 0.5, duration: 12, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.hero-orb-4', { x: -100, y: 80, duration: 25, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+    }
+
+    // 鼠标视差
+    function initParallax() {
+      const heroTitle = document.querySelector('.hero-title');
+      if (!heroTitle) return;
+      
+      document.addEventListener('mousemove', (e) => {
+        const mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        const mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        
+        gsap.to('.hero-title', { x: mouseX * 20, y: mouseY * 10, duration: 1.2 });
+        
+        gsap.to('.floating-card-1', { x: mouseX * 50, y: mouseY * 25, rotateY: 18 + mouseX * 12, duration: 1.4 });
+        gsap.to('.floating-card-2', { x: -mouseX * 45, y: -mouseY * 20, rotateY: -25 + mouseX * 12, duration: 1.4 });
+        gsap.to('.floating-card-3', { x: mouseX * 40, y: mouseY * 30, rotateY: 12 + mouseX * 12, duration: 1.4 });
+        gsap.to('.floating-card-4', { x: -mouseX * 55, y: -mouseY * 22, rotateY: -18 + mouseX * 12, duration: 1.4 });
+        
+        gsap.to('.hero-orb-1', { x: mouseX * 120, y: mouseY * 70, duration: 2.5 });
+        gsap.to('.hero-orb-2', { x: -mouseX * 100, y: -mouseY * 60, duration: 3 });
+      });
+    }
+
+    // 3D卡片交互
+    function init3DCards() {
+      document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = (y - centerY) / 18;
+          const rotateY = (centerX - x) / 18;
+          
+          gsap.to(card, {
+            rotateX: rotateX,
+            rotateY: rotateY,
+            duration: 0.5,
+            ease: 'power2.out'
+          });
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            rotateX: 0,
+            rotateY: 0,
+            duration: 1,
+            ease: 'elastic.out(1.2, 0.5)'
+          });
+        });
+      });
+    }
+
+    // ========== 增强的滚动动画 ==========
+    
+    // 滚动进度指示器
+    function initScrollIndicator() {
+      const dots = document.querySelectorAll('.scroll-dot');
+      const sections = ['home', 'story', 'services', 'pets', 'health', 'team', 'contact'];
+      
+      // 点击导航
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          const target = document.getElementById(sections[i]);
+          if (target) {
+            gsap.to(window, { scrollTo: target.offsetTop - 80, duration: 1.2, ease: 'power3.inOut' });
+          }
+        });
+      });
+      
+      // 滚动时高亮
+      sections.forEach((id, i) => {
+        const section = document.getElementById(id);
+        if (section) {
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top center',
+            end: 'bottom center',
+            onEnter: () => updateActiveDot(i),
+            onEnterBack: () => updateActiveDot(i)
+          });
+        }
+      });
+      
+      function updateActiveDot(index) {
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
+      }
+    }
+    
+    // Section背景光效动画
+    function initSectionGlowAnimations() {
+      document.querySelectorAll('.section-glow').forEach(glow => {
+        gsap.to(glow, {
+          opacity: 0.8,
+          scale: 1.2,
+          duration: 4,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
+        
+        // 跟随滚动移动
+        gsap.to(glow, {
+          y: -100,
+          scrollTrigger: {
+            trigger: glow.closest('section'),
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 2
+          }
+        });
+      });
+      
+      // 3D装饰元素动画
+      document.querySelectorAll('.float-element').forEach((el, i) => {
+        gsap.to(el, {
+          rotation: 360,
+          duration: 20 + i * 5,
+          repeat: -1,
+          ease: 'none'
+        });
+        
+        // 视差滚动
+        gsap.to(el, {
+          y: -80,
+          scrollTrigger: {
+            trigger: el.closest('section'),
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 3
+          }
+        });
+      });
+    }
+    
+    // 增强的Section入场动画
+    function initEnhancedSectionAnimations() {
+      // Section headers - 文字逐字显示
+      gsap.utils.toArray('.section-header').forEach(header => {
+        const label = header.querySelector('.section-label');
+        const title = header.querySelector('.section-title');
+        const desc = header.querySelector('.section-desc');
+        
+        if (label) {
+          gsap.from(label, {
+            y: 30,
+            opacity: 0,
+            scale: 0.8,
+            duration: 0.8,
+            ease: 'back.out(1.7)',
+            scrollTrigger: { trigger: header, start: 'top 80%', once: true }
+          });
+        }
+        
+        if (title) {
+          gsap.from(title, {
+            y: 60,
+            opacity: 0,
+            scale: 0.9,
+            duration: 1,
+            delay: 0.2,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: header, start: 'top 80%', once: true }
+          });
+          
+          // 标题字符动画
+          const text = title.textContent;
+          title.innerHTML = text.split('').map(char => 
+            char === ' ' ? ' ' : `<span style="display:inline-block;opacity:0;transform:translateY(40px) rotateX(90deg);">${char}</span>`
+          ).join('');
+          
+          gsap.to(title.querySelectorAll('span'), {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            stagger: 0.03,
+            duration: 0.6,
+            ease: 'back.out(1.7)',
+            scrollTrigger: { trigger: header, start: 'top 75%', once: true }
+          });
+        }
+        
+        if (desc) {
+          gsap.from(desc, {
+            y: 40,
+            opacity: 0,
+            duration: 0.8,
+            delay: 0.5,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: header, start: 'top 80%', once: true }
+          });
+        }
+      });
+      
+      // 背景光效淡入
+      gsap.utils.toArray('.section-glow').forEach(glow => {
+        gsap.from(glow, {
+          opacity: 0,
+          scale: 0.5,
+          duration: 2,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: glow.closest('section'), start: 'top 80%', once: true }
+        });
+      });
+    }
+    
+    // 时间线增强动画
+    function initTimelineAnimations() {
+      const timeline = document.querySelector('.story-timeline');
+      if (!timeline) return;
+      
+      // 时间线入场动画 - 使用scrub
+      gsap.from('.timeline-item', {
+        y: 150,
+        opacity: 0,
+        scale: 0.7,
+        stagger: {
+          each: 0.2,
+          from: 'start'
+        },
+        duration: 1.2,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: timeline,
+          start: 'top 70%',
+          once: true
+        }
+      });
+      
+      // 时间线内容卡片交错动画
+      gsap.utils.toArray('.timeline-content').forEach((content, i) => {
+        const direction = i % 2 === 0 ? -80 : 80;
+        
+        gsap.from(content, {
+          x: direction,
+          y: 60,
+          opacity: 0,
+          rotateY: direction > 0 ? -25 : 25,
+          rotateX: 15,
+          duration: 1.2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: content,
+            start: 'top 85%',
+            once: true
+          }
+        });
+        
+        // 内容逐项显示
+        const children = content.children;
+        gsap.from(children, {
+          y: 30,
+          opacity: 0,
+          stagger: 0.1,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: content,
+            start: 'top 80%',
+            once: true
+          }
+        });
+      });
+      
+      // 时间线上的点脉冲动画
+      gsap.utils.toArray('.timeline-dot').forEach((dot, i) => {
+        gsap.to(dot, {
+          scale: 1.3,
+          boxShadow: '0 0 60px rgba(255, 107, 157, 1), 0 0 120px rgba(255, 107, 157, 0.6)',
+          duration: 1.5,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: i * 0.3
+        });
+      });
+      
+      // 时间线流动动画
+      gsap.to('.timeline-line', {
+        backgroundPosition: '0 100%',
+        duration: 3,
+        repeat: -1,
+        ease: 'none'
+      });
+    }
+    
+    // 服务卡片增强动画
+    function initServiceAnimations() {
+      gsap.utils.toArray('.service-card').forEach((card, i) => {
+        // 入场动画
+        gsap.from(card, {
+          y: 120,
+          opacity: 0,
+          scale: 0.6,
+          rotateY: 45,
+          rotateZ: -10,
+          duration: 1.2,
+          delay: i * 0.15,
+          ease: 'back.out(1.8)',
+          scrollTrigger: {
+            trigger: '.services-grid',
+            start: 'top 75%',
+            once: true
+          }
+        });
+        
+        // 图标弹跳动画
+        gsap.to(card.querySelector('.service-icon'), {
+          scale: 1.1,
+          duration: 0.8,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: i * 0.2
+        });
+      });
+      
+      // 服务卡片scrub跟随效果
+      gsap.utils.toArray('.service-card').forEach((card, i) => {
+        gsap.to(card, {
+          y: -30,
+          rotateY: 5,
+          rotateX: -5,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.5
+          }
+        });
+      });
+    }
+    
+    // 宠物卡片瀑布流动画
+    function initPetAnimations() {
+      const petCards = document.querySelectorAll('.pet-card');
+      
+      gsap.from(petCards, {
+        y: 100,
+        opacity: 0,
+        scale: 0.5,
+        stagger: {
+          each: 0.1,
+          from: 'random'
+        },
+        duration: 1,
+        ease: 'back.out(1.6)',
+        scrollTrigger: {
+          trigger: '.pets-mosaic',
+          start: 'top 75%',
+          once: true
+        }
+      });
+      
+      // 宠物卡片悬停时3D弹出
+      petCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            scale: 1.05,
+            z: 100,
+            duration: 0.5,
+            ease: 'back.out(1.8)'
+          });
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            scale: 1,
+            z: 0,
+            duration: 0.8,
+            ease: 'elastic.out(1, 0.5)'
+          });
+        });
+      });
+      
+      // 图片加载后放大效果
+      gsap.utils.toArray('.pet-card-img').forEach(img => {
+        img.addEventListener('load', () => {
+          gsap.from(img, {
+            scale: 1.3,
+            duration: 1.5,
+            ease: 'power2.out'
+          });
+        });
+      });
+    }
+    
+    // 健康数据环形图增强动画
+    function initHealthAnimations() {
+      gsap.utils.toArray('.health-card').forEach((card, i) => {
+        gsap.from(card, {
+          y: 80,
+          opacity: 0,
+          scale: 0.7,
+          duration: 1,
+          delay: i * 0.2,
+          ease: 'back.out(1.7)',
+          scrollTrigger: {
+            trigger: '.health-grid',
+            start: 'top 75%',
+            once: true
+          }
+        });
+        
+        // 环形图弹性动画
+        const ring = card.querySelector('.health-ring');
+        if (ring) {
+          gsap.from(ring, {
+            scale: 0,
+            rotate: -180,
+            duration: 1.5,
+            delay: i * 0.2 + 0.5,
+            ease: 'elastic.out(1, 0.6)',
+            scrollTrigger: {
+              trigger: '.health-grid',
+              start: 'top 75%',
+              once: true
+            }
+          });
+        }
+      });
+      
+      // 健康卡片脉动效果
+      gsap.utils.toArray('.health-card').forEach((card, i) => {
+        gsap.to(card, {
+          boxShadow: '0 0 50px rgba(255, 107, 157, 0.3)',
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: i * 0.5
+        });
+      });
+    }
+    
+    // 团队卡片翻转动画
+    function initTeamAnimations() {
+      gsap.utils.toArray('.team-card').forEach((card, i) => {
+        gsap.from(card, {
+          y: 150,
+          opacity: 0,
+          rotateY: 180,
+          perspective: 1000,
+          duration: 1.4,
+          delay: i * 0.2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.team-grid',
+            start: 'top 75%',
+            once: true
+          }
+        });
+        
+        // 头像呼吸动画
+        const avatar = card.querySelector('.team-avatar');
+        if (avatar) {
+          gsap.to(avatar, {
+            scale: 1.05,
+            duration: 2,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+          });
+        }
+      });
+    }
+    
+    // 评价轮播动画
+    function initTestimonialAnimations() {
+      const testimonialCard = document.querySelector('.testimonial-card');
+      if (!testimonialCard) return;
+      
+      gsap.from(testimonialCard, {
+        y: 100,
+        opacity: 0,
+        scale: 0.8,
+        rotateY: 20,
+        duration: 1.3,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.testimonials-slider',
+          start: 'top 75%',
+          once: true
+        }
+      });
+      
+      // 星星动画
+      gsap.utils.toArray('.testimonial-star').forEach((star, i) => {
+        gsap.from(star, {
+          scale: 0,
+          rotate: -180,
+          duration: 0.5,
+          delay: i * 0.1,
+          ease: 'back.out(2)',
+          scrollTrigger: {
+            trigger: '.testimonials-slider',
+            start: 'top 75%',
+            once: true
+          }
+        });
+      });
+      
+      // 轮播点切换动画
+      gsap.utils.toArray('.testimonial-dot').forEach((dot, i) => {
+        gsap.to(dot, {
+          scale: 1.1,
+          duration: 1,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: i * 0.3
+        });
+      });
+    }
+    
+    // 联系方式增强动画
+    function initContactAnimations() {
+      const contactInfo = document.querySelector('.contact-info');
+      const contactForm = document.querySelector('.contact-form');
+      
+      if (contactInfo) {
+        gsap.from(contactInfo, {
+          x: -120,
+          y: 60,
+          opacity: 0,
+          rotateY: -25,
+          duration: 1.3,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.contact-content',
+            start: 'top 75%',
+            once: true
+          }
+        });
+        
+        // 联系项依次显示
+        gsap.utils.toArray('.contact-item').forEach((item, i) => {
+          gsap.from(item, {
+            x: -50,
+            opacity: 0,
+            duration: 0.8,
+            delay: i * 0.15,
+            ease: 'back.out(1.7)',
+            scrollTrigger: {
+              trigger: '.contact-info',
+              start: 'top 70%',
+              once: true
+            }
+          });
+          
+          // 图标旋转动画
+          gsap.to(item.querySelector('.contact-icon'), {
+            rotation: 5,
+            duration: 2,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+            delay: i * 0.3
+          });
+        });
+      }
+      
+      if (contactForm) {
+        gsap.from(contactForm, {
+          x: 120,
+          y: 60,
+          opacity: 0,
+          rotateY: 25,
+          duration: 1.3,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.contact-content',
+            start: 'top 75%',
+            once: true
+          }
+        });
+        
+        // 表单组依次显示
+        gsap.utils.toArray('.form-group').forEach((group, i) => {
+          gsap.from(group, {
+            y: 40,
+            opacity: 0,
+            duration: 0.6,
+            delay: i * 0.1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.contact-form',
+              start: 'top 65%',
+              once: true
+            }
+          });
+        });
+      }
+    }
+    
+    // 视差滚动效果
+    function initParallaxScroll() {
+      // Hero背景视差
+      gsap.to('.hero-orb-1', {
+        y: -200,
+        scrollTrigger: {
+          trigger: '.hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 2
+        }
+      });
+      
+      gsap.to('.hero-orb-2', {
+        y: -150,
+        scrollTrigger: {
+          trigger: '.hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 3
+        }
+      });
+      
+      gsap.to('.hero-grid', {
+        y: 200,
+        scale: 1.2,
+        scrollTrigger: {
+          trigger: '.hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1.5
+        }
+      });
+      
+      // 各Section背景视差
+      gsap.utils.toArray('.story-bg, .pets-bg, .contact-bg').forEach(bg => {
+        gsap.to(bg, {
+          y: -100,
+          scrollTrigger: {
+            trigger: bg.closest('section'),
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 2
+          }
+        });
+      });
+      
+      // 浮动卡片随滚动移动
+      gsap.utils.toArray('.floating-card').forEach((card, i) => {
+        gsap.to(card, {
+          y: i % 2 === 0 ? -80 : -50,
+          scrollTrigger: {
+            trigger: '.hero',
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 2
+          }
+        });
+      });
+    }
+    
+    // 导航栏滚动效果
+    function initNavbarScroll() {
+      ScrollTrigger.create({
+        start: 100,
+        onUpdate: (self) => {
+          const navbar = document.querySelector('.navbar');
+          if (navbar) {
+            if (self.progress > 0) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+          }
+        }
+      });
+      
+      // 导航链接点击涟漪
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          ripple.style.cssText = `
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 107, 157, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: rippleEffect 0.6s ease-out;
+          `;
+          this.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 600);
+        });
+      });
+      
+      // 添加涟漪动画样式
+      if (!document.getElementById('ripple-style')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-style';
+        style.textContent = `
+          @keyframes rippleEffect {
+            to { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+    
+    // 滚动进度条
+    function initScrollProgress() {
+      const scrollProgress = document.querySelector('.scroll-progress');
+      if (scrollProgress) {
+        gsap.to(scrollProgress, {
+          scaleX: ScrollTrigger.create({ 
+            trigger: document.body, 
+            start: 'top top', 
+            end: 'bottom bottom', 
+            scrub: 0.5 
+          }).progress,
+          transformOrigin: 'left center',
+          ease: 'none'
+        });
+      }
+    }
+
+    // 返回顶部
+    function initBackToTop() {
+      const btn = document.getElementById('backToTop');
+      if (!btn) return;
+      
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 500);
+      });
+      
+      btn.addEventListener('click', () => {
+        gsap.to(window, { scrollTo: 0, duration: 1.2, ease: 'power3.inOut' });
+        gsap.to(btn, { rotation: 360, duration: 1, ease: 'power2.out' });
+      });
+      
+      btn.addEventListener('mouseenter', () => {
+        gsap.to(btn, { scale: 1.15, duration: 0.4, ease: 'back.out(2)' });
+      });
+      
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, { scale: 1, duration: 0.4 });
+      });
+    }
+
+    // 平滑滚动
+    function initSmoothScroll() {
+      document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) {
+            gsap.to(window, { scrollTo: target.offsetTop - 80, duration: 1.2, ease: 'power3.inOut' });
+          }
+        });
+      });
+    }
+
+    // 初始化所有动画
+    function initAnimations() {
+      createParticles();
+      initHeroAnimation();
+      initParallax();
+      init3DCards();
+      initScrollIndicator();
+      initNavbarScroll();
+      initScrollProgress();
+      initSectionGlowAnimations();
+      initEnhancedSectionAnimations();
+      initTimelineAnimations();
+      initServiceAnimations();
+      initPetAnimations();
+      initHealthAnimations();
+      initTeamAnimations();
+      initTestimonialAnimations();
+      initContactAnimations();
+      initParallaxScroll();
+      animateNumbers();
+      animateHealthRings();
+      initBackToTop();
+      initSmoothScroll();
+    }
+  </script>
+</body>
+</html>

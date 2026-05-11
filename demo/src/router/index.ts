@@ -91,11 +91,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'list' }
   },
 
+
   {
-    path: '/plan',
-    name: 'plan',
-    component: () => import('@/views/plan/index.vue'),
-    meta: { title: 'plan' }
+    path: '/computed-demo',
+    name: 'computed-demo',
+    component: () => import('@/views/computed-demo/index.vue'),
+    meta: { title: 'computed-demo' }
   },
 
   {

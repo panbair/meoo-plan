@@ -35,7 +35,7 @@
             </svg>
           </button>
         </div>
-        <button class="nav-btn create-btn" @click="goToCreate" style="margin-left: 80px">
+        <button class="nav-btn create-btn" style="margin-left: 80px" @click="goToCreate">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 5v14M5 12h14" />
           </svg>
@@ -283,6 +283,16 @@ const initializeComponents = () => {
     })
 
   updateCategoryCounts()
+
+ /* setTimeout(() => {
+    let str=''
+    allComponents.value.forEach(component => {
+      str+= component.name+','
+    })
+    console.log(str)
+
+
+  }, 5000)*/
 }
 
 // 获取分类 - 基于索引，每20个组件为一组

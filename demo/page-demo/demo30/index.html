@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>萌爪星球 - 宠物生活馆</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { overflow: hidden; height: 100%; }
+    body { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0a; color: #fff; }
+    
+    .container { height: 100%; overflow-y: auto; overflow-x: hidden; }
+    
+    /* ========== 通用面板样式 ========== */
+    .panel {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ========== 第1页：Hero ========== */
+    .panel-hero {
+      background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 50%, #FFC857 100%);
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .panel-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .hero-bg-shapes {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .hero-shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+    }
+    
+    .hero-shape-1 { width: 400px; height: 400px; background: #fff; top: -100px; right: -100px; animation: float1 8s ease-in-out infinite; }
+    .hero-shape-2 { width: 300px; height: 300px; background: #FFD93D; bottom: -80px; left: -80px; animation: float2 10s ease-in-out infinite; }
+    .hero-shape-3 { width: 200px; height: 200px; background: #6BCB77; top: 20%; left: 10%; animation: float3 6s ease-in-out infinite; }
+    .hero-shape-4 { width: 150px; height: 150px; background: #4D96FF; bottom: 30%; right: 15%; animation: float1 7s ease-in-out infinite reverse; }
+    .hero-shape-5 { width: 120px; height: 120px; background: #FF6B6B; top: 50%; right: 5%; animation: float2 9s ease-in-out infinite; opacity: 0.5; }
+    .hero-shape-6 { width: 80px; height: 80px; background: #6BCB77; bottom: 15%; left: 25%; animation: float3 5s ease-in-out infinite; opacity: 0.4; }
+    
+    @keyframes float1 { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(30px, -30px) rotate(10deg); } }
+    @keyframes float2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-20px, 20px) scale(1.1); } }
+    @keyframes float3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -20px); } }
+    
+    /* 粒子效果 */
+    .particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      animation: particle-float 8s ease-in-out infinite;
+    }
+    
+    @keyframes particle-float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+      50% { transform: translateY(-100px) scale(1.5); opacity: 0.8; }
+    }
+    
+    /* 渐变动画 */
+    .gradient-animate {
+      background-size: 200% 200%;
+      animation: gradient-shift 10s ease infinite;
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* 脉冲动画 */
+    .pulse {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+      50% { box-shadow: 0 0 40px rgba(255,255,255,0.4); }
+    }
+    
+    /* 滑入动画 */
+    .slide-in-left {
+      animation: slideInLeft 0.8s ease forwards;
+    }
+    
+    @keyframes slideInLeft {
+      from { transform: translateX(-100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .slide-in-right {
+      animation: slideInRight 0.8s ease forwards;
+    }
+    
+    @keyframes slideInRight {
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .hero-badge-icon { font-size: 1.2rem; }
+    
+    .hero-title {
+      font-size: 5rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 20px;
+      text-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      line-height: 1.1;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+    
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; }
+    
+    .hero-btn {
+      padding: 16px 40px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .hero-btn-primary {
+      background: #fff;
+      color: #FF6B6B;
+    }
+    
+    .hero-btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+    
+    .hero-btn-secondary {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    
+    .hero-btn-secondary:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-3px);
+    }
+    
+    .hero-stats {
+      display: flex;
+      gap: 60px;
+      margin-top: 60px;
+    }
+    
+    .hero-stat {
+      text-align: center;
+    }
+    
+    .hero-stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    
+    .hero-stat-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+      margin-top: 4px;
+    }
+
+    /* ========== 第2页：关于我们 ========== */
+    .panel-about {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      flex-direction: column;
+      padding: 80px;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .section-tag {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+    }
+    
+    .section-header:hover .section-tag {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.05);
+    }
+    
+    .section-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 60px;
+      height: 4px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 2px;
+      transition: transform 0.4s ease;
+    }
+    
+    .section-header:hover .section-title::after {
+      transform: translateX(-50%) scaleX(1);
+    }
+    
+    .section-subtitle {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      max-width: 1200px;
+    }
+    
+    .about-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 24px;
+      padding: 40px 30px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.4s ease;
+    }
+    
+    .about-card:hover {
+      transform: translateY(-10px);
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .about-card:hover .about-icon {
+      transform: rotateY(360deg);
+      transition: transform 0.6s ease;
+    }
+    
+    .about-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #fff, #e0e0e0);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+    
+    .about-card h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .about-card p {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+    }
+
+    /* ========== 第3页：服务项目 ========== */
+    .panel-services {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      flex-direction: column;
+      padding: 80px;
+    }
+    
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1200px;
+    }
+    
+    .service-card {
+      background: rgba(0,0,0,0.2);
+      backdrop-filter: blur(15px);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .service-card:hover .service-image {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .service-card .service-image {
+      transition: transform 0.4s ease;
+    }
+    
+    .service-image {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    }
+    
+    .service-content {
+      padding: 30px;
+    }
+    
+    .service-number {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+    
+    .service-card:hover .service-number {
+      background: rgba(255,255,255,0.4);
+      transform: rotate(10deg) scale(1.1);
+    }
+    
+    .service-content h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .service-content p {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .service-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    /* ========== 第4页：产品展示 ========== */
+    .panel-products {
+      background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+      flex-direction: column;
+      padding: 80px;
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+    }
+    
+    .product-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    }
+    
+    .product-card:hover .product-image {
+      transform: scale(1.05);
+    }
+    
+    .product-card .product-image {
+      transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-btn {
+      transform: scale(1.1) rotate(90deg);
+      background: #ff6b6b;
+    }
+    
+    .product-image {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+    
+    .product-content {
+      padding: 24px;
+    }
+    
+    .product-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #ff6b6b;
+      color: #fff;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .product-content h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .product-content p {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .product-price {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #ff6b6b;
+    }
+    
+    .product-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .product-btn:hover {
+      background: #ff6b6b;
+      transform: scale(1.1);
+    }
+
+    /* ========== 第5页：数据统计 ========== */
+    .panel-stats {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      flex-direction: column;
+      padding: 80px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      max-width: 1000px;
+    }
+    
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(15px);
+      border-radius: 24px;
+      padding: 40px 30px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .stat-card:hover .stat-icon {
+      transform: scale(1.2) rotate(10deg);
+    }
+    
+    .stat-card .stat-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover .stat-value {
+      transform: scale(1.1);
+    }
+    
+    .stat-card .stat-value {
+      transition: transform 0.3s ease;
+    }
+    
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+    
+    .stat-value {
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .stat-label {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 8px;
+    }
+
+    /* ========== 第6页：团队成员 ========== */
+    .panel-team {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      flex-direction: column;
+      padding: 80px;
+    }
+    
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      max-width: 1100px;
+    }
+    
+    .team-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    
+    .team-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+    }
+    
+    .team-card:hover .team-avatar {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .team-card .team-avatar {
+      transition: transform 0.3s ease;
+    }
+    
+    .team-social a:hover {
+      background: #f5576c;
+      color: #fff;
+      transform: translateY(-3px);
+    }
+    
+    .team-avatar {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    
+    .team-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    
+    .team-role {
+      font-size: 0.9rem;
+      color: #f5576c;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    .team-bio {
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .team-social {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    
+    .team-social a {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .team-social a:hover {
+      background: #f5576c;
+      color: #fff;
+      transform: translateY(-3px);
+    }
+
+    /* ========== 第7页：合作伙伴 ========== */
+    .panel-partners {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      flex-direction: column;
+      padding: 80px;
+    }
+    
+    .marquee-container {
+      width: 100%;
+      max-width: 1200px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .marquee-wrapper {
+      display: flex;
+      animation: marquee 25s linear infinite;
+    }
+    
+    .marquee-wrapper:hover {
+      animation-play-state: paused;
+    }
+    
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    
+    .partner-item {
+      flex-shrink: 0;
+      width: 200px;
+      height: 100px;
+      margin: 0 20px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .partner-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    
+    .partner-item {
+      transition: all 0.3s ease;
+    }
+    
+    .partner-item:hover {
+      transform: scale(1.05) rotate(2deg);
+      background: #fff;
+    }
+
+    /* ========== 第8页：联系我们 ========== */
+    .panel-contact {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      flex-direction: column;
+      padding: 80px;
+    }
+    
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      max-width: 1100px;
+    }
+    
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .contact-icon {
+      width: 50px;
+      height: 50px;
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    
+    .contact-item h4 {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 4px;
+    }
+    
+    .contact-item p {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .contact-social {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    .contact-social a {
+      width: 50px;
+      height: 50px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: all 0.3s ease;
+    }
+    
+    .contact-social a:hover {
+      transform: translateY(-5px) scale(1.1);
+    }
+    
+    .contact-item:hover {
+      transform: translateX(10px);
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .contact-item {
+      transition: all 0.3s ease;
+    }
+    
+    .contact-item:hover .contact-icon {
+      transform: scale(1.1) rotate(10deg);
+    }
+    
+    .contact-item .contact-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .contact-form {
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 40px;
+    }
+    
+    .contact-form h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #fa709a;
+      background: #fff;
+    }
+    
+    .form-group textarea {
+      height: 120px;
+      resize: none;
+    }
+    
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #fa709a, #fee140);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .form-submit:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(250, 112, 154, 0.4);
+    }
+
+    /* ========== 导航和进度条 ========== */
+    .nav-dots { position: fixed; right: 30px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 14px; }
+    .nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+    .nav-dot:hover { background: rgba(255, 255, 255, 0.5); transform: scale(1.2); }
+    .nav-dot.active { background: white; transform: scale(1.3); box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); }
+
+    .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #fff, rgba(255,255,255,0.5)); z-index: 1001; width: 0%; box-shadow: 0 0 15px rgba(255, 255, 255, 0.4); transition: width 0.1s; }
+
+    .page-indicator { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); color: white; font-size: 1rem; font-weight: 500; z-index: 1000; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(12px); padding: 8px 20px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.1); }
+    
+    .page-indicator span {
+      transition: all 0.3s ease;
+    }
+    
+    .page-indicator:hover {
+      background: rgba(0, 0, 0, 0.5);
+      transform: translateX(-50%) scale(1.05);
+    }
+    
+    /* 装饰性动画边框 */
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .panel:hover::before {
+      opacity: 1;
+    }
+    
+    /* 角落装饰 */
+    .corner-decor {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+      opacity: 0.3;
+    }
+    
+    .corner-decor.top-left { top: 20px; left: 20px; border-top: 2px solid rgba(255,255,255,0.3); border-left: 2px solid rgba(255,255,255,0.3); }
+    .corner-decor.top-right { top: 20px; right: 20px; border-top: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); }
+    .corner-decor.bottom-left { bottom: 20px; left: 20px; border-bottom: 2px solid rgba(255,255,255,0.3); border-left: 2px solid rgba(255,255,255,0.3); }
+    .corner-decor.bottom-right { bottom: 20px; right: 20px; border-bottom: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); }
+
+    /* ========== 动画元素 ========== */
+    .scroll-animate {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    
+    .scroll-animate.animate {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    /* 滚动进度指示器 */
+    .scroll-progress {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.3);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 1024px) {
+      .about-grid { grid-template-columns: repeat(2, 1fr); }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title { font-size: 3rem; }
+      .hero-stats { gap: 30px; flex-wrap: wrap; justify-content: center; }
+      .hero-stat-value { font-size: 2rem; }
+      .section-title { font-size: 2.5rem; }
+      .about-grid, .services-grid, .products-grid, .stats-grid, .team-grid { grid-template-columns: 1fr; }
+      .panel { padding: 40px 20px; }
+      .nav-dots { right: 15px; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+  <nav class="nav-dots" id="navDots"></nav>
+  <div class="page-indicator"><span class="current">1</span><span class="total"> / 8</span></div>
+
+  <div class="container" id="container">
+    <!-- 第1页：Hero -->
+    <section class="panel panel-hero" data-index="0">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="hero-bg-shapes">
+        <div class="hero-shape hero-shape-1"></div>
+        <div class="hero-shape hero-shape-2"></div>
+        <div class="hero-shape hero-shape-3"></div>
+        <div class="hero-shape hero-shape-4"></div>
+        <div class="hero-shape hero-shape-5"></div>
+        <div class="hero-shape hero-shape-6"></div>
+      </div>
+      <div class="particles" id="heroParticles"></div>
+      <div class="hero-badge"><span class="hero-badge-icon">🐾</span> 专注宠物服务 8 年</div>
+      <h1 class="hero-title">萌爪星球</h1>
+      <p class="hero-subtitle">为您的毛孩子提供最专业的护理与服务</p>
+      <div class="hero-buttons">
+        <button class="hero-btn hero-btn-primary">立即预约 🐱</button>
+        <button class="hero-btn hero-btn-secondary">了解更多</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="50000">0</div>
+          <div class="hero-stat-label">服务宠物</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="98">0</div>
+          <div class="hero-stat-label">好评率 %</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="36">0</div>
+          <div class="hero-stat-label">门店数量</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第2页：关于我们 -->
+    <section class="panel panel-about" data-index="1">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">ABOUT US</div>
+        <h2 class="section-title scroll-animate" data-delay="1">关于萌爪星球</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">我们致力于为每一位毛孩子提供最贴心、最专业的服务，让爱与陪伴无处不在</p>
+      </div>
+      <div class="about-grid">
+        <div class="about-card scroll-animate" data-delay="3">
+          <div class="about-icon">🏥</div>
+          <h3>专业医疗</h3>
+          <p>资深兽医团队，先进医疗设备，为宠物健康保驾护航</p>
+        </div>
+        <div class="about-card scroll-animate" data-delay="4">
+          <div class="about-icon">✂️</div>
+          <h3>美容护理</h3>
+          <p>专业美容师团队，提供洗澡、造型、指甲修剪等全套服务</p>
+        </div>
+        <div class="about-card scroll-animate" data-delay="5">
+          <div class="about-icon">🏠</div>
+          <h3>寄养服务</h3>
+          <p>温馨舒适的寄养环境，让您的宠物感受家的温暖</p>
+        </div>
+        <div class="about-card scroll-animate" data-delay="6">
+          <div class="about-icon">🍖</div>
+          <h3>精选食品</h3>
+          <p>严选优质宠物食品，营养均衡，安全可靠</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第3页：服务项目 -->
+    <section class="panel panel-services" data-index="2">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">SERVICES</div>
+        <h2 class="section-title scroll-animate" data-delay="1">我们的服务</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">全方位宠物服务，满足毛孩子的各种需求</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card scroll-animate" data-delay="3">
+          <div class="service-image">🛁</div>
+          <div class="service-content">
+            <div class="service-number">01</div>
+            <h3>精品洗护</h3>
+            <p>采用天然洗护产品，深层清洁毛发，滋润护肤</p>
+            <span class="service-link">了解详情 →</span>
+          </div>
+        </div>
+        <div class="service-card scroll-animate" data-delay="4">
+          <div class="service-image">💇</div>
+          <div class="service-content">
+            <div class="service-number">02</div>
+            <h3>美容造型</h3>
+            <p>专业造型师打造个性造型，让宠物焕然一新</p>
+            <span class="service-link">了解详情 →</span>
+          </div>
+        </div>
+        <div class="service-card scroll-animate" data-delay="5">
+          <div class="service-image">💊</div>
+          <div class="service-content">
+            <div class="service-number">03</div>
+            <h3>健康体检</h3>
+            <p>全面体检套餐，及早发现健康隐患</p>
+            <span class="service-link">了解详情 →</span>
+          </div>
+        </div>
+        <div class="service-card scroll-animate" data-delay="6">
+          <div class="service-image">🧬</div>
+          <div class="service-content">
+            <div class="service-number">04</div>
+            <h3>疫苗接种</h3>
+            <p>正规渠道疫苗，专业接种服务</p>
+            <span class="service-link">了解详情 →</span>
+          </div>
+        </div>
+        <div class="service-card scroll-animate" data-delay="7">
+          <div class="service-image">🦷</div>
+          <div class="service-content">
+            <div class="service-number">05</div>
+            <h3>牙科护理</h3>
+            <p>专业牙科清洁，预防口腔疾病</p>
+            <span class="service-link">了解详情 →</span>
+          </div>
+        </div>
+        <div class="service-card scroll-animate" data-delay="8">
+          <div class="service-image">🆘</div>
+          <div class="service-content">
+            <div class="service-number">06</div>
+            <h3>紧急救护</h3>
+            <p>24小时急诊服务，随时待命</p>
+            <span class="service-link">了解详情 →</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第4页：产品展示 -->
+    <section class="panel panel-products" data-index="3">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">PRODUCTS</div>
+        <h2 class="section-title scroll-animate" data-delay="1">精选产品</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">品质保证，值得信赖的宠物用品</p>
+      </div>
+      <div class="products-grid">
+        <div class="product-card scroll-animate" data-delay="3">
+          <div class="product-image">🦴</div>
+          <div class="product-content">
+            <span class="product-tag">热销</span>
+            <h3>天然狗粮</h3>
+            <p>精选鸡肉配方，营养均衡</p>
+            <div class="product-footer">
+              <span class="product-price">¥299</span>
+              <button class="product-btn">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="product-card scroll-animate" data-delay="4">
+          <div class="product-image">🎀</div>
+          <div class="product-content">
+            <span class="product-tag">新品</span>
+            <h3>时尚项圈</h3>
+            <p>舒适材质，多色可选</p>
+            <div class="product-footer">
+              <span class="product-price">¥89</span>
+              <button class="product-btn">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="product-card scroll-animate" data-delay="5">
+          <div class="product-image">🏠</div>
+          <div class="product-content">
+            <span class="product-tag">推荐</span>
+            <h3>豪华猫窝</h3>
+            <p>柔软舒适，猫咪最爱</p>
+            <div class="product-footer">
+              <span class="product-price">¥399</span>
+              <button class="product-btn">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="product-card scroll-animate" data-delay="6">
+          <div class="product-image">🧸</div>
+          <div class="product-content">
+            <span class="product-tag">特惠</span>
+            <h3>智能逗猫棒</h3>
+            <p>自动旋转，吸引猫咪</p>
+            <div class="product-footer">
+              <span class="product-price">¥159</span>
+              <button class="product-btn">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第5页：数据统计 -->
+    <section class="panel panel-stats" data-index="4">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">DATA</div>
+        <h2 class="section-title scroll-animate" data-delay="1">数据见证实力</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">用数据说话，用心服务每一位客户</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card scroll-animate" data-delay="3">
+          <div class="stat-icon">🐕</div>
+          <div class="stat-value" data-count="50000">0</div>
+          <div class="stat-label">服务宠物数量</div>
+        </div>
+        <div class="stat-card scroll-animate" data-delay="4">
+          <div class="stat-icon">👨‍⚕️</div>
+          <div class="stat-value" data-count="120">0</div>
+          <div class="stat-label">专业服务人员</div>
+        </div>
+        <div class="stat-card scroll-animate" data-delay="5">
+          <div class="stat-icon">🏪</div>
+          <div class="stat-value" data-count="36">0</div>
+          <div class="stat-label">覆盖城市数量</div>
+        </div>
+        <div class="stat-card scroll-animate" data-delay="6">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-value" data-count="4.9">0</div>
+          <div class="stat-label">用户平均评分</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第6页：团队成员 -->
+    <section class="panel panel-team" data-index="5">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">TEAM</div>
+        <h2 class="section-title scroll-animate" data-delay="1">专业团队</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">资深专家团队，为宠物健康保驾护航</p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card scroll-animate" data-delay="3">
+          <div class="team-avatar">👩‍⚕️</div>
+          <h3>张医生</h3>
+          <div class="team-role">首席兽医专家</div>
+          <p class="team-bio">10年临床经验，擅长宠物内科与外科手术</p>
+          <div class="team-social">
+            <a href="#">微</a>
+            <a href="#">邮</a>
+            <a href="#">电</a>
+          </div>
+        </div>
+        <div class="team-card scroll-animate" data-delay="4">
+          <div class="team-avatar">👨‍🎨</div>
+          <h3>李美容师</h3>
+          <div class="team-role">首席美容师</div>
+          <p class="team-bio">国际认证美容师，擅长各类宠物造型设计</p>
+          <div class="team-social">
+            <a href="#">微</a>
+            <a href="#">邮</a>
+            <a href="#">电</a>
+          </div>
+        </div>
+        <div class="team-card scroll-animate" data-delay="5">
+          <div class="team-avatar">👩‍💼</div>
+          <h3>王店长</h3>
+          <div class="team-role">旗舰店店长</div>
+          <p class="team-bio">8年门店管理经验，提供贴心服务</p>
+          <div class="team-social">
+            <a href="#">微</a>
+            <a href="#">邮</a>
+            <a href="#">电</a>
+          </div>
+        </div>
+        <div class="team-card scroll-animate" data-delay="6">
+          <div class="team-avatar">👨‍🔬</div>
+          <h3>陈营养师</h3>
+          <div class="team-role">宠物营养师</div>
+          <p class="team-bio">专业营养学背景，为宠物定制膳食方案</p>
+          <div class="team-social">
+            <a href="#">微</a>
+            <a href="#">邮</a>
+            <a href="#">电</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第7页：合作伙伴 -->
+    <section class="panel panel-partners" data-index="6">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">PARTNERS</div>
+        <h2 class="section-title scroll-animate" data-delay="1">合作伙伴</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">携手行业领军品牌，共创宠物美好未来</p>
+      </div>
+      <div class="marquee-container">
+        <div class="marquee-wrapper">
+          <div class="partner-item">🐾 皇家宠物</div>
+          <div class="partner-item">🏥 宠物医院</div>
+          <div class="partner-item">🍖 天然粮仓</div>
+          <div class="partner-item">🧸 萌宠玩具</div>
+          <div class="partner-item">🏠 爱宠之家</div>
+          <div class="partner-item">💊 宠物药房</div>
+          <div class="partner-item">🎓 宠物学院</div>
+          <div class="partner-item">🚗 宠物出行</div>
+          <div class="partner-item">🐾 皇家宠物</div>
+          <div class="partner-item">🏥 宠物医院</div>
+          <div class="partner-item">🍖 天然粮仓</div>
+          <div class="partner-item">🧸 萌宠玩具</div>
+          <div class="partner-item">🏠 爱宠之家</div>
+          <div class="partner-item">💊 宠物药房</div>
+          <div class="partner-item">🎓 宠物学院</div>
+          <div class="partner-item">🚗 宠物出行</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第8页：联系我们 -->
+    <section class="panel panel-contact" data-index="7">
+      <div class="corner-decor top-left"></div>
+      <div class="corner-decor top-right"></div>
+      <div class="corner-decor bottom-left"></div>
+      <div class="corner-decor bottom-right"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">CONTACT</div>
+        <h2 class="section-title scroll-animate" data-delay="1">联系我们</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">期待与您和您的毛孩子相遇</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item scroll-animate" data-delay="3">
+            <div class="contact-icon">📍</div>
+            <div>
+              <h4>门店地址</h4>
+              <p>上海市徐汇区萌爪路888号</p>
+            </div>
+          </div>
+          <div class="contact-item scroll-animate" data-delay="4">
+            <div class="contact-icon">📞</div>
+            <div>
+              <h4>服务热线</h4>
+              <p>400-888-9999</p>
+            </div>
+          </div>
+          <div class="contact-item scroll-animate" data-delay="5">
+            <div class="contact-icon">📧</div>
+            <div>
+              <h4>电子邮箱</h4>
+              <p>hello@petstar.com</p>
+            </div>
+          </div>
+          <div class="contact-item scroll-animate" data-delay="6">
+            <div class="contact-icon">🕐</div>
+            <div>
+              <h4>营业时间</h4>
+              <p>周一至周日 09:00-21:00</p>
+            </div>
+          </div>
+          <div class="contact-social scroll-animate" data-delay="7">
+            <a href="#">微</a>
+            <a href="#">微</a>
+            <a href="#">知</a>
+            <a href="#">抖</a>
+          </div>
+        </div>
+        <div class="contact-form scroll-animate" data-delay="8">
+          <h3>在线咨询</h3>
+          <div class="form-group">
+            <label>您的称呼</label>
+            <input type="text" placeholder="请输入您的姓名">
+          </div>
+          <div class="form-group">
+            <label>联系电话</label>
+            <input type="tel" placeholder="请输入您的手机号">
+          </div>
+          <div class="form-group">
+            <label>留言内容</label>
+            <textarea placeholder="请输入您想咨询的内容..."></textarea>
+          </div>
+          <button class="form-submit">提交咨询</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    const totalPanels = 8;
+    const vh = window.innerHeight;
+    const container = document.getElementById('container');
+    const progressBar = document.getElementById('progressBar');
+    const navDots = document.getElementById('navDots');
+    
+    let panels = [];
+    let clonedNode = null;
+    let currentIndex = 0;
+
+    // 创建导航点
+    function createNavDots() {
+      navDots.innerHTML = '';
+      for (let i = 0; i < totalPanels; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goToPanel(i));
+        navDots.appendChild(dot);
+      }
+    }
+
+    // 更新UI
+    function updateUI(index) {
+      document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+      document.querySelector('.page-indicator .current').textContent = index + 1;
+      progressBar.style.width = ((index + 1) / totalPanels * 100) + '%';
+    }
+
+    // 跳转到面板
+    function goToPanel(index) {
+      if (index < 0) index = totalPanels - 1;
+      if (index >= totalPanels) index = 0;
+      
+      currentIndex = index;
+      updateUI(index);
+      
+      const targetScroll = index * vh;
+      ScrollTrigger.getAll().forEach(st => st.disable());
+      container.scrollTop = targetScroll;
+      requestAnimationFrame(() => {
+        ScrollTrigger.getAll().forEach(st => st.enable());
+      });
+    }
+
+    // 数字递增动画
+    function animateCounters(panel) {
+      const counters = panel.querySelectorAll('[data-count]');
+      counters.forEach(counter => {
+        const target = parseFloat(counter.dataset.count);
+        const isDecimal = target % 1 !== 0;
+        gsap.to({ val: 0 }, {
+          val: target,
+          duration: 2,
+          ease: 'power2.out',
+          onUpdate: function() {
+            counter.textContent = isDecimal 
+              ? this.targets()[0].val.toFixed(1) 
+              : Math.round(this.targets()[0].val).toLocaleString();
+          }
+        });
+      });
+    }
+
+    // 初始化
+    function init() {
+      panels = gsap.utils.toArray('.panel');
+      if (panels.length <= 0) return;
+
+      // 克隆第一个节点用于无限滚动
+      clonedNode = panels[0].cloneNode(true);
+      clonedNode.setAttribute('data-cloned', 'true');
+      clonedNode.classList.add('cloned-first');
+      container.appendChild(clonedNode);
+
+      // 创建Snap
+      ScrollTrigger.create({
+        trigger: container,
+        start: 'top top',
+        end: `+=${totalPanels * 100}%`,
+        snap: {
+          snapTo: 1 / totalPanels,
+          duration: { min: 0.2, max: 0.4 },
+          delay: 0.05,
+          ease: 'power1.inOut'
+        }
+      });
+
+      // 每个面板的滚动动画
+      panels.forEach((panel, index) => {
+        const animates = panel.querySelectorAll('.scroll-animate');
+        
+        // 滚动入场动画
+        animates.forEach((el, i) => {
+          const delay = parseInt(el.dataset.delay) * 0.1;
+          gsap.fromTo(el, 
+            { opacity: 0, y: 60 },
+            {
+              scrollTrigger: {
+                trigger: panel,
+                start: 'top 70%',
+                toggleActions: 'play none none reverse'
+              },
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              delay: delay,
+              ease: 'power3.out'
+            }
+          );
+        });
+
+        // 数字递增
+        const counters = panel.querySelectorAll('[data-count]');
+        if (counters.length > 0) {
+          ScrollTrigger.create({
+            trigger: panel,
+            start: 'top 70%',
+            onEnter: () => animateCounters(panel),
+            once: true
+          });
+        }
+      });
+
+      // 背景形状视差效果
+      panels.forEach((panel, index) => {
+        const shapes = panel.querySelectorAll('.hero-shape');
+        if (shapes.length > 0) {
+          gsap.to(shapes, {
+            y: -100,
+            rotation: '+=15',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1
+            }
+          });
+        }
+      });
+
+      // 卡片交错动画
+      const cards = gsap.utils.toArray('.about-card, .service-card, .product-card, .stat-card, .team-card');
+      cards.forEach((card, i) => {
+        gsap.fromTo(card,
+          { opacity: 0, y: 80, scale: 0.9 },
+          {
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse'
+            },
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            ease: 'back.out(1.7)'
+          }
+        );
+      });
+
+      // 添加鼠标跟随效果到卡片
+      addMouseFollowEffect();
+
+      // 添加滚动时卡片旋转效果
+      addScrollRotateEffect();
+
+      // 添加视差滚动效果
+      addParallaxScrollEffect();
+
+      // 滚动监听
+      let isJumping = false;
+      container.addEventListener('scroll', () => {
+        if (isJumping) return;
+        
+        const scrollTop = container.scrollTop;
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        
+        let index = Math.round(scrollTop / vh);
+        
+        // 无限循环
+        if (scrollTop >= maxScroll - 10) {
+          isJumping = true;
+          container.scrollTop = 2;
+          setTimeout(() => { isJumping = false; }, 500);
+          index = 0;
+        } else if (scrollTop <= 10) {
+          isJumping = true;
+          container.scrollTop = maxScroll - 2;
+          setTimeout(() => { isJumping = false; }, 500);
+          index = totalPanels - 1;
+        } else {
+          index = Math.max(0, Math.min(index, totalPanels - 1));
+        }
+        
+        if (index !== currentIndex) {
+          currentIndex = index;
+          updateUI(currentIndex);
+        }
+      }, { passive: true });
+
+      createNavDots();
+      updateUI(0);
+
+      // Hero入场动画
+      const heroTl = gsap.timeline();
+      heroTl.from('.hero-badge', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' })
+            .from('.hero-title', { opacity: 0, y: 50, duration: 0.8, ease: 'power3.out' }, '-=0.3')
+            .from('.hero-subtitle', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' }, '-=0.4')
+            .from('.hero-buttons', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+            .from('.hero-stat', { opacity: 0, y: 20, stagger: 0.15, duration: 0.5, ease: 'power3.out' }, '-=0.2')
+            .from('.hero-shape', { opacity: 0, scale: 0, stagger: 0.1, duration: 0.8, ease: 'back.out(1.7)' }, 0.2);
+
+      // Hero页面数字动画
+      setTimeout(() => {
+        const heroPanel = panels[0];
+        animateCounters(heroPanel);
+      }, 500);
+
+      // 面板切换时的动画
+      ScrollTrigger.create({
+        trigger: container,
+        start: 'top top',
+        end: `+=${totalPanels * 100}%`,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          const currentPanel = Math.floor(progress * totalPanels);
+          
+          // 面板进入动画
+          if (currentPanel !== currentIndex) {
+            const enteringPanel = panels[currentPanel];
+            if (enteringPanel) {
+              gsap.fromTo(enteringPanel.querySelectorAll('.scroll-animate'), 
+                { opacity: 0, y: 50 },
+                { opacity: 1, y: 0, stagger: 0.1, duration: 0.6, ease: 'power3.out' }
+              );
+            }
+          }
+        }
+      });
+
+      console.log('[PetWebsite] 初始化完成');
+      
+      // 创建粒子效果
+      createParticles();
+    }
+
+    // 鼠标跟随效果
+    function addMouseFollowEffect() {
+      const cards = document.querySelectorAll('.about-card, .service-card, .product-card, .team-card');
+      
+      cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = (y - centerY) / 20;
+          const rotateY = (centerX - x) / 20;
+          
+          gsap.to(card, {
+            rotateX: rotateX,
+            rotateY: rotateY,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            rotateX: 0,
+            rotateY: 0,
+            duration: 0.5,
+            ease: 'power2.out'
+          });
+        });
+      });
+    }
+    
+    // 滚动时卡片旋转效果
+    function addScrollRotateEffect() {
+      const cards = gsap.utils.toArray('.about-card, .service-card, .product-card, .stat-card, .team-card');
+      
+      cards.forEach((card, i) => {
+        gsap.to(card, {
+          scrollTrigger: {
+            trigger: card,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1
+          },
+          rotation: i % 2 === 0 ? 3 : -3,
+          y: -20
+        });
+      });
+    }
+    
+    // 视差滚动效果
+    function addParallaxScrollEffect() {
+      panels.forEach((panel, index) => {
+        const bgShapes = panel.querySelectorAll('.hero-shape');
+        
+        bgShapes.forEach((shape, i) => {
+          gsap.to(shape, {
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true
+            },
+            y: -150 * (i + 1),
+            rotation: 360 * (i % 2 === 0 ? 1 : -1),
+            scale: 1 + (i * 0.1)
+          });
+        });
+      });
+    }
+
+    // 创建粒子
+    function createParticles() {
+      const particlesContainer = document.getElementById('heroParticles');
+      if (!particlesContainer) return;
+      
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        particle.style.animationDuration = (5 + Math.random() * 5) + 's';
+        particle.style.width = (4 + Math.random() * 8) + '      px';
+        particle.style.height = particle.style.width;
+        particlesContainer.appendChild(particle);
+        
+        gsap.to(particle, {
+          y: -150,
+          x: Math.random() * 100 - 50,
+          opacity: 0,
+          duration: 3 + Math.random() * 5,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: Math.random() * 2
+        });
+      }
+    }
+
+    // 键盘控制
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault();
+        goToPanel(currentIndex + 1);
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        goToPanel(currentIndex - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToPanel(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToPanel(totalPanels - 1);
+      }
+    });
+
+    // 触摸滑动
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          goToPanel(currentIndex + 1);
+        } else {
+          goToPanel(currentIndex - 1);
+        }
+      }
+    }, { passive: true });
+
+    // 启动
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

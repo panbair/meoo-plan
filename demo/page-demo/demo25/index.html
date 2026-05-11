@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>星夜幻境 - 数字创意空间</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --night-deep: #0a0a1a;
+      --night-mid: #1a1a3e;
+      --night-light: #2d2d5a;
+      --accent-cyan: #00d4ff;
+      --accent-purple: #a855f7;
+      --accent-pink: #f472b6;
+      --accent-gold: #fbbf24;
+      --text-primary: #f0f0ff;
+      --text-secondary: #a0a0c0;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glow-cyan: rgba(0, 212, 255, 0.4);
+      --glow-purple: rgba(168, 85, 247, 0.4);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { overflow-x: hidden; scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: var(--night-deep); color: var(--text-primary); overflow-x: hidden; }
+
+    /* 粒子星空背景 */
+    #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--duration) ease-in-out infinite; }
+    @keyframes twinkle { 0%, 100% { opacity: var(--base-opacity); transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+
+    /* 极光背景 */
+    .aurora-bg { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+    .aurora-wave { position: absolute; width: 200%; height: 60%; bottom: 0; left: -50%; background: linear-gradient(180deg, transparent 0%, var(--glow-cyan) 40%, var(--glow-purple) 70%, transparent 100%); opacity: 0.15; filter: blur(80px); animation: auroraMove 15s ease-in-out infinite; }
+    .aurora-wave:nth-child(2) { animation-delay: -5s; opacity: 0.1; background: linear-gradient(180deg, transparent 0%, var(--glow-purple) 30%, var(--accent-pink) 60%, transparent 100%); }
+    .aurora-wave:nth-child(3) { animation-delay: -10s; opacity: 0.08; }
+    @keyframes auroraMove { 0%, 100% { transform: translateX(-20%) rotate(-5deg); } 50% { transform: translateX(20%) rotate(5deg); } }
+
+    /* 导航栏 */
+    .navbar-271 { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 20px 60px; transition: all 0.4s ease; }
+    .navbar-271.scrolled { padding: 12px 60px; background: rgba(10, 10, 26, 0.95); box-shadow: 0 4px 30px rgba(0, 212, 255, 0.1); }
+    .navbar-content-271 { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .logo-271 { font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+    .logo-271 .icon { font-size: 32px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: logoGlow 3s ease-in-out infinite; }
+    .logo-271 .text { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    @keyframes logoGlow { 0%, 100% { filter: drop-shadow(0 0 8px var(--glow-cyan)); } 50% { filter: drop-shadow(0 0 20px var(--glow-purple)); } }
+    .nav-links-271 { display: flex; gap: 40px; }
+    .nav-link-271 { text-decoration: none; color: var(--text-secondary); font-size: 15px; font-weight: 500; transition: all 0.3s ease; padding: 10px 20px; border-radius: 30px; position: relative; overflow: hidden; }
+    .nav-link-271::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple)); opacity: 0; transition: opacity 0.3s ease; border-radius: 30px; }
+    .nav-link-271:hover { color: #fff; }
+    .nav-link-271:hover::before { opacity: 0.2; }
+    .nav-link-271 span { position: relative; z-index: 1; }
+
+    /* Hero 区域 */
+    .hero-section-271 { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .hero-bg-wrapper { position: absolute; inset: -50px; z-index: 1; }
+    .hero-bg-271 { position: absolute; width: 120%; height: 120%; top: -10%; left: -10%; object-fit: cover; will-change: transform; filter: brightness(0.4) saturate(1.2); }
+    .hero-bg-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 0%, rgba(10,10,26,0.7) 50%, rgba(10,10,26,0.95) 100%); z-index: 2; }
+    
+    /* 光效元素 */
+    .hero-orb { position: absolute; border-radius: 50%; filter: blur(60px); animation: orbFloat 8s ease-in-out infinite; z-index: 3; pointer-events: none; }
+    .hero-orb-1 { width: 400px; height: 400px; background: var(--glow-cyan); top: 10%; left: -10%; opacity: 0.3; }
+    .hero-orb-2 { width: 300px; height: 300px; background: var(--glow-purple); bottom: 10%; right: -5%; opacity: 0.25; animation-delay: -3s; }
+    .hero-orb-3 { width: 200px; height: 200px; background: var(--accent-pink); top: 50%; left: 30%; opacity: 0.2; animation-delay: -5s; }
+    @keyframes orbFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -30px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.95); } }
+    
+    .hero-content-271 { position: relative; z-index: 10; text-align: center; max-width: 1000px; padding: 0 30px; will-change: transform, opacity; }
+    .hero-badge-271 { display: inline-flex; align-items: center; gap: 10px; padding: 12px 28px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 50px; font-size: 14px; color: var(--accent-cyan); margin-bottom: 30px; backdrop-filter: blur(10px); font-weight: 600; }
+    .hero-badge-271::before { content: ''; width: 8px; height: 8px; background: var(--accent-cyan); border-radius: 50%; animation: pulse 2s ease-in-out infinite; box-shadow: 0 0 10px var(--accent-cyan); }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
+    
+    .hero-title-271 { font-size: clamp(52px, 12vw, 120px); font-weight: 900; margin-bottom: 30px; background: linear-gradient(135deg, #fff 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 30px var(--glow-cyan)); letter-spacing: -2px; }
+    .hero-subtitle-271 { font-size: clamp(18px, 3vw, 28px); font-weight: 300; margin-bottom: 50px; color: var(--text-secondary); letter-spacing: 8px; text-transform: uppercase; }
+    .hero-cta-271 { display: inline-flex; align-items: center; gap: 14px; padding: 20px 50px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); color: #fff; font-size: 17px; font-weight: 700; border-radius: 60px; text-decoration: none; transition: all 0.4s ease; box-shadow: 0 10px 40px var(--glow-cyan); position: relative; overflow: hidden; }
+    .hero-cta-271::before { content: ''; position: absolute; inset: -2px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink), var(--accent-purple)); border-radius: 60px; z-index: -1; opacity: 0; transition: opacity 0.4s ease; }
+    .hero-cta-271:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 20px 60px var(--glow-purple); }
+    .hero-cta-271:hover::before { opacity: 1; }
+    
+    .hero-tags-271 { display: flex; justify-content: center; gap: 20px; margin-top: 60px; flex-wrap: wrap; }
+    .hero-tag-271 { padding: 14px 30px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 30px; font-size: 14px; color: var(--text-secondary); font-weight: 500; backdrop-filter: blur(10px); transition: all 0.4s ease; cursor: pointer; }
+    .hero-tag-271:hover { background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple)); border-color: transparent; color: #fff; transform: translateY(-5px); box-shadow: 0 10px 30px var(--glow-cyan); }
+    
+    /* 滚动提示 */
+    .scroll-indicator { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-secondary); font-size: 12px; letter-spacing: 2px; }
+    .scroll-indicator .mouse { width: 24px; height: 40px; border: 2px solid var(--text-secondary); border-radius: 12px; position: relative; }
+    .scroll-indicator .wheel { width: 4px; height: 8px; background: var(--accent-cyan); border-radius: 2px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); animation: scrollWheel 2s ease-in-out infinite; }
+    @keyframes scrollWheel { 0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; } 100% { transform: translateX(-50%) translateY(12px); opacity: 0; } }
+
+    /* 通用区块样式 */
+    .section-271 { min-height: 100vh; padding: 140px 80px; position: relative; z-index: 10; }
+    .section-header-271 { text-align: center; margin-bottom: 80px; }
+    .section-label-271 { display: inline-block; padding: 8px 24px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 30px; font-size: 12px; color: var(--accent-cyan); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 24px; backdrop-filter: blur(10px); }
+    .section-title-271 { font-size: clamp(40px, 6vw, 64px); font-weight: 800; color: #fff; margin-bottom: 20px; position: relative; display: inline-block; }
+    .section-title-271::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); width: 100px; height: 4px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); border-radius: 2px; }
+    .section-subtitle-271 { font-size: 18px; color: var(--text-secondary); letter-spacing: 2px; margin-top: 24px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.8; }
+
+    /* 卡片通用样式 */
+    .card-hover-271 { transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
+    .card-hover-271:hover { transform: translateY(-15px); }
+    .grid-3-271 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; max-width: 1300px; margin: 0 auto; }
+    .grid-4-271 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px; max-width: 1300px; margin: 0 auto; }
+    .grid-2-271 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 50px; max-width: 1200px; margin: 0 auto; }
+
+    /* 数字创意展示区 */
+    .creations-section-271 { background: linear-gradient(180deg, var(--night-deep) 0%, var(--night-mid) 50%, var(--night-deep) 100%); }
+    .creation-card-271 { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 32px; overflow: hidden; backdrop-filter: blur(20px); position: relative; }
+    .creation-card-271::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple)); opacity: 0; transition: opacity 0.5s ease; z-index: 0; }
+    .creation-card-271:hover::before { opacity: 0.1; }
+    .creation-card-271:hover { border-color: var(--accent-cyan); box-shadow: 0 30px 80px rgba(0, 212, 255, 0.2); }
+    .creation-card-271 > * { position: relative; z-index: 1; }
+    .creation-thumb-271 { height: 220px; overflow: hidden; position: relative; }
+    .creation-thumb-271 img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .creation-card-271:hover .creation-thumb-271 img { transform: scale(1.1); }
+    .creation-thumb-271::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--night-deep) 0%, transparent 50%); }
+    .creation-category-271 { position: absolute; top: 16px; left: 16px; padding: 8px 16px; background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 20px; font-size: 11px; color: var(--accent-cyan); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; z-index: 2; }
+    .creation-info-271 { padding: 32px; }
+    .creation-title-271 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .creation-desc-271 { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+    .creation-meta-271 { display: flex; justify-content: space-between; align-items: center; }
+    .creation-author-271 { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); font-size: 13px; }
+    .creation-author-271 .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .creation-stats-271 { display: flex; gap: 16px; color: var(--text-secondary); font-size: 13px; }
+    .creation-stats-271 span { display: flex; align-items: center; gap: 6px; }
+    .creation-stats-271 i { color: var(--accent-pink); }
+
+    /* 画廊瀑布流 */
+    .gallery-section-271 { background: linear-gradient(180deg, var(--night-deep) 0%, var(--night-light) 30%, var(--night-mid) 70%, var(--night-deep) 100%); }
+    .gallery-grid-271 { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 260px; gap: 24px; max-width: 1500px; margin: 0 auto; }
+    .gallery-item-271 { border-radius: 24px; overflow: hidden; position: relative; cursor: pointer; transition: all 0.5s ease; }
+    .gallery-item-271:hover { transform: translateY(-10px) scale(1.02); z-index: 10; }
+    .gallery-item-271.size-large { grid-column: span 2; grid-row: span 2; }
+    .gallery-item-271.size-medium { grid-row: span 2; }
+    .gallery-item-271 img { width: 100%; height: 100%; object-fit: cover; transition: all 0.6s ease; }
+    .gallery-item-271:hover img { transform: scale(1.15); }
+    .gallery-item-271::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,26,0.95) 0%, rgba(10,10,26,0.4) 50%, transparent 100%); z-index: 1; transition: all 0.4s ease; }
+    .gallery-item-271:hover::before { background: linear-gradient(to top, rgba(0,212,255,0.3) 0%, rgba(168,85,247,0.2) 50%, transparent 100%); }
+    .gallery-overlay-271 { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 28px; opacity: 0; transition: all 0.4s ease; }
+    .gallery-item-271:hover .gallery-overlay-271 { opacity: 1; }
+    .gallery-item-title-271 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 8px; transform: translateY(20px); transition: transform 0.4s ease; }
+    .gallery-item-271:hover .gallery-item-title-271 { transform: translateY(0); }
+    .gallery-item-desc-271 { font-size: 14px; color: rgba(255,255,255,0.7); transform: translateY(20px); transition: transform 0.4s ease 0.1s; }
+    .gallery-item-271:hover .gallery-item-desc-271 { transform: translateY(0); }
+
+    /* 服务项目 */
+    .services-section-271 { background: linear-gradient(180deg, var(--night-deep) 0%, rgba(45,45,90,0.5) 50%, var(--night-deep) 100%); }
+    .service-card-271 { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 28px; overflow: hidden; backdrop-filter: blur(20px); text-align: center; transition: all 0.5s ease; }
+    .service-card-271:hover { border-color: var(--accent-purple); box-shadow: 0 30px 80px var(--glow-purple); transform: translateY(-15px); }
+    .service-icon-271 { height: 180px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .service-icon-271 img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .service-card-271:hover .service-icon-271 img { transform: scale(1.1); }
+    .service-icon-271::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple)); opacity: 0; transition: opacity 0.4s ease; }
+    .service-card-271:hover .service-icon-271::after { opacity: 0.3; }
+    .service-info-271 { padding: 36px 28px; }
+    .service-title-271 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+    .service-desc-271 { font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
+
+    /* 数据统计 */
+    .stats-section-271 { background: linear-gradient(180deg, var(--night-deep) 0%, var(--night-mid) 100%); position: relative; overflow: hidden; }
+    .stats-section-271::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%, var(--glow-cyan) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, var(--glow-purple) 0%, transparent 50%); opacity: 0.1; }
+    .stat-card-271 { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 28px; overflow: hidden; backdrop-filter: blur(20px); transition: all 0.5s ease; }
+    .stat-card-271:hover { border-color: var(--accent-cyan); box-shadow: 0 30px 80px var(--glow-cyan); transform: translateY(-12px); }
+    .stat-icon-271 { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .stat-icon-271 img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: opacity 0.4s ease, transform 0.6s ease; }
+    .stat-card-271:hover .stat-icon-271 img { opacity: 1; transform: scale(1.1); }
+    .stat-icon-271::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple)); opacity: 0; transition: opacity 0.4s ease; }
+    .stat-card-271:hover .stat-icon-271::after { opacity: 0.3; }
+    .stat-info-271 { padding: 32px; text-align: center; }
+    .stat-number-271 { font-size: 48px; font-weight: 900; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+    .stat-label-271 { font-size: 20px; color: #fff; font-weight: 700; margin-bottom: 10px; }
+    .stat-desc-271 { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* 知识卡片 */
+    .knowledge-section-271 { background: linear-gradient(180deg, var(--night-mid) 0%, var(--night-deep) 100%); }
+    .knowledge-card-271 { background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 48px; border-radius: 28px; backdrop-filter: blur(20px); transition: all 0.5s ease; }
+    .knowledge-card-271:hover { border-color: var(--accent-pink); box-shadow: 0 30px 80px rgba(244, 114, 182, 0.2); transform: translateY(-10px); }
+    .knowledge-icon-271 { width: 80px; height: 80px; margin-bottom: 24px; border-radius: 20px; overflow: hidden; }
+    .knowledge-icon-271 img { width: 100%; height: 100%; object-fit: cover; }
+    .knowledge-title-271 { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 16px; }
+    .knowledge-desc-271 { font-size: 15px; color: var(--text-secondary); line-height: 1.9; margin-bottom: 24px; }
+    .knowledge-list-271 { list-style: none; padding: 0; }
+    .knowledge-list-271 li { font-size: 14px; color: var(--text-secondary); margin-bottom: 14px; padding-left: 32px; position: relative; }
+    .knowledge-list-271 li::before { content: '✦'; position: absolute; left: 0; color: var(--accent-cyan); }
+
+    /* 特色展示 */
+    .features-section-271 { background: linear-gradient(180deg, var(--night-deep) 0%, rgba(45,45,90,0.3) 50%, var(--night-deep) 100%); }
+    .feature-card-271 { background: linear-gradient(135deg, var(--glass-bg), rgba(255,255,255,0.02)); padding: 52px 40px; border-radius: 32px; text-align: center; border: 1px solid var(--glass-border); backdrop-filter: blur(20px); position: relative; overflow: hidden; transition: all 0.5s ease; }
+    .feature-card-271::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink)); transform: scaleX(0); transition: transform 0.5s ease; }
+    .feature-card-271:hover::before { transform: scaleX(1); }
+    .feature-card-271:hover { transform: translateY(-15px); border-color: var(--accent-cyan); box-shadow: 0 30px 80px var(--glow-cyan); }
+    .feature-icon-271 { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 32px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border: 2px solid var(--glass-border); transition: all 0.5s ease; }
+    .feature-icon-271 img { width: 100%; height: 100%; object-fit: cover; }
+    .feature-card-271:hover .feature-icon-271 { background: linear-gradient(135deg, var(--glow-cyan), var(--glow-purple)); border-color: transparent; transform: scale(1.1) rotate(10deg); box-shadow: 0 0 40px var(--glow-cyan); }
+    .feature-title-271 { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 16px; }
+    .feature-desc-271 { font-size: 15px; color: var(--text-secondary); line-height: 1.8; }
+
+    /* 联系区域 */
+    .contact-section-271 { min-height: 100vh; padding: 140px 80px; background: linear-gradient(180deg, var(--night-deep) 0%, var(--night-mid) 100%); display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; }
+    .contact-content-271 { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1300px; width: 100%; }
+    .contact-info-271 h2 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; background: linear-gradient(135deg, #fff, var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 28px; }
+    .contact-info-271 p { font-size: 17px; color: var(--text-secondary); margin-bottom: 40px; line-height: 1.9; }
+    .contact-items-271 { display: flex; flex-direction: column; gap: 20px; }
+    .contact-item-271 { display: flex; align-items: center; gap: 20px; padding: 22px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; backdrop-filter: blur(10px); transition: all 0.4s ease; }
+    .contact-item-271:hover { transform: translateX(10px); border-color: var(--accent-cyan); box-shadow: 0 10px 30px var(--glow-cyan); }
+    .contact-item-271 i { font-size: 28px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; width: 50px; text-align: center; }
+    .contact-item-271 span { color: var(--text-secondary); font-size: 15px; }
+    .contact-form-271 { background: var(--glass-bg); padding: 52px; border-radius: 32px; border: 1px solid var(--glass-border); backdrop-filter: blur(20px); }
+    .form-group-271 { margin-bottom: 24px; }
+    .form-group-271 label { display: block; margin-bottom: 10px; font-weight: 600; color: #fff; font-size: 14px; }
+    .form-group-271 input, .form-group-271 textarea, .form-group-271 select { width: 100%; padding: 18px 22px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; font-size: 15px; color: var(--text-primary); transition: all 0.3s ease; }
+    .form-group-271 input::placeholder, .form-group-271 textarea::placeholder { color: var(--text-secondary); }
+    .form-group-271 input:focus, .form-group-271 textarea:focus, .form-group-271 select:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 4px var(--glow-cyan); background: rgba(0,212,255,0.05); }
+    .form-group-271 textarea { height: 140px; resize: none; }
+    .form-group-271 select option { background: var(--night-mid); color: var(--text-primary); }
+    .submit-btn-271 { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); color: #fff; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.4s ease; box-shadow: 0 10px 30px var(--glow-cyan); position: relative; overflow: hidden; }
+    .submit-btn-271:hover { transform: translateY(-3px); box-shadow: 0 15px 50px var(--glow-purple); }
+
+    /* 页脚 */
+    .footer-271 { background: var(--night-deep); border-top: 1px solid var(--glass-border); padding: 80px 80px 40px; position: relative; z-index: 10; }
+    .footer-content-271 { max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 60px; margin-bottom: 60px; }
+    .footer-section-271 h3 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 24px; position: relative; }
+    .footer-section-271 h3::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 40px; height: 3px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); border-radius: 2px; }
+    .footer-section-271 p { font-size: 14px; color: var(--text-secondary); line-height: 1.9; margin-bottom: 12px; }
+    .footer-section-271 a { color: var(--text-secondary); text-decoration: none; transition: color 0.3s ease; }
+    .footer-section-271 a:hover { color: var(--accent-cyan); }
+    .social-links-271 { display: flex; gap: 16px; margin-top: 20px; }
+    .social-link-271 { width: 46px; height: 46px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan); transition: all 0.4s ease; }
+    .social-link-271:hover { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border-color: transparent; color: #fff; transform: translateY(-5px); box-shadow: 0 10px 30px var(--glow-cyan); }
+    .footer-bottom-271 { max-width: 1300px; margin: 0 auto; text-align: center; padding-top: 40px; border-top: 1px solid var(--glass-border); }
+    .footer-bottom-271 p { color: var(--text-secondary); font-size: 14px; }
+
+    /* 返回顶部 & 导航点 */
+    .back-to-top-271 { position: fixed; bottom: 40px; right: 40px; z-index: 999; width: 56px; height: 56px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); color: #fff; border: none; border-radius: 50%; cursor: pointer; box-shadow: 0 10px 30px var(--glow-cyan); opacity: 0; visibility: hidden; transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .back-to-top-271.visible { opacity: 1; visibility: visible; }
+    .back-to-top-271:hover { transform: translateY(-8px) scale(1.1); box-shadow: 0 15px 50px var(--glow-purple); }
+    .nav-dots-271 { position: fixed; right: 30px; top: 50%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: 16px; }
+    .nav-dot-271 { width: 10px; height: 10px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); cursor: pointer; transition: all 0.4s ease; position: relative; }
+    .nav-dot-271::before { content: attr(data-label); position: absolute; right: 24px; top: 50%; transform: translateY(-50%); padding: 6px 14px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; font-size: 11px; color: var(--text-secondary); white-space: nowrap; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; backdrop-filter: blur(10px); }
+    .nav-dot-271:hover::before { opacity: 1; }
+    .nav-dot-271.active { background: var(--accent-cyan); border-color: var(--accent-cyan); box-shadow: 0 0 15px var(--glow-cyan); transform: scale(1.4); }
+
+    /* 响应式 */
+    @media (max-width: 1200px) {
+      .grid-3-271, .features-grid-271 { grid-template-columns: repeat(2, 1fr); }
+      .gallery-grid-271 { grid-template-columns: repeat(2, 1fr); }
+      .gallery-item-271.size-large, .gallery-item-271.size-medium { grid-column: span 1; grid-row: span 1; }
+      .grid-4-271, .stats-grid-271 { grid-template-columns: repeat(2, 1fr); }
+      .footer-content-271 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .navbar-271 { padding: 15px 20px; }
+      .nav-links-271 { display: none; }
+      .section-271, .creations-section-271, .gallery-section-271, .services-section-271, .stats-section-271, .knowledge-section-271, .features-section-271, .contact-section-271, .footer-271 { padding: 100px 20px 60px; }
+      .grid-3-271, .grid-4-271, .grid-2-271, .features-grid-271, .knowledge-grid-271, .stats-grid-271, .gallery-grid-271 { grid-template-columns: 1fr; }
+      .contact-content-271 { grid-template-columns: 1fr; gap: 50px; }
+      .footer-content-271 { grid-template-columns: 1fr; gap: 40px; }
+      .nav-dots-271 { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 粒子星空 -->
+  <div id="starfield"></div>
+
+  <!-- 极光背景 -->
+  <div class="aurora-bg">
+    <div class="aurora-wave"></div>
+    <div class="aurora-wave"></div>
+    <div class="aurora-wave"></div>
+  </div>
+
+  <!-- 导航栏 -->
+  <nav class="navbar-271" id="navbar">
+    <div class="navbar-content-271">
+      <div class="logo-271"><span class="icon">✦</span><span class="text">星夜幻境</span></div>
+      <div class="nav-links-271">
+        <a href="#hero" class="nav-link-271"><span>首页</span></a>
+        <a href="#creations" class="nav-link-271"><span>创意作品</span></a>
+        <a href="#gallery" class="nav-link-271"><span>视觉画廊</span></a>
+        <a href="#services" class="nav-link-271"><span>核心服务</span></a>
+        <a href="#stats" class="nav-link-271"><span>数据洞察</span></a>
+        <a href="#contact" class="nav-link-271"><span>联系我们</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 导航点 -->
+  <div class="nav-dots-271" id="navDots">
+    <div class="nav-dot-271 active" data-target="hero" data-label="首页"></div>
+    <div class="nav-dot-271" data-target="creations" data-label="创意"></div>
+    <div class="nav-dot-271" data-target="gallery" data-label="画廊"></div>
+    <div class="nav-dot-271" data-target="services" data-label="服务"></div>
+    <div class="nav-dot-271" data-target="knowledge" data-label="知识"></div>
+    <div class="nav-dot-271" data-target="stats" data-label="数据"></div>
+    <div class="nav-dot-271" data-target="features" data-label="特色"></div>
+    <div class="nav-dot-271" data-target="contact" data-label="联系"></div>
+  </div>
+
+  <!-- Hero 区域 -->
+  <section class="hero-section-271" id="hero">
+    <div class="hero-bg-wrapper">
+      <img class="hero-bg-271" id="heroBg" src="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=80" alt="星夜背景">
+      <div class="hero-bg-overlay"></div>
+    </div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-content-271" id="heroContent">
+      <div class="hero-badge-271">探索无限创意可能</div>
+      <h1 class="hero-title-271">星夜幻境</h1>
+      <p class="hero-subtitle-271">数字艺术 · 视觉创意 · 沉浸体验</p>
+      <a href="#creations" class="hero-cta-271"><span>✦</span><span>开启创意之旅</span></a>
+      <div class="hero-tags-271">
+        <span class="hero-tag-271">✨ 数字艺术</span>
+        <span class="hero-tag-271">🎨 视觉设计</span>
+        <span class="hero-tag-271">🌌 沉浸体验</span>
+        <span class="hero-tag-271">🚀 创新科技</span>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="mouse"><div class="wheel"></div></div>
+      <span>向下滚动</span>
+    </div>
+  </section>
+
+  <!-- 创意作品 -->
+  <section class="creations-section-271 section-271" id="creations">
+    <div class="section-header-271">
+      <span class="section-label-271">Featured Works</span>
+      <h2 class="section-title-271">精选创意作品</h2>
+      <p class="section-subtitle-271">汇聚全球顶尖创作者的视觉盛宴，每一件作品都是艺术与科技的完美融合</p>
+    </div>
+    <div class="creations-grid-271 grid-3-271">
+      <div class="creation-card-271 card-hover-271">
+        <div class="creation-thumb-271">
+          <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800" alt="抽象艺术">
+          <span class="creation-category-271">数字绘画</span>
+        </div>
+        <div class="creation-info-271">
+          <h3 class="creation-title-271">星际幻想</h3>
+          <p class="creation-desc-271">探索宇宙深处的奥秘，用数字画笔描绘星际旅行的无限可能</p>
+          <div class="creation-meta-271">
+            <div class="creation-author-271"><div class="avatar">A</div><span>Artiste</span></div>
+            <div class="creation-stats-271"><span><i class="fas fa-heart"></i>2.8k</span><span><i class="fas fa-eye"></i>15k</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="creation-card-271 card-hover-271">
+        <div class="creation-thumb-271">
+          <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800" alt="赛博朋克">
+          <span class="creation-category-271">3D渲染</span>
+        </div>
+        <div class="creation-info-271">
+          <h3 class="creation-title-271">霓虹都市</h3>
+          <p class="creation-desc-271">未来城市的想象，霓虹灯光下的赛博朋克美学</p>
+          <div class="creation-meta-271">
+            <div class="creation-author-271"><div class="avatar">N</div><span>Neo</span></div>
+            <div class="creation-stats-271"><span><i class="fas fa-heart"></i>3.2k</span><span><i class="fas fa-eye"></i>21k</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="creation-card-271 card-hover-271">
+        <div class="creation-thumb-271">
+          <img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800" alt="极光">
+          <span class="creation-category-271">自然风光</span>
+        </div>
+        <div class="creation-info-271">
+          <h3 class="creation-title-271">极光之舞</h3>
+          <p class="creation-desc-271">记录大自然最绚丽的灯光秀，极光下的静谧时刻</p>
+          <div class="creation-meta-271">
+            <div class="creation-author-271"><div class="avatar">L</div><span>Luna</span></div>
+            <div class="creation-stats-271"><span><i class="fas fa-heart"></i>4.1k</span><span><i class="fas fa-eye"></i>28k</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="creation-card-271 card-hover-271">
+        <div class="creation-thumb-271">
+          <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=800" alt="流体艺术">
+          <span class="creation-category-271">动态艺术</span>
+        </div>
+        <div class="creation-info-271">
+          <h3 class="creation-title-271">液态梦境</h3>
+          <p class="creation-desc-271">流体动力学的艺术表现，色彩与形态的完美交织</p>
+          <div class="creation-meta-271">
+            <div class="creation-author-271"><div class="avatar">F</div><span>Flow</span></div>
+            <div class="creation-stats-271"><span><i class="fas fa-heart"></i>2.5k</span><span><i class="fas fa-eye"></i>12k</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="creation-card-271 card-hover-271">
+        <div class="creation-thumb-271">
+          <img src="https://images.unsplash.com/photo-1614854262318-831574f15f1f?w=800" alt="水晶">
+          <span class="creation-category-271">抽象艺术</span>
+        </div>
+        <div class="creation-info-271">
+          <h3 class="creation-title-271">水晶棱镜</h3>
+          <p class="creation-desc-271">光与影的折射艺术，捕捉光线穿过水晶的瞬间</p>
+          <div class="creation-meta-271">
+            <div class="creation-author-271"><div class="avatar">P</div><span>Prism</span></div>
+            <div class="creation-stats-271"><span><i class="fas fa-heart"></i>1.9k</span><span><i class="fas fa-eye"></i>9k</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="creation-card-271 card-hover-271">
+        <div class="creation-thumb-271">
+          <img src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800" alt="渐变">
+          <span class="creation-category-271">色彩艺术</span>
+        </div>
+        <div class="creation-info-271">
+          <h3 class="creation-title-271">渐变宇宙</h3>
+          <p class="creation-desc-271">从深空紫到极光蓝，色彩渐变的无限可能</p>
+          <div class="creation-meta-271">
+            <div class="creation-author-271"><div class="avatar">G</div><span>Gradient</span></div>
+            <div class="creation-stats-271"><span><i class="fas fa-heart"></i>5.3k</span><span><i class="fas fa-eye"></i>35k</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 画廊瀑布流 -->
+  <section class="gallery-section-271 section-271" id="gallery">
+    <div class="section-header-271">
+      <span class="section-label-271">Visual Gallery</span>
+      <h2 class="section-title-271">视觉画廊</h2>
+      <p class="section-subtitle-271">海量精选视觉作品，发现不一样的美</p>
+    </div>
+    <div class="gallery-grid-271">
+      <div class="gallery-item-271 size-large">
+        <img src="https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=1200" alt="抽象渐变">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">流光溢彩</span><span class="gallery-item-desc-271">抽象艺术 · 2024</span></div>
+      </div>
+      <div class="gallery-item-271 size-medium">
+        <img src="https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=800" alt="粉色流体">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">梦幻粉</span><span class="gallery-item-desc-271">流体艺术</span></div>
+      </div>
+      <div class="gallery-item-271">
+        <img src="https://images.unsplash.com/photo-1550684376-efcbd6e3f031?w=800" alt="紫光">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">紫罗兰之光</span><span class="gallery-item-desc-271">光线艺术</span></div>
+      </div>
+      <div class="gallery-item-271">
+        <img src="https://images.unsplash.com/photo-1553356084-58ef4a67b2a7?w=800" alt="油画">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">数字油画</span><span class="gallery-item-desc-271">现代艺术</span></div>
+      </div>
+      <div class="gallery-item-271">
+        <img src="https://images.unsplash.com/photo-1573096108468-702f6014ef28?w=800" alt="极光">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">北极光</span><span class="gallery-item-desc-271">自然风光</span></div>
+      </div>
+      <div class="gallery-item-271 size-medium">
+        <img src="https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=800" alt="蓝色波浪">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">深蓝波浪</span><span class="gallery-item-desc-271">海洋主题</span></div>
+      </div>
+      <div class="gallery-item-271">
+        <img src="https://images.unsplash.com/photo-1567095761054-7a02e69e5c43?w=800" alt="宇宙">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">星际穿越</span><span class="gallery-item-desc-271">宇宙主题</span></div>
+      </div>
+      <div class="gallery-item-271 size-large">
+        <img src="https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=1200" alt="3D抽象">
+        <div class="gallery-overlay-271"><span class="gallery-item-title-271">3D幻想</span><span class="gallery-item-desc-271">3D渲染作品</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 服务项目 -->
+  <section class="services-section-271 section-271" id="services">
+    <div class="section-header-271">
+      <span class="section-label-271">Our Services</span>
+      <h2 class="section-title-271">核心服务</h2>
+      <p class="section-subtitle-271">专业的数字创意服务，助力品牌数字化转型</p>
+    </div>
+    <div class="services-grid-271 grid-3-271">
+      <div class="service-card-271 card-hover-271">
+        <div class="service-icon-271"><img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=400&fit=crop" alt="数字艺术"></div>
+        <div class="service-info-271"><h3 class="service-title-271">数字艺术创作</h3><p class="service-desc-271">专业数字艺术家团队，提供高品质的数字绘画、插画和概念设计服务</p></div>
+      </div>
+      <div class="service-card-271 card-hover-271">
+        <div class="service-icon-271"><img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&h=400&fit=crop" alt="视觉特效"></div>
+        <div class="service-info-271"><h3 class="service-title-271">视觉特效设计</h3><p class="service-desc-271">电影级视觉特效制作，3D建模渲染，特效动画和动态图形设计</p></div>
+      </div>
+      <div class="service-card-271 card-hover-271">
+        <div class="service-icon-271"><img src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=600&h=400&fit=crop" alt="沉浸式体验"></div>
+        <div class="service-info-271"><h3 class="service-title-271">沉浸式体验</h3><p class="service-desc-271">VR/AR内容开发，交互式体验设计，元宇宙空间构建</p></div>
+      </div>
+      <div class="service-card-271 card-hover-271">
+        <div class="service-icon-271"><img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop" alt="品牌视觉"></div>
+        <div class="service-info-271"><h3 class="service-title-271">品牌视觉升级</h3><p class="service-desc-271">品牌视觉系统设计，UI/UX界面设计，打造独特品牌形象</p></div>
+      </div>
+      <div class="service-card-271 card-hover-271">
+        <div class="service-icon-271"><img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&h=400&fit=crop" alt="视频动画"></div>
+        <div class="service-info-271"><h3 class="service-title-271">视频动画制作</h3><p class="service-desc-271">创意视频制作，MG动画，二维和三维动画短片</p></div>
+      </div>
+      <div class="service-card-271 card-hover-271">
+        <div class="service-icon-271"><img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&h=400&fit=crop" alt="创新技术"></div>
+        <div class="service-info-271"><h3 class="service-title-271">创新技术研发</h3><p class="service-desc-271">前沿技术探索，AI生成艺术，实时渲染技术应用</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 养宠知识 -->
+  <section class="knowledge-section-271 section-271" id="knowledge">
+    <div class="section-header-271">
+      <span class="section-label-271">Knowledge Base</span>
+      <h2 class="section-title-271">创意知识库</h2>
+      <p class="section-subtitle-271">深入了解数字艺术与创意设计的世界</p>
+    </div>
+    <div class="knowledge-grid-271 grid-2-271">
+      <div class="knowledge-card-271 card-hover-271">
+        <div class="knowledge-icon-271"><img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=200&h=200&fit=crop" alt="数字艺术基础"></div>
+        <h3 class="knowledge-title-271">数字艺术基础</h3>
+        <p class="knowledge-desc-271">从零开始学习数字艺术创作，掌握必备工具和创作思路</p>
+        <ul class="knowledge-list-271"><li>数字绘画软件入门指南</li><li>色彩理论与配色技巧</li><li>光影原理与表现手法</li><li>构图法则与视觉引导</li></ul>
+      </div>
+      <div class="knowledge-card-271 card-hover-271">
+        <div class="knowledge-icon-271"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop" alt="创意灵感"></div>
+        <h3 class="knowledge-title-271">创意灵感激发</h3>
+        <p class="knowledge-desc-271">突破创作瓶颈，获取无限灵感来源</p>
+        <ul class="knowledge-list-271"><li>全球顶级艺术展览推荐</li><li>创意素材收集与管理</li><li>艺术风格演变历史</li><li>跨领域创作思维培养</li></ul>
+      </div>
+      <div class="knowledge-card-271 card-hover-271">
+        <div class="knowledge-icon-271"><img src="https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=200&h=200&fit=crop" alt="技术工具"></div>
+        <h3 class="knowledge-title-271">技术工具进阶</h3>
+        <p class="knowledge-desc-271">掌握专业工具，提升创作效率和质量</p>
+        <ul class="knowledge-list-271"><li>Photoshop高级技巧</li><li>3D建模与渲染流程</li><li>After Effects动效设计</li><li>AI辅助创作工具应用</li></ul>
+      </div>
+      <div class="knowledge-card-271 card-hover-271">
+        <div class="knowledge-icon-271"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop" alt="职业发展"></div>
+        <h3 class="knowledge-title-271">职业发展指南</h3>
+        <p class="knowledge-desc-271">从爱好者到专业设计师的进阶之路</p>
+        <ul class="knowledge-list-271"><li>数字艺术行业前景分析</li><li>作品集制作与展示</li><li>客户沟通与项目管理</li><li>版权保护与商业授权</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 数据统计 -->
+  <section class="stats-section-271 section-271" id="stats">
+    <div class="section-header-271">
+      <span class="section-label-271">Achievements</span>
+      <h2 class="section-title-271">数据洞察</h2>
+      <p class="section-subtitle-271">用数据见证成长与突破</p>
+    </div>
+    <div class="stats-grid-271 grid-4-271">
+      <div class="stat-card-271 card-hover-271">
+        <div class="stat-icon-271"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" alt="项目统计"></div>
+        <div class="stat-info-271"><div class="stat-number-271" data-target="5800">0</div><div class="stat-label-271">完成项目</div><div class="stat-desc-271">累计服务全球500+品牌客户</div></div>
+      </div>
+      <div class="stat-card-271 card-hover-271">
+        <div class="stat-icon-271"><img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&h=400&fit=crop" alt="用户统计"></div>
+        <div class="stat-info-271"><div class="stat-number-271" data-target="120000">0</div><div class="stat-label-271">用户喜爱</div><div class="stat-desc-271">平台累计用户超过12万</div></div>
+      </div>
+      <div class="stat-card-271 card-hover-271">
+        <div class="stat-icon-271"><img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&h=400&fit=crop" alt="满意度"></div>
+        <div class="stat-info-271"><div class="stat-number-271" data-target="99">0</div><div class="stat-label-271">% 满意度</div><div class="stat-desc-271">客户好评如潮，值得信赖</div></div>
+      </div>
+      <div class="stat-card-271 card-hover-271">
+        <div class="stat-icon-271"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" alt="获奖"></div>
+        <div class="stat-info-271"><div class="stat-number-271" data-target="36">0</div><div class="stat-label-271">获奖作品</div><div class="stat-desc-271">国际设计大赛屡获殊荣</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 特色展示 -->
+  <section class="features-section-271 section-271" id="features">
+    <div class="section-header-271">
+      <span class="section-label-271">Why Choose Us</span>
+      <h2 class="section-title-271">为什么选择我们</h2>
+      <p class="section-subtitle-271">专业团队，匠心之作</p>
+    </div>
+    <div class="features-grid-271 grid-3-271">
+      <div class="feature-card-271 card-hover-271">
+        <div class="feature-icon-271"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=300&fit=crop" alt="极速响应"></div>
+        <h3 class="feature-title-271">极速响应</h3>
+        <p class="feature-desc-271">7×24小时在线服务，快速响应客户需求，提供及时的创意咨询和技术支持。</p>
+      </div>
+      <div class="feature-card-271 card-hover-271">
+        <div class="feature-icon-271"><img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop" alt="品质保障"></div>
+        <h3 class="feature-title-271">品质保障</h3>
+        <p class="feature-desc-271">严格的质量控制体系，每一个作品都经过精心打磨，确保交付最高品质。</p>
+      </div>
+      <div class="feature-card-271 card-hover-271">
+        <div class="feature-icon-271"><img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=300&h=300&fit=crop" alt="创新无限"></div>
+        <h3 class="feature-title-271">创新无限</h3>
+        <p class="feature-desc-271">持续探索前沿技术，不断突破创意边界，为客户带来独特的视觉体验。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系我们 -->
+  <section class="contact-section-271" id="contact">
+    <div class="contact-content-271">
+      <div class="contact-info-271">
+        <h2>联系我们</h2>
+        <p>开启您的创意之旅，让我们一起创造不凡。期待与您的合作，共同打造令人惊叹的视觉作品。</p>
+        <div class="contact-items-271">
+          <div class="contact-item-271"><i class="fas fa-map-marker-alt"></i><span>上海市浦东新区创意大道888号星夜大厦</span></div>
+          <div class="contact-item-271"><i class="fas fa-phone"></i><span>400-888-9999</span></div>
+          <div class="contact-item-271"><i class="fas fa-envelope"></i><span>hello@starnight.studio</span></div>
+          <div class="contact-item-271"><i class="fas fa-clock"></i><span>周一至周日 全天候服务</span></div>
+        </div>
+      </div>
+      <form class="contact-form-271" onsubmit="event.preventDefault(); alert('感谢您的留言！我们会尽快与您联系~');">
+        <div class="form-group-271"><label>您的称呼</label><input type="text" placeholder="请输入您的姓名" required></div>
+        <div class="form-group-271"><label>联系电话</label><input type="tel" placeholder="请输入您的电话" required></div>
+        <div class="form-group-271"><label>服务类型</label>
+          <select required><option value="">请选择感兴趣的服务</option><option value="art">数字艺术创作</option><option value="vfx">视觉特效设计</option><option value="vr">沉浸式体验</option><option value="brand">品牌视觉升级</option><option value="video">视频动画制作</option><option value="tech">创新技术研发</option></select>
+        </div>
+        <div class="form-group-271"><label>留言内容</label><textarea placeholder="请输入您的需求或想法" required></textarea></div>
+        <button type="submit" class="submit-btn-271">发送留言 ✦</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer-271">
+    <div class="footer-content-271">
+      <div class="footer-section-271">
+        <h3>关于星夜</h3>
+        <p>星夜幻境是一家专注于数字艺术与视觉创意的科技公司，致力于为全球品牌提供顶级的视觉解决方案。</p>
+        <p>成立于2018年，总部位于上海，在东京、纽约设有工作室。</p>
+        <div class="social-links-271">
+          <a href="#" class="social-link-271"><i class="fab fa-weixin"></i></a>
+          <a href="#" class="social-link-271"><i class="fab fa-weibo"></i></a>
+          <a href="#" class="social-link-271"><i class="fab fa-douyin"></i></a>
+          <a href="#" class="social-link-271"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-section-271">
+        <h3>快速链接</h3>
+        <p><a href="#hero">首页</a></p><p><a href="#creations">创意作品</a></p><p><a href="#gallery">视觉画廊</a></p><p><a href="#services">核心服务</a></p><p><a href="#contact">联系我们</a></p>
+      </div>
+      <div class="footer-section-271">
+        <h3>联系方式</h3>
+        <p>📍 上海市浦东新区创意大道888号</p><p>📞 400-888-9999</p><p>📧 hello@starnight.studio</p><p>🕐 7×24小时服务</p>
+      </div>
+      <div class="footer-section-271">
+        <h3>关注我们</h3>
+        <p>✦ 微信公众号：星夜幻境</p><p>✦ 官方微博：@星夜幻境</p><p>✦ 抖音：星夜幻境</p><p>✦ 小红书：星夜幻境</p>
+      </div>
+    </div>
+    <div class="footer-bottom-271"><p>© 2024 星夜幻境 StarNight Studio 版权所有 | 沪ICP备12345678号</p></div>
+  </footer>
+
+  <!-- 返回顶部 -->
+  <button class="back-to-top-271" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+
+  <!-- GSAP库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+    // 创建星空粒子
+    const createStarfield = () => {
+      const container = document.getElementById('starfield');
+      const starCount = 200;
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 3 + 1;
+        star.style.cssText = `
+          width: ${size}px; height: ${size}px;
+          left: ${Math.random() * 100}%; top: ${Math.random() * 100}%;
+          --duration: ${Math.random() * 3 + 2}s;
+          --base-opacity: ${Math.random() * 0.5 + 0.3};
+          animation-delay: ${Math.random() * 3}s;
+        `;
+        container.appendChild(star);
+      }
+    };
+    createStarfield();
+
+    // Hero动画
+    const initHeroAnimation = () => {
+      const tl = gsap.timeline();
+      tl.fromTo('.hero-badge-271', { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out' })
+        .fromTo('.hero-title-271', { y: 100, opacity: 0, scale: 0.8, filter: 'blur(20px)' }, { y: 0, opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, '-=0.5')
+        .fromTo('.hero-subtitle-271', { y: 50, opacity: 0, letterSpacing: '20px' }, { y: 0, opacity: 1, letterSpacing: '8px', duration: 1, ease: 'power3.out' }, '-=0.6')
+        .fromTo('.hero-cta-271', { y: 50, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.4')
+        .fromTo('.hero-tag-271', { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.12, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+        .fromTo('.scroll-indicator', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.2')
+        .fromTo('.hero-orb', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.2, duration: 1.5, ease: 'power2.out' }, 0);
+
+      // 背景图视差
+      gsap.to('#heroBg', { yPercent: 35, ease: 'none', scrollTrigger: { trigger: '.hero-section-271', start: 'top top', end: 'bottom top', scrub: true } });
+      gsap.to('.hero-orb-1', { x: 100, y: 50, ease: 'none', scrollTrigger: { trigger: '.hero-section-271', start: 'top top', end: 'bottom top', scrub: 1.5 } });
+      gsap.to('.hero-orb-2', { x: -80, y: -60, ease: 'none', scrollTrigger: { trigger: '.hero-section-271', start: 'top top', end: 'bottom top', scrub: 2 } });
+      gsap.to('.hero-orb-3', { x: 50, y: 80, ease: 'none', scrollTrigger: { trigger: '.hero-section-271', start: 'top top', end: 'bottom top', scrub: 1.8 } });
+      gsap.to('.hero-content-271', { y: 120, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero-section-271', start: 'center top', end: 'bottom top', scrub: true } });
+      gsap.to('.scroll-indicator', { y: 50, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero-section-271', start: 'top top', end: '30% top', scrub: true } });
+    };
+
+    // 导航栏 & 导航点
+    const initNavbar = () => {
+      const navbar = document.getElementById('navbar');
+      ScrollTrigger.create({ start: 100, onUpdate: (self) => navbar.classList.toggle('scrolled', self.scroll() > 100) });
+      document.querySelectorAll('.nav-link-271').forEach(link => {
+        link.addEventListener('click', e => { e.preventDefault(); const target = document.querySelector(link.getAttribute('href')); target && gsap.to(window, { duration: 1.2, scrollTo: target, ease: 'power3.inOut' }); });
+      });
+    };
+
+    // 卡片入场动画
+    const initScrollAnimations = () => {
+      gsap.utils.toArray('.card-hover-271').forEach((card, i) => {
+        gsap.fromTo(card, { y: 100, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, delay: i * 0.06, ease: 'back.out(1.4)', scrollTrigger: { trigger: card, start: 'top 88%', toggleActions: 'play none none reverse' } });
+      });
+      gsap.utils.toArray('.gallery-item-271').forEach((item, i) => {
+        gsap.fromTo(item, { y: 80, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.7, delay: i * 0.05, ease: 'back.out(1.3)', scrollTrigger: { trigger: item, start: 'top 88%', toggleActions: 'play none none reverse' } });
+      });
+      gsap.utils.toArray('.section-title-271, .section-label-271').forEach(el => {
+        gsap.fromTo(el, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' } });
+      });
+    };
+
+    // 统计数据动画
+    const initStatsAnimation = () => {
+      document.querySelectorAll('.stat-number-271').forEach(num => {
+        const target = parseInt(num.dataset.target);
+        gsap.to(num, { textContent: target, duration: 2.5, ease: 'power2.out', snap: { textContent: 1 }, scrollTrigger: { trigger: '.stats-section-271', start: 'top 60%', toggleActions: 'play none none reverse' }, onUpdate: function() { num.textContent = Math.round(this.targets()[0].textContent).toLocaleString(); } });
+      });
+    };
+
+    // 导航点
+    const initNavDots = () => {
+      const sections = ['hero', 'creations', 'gallery', 'services', 'knowledge', 'stats', 'features', 'contact'];
+      document.querySelectorAll('.nav-dot-271').forEach((dot, i) => {
+        ScrollTrigger.create({ trigger: `#${sections[i]}`, start: 'top center', end: 'bottom center', onEnter: () => dot.classList.add('active'), onLeaveBack: () => dot.classList.remove('active') });
+        dot.addEventListener('click', () => { const target = document.querySelector(`#${sections[i]}`); target && gsap.to(window, { duration: 1.2, scrollTo: target, ease: 'power3.inOut' }); });
+      });
+    };
+
+    // 返回顶部
+    const initBackToTop = () => {
+      const btn = document.getElementById('backToTop');
+      ScrollTrigger.create({ trigger: '.hero-section-271', start: 'top+=200 top', onEnter: () => btn.classList.add('visible'), onLeaveBack: () => btn.classList.remove('visible') });
+      btn.addEventListener('click', () => gsap.to(window, { duration: 1.2, scrollTo: 0, ease: 'power3.inOut' }));
+    };
+
+    document.addEventListener('DOMContentLoaded', () => { initHeroAnimation(); initNavbar(); initScrollAnimations(); initStatsAnimation(); initNavDots(); initBackToTop(); });
+    window.addEventListener('beforeunload', () => ScrollTrigger.getAll().forEach(st => st.kill()));
+  </script>
+</body>
+</html>

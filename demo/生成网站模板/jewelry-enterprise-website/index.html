@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="璀璨珠宝 - 传承百年经典工艺，诠释永恒优雅之美">
+  <meta name="keywords" content="珠宝, 奢侈品, 钻石, 黄金, 首饰, 高端定制">
+  <meta name="author" content="璀璨珠宝">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="璀璨珠宝 - 永恒之美，璀璨传承">
+  <meta property="og:description" content="顶级珠宝品牌，传承百年经典工艺，打造永恒优雅之美。">
+  <meta property="og:image" content="/assets/images/og-image.jpg">
+  <meta property="og:type" content="website">
+  
+  <title>璀璨珠宝 - 永恒之美，璀璨传承</title>
+  
+  <!-- 字体预加载 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS样式 -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <!-- 跳转到主要内容的链接 (无障碍) -->
+  <a href="#main-content" class="skip-link">跳转到主要内容</a>
+  
+  <!-- 导航栏 -->
+  <nav class="nav" role="navigation" aria-label="主导航">
+    <div class="container">
+      <div class="nav-inner">
+        <div class="nav-logo">
+          <a href="#" class="logo-link">
+            <span class="logo-icon">💎</span>
+            <span class="logo-text">璀璨珠宝</span>
+          </a>
+        </div>
+        
+        <div class="nav-links" role="menubar">
+          <a href="#home" class="nav-link" role="menuitem">首页</a>
+          <a href="#collections" class="nav-link" role="menuitem">精品系列</a>
+          <a href="#craftsmanship" class="nav-link" role="menuitem">匠心工艺</a>
+          <a href="#about" class="nav-link" role="menuitem">品牌故事</a>
+          <a href="#contact" class="nav-link" role="menuitem">联系我们</a>
+        </div>
+        
+        <button class="mobile-menu-btn" aria-label="打开菜单" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- 主内容区域 -->
+  <main id="main-content">
+    
+    <!-- Hero区域 - 极光背景 -->
+    <section id="home" class="hero-section aurora-section">
+      <canvas id="aurora-canvas" class="aurora-canvas" aria-hidden="true"></canvas>
+      <div class="hero-overlay"></div>
+      
+      <div class="hero-content">
+        <h1 class="hero-title" data-scroll="hero-title">
+          <span class="hero-title-line">璀璨珠宝</span>
+          <span class="hero-title-line">永恒之美</span>
+        </h1>
+        <p class="hero-description" data-scroll="hero-desc">
+          传承百年经典工艺，诠释永恒优雅之美
+        </p>
+        <div class="hero-cta">
+          <a href="#collections" class="btn btn-primary btn-gold">
+            探索精品
+            <span class="btn-arrow">→</span>
+          </a>
+          <a href="#about" class="btn btn-secondary">
+            了解品牌
+          </a>
+        </div>
+      </div>
+      
+      <!-- 滚动提示 -->
+      <div class="scroll-indicator">
+        <span class="scroll-text">向下滚动</span>
+        <div class="scroll-line"></div>
+      </div>
+    </section>
+    
+    <!-- 品牌数据 -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-card" data-animation="counter">
+            <div class="stat-number" data-target="100">0</div>
+            <div class="stat-label">品牌历史(年)</div>
+            <div class="stat-icon">📜</div>
+          </div>
+          <div class="stat-card" data-animation="counter">
+            <div class="stat-number" data-target="500">0</div>
+            <div class="stat-label">匠心工艺</div>
+            <div class="stat-icon">✨</div>
+          </div>
+          <div class="stat-card" data-animation="counter">
+            <div class="stat-number" data-target="10000">0</div>
+            <div class="stat-label">客户满意</div>
+            <div class="stat-icon">❤️</div>
+          </div>
+          <div class="stat-card" data-animation="counter">
+            <div class="stat-number" data-target="50">0</div>
+            <div class="stat-label">全球门店</div>
+            <div class="stat-icon">🌍</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 精品系列 -->
+    <section id="collections" class="collections-section">
+      <div class="container">
+        <div class="section-header" data-scroll="reveal">
+          <span class="section-subtitle">Collections</span>
+          <h2 class="section-title">精品系列</h2>
+          <p class="section-description">
+            每一件作品都是艺术与工艺的完美结合
+          </p>
+        </div>
+        
+        <!-- 水晶棱镜展示 -->
+        <div class="prism-showcase">
+          <div class="crystal-prism" data-product="diamond" data-animation="crystal-prism">
+            <div class="scp-icon">💎</div>
+            <div class="scp-title">钻石系列</div>
+            <div class="scp-desc">完美切工，璀璨光芒</div>
+          </div>
+          
+          <div class="crystal-prism" data-product="gold" data-animation="crystal-prism">
+            <div class="scp-icon">👑</div>
+            <div class="scp-title">黄金系列</div>
+            <div class="scp-desc">纯金工艺，永恒保值</div>
+          </div>
+          
+          <div class="crystal-prism" data-product="rose-gold" data-animation="crystal-prism">
+            <div class="scp-icon">🌹</div>
+            <div class="scp-title">玫瑰金系列</div>
+            <div class="scp-desc">优雅浪漫，时尚之选</div>
+          </div>
+          
+          <div class="crystal-prism" data-product="platinum" data-animation="crystal-prism">
+            <div class="scp-icon">⚪</div>
+            <div class="scp-title">铂金系列</div>
+            <div class="scp-desc">纯净稀有，尊贵之选</div>
+          </div>
+        </div>
+        
+        <!-- 产品卡片 -->
+        <div class="products-grid">
+          <div class="product-card" data-animation="product">
+            <div class="product-image">
+              <div class="product-placeholder">
+                <span class="placeholder-icon">💎</span>
+              </div>
+              <div class="product-badge">新品</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">永恒之心钻戒</h3>
+              <p class="product-desc">1.5克拉 D色 VS1</p>
+              <div class="product-price">¥ 128,888</div>
+              <button class="product-btn">查看详情</button>
+            </div>
+          </div>
+          
+          <div class="product-card" data-animation="product">
+            <div class="product-image">
+              <div class="product-placeholder">
+                <span class="placeholder-icon">👑</span>
+              </div>
+              <div class="product-badge">热销</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">皇冠项链</h3>
+              <p class="product-desc">18K玫瑰金</p>
+              <div class="product-price">¥ 58,888</div>
+              <button class="product-btn">查看详情</button>
+            </div>
+          </div>
+          
+          <div class="product-card" data-animation="product">
+            <div class="product-image">
+              <div class="product-placeholder">
+                <span class="placeholder-icon">💫</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">星芒耳环</h3>
+              <p class="product-desc">18K白金镶嵌钻石</p>
+              <div class="product-price">¥ 36,888</div>
+              <button class="product-btn">查看详情</button>
+            </div>
+          </div>
+          
+          <div class="product-card" data-animation="product">
+            <div class="product-image">
+              <div class="product-placeholder">
+                <span class="placeholder-icon">🌹</span>
+              </div>
+              <div class="product-badge">定制</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">玫瑰花园手链</h3>
+              <p class="product-desc">手工打造独一无二</p>
+              <div class="product-price">¥ 88,888</div>
+              <button class="product-btn">查看详情</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-cta">
+          <a href="#" class="btn btn-outline btn-gold">查看全部产品</a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 优雅卡片 - 品牌理念 -->
+    <section class="philosophy-section">
+      <div class="container">
+        <div class="section-header" data-scroll="reveal">
+          <span class="section-subtitle">Philosophy</span>
+          <h2 class="section-title">品牌理念</h2>
+          <p class="section-description">
+            匠心传承，创新未来
+          </p>
+        </div>
+        
+        <div class="elegant-cards-grid">
+          <div class="elegant-card" data-animation="elegant">
+            <div class="card-number">01</div>
+            <div class="symbol-ring">
+              <div class="symbol-icon">✨</div>
+            </div>
+            <h3 class="card-title">经典传承</h3>
+            <p class="card-desc">百年工艺，永恒经典。每一件作品都承载着我们对完美的追求。</p>
+            <div class="card-glow"></div>
+          </div>
+          
+          <div class="elegant-card" data-animation="elegant">
+            <div class="card-number">02</div>
+            <div class="symbol-ring">
+              <div class="symbol-icon">💎</div>
+            </div>
+            <h3 class="card-title">极致品质</h3>
+            <p class="card-desc">严选顶级宝石，精工细作。品质是我们永恒的承诺。</p>
+            <div class="card-glow"></div>
+          </div>
+          
+          <div class="elegant-card" data-animation="elegant">
+            <div class="card-number">03</div>
+            <div class="symbol-ring">
+              <div class="symbol-icon">🎨</div>
+            </div>
+            <h3 class="card-title">创新设计</h3>
+            <p class="card-desc">融合传统与现代，创造出独一无二的艺术珍品。</p>
+            <div class="card-glow"></div>
+          </div>
+          
+          <div class="elegant-card" data-animation="elegant">
+            <div class="card-number">04</div>
+            <div class="symbol-ring">
+              <div class="symbol-icon">🤝</div>
+            </div>
+            <h3 class="card-title">专属服务</h3>
+            <p class="card-desc">一对一专属顾问，为您提供尊贵贴心的购物体验。</p>
+            <div class="card-glow"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 全息投影 - 匠心工艺 -->
+    <section id="craftsmanship" class="craftsmanship-section">
+      <div class="container">
+        <div class="section-header" data-scroll="reveal">
+          <span class="section-subtitle">Craftsmanship</span>
+          <h2 class="section-title">匠心工艺</h2>
+          <p class="section-description">
+            每一道工序都凝聚着大师的心血
+          </p>
+        </div>
+        
+        <div class="hologram-gallery">
+          <div class="hologram-item" data-animation="hologram">
+            <div class="hologram-base"></div>
+            <div class="hologram-beam shg-beam-160"></div>
+            <div class="hologram-image">
+              <div class="shg-hologram-image-160">
+                <div class="hologram-content">
+                  <span class="hologram-icon">💎</span>
+                  <h3 class="hologram-title">钻石切割工艺</h3>
+                  <p class="hologram-desc">顶级切工师手工打造，57个精确切面，完美绽放钻石火彩</p>
+                </div>
+              </div>
+              <div class="base-ring"></div>
+              <div class="status-indicator"></div>
+            </div>
+          </div>
+          
+          <div class="hologram-item" data-animation="hologram">
+            <div class="hologram-base"></div>
+            <div class="hologram-beam shg-beam-160"></div>
+            <div class="hologram-image">
+              <div class="shg-hologram-image-160">
+                <div class="hologram-content">
+                  <span class="hologram-icon">🔨</span>
+                  <h3 class="hologram-title">手工锻造</h3>
+                  <p class="hologram-desc">传承百年的手工锻造技艺，每一锤都凝聚着匠心与温度</p>
+                </div>
+              </div>
+              <div class="base-ring"></div>
+              <div class="status-indicator"></div>
+            </div>
+          </div>
+          
+          <div class="hologram-item" data-animation="hologram">
+            <div class="hologram-base"></div>
+            <div class="hologram-beam shg-beam-160"></div>
+            <div class="hologram-image">
+              <div class="shg-hologram-image-160">
+                <div class="hologram-content">
+                  <span class="hologram-icon">🔬</span>
+                  <h3 class="hologram-title">精密镶嵌</h3>
+                  <p class="hologram-desc">显微镜下精密镶嵌，确保每颗宝石牢固稳固，闪耀夺目</p>
+                </div>
+              </div>
+              <div class="base-ring"></div>
+              <div class="status-indicator"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 霓虹棱镜 - 夜间系列 -->
+    <section class="night-series-section">
+      <div class="container">
+        <div class="section-header" data-scroll="reveal">
+          <span class="section-subtitle">Night Collection</span>
+          <h2 class="section-title">夜间系列</h2>
+          <p class="section-description">
+            夜幕之下，光芒闪耀
+          </p>
+        </div>
+        
+        <div class="neon-prism-cards-grid">
+          <div class="neon-prism-card" data-animation="neon-prism">
+            <div class="npr-icon">💫</div>
+            <h3 class="npr-title">星河项链</h3>
+            <p class="npr-desc">如银河般璀璨，点缀您的夜色</p>
+            <div class="npr-energy-bar">
+              <div class="npr-energy-fill"></div>
+            </div>
+          </div>
+          
+          <div class="neon-prism-card" data-animation="neon-prism">
+            <div class="npr-icon">🌙</div>
+            <h3 class="npr-title">月光手链</h3>
+            <p class="npr-desc">温柔如月，浪漫永恒</p>
+            <div class="npr-energy-bar">
+              <div class="npr-energy-fill"></div>
+            </div>
+          </div>
+          
+          <div class="neon-prism-card" data-animation="neon-prism">
+            <div class="npr-icon">✨</div>
+            <h3 class="npr-title">璀璨耳饰</h3>
+            <p class="npr-desc">星芒闪烁，魅力无限</p>
+            <div class="npr-energy-bar">
+              <div class="npr-energy-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 品牌故事 -->
+    <section id="about" class="about-section">
+      <div class="container">
+        <div class="about-content">
+          <div class="about-text" data-scroll="reveal">
+            <span class="section-subtitle">Our Story</span>
+            <h2 class="section-title">璀璨传奇</h2>
+            <p class="about-description">
+              自1923年创立以来，璀璨珠宝始终秉持"匠心传承，创新未来"的理念，
+              传承百年经典工艺，融合现代设计美学，为每一位客户打造独一无二的艺术珍品。
+            </p>
+            <p class="about-description">
+              我们的每一件作品都经过顶级匠人精心雕琢，从选材到设计，从制作到打磨，
+              每一道工序都凝聚着我们对完美的追求与坚持。
+            </p>
+            <a href="#" class="btn btn-primary btn-gold">了解更多</a>
+          </div>
+          
+          <div class="about-image" data-scroll="parallax">
+            <div class="image-placeholder">
+              <span class="placeholder-icon">🏛️</span>
+              <div class="image-caption">璀璨珠宝总部</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 联系我们 -->
+    <section id="contact" class="contact-section">
+      <div class="container">
+        <div class="section-header" data-scroll="reveal">
+          <span class="section-subtitle">Contact Us</span>
+          <h2 class="section-title">联系我们</h2>
+          <p class="section-description">
+            期待与您的相遇
+          </p>
+        </div>
+        
+        <div class="contact-content">
+          <div class="contact-info">
+            <div class="contact-item">
+              <div class="contact-icon">📍</div>
+              <div class="contact-details">
+                <h4>地址</h4>
+                <p>上海市黄浦区南京东路123号</p>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <div class="contact-icon">📞</div>
+              <div class="contact-details">
+                <h4>电话</h4>
+                <p>+86 400-888-8888</p>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <div class="contact-icon">✉️</div>
+              <div class="contact-details">
+                <h4>邮箱</h4>
+                <p>contact@jewelry.com</p>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <div class="contact-icon">🕐</div>
+              <div class="contact-details">
+                <h4>营业时间</h4>
+                <p>周一至周日 10:00 - 22:00</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="contact-form" data-animation="form">
+            <form id="contactForm">
+              <div class="form-group">
+                <label for="name">姓名</label>
+                <input type="text" id="name" name="name" required aria-required="true">
+              </div>
+              
+              <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" id="email" name="email" required aria-required="true">
+              </div>
+              
+              <div class="form-group">
+                <label for="phone">电话</label>
+                <input type="tel" id="phone" name="phone">
+              </div>
+              
+              <div class="form-group">
+                <label for="message">留言</label>
+                <textarea id="message" name="message" rows="5" required aria-required="true"></textarea>
+              </div>
+              
+              <button type="submit" class="btn btn-primary btn-gold">发送留言</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+  
+  <!-- 页脚 -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <span class="logo-icon">💎</span>
+            <span class="logo-text">璀璨珠宝</span>
+          </div>
+          <p class="footer-slogan">永恒之美，璀璨传承</p>
+        </div>
+        
+        <div class="footer-links">
+          <div class="footer-link-group">
+            <h4>产品系列</h4>
+            <ul>
+              <li><a href="#">钻石系列</a></li>
+              <li><a href="#">黄金系列</a></li>
+              <li><a href="#">玫瑰金系列</a></li>
+              <li><a href="#">铂金系列</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-link-group">
+            <h4>关于我们</h4>
+            <ul>
+              <li><a href="#">品牌故事</a></li>
+              <li><a href="#">匠心工艺</a></li>
+              <li><a href="#">新闻动态</a></li>
+              <li><a href="#">加入我们</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-link-group">
+            <h4>客户服务</h4>
+            <ul>
+              <li><a href="#">联系我们</a></li>
+              <li><a href="#">售后服务</a></li>
+              <li><a href="#">门店查询</a></li>
+              <li><a href="#">常见问题</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; 2026 璀璨珠宝. 保留所有权利.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- 返回顶部按钮 -->
+  <button class="back-to-top" aria-label="返回顶部" style="display: none;">
+    <span>↑</span>
+  </button>
+  
+  <!-- JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+  
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/accessibility.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/compatibility.js"></script>
+  <script src="js/animations/crystalPrism.js"></script>
+  <script src="js/animations/neonPrism.js"></script>
+  <script src="js/animations/hologram.js"></script>
+  <script src="js/animations/aurora.js"></script>
+  <script src="js/animations/elegantCards.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
