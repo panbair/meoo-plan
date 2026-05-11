@@ -124,7 +124,6 @@ const initMouseFollow = () => {
       const shadowY = (mouseY - charCenterY) * 0.02
       
       gsap.to(char, {
-        boxShadowColor: `rgba(0, 0, 0, ${0.3 + index * 0.05})`,
         x: shadowX,
         y: shadowY,
         duration: 0.3

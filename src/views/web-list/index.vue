@@ -28,10 +28,7 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
 // let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
 const dirNameList = [
 
-  'CardTextBioluminescent', 'CardTextFirework', 'CardTextFluid3D', 'CardTextGalaxy', 'CardTextHolographic', 'CardTextMagnetic', 'CardTextNeonCrack', 'CardTextParticleStorm', 'CardTextTsunami3D', 'CardTextVoidRebirth', 'CardTextWaterWave',
-  'CardTextChladni', 'CardTextCorona', 'CardTextMoonlightEmbroider', 'CardTextNeonSign', 'CardTextPrismDispersion', 'CardTextQuantumCollapse', 'CardTextSynapse',
-  'CardTextBlur', 'CardTextCinematic', 'CardTextCrystal', 'CardTextCyber', 'CardTextHologram', 'CardTextInk', 'CardTextLaser', 'CardTextOrganic', 'CardTextSweep',
-  'CardTimeGravity', 'CardTimeKaleidoscope', 'CardTimeMagnet', 'CardTimeOrbitFlip','CardAbstractGeometry',
+ 'CardTimeGravity', 'CardTimeKaleidoscope', 'CardTimeMagnet', 'CardTimeOrbitFlip','CardAbstractGeometry',
   'CardTimeAether',
   'CardTimeBeat',
   'CardTimeBlackHole',
