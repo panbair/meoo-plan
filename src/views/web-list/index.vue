@@ -25,50 +25,58 @@ const modulesTime = import.meta.glob('./card-time/*/CardTime*.vue', { eager: tru
  */
 // let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
 const dirNameList = [
-  'CardTimeCosmic',
-  'CardTimeForge',
-  'CardTimeNeon',
-  'CardTimePageFlip',
-  'CardTimeQuantumLeap',
-  'CardTimeRasterize',
-  'CardTimeSpatialDepth',
+  'CardTimeAether',
+  'CardTimeBeat',
+  'CardTimeBlackHole',
+  'CardTimeBlueprint',
+  'CardTimeBook',
+  'CardTimeCascade',
   'CardTimeCinematic',
+  'CardTimeCosmic',
+  'CardTimeCosmicRhythm',
   'CardTimeCubeFlip',
+  'CardTimeDepthParallax',
   'CardTimeDiagonal',
+  'CardTimeDimensionFold',
+  'CardTimeDrawer',
   'CardTimeDust',
   'CardTimeElastic',
   'CardTimeEpicenter',
+  'CardTimeEqualizer',
+  'CardTimeForge',
+  'CardTimeGravitonSling',
   'CardTimeHologram',
+  'CardTimeLens',
   'CardTimeLuminous',
   'CardTimeLuxeDrop',
   'CardTimeLuxury',
-  'CardTimeRevelation',
-  'CardTimeShimmer',
-  'CardTimeSpiral',
-  'CardTimeTypography',
-  'CardTimeVoyage',
-  'CardTimeWave',
-  'CardTimeBeat',
-  'CardTimeBlueprint',
-  'CardTimeBook',
-  'CardTimeDrawer',
-  'CardTimeEqualizer',
-  'CardTimeLens',
-  'CardTimeShatter',
-  'CardTimeTeam',
-  'CardTimeTrust',
-  'CardTimeAether',
-  'CardTimeCascade',
-  'CardTimeDepthParallax',
   'CardTimeMagicFlip',
   'CardTimeMaterialAwakening',
   'CardTimeMirage',
+  'CardTimeNeon',
+  'CardTimePageFlip',
   'CardTimePerspective',
+  'CardTimeQuantumLeap',
+  'CardTimeRasterize',
+  'CardTimeRevelation',
   'CardTimeRipple',
+  'CardTimeShatter',
+  'CardTimeShimmer',
   'CardTimeSingularity',
   'CardTimeSolarFlare',
+  'CardTimeSpacetimeFissure',
+  'CardTimeSpatialDepth',
+  'CardTimeSpiral',
+  'CardTimeStellarOrbit',
+  'CardTimeTeam',
   'CardTimeTemporal',
   'CardTimeTheatre',
+  'CardTimeTrust',
+  'CardTimeTypography',
+  'CardTimeVoyage',
+  'CardTimeWave',
+  /*'Card3DFlipGallery',
+  'CardAbstractGeometry',*/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -134,7 +142,7 @@ const dirNameList = [
   'CardVortex',
   'CardWave',
 ]
-
+// const dirNameList = []
 const dirNameList1 = []
 
 const cardComponents = computed(() => {
@@ -163,7 +171,7 @@ const cardComponents = computed(() => {
     .filter((item) => {
       if (!dirNameList.includes(item.dirName) && item.component !== null) {
         dirNameList1.push(item.dirName)
-        console.log(dirNameList1)
+        // console.log(dirNameList1)
       }
 
       return !dirNameList.includes(item.dirName) && item.component !== null
@@ -195,11 +203,13 @@ const cardComponents = computed(() => {
     .filter((item) => {
       if (!dirNameList.includes(item.dirName) && item.component !== null) {
         dirNameList1.push(item.dirName)
-        console.log(dirNameList1)
+        // console.log(dirNameList1)
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
 
+  console.log([...listComponents].map((item) => item.dirName))
+  console.log([...timeComponents].map((item) => item.dirName))
   // 合并两个数组，card-time 组件在前
   return [...listComponents, ...timeComponents]
 })
@@ -251,8 +261,7 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    {
-      root: null,
+    { root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
     },
