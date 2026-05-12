@@ -31,6 +31,10 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
  */
 // let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
 const dirNameList = [
+  'CardImgDarkroom', 'CardImgFrost', 'CardImgPerspective', 'CardImgReversal', 'CardImgStage', 'CardImgSundial', 'CardImgVault',
+  'CardImgAmber', 'CardImgDepthLadder', 'CardImgFlipCard', 'CardImgMorningMist', 'CardImgSpinCard', 'CardImgTidalDream', 'CardImgWaterfall', 'CardImgZen',
+  'CardImgBeacon', 'CardImgBook', 'CardImgCrystal', 'CardImgFallingLeaf', 'CardImgFlyingStones', 'CardImgFoldedFan', 'CardImgPinhole', 'CardImgRippleWave', 'CardImgSplitFocus', 'CardImgSteel', 'CardImgTelescope', 'CardImgTitanium', 'CardImgTungsten', 'CardImgVelvet', 'CardImgVelvetDisplay', 'CardImgWaxSeal',
+  'CardImgCarousel', 'CardImgCloudTide', 'CardImgDolly', 'CardImgDust', 'CardImgFlip', 'CardImgFloat', 'CardImgFlower', 'CardImgForestMist', 'CardImgInk', 'CardImgMaglev', 'CardImgMistReveal', 'CardImgNebulaBreath', 'CardImgPolarize', 'CardImgPrism', 'CardImgRain', 'CardImgRipple', 'CardImgRiver', 'CardImgTwinWings',
   'CardImgDeepPulse', 'CardImgFilm', 'CardImgGravity', 'CardImgHydraulic', 'CardImgStatic', 'CardImgStripes',
   'CardImgAurora', 'CardImgCube', 'CardImgDeepSea', 'CardImgFog', 'CardImgGalaxy', 'CardImgMirror', 'CardImgThermal',
   'CardImgBloom', 'CardImgCrosshair', 'CardImgCurtain', 'CardImgDepth', 'CardImgGilded', 'CardImgMercury', 'CardImgProjector', 'CardImgTyndall',
@@ -320,10 +324,10 @@ const cardComponents = computed(() => {
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
-  console.log([...listComponents].map((item) => item.dirName))
-  console.log([...timeComponents].map((item) => item.dirName))
-  console.log([...textComponents].map((item) => item.dirName))
-  console.log([...d3dComponents].map((item) => item.dirName))
+  console.log([...listComponents].map((item) => item.dirName).join(','))
+  console.log([...timeComponents].map((item) => item.dirName).join(','))
+  console.log([...textComponents].map((item) => item.dirName).join(','))
+  console.log([...d3dComponents].map((item) => item.dirName).join(','))
 
   console.log([...imgComponents].map((item) => item.dirName))
   // 合并数组：card-img 组件在前，card-3d 其次，card-time 再次，card-list 最后

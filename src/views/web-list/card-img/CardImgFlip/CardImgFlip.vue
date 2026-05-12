@@ -81,7 +81,7 @@ interface Photo {
 const photos: Photo[] = [
   { url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80', title: 'Mountain Dawn' },
   { url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', title: 'Alpine Peak' },
-  { url: 'https://images.unsplash.com/photo-1472121672133-4a42c7e9b0cd?w=600&q=80', title: 'Forest Mist' },
+  { url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80', title: 'Forest Mist' },
   { url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80', title: 'Nature Vista' }
 ]
 
@@ -113,14 +113,16 @@ const initAnimations = () => {
       trigger: parentRef.value,
       start: 'top 80%',
       end: 'bottom 20%',
-      scrub: 1.5
+      scrub: true
     }
   })
 
-  // 头部入场
-  tl.fromTo(
+  // 头部入场 - 先设置初始值
+  if (headerRef.value) {
+    gsap.set(headerRef.value, { opacity: 0, y: -30 })
+  }
+  tl.to(
     headerRef.value,
-    { opacity: 0, y: -30 },
     { opacity: 1, y: 0, duration: 0.6 },
     0
   )
@@ -132,8 +134,7 @@ const initAnimations = () => {
     // 初始状态：向外翻倒
     gsap.set(card, {
       rotateY: 85,
-      transformOrigin: 'left center',
-      perspective: 1000
+      transformOrigin: 'left center'
     })
 
     // 翻页动画
@@ -150,9 +151,9 @@ const initAnimations = () => {
     // 高光线效果
     const highlight = card.querySelector('.card-highlight') as HTMLElement
     if (highlight) {
-      tl.fromTo(
+      gsap.set(highlight, { opacity: 0 })
+      tl.to(
         highlight,
-        { opacity: 0 },
         { opacity: 0.6, duration: 0.3 },
         index * 0.2
       )
@@ -166,9 +167,9 @@ const initAnimations = () => {
     // 阴影效果
     const shadow = card.querySelector('.card-shadow') as HTMLElement
     if (shadow) {
-      tl.fromTo(
+      gsap.set(shadow, { opacity: 0.8, x: -5 })
+      tl.to(
         shadow,
-        { opacity: 0.8, x: -5 },
         { opacity: 0.3, x: 0, duration: 0.5 },
         index * 0.2
       )
@@ -176,35 +177,44 @@ const initAnimations = () => {
   })
 
   // 全部立起后整体前移
-  tl.to(
-    flipCardRefs.filter(Boolean),
-    {
-      translateZ: 20,
-      boxShadow: '0 30px 60px rgba(0, 0, 0, 0.4)',
-      duration: 0.5,
-      ease: 'power2.out'
-    },
-    photos.length * 0.2 + 0.2
-  )
+  flipCardRefs.forEach((card) => {
+    if (!card) return
+    tl.to(
+      card,
+      {
+        z: 30,
+        boxShadow: '0 30px 60px rgba(0, 0, 0, 0.4)',
+        duration: 0.5,
+        ease: 'power2.out'
+      },
+      photos.length * 0.2 + 0.2
+    )
+  })
 
-  // 底部信息入场
-  tl.fromTo(
+  // 底部信息入场 - 先设置初始值
+  if (footerRef.value) {
+    gsap.set(footerRef.value, { opacity: 0, y: 40 })
+  }
+  tl.to(
     footerRef.value,
-    { opacity: 0, y: 40 },
     { opacity: 1, y: 0, duration: 0.6 },
     0.5
   )
 
-  tl.fromTo(
+  if (titleRef.value) {
+    gsap.set(titleRef.value, { opacity: 0, y: 30 })
+  }
+  tl.to(
     titleRef.value,
-    { opacity: 0, y: 30 },
     { opacity: 1, y: 0, duration: 0.8, ease: 'back.out(1.4)' },
     0.6
   )
 
-  tl.fromTo(
+  if (counterRef.value) {
+    gsap.set(counterRef.value, { opacity: 0 })
+  }
+  tl.to(
     counterRef.value,
-    { opacity: 0 },
     { opacity: 1, duration: 0.4 },
     0.8
   )

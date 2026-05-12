@@ -6,28 +6,6 @@
       <div class="bg-moon" />
     </div>
 
-    <!-- 水纹滤镜 SVG -->
-    <svg class="water-filter" aria-hidden="true">
-      <defs>
-        <filter id="water-ripple">
-          <feTurbulence
-            ref="feTurbulenceRef"
-            type="fractalNoise"
-            baseFrequency="0.01"
-            numOctaves="3"
-            result="noise"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="noise"
-            scale="8"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-        </filter>
-      </defs>
-    </svg>
-
     <!-- 顶部装饰 -->
     <div class="flower-header">
       <div ref="headerRef" class="header-content">
@@ -41,7 +19,7 @@
     <div class="flower-content">
       <!-- 主体图片 -->
       <div ref="mainWrapperRef" class="main-wrapper">
-        <div ref="mainImageRef" class="main-image">
+        <div class="main-image">
           <img
             src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1200&q=85"
             alt="镜花水月"
@@ -52,18 +30,17 @@
 
       <!-- 倒影 -->
       <div ref="reflectionWrapperRef" class="reflection-wrapper">
-        <div ref="reflectionImageRef" class="reflection-image">
+        <div class="reflection-image">
           <img
             src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1200&q=85"
             alt="倒影"
             class="reflection-img"
           />
         </div>
-        <!-- 水深渐变 -->
         <div ref="waterFadeRef" class="water-fade" />
       </div>
 
-      <!-- 水纹层 -->
+      <!-- 水纹涟漪 -->
       <div ref="rippleLayerRef" class="ripple-layer" />
     </div>
 
@@ -97,23 +74,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
-
-type TweenCleanup = () => void
-const cleanupFns: TweenCleanup[] = []
 
 const parentRef = ref<HTMLElement | null>(null)
 const headerRef = ref<HTMLElement | null>(null)
 const titleRef = ref<HTMLElement | null>(null)
 const descRef = ref<HTMLElement | null>(null)
 const mainWrapperRef = ref<HTMLElement | null>(null)
-const mainImageRef = ref<HTMLElement | null>(null)
 const reflectionWrapperRef = ref<HTMLElement | null>(null)
-const reflectionImageRef = ref<HTMLElement | null>(null)
 const waterFadeRef = ref<HTMLElement | null>(null)
 const rippleLayerRef = ref<HTMLElement | null>(null)
 const footerRef = ref<HTMLElement | null>(null)
@@ -121,7 +93,8 @@ const progressRef = ref<HTMLElement | null>(null)
 const progressFillRef = ref<HTMLElement | null>(null)
 const progressTextRef = ref<HTMLElement | null>(null)
 const moonlightRef = ref<HTMLElement | null>(null)
-const feTurbulenceRef = ref<SVGFE turbulenceElement | null>(null)
+
+const cleanupFns: (() => void)[] = []
 
 onMounted(() => {
   nextTick(() => {
@@ -132,137 +105,95 @@ onMounted(() => {
 const initAnimations = () => {
   if (!parentRef.value) return
 
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: parentRef.value,
-      start: 'top 80%',
-      end: 'bottom 20%',
-      scrub: 1.5
+  // 设置初始状态
+  const initialState = () => {
+    if (headerRef.value) {
+      gsap.set(headerRef.value, { opacity: 0, y: -20 })
+    }
+    if (mainWrapperRef.value) {
+      gsap.set(mainWrapperRef.value, { opacity: 0, y: 30 })
+    }
+    if (reflectionWrapperRef.value) {
+      gsap.set(reflectionWrapperRef.value, { opacity: 0, y: -20 })
+    }
+    if (waterFadeRef.value) {
+      gsap.set(waterFadeRef.value, { opacity: 0.4 })
+    }
+    if (moonlightRef.value) {
+      gsap.set(moonlightRef.value, { opacity: 0, scale: 0.9 })
+    }
+    if (rippleLayerRef.value) {
+      gsap.set(rippleLayerRef.value, { opacity: 0, scale: 0.95 })
+    }
+    if (titleRef.value) {
+      gsap.set(titleRef.value, { opacity: 0, y: 25 })
+    }
+    if (descRef.value) {
+      gsap.set(descRef.value, { opacity: 0, y: 15 })
+    }
+    if (footerRef.value) {
+      gsap.set(footerRef.value, { opacity: 0, y: 20 })
+    }
+    if (progressFillRef.value) {
+      gsap.set(progressFillRef.value, { scaleX: 0, transformOrigin: 'left' })
+    }
+    if (progressTextRef.value) {
+      progressTextRef.value.textContent = '0%'
+    }
+  }
+
+  initialState()
+
+  // ScrollTrigger 入场动画
+  const st = ScrollTrigger.create({
+    trigger: parentRef.value,
+    start: 'top 80%',
+    onEnter: () => {
+      const tl = gsap.timeline()
+
+      tl.to(headerRef.value, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0)
+      tl.to(mainWrapperRef.value, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.1)
+      tl.to(reflectionWrapperRef.value, { opacity: 1, y: 0, duration: 0.6 }, 0.2)
+      tl.to(waterFadeRef.value, { opacity: 0.6, duration: 0.5 }, 0)
+      tl.to(moonlightRef.value, { opacity: 0.12, scale: 1, duration: 1 }, 0.3)
+      tl.to(rippleLayerRef.value, { opacity: 0.08, scale: 1, duration: 0.8 }, 0.2)
+      tl.to(titleRef.value, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.4)' }, 0.4)
+      tl.to(descRef.value, { opacity: 1, y: 0, duration: 0.5 }, 0.5)
+      tl.to(footerRef.value, { opacity: 1, y: 0, duration: 0.4 }, 0.6)
+      tl.to(progressFillRef.value, { scaleX: 1, duration: 1, ease: 'power1.inOut' }, 0)
+    },
+    onLeaveBack: () => {
+      initialState()
     }
   })
 
-  // 头部入场
-  tl.fromTo(
-    headerRef.value,
-    { opacity: 0, y: -20 },
-    { opacity: 1, y: 0, duration: 0.5 },
-    0
-  )
+  cleanupFns.push(() => st.kill())
 
-  // 主体图片入场
-  tl.fromTo(
-    mainWrapperRef.value,
-    { opacity: 0, y: 30 },
-    { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
-    0.1
-  )
+  // 滚动过程中的悬浮效果
+  const floatSt = ScrollTrigger.create({
+    trigger: parentRef.value,
+    start: 'top top',
+    end: 'bottom top',
+    scrub: true,
+    onUpdate: (self) => {
+      const progress = self.progress
 
-  // 主体向上微移（悬浮）
-  tl.fromTo(
-    mainWrapperRef.value,
-    { y: 0 },
-    { y: -6, ease: 'power1.inOut' },
-    0
-  )
+      // 主体图片向上微移
+      if (mainWrapperRef.value) {
+        gsap.set(mainWrapperRef.value, { y: -6 * progress })
+      }
 
-  // 倒影入场
-  tl.fromTo(
-    reflectionWrapperRef.value,
-    { opacity: 0, y: -20 },
-    { opacity: 1, y: 0, duration: 0.6 },
-    0.2
-  )
+      // 倒影向下微沉
+      if (reflectionWrapperRef.value) {
+        gsap.set(reflectionWrapperRef.value, { y: 4 * progress })
+      }
+    }
+  })
 
-  // 倒影反向微沉
-  tl.fromTo(
-    reflectionWrapperRef.value,
-    { y: 0 },
-    { y: 4, ease: 'power1.inOut' },
-    0
-  )
-
-  // 倒影微缩
-  tl.fromTo(
-    reflectionImageRef.value,
-    { scaleY: 1, opacity: 0.3 },
-    { scaleY: 0.96, opacity: 0.15, ease: 'power1.inOut' },
-    0
-  )
-
-  // 水纹波动增强
-  if (feTurbulenceRef.value) {
-    tl.fromTo(
-      feTurbulenceRef.value,
-      { attributes: { 'baseFrequency': '0.01' } },
-      { attrs: { 'baseFrequency': '0.015' }, duration: 0.8 },
-      0
-    )
-  }
-
-  // 水深渐变
-  tl.fromTo(
-    waterFadeRef.value,
-    { opacity: 0.4 },
-    { opacity: 0.6, duration: 0.5 },
-    0
-  )
-
-  // 月光效果
-  tl.fromTo(
-    moonlightRef.value,
-    { opacity: 0, scale: 0.9 },
-    { opacity: 0.12, scale: 1, duration: 1 },
-    0.3
-  )
-
-  // 水纹涟漪
-  tl.fromTo(
-    rippleLayerRef.value,
-    { opacity: 0, scale: 0.95 },
-    { opacity: 0.08, scale: 1, duration: 0.8 },
-    0.2
-  )
-
-  // 标题
-  tl.fromTo(
-    titleRef.value,
-    { opacity: 0, y: 25 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.4)' },
-    0.4
-  )
-
-  tl.fromTo(
-    descRef.value,
-    { opacity: 0, y: 15 },
-    { opacity: 1, y: 0, duration: 0.5 },
-    0.5
-  )
-
-  // 底部装饰
-  tl.fromTo(
-    footerRef.value,
-    { opacity: 0, y: 20 },
-    { opacity: 1, y: 0, duration: 0.4 },
-    0.6
-  )
-
-  // 进度条
-  tl.fromTo(
-    progressFillRef.value,
-    { scaleX: 0 },
-    { scaleX: 1, transformOrigin: 'left', duration: 1 },
-    0
-  )
-
-  tl.fromTo(
-    progressTextRef.value,
-    { textContent: '0%' },
-    { textContent: '100%', snap: { textContent: 1 }, roundProps: 'textContent', duration: 1 },
-    0
-  )
+  cleanupFns.push(() => floatSt.kill())
 
   // 持续水纹动画
-  gsap.to(rippleLayerRef.value, {
+  const rippleAnim = gsap.to(rippleLayerRef.value, {
     scale: 1.02,
     duration: 3,
     repeat: -1,
@@ -270,14 +201,28 @@ const initAnimations = () => {
     ease: 'sine.inOut'
   })
 
+  // 进度条更新
+  const progressSt = ScrollTrigger.create({
+    trigger: parentRef.value,
+    start: 'top bottom',
+    end: 'bottom bottom',
+    scrub: true,
+    onUpdate: (self) => {
+      if (progressTextRef.value) {
+        progressTextRef.value.textContent = Math.round(self.progress * 100) + '%'
+      }
+    }
+  })
+
   cleanupFns.push(() => {
-    ScrollTrigger.getAll().forEach(t => t.kill())
+    progressSt.kill()
+    rippleAnim.kill()
   })
 }
 
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
-  gsap.killTweensOf('*')
+  ScrollTrigger.getAll().forEach(t => t.kill())
 })
 </script>
 
@@ -290,14 +235,6 @@ onUnmounted(() => {
   background: linear-gradient(180deg, #0a1628 0%, #1a2744 40%, #0d1f3c 100%);
   color: #ffffff;
   font-family: 'Noto Sans SC', sans-serif;
-}
-
-// 水纹滤镜
-.water-filter {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
 }
 
 // 渐变背景
@@ -340,7 +277,6 @@ onUnmounted(() => {
   );
   clip-path: polygon(60% 0%, 100% 0%, 100% 100%, 20% 100%);
   pointer-events: none;
-  opacity: 0;
 }
 
 // 顶部装饰
