@@ -31,6 +31,11 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
  */
 // let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
 const dirNameList = [
+  'CardImgBloom', 'CardImgCrosshair', 'CardImgCurtain', 'CardImgDepth', 'CardImgGilded', 'CardImgMercury', 'CardImgProjector', 'CardImgTyndall',
+  'CardImgAbyss', 'CardImgAperture', 'CardImgDeconstruct', 'CardImgFocusShift', 'CardImgParallax', 'CardImgRift', 'CardImgStardust', 'CardImgVortex', 'CardImgWireless',
+  'Card3DFlipGallery',
+  'Card3dHologram', 'Card3dHouse', 'Card3dTome',
+  'CardTextAurora', 'CardTextBioluminescent', 'CardTextBlur', 'CardTextBoiling', 'CardTextChladni', 'CardTextCinematic', 'CardTextCorona', 'CardTextCrystal', 'CardTextCyber', 'CardTextDomino', 'CardTextFirework', 'CardTextFluid3D', 'CardTextGalaxy', 'CardTextHologram', 'CardTextHolographic', 'CardTextInk', 'CardTextLaser', 'CardTextMagnetic', 'CardTextMetal', 'CardTextMoonlightEmbroider', 'CardTextMycelium', 'CardTextNeonCrack', 'CardTextNeonSign', 'CardTextOrganic', 'CardTextOrigami', 'CardTextParticleStorm', 'CardTextPrismDispersion', 'CardTextQuantumCollapse', 'CardTextSeismograph', 'CardTextSpikes', 'CardTextSweep', 'CardTextSynapse', 'CardTextTsunami3D', 'CardTextVoidRebirth', 'CardTextWaterWave',
   'Card3dCube',
   'Card3dEntanglement',
   'Card3dSpectrum',

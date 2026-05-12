@@ -158,3 +158,12 @@ useReducedMotion()  // 检测系统偏好
 ---
 
 是否需要我实现其中某个方案？
+
+
+{
+trigger: '.hero-section',
+start: 'top top',
+end: 'bottom center',
+scrub: 1,
+// 标题从下方滑入，透明度0→1
+}

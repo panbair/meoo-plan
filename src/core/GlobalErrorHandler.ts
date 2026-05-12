@@ -104,9 +104,16 @@ class GlobalErrorHandler {
   private handleResourceError(event: Event) {
     const target = event.target as HTMLElement
     if (target?.tagName === 'IMG' || target?.tagName === 'SCRIPT' || target?.tagName === 'LINK') {
+      const src = (target as HTMLImageElement).src || ''
+
+      // 过滤掉开发服务器的预检请求（如 favicon.ico、Vite HMR 等）
+      if (src.includes('localhost') || src.includes('127.0.0.1')) {
+        return
+      }
+
       const errorLog: ErrorLog = {
         type: 'resource',
-        message: `资源加载失败: ${(target as HTMLImageElement).src}`,
+        message: `资源加载失败: ${src}`,
         url: window.location.href,
         time: new Date().toISOString()
       }

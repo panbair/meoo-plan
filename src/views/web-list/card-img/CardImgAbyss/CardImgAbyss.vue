@@ -271,7 +271,7 @@ function initAbyssAnimation() {
     scrollTrigger: {
       trigger: abyss,
       start: 'top 100%',
-      end: 'bottom -100%',
+      end: 'bottom 20%',
       scrub: 2,
       anticipatePin: 1,
       toggleActions: 'play reverse play reverse'
