@@ -31,6 +31,8 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
  */
 // let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
 const dirNameList = [
+  'CardImgDeepPulse', 'CardImgFilm', 'CardImgGravity', 'CardImgHydraulic', 'CardImgStatic', 'CardImgStripes',
+  'CardImgAurora', 'CardImgCube', 'CardImgDeepSea', 'CardImgFog', 'CardImgGalaxy', 'CardImgMirror', 'CardImgThermal',
   'CardImgBloom', 'CardImgCrosshair', 'CardImgCurtain', 'CardImgDepth', 'CardImgGilded', 'CardImgMercury', 'CardImgProjector', 'CardImgTyndall',
   'CardImgAbyss', 'CardImgAperture', 'CardImgDeconstruct', 'CardImgFocusShift', 'CardImgParallax', 'CardImgRift', 'CardImgStardust', 'CardImgVortex', 'CardImgWireless',
   'Card3DFlipGallery',
