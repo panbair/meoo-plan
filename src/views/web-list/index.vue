@@ -37,7 +37,11 @@ const dirNameList = [
   'Card3dWormhole',
   'CardTimeOrbitFlip',
 
- 'CardTimeGravity', 'CardTimeKaleidoscope', 'CardTimeMagnet', 'CardTimeOrbitFlip','CardAbstractGeometry',
+  'CardTimeGravity',
+  'CardTimeKaleidoscope',
+  'CardTimeMagnet',
+  'CardTimeOrbitFlip',
+  'CardAbstractGeometry',
   'CardTimeAether',
   'CardTimeBeat',
   'CardTimeBlackHole',
@@ -175,9 +179,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-list'
       }
     })
@@ -207,9 +211,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-time'
       }
     })
@@ -237,9 +241,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-text'
       }
     })
@@ -267,9 +271,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-3d'
       }
     })
@@ -279,13 +283,6 @@ const cardComponents = computed(() => {
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
-
-  console.log([...listComponents].map((item) => item.dirName))
-  console.log([...timeComponents].map((item) => item.dirName))
-  console.log([...textComponents].map((item) => item.dirName))
-  // 合并三个数组，card-time 组件在前，card-text 在后
-  return [...listComponents, ...timeComponents, ...textComponents]
-  console.log([...d3dComponents].map((item) => item.dirName))
 
   // 处理 card-img 目录组件
   const imgComponents = Object.entries(modulesImg)
@@ -304,9 +301,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-img'
       }
     })
@@ -316,10 +313,20 @@ const cardComponents = computed(() => {
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
+  console.log([...listComponents].map((item) => item.dirName))
+  console.log([...timeComponents].map((item) => item.dirName))
+  console.log([...textComponents].map((item) => item.dirName))
+  console.log([...d3dComponents].map((item) => item.dirName))
 
   console.log([...imgComponents].map((item) => item.dirName))
   // 合并数组：card-img 组件在前，card-3d 其次，card-time 再次，card-list 最后
-  return [...imgComponents, ...d3dComponents, ...timeComponents, ...listComponents]
+  return [
+    ...imgComponents,
+    ...textComponents,
+    ...d3dComponents,
+    ...timeComponents,
+    ...listComponents,
+  ]
 })
 
 // ==================== 模板引用 ====================
@@ -346,7 +353,9 @@ const initIntersectionObserver = () => {
 
   observer = new IntersectionObserver(
     (entries) => {
-      if (!visibleCards.value) return // HMR 保护
+      if (!visibleCards.value) {
+        return
+      } // HMR 保护
       entries.forEach((entry) => {
         const index = parseInt((entry.target as HTMLElement).dataset.index || '0')
 
@@ -370,7 +379,8 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    {root: null,
+    {
+      root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
     }
