@@ -23,6 +23,8 @@ const modulesTime = import.meta.glob('./card-time/*/CardTime*.vue', { eager: tru
 const modules3d = import.meta.glob('./card-3d/*/[^/]*.vue', { eager: true })
 // card-img 目录组件
 const modulesImg = import.meta.glob('./card-img/*/[^/]*.vue', { eager: true })
+// card-text 目录组件
+const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
 
 /**
  * 自动化构建组件列表
@@ -34,6 +36,8 @@ const dirNameList = [
   'Card3dSpectrum',
   'Card3dWormhole',
   'CardTimeOrbitFlip',
+
+ 'CardTimeGravity', 'CardTimeKaleidoscope', 'CardTimeMagnet', 'CardTimeOrbitFlip','CardAbstractGeometry',
   'CardTimeAether',
   'CardTimeBeat',
   'CardTimeBlackHole',
@@ -217,6 +221,35 @@ const cardComponents = computed(() => {
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
 
+  // 处理 card-text 目录组件
+  const textComponents = Object.entries(modulesText)
+    .map(([path, module]) => {
+      const match = path.match(/\/card-text\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/CardText/g, '文字')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
+
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：使用 defineAsyncComponent
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
+        type: 'card-text'
+      }
+    })
+    .filter((item) => {
+      if (!dirNameList.includes(item.dirName) && item.component !== null) {
+        dirNameList1.push(item.dirName)
+      }
+      return !dirNameList.includes(item.dirName) && item.component !== null
+    })
+
   // 处理 card-3d 目录组件
   const d3dComponents = Object.entries(modules3d)
     .map(([path, module]) => {
@@ -249,6 +282,9 @@ const cardComponents = computed(() => {
 
   console.log([...listComponents].map((item) => item.dirName))
   console.log([...timeComponents].map((item) => item.dirName))
+  console.log([...textComponents].map((item) => item.dirName))
+  // 合并三个数组，card-time 组件在前，card-text 在后
+  return [...listComponents, ...timeComponents, ...textComponents]
   console.log([...d3dComponents].map((item) => item.dirName))
 
   // 处理 card-img 目录组件
@@ -310,17 +346,18 @@ const initIntersectionObserver = () => {
 
   observer = new IntersectionObserver(
     (entries) => {
+      if (!visibleCards.value) return // HMR 保护
       entries.forEach((entry) => {
         const index = parseInt((entry.target as HTMLElement).dataset.index || '0')
 
         if (entry.isIntersecting) {
           // 进入视口：加载组件
-          visibleCards.value.add(index)
+          visibleCards.value?.add(index)
           // 预加载下一个
           for (let i = 1; i <= VISIBLE_BUFFER; i++) {
             const nextIndex = index + i
             if (nextIndex < cardComponents.value.length) {
-              visibleCards.value.add(nextIndex)
+              visibleCards.value?.add(nextIndex)
             }
           }
         } else {
@@ -376,11 +413,19 @@ const handleScroll = () => {
 
 // ==================== 生命周期 ====================
 onMounted(() => {
+  // 确保 visibleCards 初始化
+  if (!visibleCards.value) {
+    visibleCards.value = new Set<number>()
+  }
+  if (!pageRefs.value) {
+    pageRefs.value = new Map()
+  }
+
   // 初始化可见性
   if (!LAZY_MODE) {
     cardComponents.value.forEach((_, index) => {
       if (index < PRELOAD_COUNT) {
-        visibleCards.value.add(index)
+        visibleCards.value?.add(index)
       }
     })
   } else {
