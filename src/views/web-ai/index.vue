@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
 
 // ============================================================
 // 模块A: 数据加载层 - 获取所有组件源码和README
@@ -205,13 +205,45 @@ function extractTemplateSummary(template: string): TemplateSummary {
  * 提取Script摘要
  */
 function extractScriptSummary(script: string): ScriptSummary {
-  // Props提取
-  const propsMatch = script.match(/interface Props\s*\{[^}]+\}/s) ||
-    script.match(/withDefaults\(defineProps<[^>]+>\(\)[^)]*\)/s) ||
-    script.match(/defineProps\(\{[\s\S]*?\}\)/)
-  const propsStr = propsMatch?.[0] || ''
-  const props = propsStr.match(/(\w+)\??:\s*(string|number|boolean|object|\[\])/g) || []
-    .map(p => p.replace(/[?:]/g, '').trim())
+  // Props提取 - 增强版
+  const props: string[] = []
+  // 匹配 interface Props 中的属性定义
+  const propsInterfaceMatch = script.match(/interface\s+Props\s*\{([^}]+)\}/s)
+  if (propsInterfaceMatch) {
+    const propLines = propsInterfaceMatch[1].split('\n')
+    propLines.forEach(line => {
+      const propMatch = line.match(/^\s*(\w+)\?\?:\s*(string|number|boolean|object|Array<string>|string\[\])/)
+      if (propMatch) {
+        props.push(`${propMatch[1]}${propMatch[0].includes('?') ? '?' : ''}: ${propMatch[2]}`)
+      }
+    })
+  }
+  // 回退：匹配 withDefaults(defineProps<...>)
+  if (props.length === 0) {
+    const withDefaultsMatch = script.match(/withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s)
+    if (withDefaultsMatch) {
+      const propLines = withDefaultsMatch[1].split('\n')
+      propLines.forEach(line => {
+        const propMatch = line.match(/^\s*(\w+)\s*:/)
+        if (propMatch) {
+          props.push(propMatch[1])
+        }
+      })
+    }
+  }
+  // 回退：匹配 defineProps({...})
+  if (props.length === 0) {
+    const definePropsMatch = script.match(/defineProps\(\{([\s\S]*?)\}\)/)
+    if (definePropsMatch) {
+      const propLines = definePropsMatch[1].split('\n')
+      propLines.forEach(line => {
+        const propMatch = line.match(/^\s*(\w+)\s*:/)
+        if (propMatch) {
+          props.push(propMatch[1])
+        }
+      })
+    }
+  }
 
   // ScrollTrigger配置提取
   const stMatches = script.match(/ScrollTrigger\s*:\s*\{[^}]+\}/gs) || []
@@ -299,6 +331,86 @@ function extractComponentSummary(sourceCode: string, readme: string | null): Com
 }
 
 /**
+ * 从组件源码中提取精简代码片段供 DeepSeek 参考
+ * 只提取 Props 定义、GSAP/ScrollTrigger 关键代码、onMounted/onUnmounted 生命周期
+ * 控制在每个组件约 800-1200 字符，避免超出 token 限制
+ */
+function extractComponentCodeForPrompt(sourceCode: string): string {
+  const { script } = extractSFCParts(sourceCode)
+  const parts: string[] = []
+
+  // 1. 提取 Props 定义（interface Props 或 withDefaults 或 defineProps）
+  // 匹配 interface Props { ... }
+  const propsInterfaceMatch = script.match(/interface\s+Props\s*\{[\s\S]*?\}/)
+  if (propsInterfaceMatch) {
+    parts.push(`// Props定义\n${propsInterfaceMatch[0]}`)
+  }
+
+  // 匹配 withDefaults(defineProps<...>(), { ... })
+  const withDefaultsMatch = script.match(/withDefaults\s*\(\s*defineProps<[^>]*>\s*\(\s*\)\s*,\s*\{[\s\S]*?\}\s*\)/)
+  if (withDefaultsMatch && !propsInterfaceMatch) {
+    parts.push(`// Props定义(withDefaults)\n${withDefaultsMatch[0]}`)
+  }
+
+  // 匹配 defineProps({ ... })
+  const definePropsMatch = script.match(/defineProps\s*\(\s*\{[\s\S]*?\}\s*\)/)
+  if (definePropsMatch && !propsInterfaceMatch && !withDefaultsMatch) {
+    parts.push(`// Props定义(defineProps)\n${definePropsMatch[0]}`)
+  }
+
+  // 如果都没有 Props，明确标注
+  if (!propsInterfaceMatch && !withDefaultsMatch && !definePropsMatch) {
+    parts.push('// 该组件无 Props 定义')
+  }
+
+  // 2. 提取 onMounted / onUnmounted / onBeforeUnmount 生命周期块
+  const lifecycleMatch = script.match(/(?:onMounted|onUnmounted|onBeforeUnmount)\s*\([\s\S]*?\n\}/g)
+  if (lifecycleMatch) {
+    // 只取前2个，控制长度
+    lifecycleMatch.slice(0, 2).forEach(block => {
+      const trimmed = block.trim()
+      if (trimmed.length < 600) {
+        parts.push(`// 生命周期\n${trimmed}`)
+      } else {
+        // 截断过长代码
+        parts.push(`// 生命周期(精简)\n${trimmed.slice(0, 500)}\n// ...`)
+      }
+    })
+  }
+
+  // 3. 提取 GSAP timeline / ScrollTrigger 配置块
+  // 匹配 gsap.timeline({...}) 调用
+  const timelineMatches = script.match(/(?:const|let)\s+\w+\s*=\s*gsap\.timeline\s*\([\s\S]*?\)[\s\S]*?;?\s*(?:\.to\(|\.from\(|\.fromTo\()[\s\S]*?(?:;\n|\.then|\n\})/g)
+  if (timelineMatches) {
+    timelineMatches.slice(0, 2).forEach(block => {
+      const trimmed = block.trim()
+      if (trimmed.length < 500) {
+        parts.push(`// GSAP动画\n${trimmed}`)
+      } else {
+        parts.push(`// GSAP动画(精简)\n${trimmed.slice(0, 400)}\n// ...`)
+      }
+    })
+  }
+
+  // 4. 提取 ScrollTrigger.create / ScrollTrigger 配置
+  const stMatches = script.match(/ScrollTrigger\s*(?:\.create)?\s*[:=]\s*\{[\s\S]*?\}/g)
+  if (stMatches) {
+    stMatches.slice(0, 2).forEach(block => {
+      const trimmed = block.trim()
+      if (trimmed.length < 400) {
+        parts.push(`// ScrollTrigger配置\n${trimmed}`)
+      } else {
+        parts.push(`// ScrollTrigger配置(精简)\n${trimmed.slice(0, 300)}\n// ...`)
+      }
+    })
+  }
+
+  // 合并并限制总长度
+  const result = parts.join('\n\n')
+  return result.length > 1500 ? result.slice(0, 1500) + '\n// ... (代码已精简)' : result
+}
+
+/**
  * 格式化摘要为可读文本
  */
 function formatSummaryForPrompt(summary: ComponentSummary, readme: string | null): string {
@@ -315,7 +427,7 @@ function formatSummaryForPrompt(summary: ComponentSummary, readme: string | null
 
   // Script部分
   const s = summary.script
-  if (s.props.length > 0) parts.push(`Props参数:${s.props.join(', ')}`)
+  if (s.props.length > 0) parts.push(`Props参数: ${s.props.join(', ')}`)
   if (s.scrollTriggers.length > 0) {
     parts.push(`ScrollTrigger配置数:${s.scrollTriggers.length}`)
     s.scrollTriggers.forEach((st, i) => {
@@ -337,19 +449,49 @@ function formatSummaryForPrompt(summary: ComponentSummary, readme: string | null
   if (st.responsive) parts.push('包含响应式设计')
   if (st.keyframes.length > 0) parts.push(`CSS动画:${st.keyframes.length}个`)
 
-  // README补充（如果存在）
+  // README补充（如果存在）- 增强版效果描述提取
   if (readme) {
-    // 提取README中的效果描述
-    const effectMatch = readme.match(/### 核心动画\n([\s\S]*?)(?=##|$)/)
-    const techMatch = readme.match(/\|\s*技术\s*\|[^|]+\|([^|]+)\|/g)
+    // 1. 提取核心动画/效果描述
+    const effectMatch = readme.match(/### 核心动画\n([\s\S]*?)(?=##|$)/) ||
+      readme.match(/### 核心效果\n([\s\S]*?)(?=##|$)/) ||
+      readme.match(/### 动画效果\n([\s\S]*?)(?=##|$)/)
     if (effectMatch) {
       const effects = effectMatch[1].match(/-\s*\*\*([^*]+)\*\*:\s*([^\n-]+)/g) || []
       if (effects.length > 0) {
         parts.push('【效果描述】')
-        effects.slice(0, 3).forEach(e => {
+        effects.slice(0, 5).forEach(e => {
           const match = e.match(/-\s*\*\*([^*]+)\*\*:\s*([^\n-]+)/)
-          if (match) parts.push(`  • ${match[1]}: ${match[2].trim().slice(0, 50)}`)
+          if (match) parts.push(`  • ${match[1]}: ${match[2].trim().slice(0, 80)}`)
         })
+      }
+    }
+
+    // 2. 提取组件简介（第一段非标题文字）
+    const introMatch = readme.match(/^(?!#)[^\n]{20,}/m)
+    if (introMatch && !effectMatch) {
+      parts.push(`【简介】${introMatch[0].trim().slice(0, 100)}`)
+    }
+
+    // 3. 提取技术实现要点
+    const techMatch = readme.match(/\|\s*技术\s*\|[^|]+\|([^|]+)\|/g)
+    if (techMatch && techMatch.length > 0) {
+      parts.push(`【技术】${techMatch.slice(0, 3).join(' | ')}`)
+    }
+
+    // 4. 如果效果描述不够，提取其他关键段落
+    if (!effectMatch || effectMatch[1].length < 50) {
+      const keyLines = readme.split('\n').filter(l =>
+        l.trim().length > 15 &&
+        !l.startsWith('#') &&
+        !l.startsWith('|') &&
+        !l.startsWith('```') &&
+        !l.startsWith('---') &&
+        !l.startsWith('- **') &&
+        !l.startsWith('>')
+      ).slice(0, 3)
+      if (keyLines.length > 0) {
+        parts.push('【补充说明】')
+        keyLines.forEach(l => parts.push(`  ${l.trim().slice(0, 80)}`))
       }
     }
   }
@@ -392,15 +534,22 @@ function buildPrompt(
     componentsByModule[comp.modulePosition].push(comp)
   })
 
-  // 构建模块-组件对应表
+  // 构建模块-组件对应表（摘要信息 + 源码片段）
   const moduleComponentMap = moduleOrder
     .filter(pos => componentsByModule[pos]?.length > 0)
     .map((pos, index) => {
       const comps = componentsByModule[pos]
-      const compsList = comps.map((comp, i) => {
+      const compsList = comps.map((comp) => {
         const summaryText = formatSummaryForPrompt(comp.summary, comp.readme)
+        // 提取组件精简源码片段（Props + GSAP 关键代码）
+        const codeSnippet = extractComponentCodeForPrompt(comp.sourceCode)
         return `#### ${comp.dirName} (${comp.type})
-${summaryText}`
+${summaryText}
+
+**组件源码片段（Vue3原始代码，转React时参考）**：
+\`\`\`typescript
+${codeSnippet}
+\`\`\``
       }).join('\n\n')
       return `### ${index + 1}. ${moduleLabels[pos] || pos}
 **使用组件** (${comps.length}个):
@@ -420,7 +569,60 @@ ${compsList}`
     .join('\n')
 
   return `# 角色设定
-你是一位专业的企业网站开发方案设计师。你需要基于用户选配的组件，输出一份完整、专业、可落地的网站开发方案文档。
+你是一位专业的 React 企业网站开发方案设计师。你必须基于用户已选配的动画组件，输出一份完整、专业、可落地的网站开发方案文档。该方案将用于阿里 meoo（秒悟）AI 平台生成网站，因此技术栈必须是 React。
+
+# 关键约束（必须遵守）
+1. **技术栈必须是 React 18 + TypeScript**：所有代码示例必须使用 React 函数组件 + TypeScript + TSX 格式，禁止使用 Vue 语法（v-for、v-if、ref()、onMounted 等均为 Vue 语法，必须转为 React 的 map、条件渲染、useState/useRef、useEffect）
+2. **组件已由用户指定**：用户已为每个模块选好了具体组件，你必须使用这些组件，不得更换或重新挑选
+3. **组件名称必须准确**：方案中引用的组件名称必须与下方"模块组件规划"中列出的完全一致
+4. **代码使用 Tailwind CSS**：样式使用 Tailwind CSS 实用类，结合自定义 CSS 变量
+5. **Props 必须严格基于组件源码**：下方每个组件都附带了源码片段，其中包含 Props 的真实定义。你必须：
+   - 仔细阅读源码片段中的 Props 定义（interface Props 或 withDefaults 或 defineProps）
+   - **只配置源码中实际存在的 Props**，不得臆造源码中没有的参数
+   - 如果源码标注"该组件无 Props 定义"，则 Props 配置写"该组件无外部Props，内容在组件内部定义"即可，不要编造任何参数
+   - 如果源码中有 Props 如 title?, subtitle?, paragraphs?, autoPlay?, imageUrl?, fluidIntensity? 等，必须全部给出具体值，不可遗漏
+6. **组件使用方式要正确**：如果组件内部已有 v-for 循环渲染多个项目，则该组件只需使用1次并传入数组数据，不要重复渲染同一组件多次
+7. **ScrollTrigger 模式要严格基于源码，且代码与描述必须一致**：请根据组件源码中的 GSAP 代码正确选择：
+   - 如果源码中 ScrollTrigger 配置了 \`scrub: true\` 或 \`scrub: 数字\`，则使用 scrub 模式
+   - 如果源码中 ScrollTrigger 配置中没有 scrub 属性，而是使用了 \`toggleActions\`，则使用 toggleActions 模式
+   - 如果源码使用了 \`ScrollTrigger.create\`，请检查其内部是否有 \`scrub\` 属性来决定模式
+   - **混合模式**：如果组件源码中同时使用了 scrub 和 toggleActions（不同元素使用不同模式），GSAP 动画策略中必须同时列出所有模式，不可只标注一种。例如："header部分使用 toggleActions，卡片部分使用 scrub"
+   - **严格基于源码，不可推断**：判断 ScrollTrigger 模式时，必须基于源码片段中的实际代码，不要推断源码中没有的 scrollTrigger 配置。如果源码中 timeline 没有 scrollTrigger 属性，就不能声称该 timeline 使用了 scrub 或 toggleActions 模式。只能描述源码中明确存在的配置
+   - **关键**：GSAP 动画策略描述的 scrub/toggleActions 模式，必须与 React 代码示例中的 ScrollTrigger 配置完全一致！如果策略描述写 scrub，代码里也必须写 scrub；如果策略描述写 toggleActions，代码里绝不能写 scrub。自相矛盾是严重错误
+8. **Section 层 GSAP 代码要避免与组件内部 ScrollTrigger 冲突**：
+   - **核心原则**：动画组件内部已自带完整的 GSAP 动画逻辑和 ScrollTrigger 配置，Section 层不需要重复创建功能重叠的 ScrollTrigger
+   - **情况A - 组件源码中已自带 scrollTrigger 配置**：如果源码中已有 \`scrollTrigger: { trigger: ... }\` 或 \`ScrollTrigger.create({ ... })\`，说明组件内部的动画已有自己的滚动控制。此时 Section 层**不需要再创建额外的 ScrollTrigger**，组件内部的 ScrollTrigger 会自动以其自身元素为 trigger 触发。Section 层只需提供容器即可
+   - **情况B - 组件源码中无 scrollTrigger 配置**：如果源码中的 timeline/动画没有 scrollTrigger，说明组件内部动画不会自动由滚动触发。此时 Section 层可以通过 ScrollTrigger.create 来控制组件进入视口时的触发时机
+   - **避免冲突**：如果 Section 层的 ScrollTrigger 和组件内部的 ScrollTrigger 作用于同一区域但互不关联，会导致动画行为不可预期。务必根据源码判断是否需要在 Section 层添加 ScrollTrigger
+   - **paused: true timeline 的特殊处理**：如果组件源码中的 timeline 使用了 \`paused: true\`（暂停状态，需要手动 \`.play()\` 触发），Section 层的 \`ScrollTrigger.create\` 的 toggleActions 无法直接控制组件内部 timeline 的播放。此时应在 GSAP 动画策略中说明："组件内部使用 paused: true + ScrollTrigger 联动机制，需在组件转 React 时将 ScrollTrigger 的 onEnter 回调与 timeline.play() 绑定"。**React 代码示例中不要创建一个空的 gsap.timeline 再调 play()——这是不可能工作的占位代码，因为 Section 层无法访问组件内部的 timeline。正确做法是：Section 层只提供容器 + gsap.context 清理即可，绑定逻辑在组件转 React 时在组件内部实现**
+   - 情况A示例（组件自带scrollTrigger，Section层不重复创建）：
+   \`\`\`tsx
+   // 组件源码已有 scrollTrigger: { trigger: ..., scrub: 1.5 }
+   // Section层只需提供容器，不需要额外 ScrollTrigger
+   useEffect(() => {
+     const ctx = gsap.context(() => {
+       // 无需创建 ScrollTrigger，组件内部已自带
+     }, sectionRef);
+     return () => ctx.revert();
+   }, []);
+   \`\`\`
+   - 情况B示例（组件无scrollTrigger，Section层提供触发控制）：
+   \`\`\`tsx
+   // 组件源码中 timeline 无 scrollTrigger，是 paused: true 或自动播放
+   // Section层提供 ScrollTrigger 控制入场时机
+   useEffect(() => {
+     const ctx = gsap.context(() => {
+       ScrollTrigger.create({
+         trigger: sectionRef.current,
+         start: 'top 80%',
+         toggleActions: 'play none none reverse',
+       });
+     }, sectionRef);
+     return () => ctx.revert();
+   }, []);
+   \`\`\`
+9. **图片必须使用 Unsplash**：所有需要图片的地方，使用 Unsplash 图片地址，格式为 \`https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80\`。选择与企业行业/品牌调性匹配的高质量图片。不要使用本地路径如 \`/images/xxx.jpg\`
+10. **GSAP 插件必须注册**：如果使用 gsap.scrollTo 或 ScrollToPlugin，必须在文件顶部 \`gsap.registerPlugin(ScrollToPlugin)\`；如果使用 ScrollTrigger，必须 \`gsap.registerPlugin(ScrollTrigger)\`。不要使用未注册的 GSAP 插件功能
 
 # 企业信息
 - **企业名称**: ${enterpriseInfo.name}
@@ -430,7 +632,7 @@ ${compsList}`
 - **品牌主色**: ${enterpriseInfo.mainColors}
 - **网站类型**: ${enterpriseInfo.websiteType}
 
-# 模块组件规划（用户已指定）
+# 模块组件规划（用户已指定，不可更改）
 ${moduleComponentMap || '暂无'}
 
 # 组件类型汇总
@@ -443,135 +645,105 @@ ${typeSummary}
 # ${enterpriseInfo.name} 网站开发方案文档
 
 ## 一、项目概述
-- **项目名称**:
-- **项目类型**:
-- **技术栈**: 列出推荐的技术栈（框架、CSS方案、动画库等）
-- **设计理念**: 整体视觉风格和动效设计理念
+- **项目名称**: 为企业取一个贴合行业特色的名称
+- **项目类型**: 单页滚动式企业官网
+- **技术栈**: React 18 + TypeScript + Vite + Tailwind CSS + GSAP (ScrollTrigger) + Canvas API
+- **设计理念**: 结合企业品牌色和所选组件的视觉特效，阐述整体设计风格。设计理念要具体，不要泛泛而谈
 
 ## 二、项目架构
 ### 2.1 技术选型
-使用表格列出：
 | 技术 | 版本 | 用途 |
 |------|------|------|
-| React/Vue | 18.x/3.x | 核心框架 |
-| ... | ... | ... |
+| React | 18.x | 核心UI框架（函数组件 + Hooks） |
+| TypeScript | 5.x | 类型安全 |
+| Vite | 5.x | 构建工具 |
+| Tailwind CSS | 3.x | 实用优先CSS框架 |
+| GSAP | 3.12+ | 动画引擎（含 ScrollTrigger 插件） |
+| Canvas API | - | 粒子/流体等高级视觉效果 |
 
 ### 2.2 项目结构
-使用树形结构展示项目文件组织，例如：
 \`\`\`
 src/
 ├── components/
+│   ├── [列出用户选配的所有组件，每个一个文件夹]
 │   ├── Navbar.tsx
-│   ├── Hero.tsx
-│   └── ...
+│   └── ScrollToTop.tsx
+├── sections/
+│   ├── HeroSection.tsx
+│   ├── [其他模块Section]
+├── hooks/
+│   └── useGsapAnimation.ts
 ├── App.tsx
-└── index.tsx
+├── main.tsx
+└── index.css
 \`\`\`
 
-## 三、模块组件规划（重点）
-**这是方案的核心部分！请按顺序为每个页面模块指定具体使用的组件。**
+## 三、模块详细设计（核心部分）
+**这是方案最重要的部分！针对每个模块逐一详细说明。**
 
-### 3.1 首屏模块 (Screen 1 - Hero)
-**使用的组件**: [从用户选配的组件中挑选最合适的1个]
-**为什么选这个**: 说明理由
+对每个模块，必须包含以下8项：
 
-### 3.2 第二模块 (Screen 2)
-**使用的组件**: [挑选具体组件]
-**为什么选这个**: 说明理由
+### 3.x [模块名称]
+- **模块定位**: 在整体页面中的角色和目标
+- **使用组件**: 必须填写用户指定的组件名称（不可更改）
+- **设计说明**: 结合企业信息和该组件的视觉效果，说明该模块展示什么内容、传递什么信息
+- **内容规划**: 写出具体的中文文案，包括：
+  - 主标题（要与企业行业/业务紧密相关，不要通用模板如"智能驱动未来"）
+  - 副标题
+  - 段落描述文字
+  - 图片（使用 Unsplash 图片地址，格式 https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80）
+- **Props 配置**: 严格基于组件源码片段中的 Props 定义，列出每个 prop 的具体值。注意：
+  - 只配置源码中实际存在的 Props
+  - 如果源码显示组件无 Props 定义，写"该组件无外部Props，内容在组件内部定义"
+  - 绝对不可臆造源码中没有的参数
+- **React 代码示例**: 使用函数组件 + TypeScript 格式，展示如何引入和使用该组件，包含：
+  - 完整的 props 传值（只传源码中存在的 Props）
+  - 根据组件源码判断是否需要 Section 层 GSAP 代码：
+    - 如果组件源码已自带 scrollTrigger 配置，Section 层只需提供容器（useEffect + gsap.context 清理即可，不创建额外 ScrollTrigger）
+    - 如果组件源码无 scrollTrigger 配置，Section 层需提供 ScrollTrigger.create 控制入场时机
+  - 如果组件源码中 timeline 使用了 paused: true，应在策略中说明"需在组件转React时将ScrollTrigger的onEnter回调与timeline.play()绑定"。React代码示例中不要创建空的gsap.timeline再调play()（这是不可能工作的占位代码），Section层只需容器+gsap.context清理
+  - useRef 引用容器元素
+  - gsap.context 清理
+- **GSAP 动画策略**: 基于组件源码分析其 ScrollTrigger 配置，说明：
+  - 组件内部自带的 ScrollTrigger 模式（scrub/toggleActions/mixed）及配置参数
+  - Section 层是否需要额外 ScrollTrigger（根据源码是否有 scrollTrigger 判断）
+  - 如果组件内部同时存在 scrub 和 toggleActions（混合模式），必须全部列出
 
-### 3.3 第三模块 (Screen 3)
-**使用的组件**: [挑选具体组件]
-**为什么选这个**: 说明理由
-
-[继续规划后续模块，根据用户选配的组件数量来决定模块数量]
-
-## 四、模块详细设计
-针对每个模块，详细说明：
-- **功能描述**: 模块要实现什么
-- **使用组件**: 该模块使用哪个具体组件
-- **内容规划**: 该模块展示什么内容（标题、副标题、图片位置等）
-- **技术实现**: 核心代码示例（TypeScript）
-- **动画策略**: GSAP实现示例（如果涉及动画）
-
-### 4.1 首屏Hero模块
-### 4.2 [模块名称]
-...
+## 四、页面组合实现
+给出完整的 App.tsx 代码，将所有模块 Section 组件组合为单页滚动页面：
+- 导入所有 Section 组件
+- 使用全屏 section 布局
+- 配置全局 ScrollTrigger
+- 导航栏组件实现代码（固定顶部，透明→滚动后毛玻璃效果，包含各模块锚点链接和高亮状态。滚动监听优先使用ScrollTrigger.create而非window.addEventListener('scroll')，以获得更好的性能和与其他ScrollTrigger实例的协调性）
+- 平滑滚动到各模块锚点的实现
+- Footer 底部区域（版权年份使用 \`{new Date().getFullYear()}\` 动态生成，不要写死年份）
 
 ## 五、动画系统
-### 5.1 GSAP ScrollTrigger 配置
-给出全局配置代码
+### 5.1 全局 GSAP ScrollTrigger 配置代码（React 格式，useEffect + useLayoutEffect）
+### 5.2 各模块动画时序表
+| 模块 | 触发位置 | ScrollTrigger模式 | 动画类型 | 持续时间 |
+### 5.3 性能优化建议（GPU加速、减少动画偏好适配、Canvas离屏渲染、IntersectionObserver懒加载）
 
-### 5.2 动画类型清单
-使用表格：
-| 动画类型 | 应用场景 | 实现方式 |
-|---------|---------|---------|
-
-### 5.3 性能优化
-- GPU加速
-- 减少动画偏好适配
-- 其他优化建议
-
-## 六、组件详细设计
-针对用户选择的每个组件，给出：
-- **功能**: 组件做什么
-- **Props/接口**: 参数定义
-- **核心逻辑**: 关键代码
-
-## 七、样式系统
-### 7.1 设计令牌
-\`\`\`javascript
-colors: {
-  primary: '#xxx',
-  secondary: '#xxx',
-  ...
-}
-\`\`\`
-
-### 7.2 字体规范
-### 7.3 间距系统
-
-## 八、路由与导航
-### 8.1 导航结构
-### 8.2 平滑滚动实现
-### 8.3 导航栏行为
-
-## 九、图片资源管理
-- 图片来源建议
-- 图片规格要求
-- 优化策略
-
-## 十、开发流程
-### 10.1 环境搭建
-### 10.2 开发顺序（建议按此顺序开发）
-### 10.3 代码规范
-
-## 十一、性能指标
-| 指标 | 目标值 |
-|------|--------|
-| FCP | < 1.5s |
-| LCP | < 2.5s |
-| TTI | < 3.5s |
-
-## 十二、浏览器兼容性
-列出支持的浏览器版本
-
-## 十三、项目文件清单
-使用表格：
-| 文件 | 行数 | 功能 |
-|------|------|------|
-| App.tsx | ~50 | ... |
-
-## 十四、总结
-对方案进行整体概述
+## 六、样式系统
+### 6.1 设计令牌（Tailwind CSS 自定义配置 + CSS变量，颜色要与企业品牌主色一致。注意：CSS变量的值不能包含属性名，如 `--x: backdrop-filter: blur(12px)` 是错误的，应写为 `--x: blur(12px)` 然后使用 `backdrop-filter: var(--x)`）
+### 6.2 全局样式（与品牌色匹配的渐变、毛玻璃效果等）
+### 6.3 响应式断点策略
 
 ---
 
 请确保：
-1. **模块规划要具体**：每个Screen使用哪个具体组件，组件名称要与用户选配的一致
-2. 每个章节都要有实质性内容，不能空洞
-3. 代码示例要可运行、有参考价值
-4. 技术选型要合理、版本号要准确
-5. 整体格式要专业、层级要清晰`
+1. **技术栈严格使用 React 18**：所有代码示例必须是 React 函数组件 + TSX 格式，使用 useState、useEffect、useRef 等 Hooks
+2. **组件名称必须与用户指定的一致**：不得更改、不得遗漏
+3. **Props 严格基于源码**：只配置源码中存在的 Props，不得臆造不存在的参数。源码显示无 Props 的组件，不要编造参数
+4. **代码GSAP逻辑要避免冲突**：根据组件源码判断Section层是否需要ScrollTrigger。如果组件源码已自带scrollTrigger配置，Section层不要重复创建；如果组件源码无scrollTrigger，Section层才需提供触发控制。组件源码中timeline使用paused:true时，应说明需在组件转React时将ScrollTrigger的onEnter回调与timeline.play()绑定，且Section层代码不要创建空的gsap.timeline再调play()
+5. **ScrollTrigger 模式一致性**：GSAP 动画策略描述的 scrub/toggleActions 必须与代码中的 ScrollTrigger 配置一致，不可自相矛盾。组件内部同时存在多种模式时必须全部列出。判断模式必须严格基于源码实际代码，不可推断源码中没有的scrollTrigger配置
+6. **图片使用 Unsplash 地址**：不要使用本地路径，使用 https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80 格式
+7. **GSAP 插件必须注册**：使用 ScrollToPlugin 必须注册 gsap.registerPlugin(ScrollToPlugin)，使用 ScrollTrigger 必须注册 gsap.registerPlugin(ScrollTrigger)
+8. **文案要贴合企业行业**：标题、副标题、描述文字要与企业的行业、业务紧密相关，避免使用通用模板文案
+9. **CSS变量语法正确**：CSS变量的值不能包含属性名，如 `--x: backdrop-filter: blur(12px)` 是错误的，应写为 `--x: blur(12px)`
+10. **Navbar滚动监听优先使用ScrollTrigger**：优先使用ScrollTrigger.create而非window.addEventListener('scroll')
+11. **Footer版权年份动态化**：版权年份使用 \`{new Date().getFullYear()}\` 动态生成，不要写死年份
+12. 整体格式专业、层级清晰`
 }
 
 // ============================================================
@@ -604,7 +776,6 @@ async function generatePlan() {
   isGenerating.value = true
   errorMessage.value = ''
   generatedPlan.value = ''
-  debugger
   const prompt = buildPrompt(enterpriseInfo, selectedComponents.value, modulePositions.value)
 
   try {
@@ -616,10 +787,16 @@ async function generatePlan() {
       },
       body: JSON.stringify({
         model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
+        messages: [
+          {
+            role: 'system',
+            content: '你是一位资深的全栈开发工程师，专精于 React 18 + TypeScript + GSAP 动画的企业网站开发。你输出的方案文档必须专业、可落地、代码示例可直接参考使用。关键要求：1)所有代码必须是 React 18 函数组件+TSX格式，禁止Vue语法；2)Props必须严格基于用户提供的组件源码片段，源码中有的Props必须全部配置具体值，源码中没有的Props绝对不可编造；3)Section层GSAP代码要避免与组件内部ScrollTrigger冲突——如果组件源码已自带scrollTrigger配置，Section层不要重复创建ScrollTrigger，只需提供容器和gsap.context清理；如果组件源码无scrollTrigger，Section层才需提供ScrollTrigger.create触发控制；如果组件源码中timeline使用paused:true，应说明需在组件转React时将ScrollTrigger的onEnter回调与timeline.play()绑定，且Section层React代码中不要创建空的gsap.timeline再调play()（这是不可能工作的占位代码），只需容器+gsap.context清理即可；4)图片必须使用Unsplash地址(https://images.unsplash.com/photo-XXX?w=1920&q=80)，禁止本地路径；5)ScrollTrigger模式必须与代码一致，不可自相矛盾；组件内部同时存在scrub和toggleActions时必须全部列出；判断模式必须严格基于源码实际代码，不可推断源码中没有的scrollTrigger配置；6)使用gsap.scrollTo必须注册ScrollToPlugin，使用ScrollTrigger必须注册gsap.registerPlugin(ScrollTrigger)；7)Footer版权年份使用new Date().getFullYear()动态生成，不要写死年份；8)CSS变量值不能包含属性名，如--x: backdrop-filter: blur(12px)是错误的，应写为--x: blur(12px)；9)Navbar滚动监听优先使用ScrollTrigger.create而非window.addEventListener(scroll)。'
+          },
+          { role: 'user', content: prompt }
+        ],
         stream: true,
-        temperature: 0.7,
-        max_tokens: 4096
+        temperature: 0.6,
+        max_tokens: 16384
       })
     })
 
@@ -728,6 +905,7 @@ function initComponents() {
   })
 
   allComponents.value = result
+  console.log(8889, allComponents.value);
 }
 
 // 按类型分组的组件
@@ -764,6 +942,45 @@ const enterpriseInfo = reactive<EnterpriseInfo>({
   targetAudience: '',
   mainColors: '',
   websiteType: ''
+})
+
+// 搜索
+const searchKeyword = ref('')
+
+// 搜索过滤后的组件（按类型分组）
+const filteredComponentsByType = computed(() => {
+  const keyword = searchKeyword.value.trim().toLowerCase()
+  if (!keyword) return componentsByType.value
+
+  const grouped: Record<string, ComponentInfo[]> = {}
+  for (const [type, comps] of Object.entries(componentsByType.value)) {
+    const filtered = comps.filter(c =>
+      c.name.toLowerCase().includes(keyword) ||
+      c.dirName.toLowerCase().includes(keyword) ||
+      typeLabels[type]?.toLowerCase().includes(keyword) ||
+      c.modulePosition.toLowerCase().includes(keyword) ||
+      (c.readme && c.readme.toLowerCase().includes(keyword))
+    )
+    if (filtered.length > 0) {
+      grouped[type] = filtered
+    }
+  }
+  return grouped
+})
+
+// 搜索结果统计
+const searchResultCount = computed(() => {
+  return Object.values(filteredComponentsByType.value).reduce((sum, comps) => sum + comps.length, 0)
+})
+
+// 搜索时自动展开所有匹配的类型
+watch(searchKeyword, (val) => {
+  if (val.trim()) {
+    // 搜索时展开所有有结果的类型
+    Object.keys(filteredComponentsByType.value).forEach(type => {
+      expandedTypes.add(type)
+    })
+  }
 })
 
 // UI状态
@@ -984,9 +1201,25 @@ onMounted(() => {
             <button class="link-btn" @click="openModuleEditor">编辑配置</button>
           </div>
 
+          <!-- 搜索栏 -->
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input
+              v-model="searchKeyword"
+              type="text"
+              class="search-input"
+              placeholder="搜索组件名称、类型、关键词..."
+              clearable
+            />
+            <span v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''">×</span>
+            <span v-if="searchKeyword" class="search-result-count">
+              {{ searchResultCount }} / {{ allComponents.length }} 个组件
+            </span>
+          </div>
+
           <div class="component-list">
             <div
-              v-for="(comps, type) in componentsByType"
+              v-for="(comps, type) in filteredComponentsByType"
               :key="type"
               class="type-group"
             >
@@ -1320,23 +1553,37 @@ onMounted(() => {
 </template>
 
 <script lang="ts">
-// Markdown渲染辅助函数
+// Markdown渲染 - 使用 marked 库进行高质量渲染
+import { marked, Renderer } from 'marked'
+import hljs from 'highlight.js'
+
+// 配置 marked - v18 使用 renderer 方式
+const renderer = new Renderer()
+renderer.code = function({ text, lang }: { text: string; lang?: string }) {
+  const language = lang && hljs.getLanguage(lang) ? lang : ''
+  const highlighted = language
+    ? hljs.highlight(text, { language }).value
+    : hljs.highlightAuto(text).value
+  return `<pre><code class="hljs${language ? ` language-${language}` : ''}">${highlighted}</code></pre>`
+}
+
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+  renderer
+})
+
 function renderMarkdown(text: string): string {
-  return text
-    // 标题
-    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-    // 粗体
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    // 列表
-    .replace(/^\- (.*$)/gm, '<li>$1</li>')
-    .replace(/^(\d+)\. (.*$)/gm, '<li>$2</li>')
-    // 换行
-    .replace(/\n\n/g, '</p><p>')
-    // 包裹
-    .replace(/^(?!<[hl])/gm, '<p>')
-    .replace(/<p><\/p>/g, '')
+  try {
+    return marked.parse(text) as string
+  } catch {
+    // 降级：简单渲染
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>')
+  }
 }
 </script>
 
@@ -1663,6 +1910,74 @@ function renderMarkdown(text: string): string {
   @keyframes pulse {
     0%, 100% { box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5); }
     50% { box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3); }
+  }
+}
+
+// 搜索栏
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  transition: all 0.3s;
+
+  &:focus-within {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  }
+
+  .search-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.95rem;
+    padding: 4px 0;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+  }
+
+  .search-clear {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+  }
+
+  .search-result-count {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 2px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
   }
 }
 
@@ -2331,19 +2646,22 @@ function renderMarkdown(text: string): string {
 .markdown-body {
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.8;
+  font-size: 0.95rem;
 
   :deep(h1) {
     font-size: 1.8rem;
     color: #fff;
     margin: 30px 0 20px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
   }
 
   :deep(h2) {
     font-size: 1.4rem;
     color: #fff;
     margin: 25px 0 15px;
+    padding-left: 12px;
+    border-left: 3px solid #667eea;
   }
 
   :deep(h3) {
@@ -2357,13 +2675,117 @@ function renderMarkdown(text: string): string {
   }
 
   :deep(li) {
-    margin: 8px 0;
-    padding-left: 10px;
+    margin: 6px 0;
+    padding-left: 6px;
   }
 
   :deep(p) {
     margin: 10px 0;
   }
+
+  // 代码块高亮
+  :deep(pre) {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+
+    code {
+      background: transparent !important;
+      color: #e6e6e6;
+      font-family: 'Fira Code', 'Consolas', monospace;
+    }
+  }
+
+  // 行内代码
+  :deep(code) {
+    background: rgba(102, 126, 234, 0.15);
+    color: #a8b8ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    font-family: 'Fira Code', 'Consolas', monospace;
+  }
+
+  // 表格
+  :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9rem;
+
+    th {
+      background: rgba(102, 126, 234, 0.2);
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 8px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    tr:hover td {
+      background: rgba(102, 126, 234, 0.08);
+    }
+  }
+
+  // 引用块
+  :deep(blockquote) {
+    border-left: 3px solid #667eea;
+    margin: 16px 0;
+    padding: 10px 16px;
+    background: rgba(102, 126, 234, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 0 6px 6px 0;
+  }
+
+  // 水平线
+  :deep(hr) {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.4), transparent);
+    margin: 24px 0;
+  }
+
+  // 有序/无序列表
+  :deep(ul), :deep(ol) {
+    padding-left: 24px;
+    margin: 8px 0;
+  }
+
+  :deep(ul) {
+    list-style-type: disc;
+  }
+
+  :deep(ol) {
+    list-style-type: decimal;
+  }
+
+  // 代码高亮 - highlight.js 主题覆盖
+  :deep(.hljs-keyword) { color: #c792ea; }
+  :deep(.hljs-string) { color: #c3e88d; }
+  :deep(.hljs-number) { color: #f78c6c; }
+  :deep(.hljs-function) { color: #82aaff; }
+  :deep(.hljs-comment) { color: #546e7a; font-style: italic; }
+  :deep(.hljs-type) { color: #ffcb6b; }
+  :deep(.hljs-built_in) { color: #89ddff; }
+  :deep(.hljs-attr) { color: #f07178; }
+  :deep(.hljs-variable) { color: #eeffff; }
+  :deep(.hljs-title) { color: #82aaff; }
+  :deep(.hljs-params) { color: #f78c6c; }
 }
 
 // 按钮
