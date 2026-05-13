@@ -31,11 +31,25 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
 /**
  * 自动化构建组件列表
  */
-// let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
-const dirNameList = [
-  'CardImageDepthStorm', 'CardImageMirage', 'CardImageObsidianSplit', 'CardImageRippleReveal', 'CardImageRollingShade', 'CardImageShatterRebuild', 'CardImageSkyTower',
-  'CardImageCarbonBlade', 'CardImageCarbonCrystal', 'CardImageCurtainRise', 'CardImageDeepSeaCoffin', 'CardImageDiagonalGrid', 'CardImageGlacierCrevasse',
-  'CardImgNegativeReveal',
+/*const dirNameList = [
+  'CardImageCarbonBlade',
+  'CardImageCarbonCrystal',
+  'CardImageCrossCrack',
+  'CardImageCurtainRise',
+  'CardImageDeepSeaCoffin',
+  'CardImageDepthStorm',
+  'CardImageDiagonalGrid',
+  'CardImageDiagonalSlice',
+  'CardImageGlacierCrevasse',
+  'CardImageMirage',
+  'CardImageObsidianSplit',
+  'CardImagePulsarBurst',
+  'CardImageRippleReveal',
+  'CardImageRockCrack',
+  'CardImageRollingShade',
+  'CardImageShatterRebuild',
+  'CardImageSkyTower',
+  'CardImageStardustCoalescence',
   'CardImgBokeh',
   'CardImgDiag',
   'CardImgDoubleEdge',
@@ -228,8 +242,8 @@ const dirNameList = [
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /*'Card3DFlipGallery',
-  'CardAbstractGeometry',*/
+  /!*'Card3DFlipGallery',
+  'CardAbstractGeometry',*!/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -293,9 +307,9 @@ const dirNameList = [
   'CardTranslateRotateScale',
   'CardVoid',
   'CardVortex',
-  'CardWave',
-]
-// const dirNameList = []
+  'CardWave'
+]*/
+const dirNameList = []
 const dirNameList1 = []
 
 const cardComponents = computed(() => {
@@ -315,9 +329,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
-          (module as any)?.default || null,
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
         type: 'card-list'
       }
     })
@@ -347,9 +361,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
-          (module as any)?.default || null,
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
         type: 'card-time'
       }
     })
@@ -377,9 +391,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
-          (module as any)?.default || null,
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
         type: 'card-text'
       }
     })
@@ -407,9 +421,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
-          (module as any)?.default || null,
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
         type: 'card-3d'
       }
     })
@@ -437,9 +451,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
-          (module as any)?.default || null,
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
         type: 'card-img'
       }
     })
@@ -467,9 +481,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
-          (module as any)?.default || null,
+        component: LAZY_MODE
+          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
+          : (module as any)?.default || null,
         type: 'card-image'
       }
     })
@@ -547,11 +561,10 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    {
-      root: null,
+    { root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
-    },
+    }
   )
 
   // 观察所有页面
@@ -708,6 +721,7 @@ onUnmounted(() => {
   .page-title {
     color: #fff;
   }
+
   .page-desc {
     color: rgba(255, 255, 255, 0.8);
   }
@@ -739,6 +753,7 @@ onUnmounted(() => {
   .page-title {
     color: #fff;
   }
+
   .page-desc {
     color: rgba(255, 255, 255, 0.6);
   }

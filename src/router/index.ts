@@ -49,6 +49,12 @@ const staticRoutes: RouteRecordRaw[] = [
     name: 'WebList',
     component: () => import('@/views/web-list/index.vue'),
     meta: { title: '网站列表', icon: 'Document', noCache: false },
+  },
+  {
+    path: '/web-ai',
+    name: 'WebAI',
+    component: () => import('@/views/web-ai/index.vue'),
+    meta: { title: '网站AI方案', icon: 'Document', noCache: false }
   }
 ]
 
@@ -69,7 +75,7 @@ const rootRoute: RouteRecordRaw = {
         icon: 'HomeFilled',
         affix: true,
         noCache: false
-      },
+      }
     }
   ],
 }
