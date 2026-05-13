@@ -23,6 +23,8 @@ const modulesTime = import.meta.glob('./card-time/*/CardTime*.vue', { eager: tru
 const modules3d = import.meta.glob('./card-3d/*/[^/]*.vue', { eager: true })
 // card-img 目录组件
 const modulesImg = import.meta.glob('./card-img/*/[^/]*.vue', { eager: true })
+// card-image 目录组件
+const modulesImage = import.meta.glob('./card-image/*/[^/]*.vue', { eager: true })
 // card-text 目录组件
 const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
 
@@ -31,17 +33,140 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
  */
 // let dirNameList=['Card3DFlipGallery', 'CardAbstractGeometry', ]
 const dirNameList = [
-  'CardImgDarkroom', 'CardImgFrost', 'CardImgPerspective', 'CardImgReversal', 'CardImgStage', 'CardImgSundial', 'CardImgVault',
-  'CardImgAmber', 'CardImgDepthLadder', 'CardImgFlipCard', 'CardImgMorningMist', 'CardImgSpinCard', 'CardImgTidalDream', 'CardImgWaterfall', 'CardImgZen',
-  'CardImgBeacon', 'CardImgBook', 'CardImgCrystal', 'CardImgFallingLeaf', 'CardImgFlyingStones', 'CardImgFoldedFan', 'CardImgPinhole', 'CardImgRippleWave', 'CardImgSplitFocus', 'CardImgSteel', 'CardImgTelescope', 'CardImgTitanium', 'CardImgTungsten', 'CardImgVelvet', 'CardImgVelvetDisplay', 'CardImgWaxSeal',
-  'CardImgCarousel', 'CardImgCloudTide', 'CardImgDolly', 'CardImgDust', 'CardImgFlip', 'CardImgFloat', 'CardImgFlower', 'CardImgForestMist', 'CardImgInk', 'CardImgMaglev', 'CardImgMistReveal', 'CardImgNebulaBreath', 'CardImgPolarize', 'CardImgPrism', 'CardImgRain', 'CardImgRipple', 'CardImgRiver', 'CardImgTwinWings',
-  'CardImgDeepPulse', 'CardImgFilm', 'CardImgGravity', 'CardImgHydraulic', 'CardImgStatic', 'CardImgStripes',
-  'CardImgAurora', 'CardImgCube', 'CardImgDeepSea', 'CardImgFog', 'CardImgGalaxy', 'CardImgMirror', 'CardImgThermal',
-  'CardImgBloom', 'CardImgCrosshair', 'CardImgCurtain', 'CardImgDepth', 'CardImgGilded', 'CardImgMercury', 'CardImgProjector', 'CardImgTyndall',
-  'CardImgAbyss', 'CardImgAperture', 'CardImgDeconstruct', 'CardImgFocusShift', 'CardImgParallax', 'CardImgRift', 'CardImgStardust', 'CardImgVortex', 'CardImgWireless',
+  'CardImageDepthStorm', 'CardImageMirage', 'CardImageObsidianSplit', 'CardImageRippleReveal', 'CardImageRollingShade', 'CardImageShatterRebuild', 'CardImageSkyTower',
+  'CardImageCarbonBlade', 'CardImageCarbonCrystal', 'CardImageCurtainRise', 'CardImageDeepSeaCoffin', 'CardImageDiagonalGrid', 'CardImageGlacierCrevasse',
+  'CardImgNegativeReveal',
+  'CardImgBokeh',
+  'CardImgDiag',
+  'CardImgDoubleEdge',
+  'CardImgFeather',
+  'CardImgFocalWindow',
+  'CardImgFocusRing',
+  'CardImgMontage',
+  'CardImgNarrative',
+  'CardImgPearl',
+  'CardImgSand',
+  'CardImgSink',
+  'CardImgStarCore',
+  'CardImgVapor',
+  'CardImgDarkroom',
+  'CardImgFrost',
+  'CardImgPerspective',
+  'CardImgReversal',
+  'CardImgStage',
+  'CardImgSundial',
+  'CardImgVault',
+  'CardImgAmber',
+  'CardImgDepthLadder',
+  'CardImgFlipCard',
+  'CardImgMorningMist',
+  'CardImgSpinCard',
+  'CardImgTidalDream',
+  'CardImgWaterfall',
+  'CardImgZen',
+  'CardImgBeacon',
+  'CardImgBook',
+  'CardImgCrystal',
+  'CardImgFallingLeaf',
+  'CardImgFlyingStones',
+  'CardImgFoldedFan',
+  'CardImgPinhole',
+  'CardImgRippleWave',
+  'CardImgSplitFocus',
+  'CardImgSteel',
+  'CardImgTelescope',
+  'CardImgTitanium',
+  'CardImgTungsten',
+  'CardImgVelvet',
+  'CardImgVelvetDisplay',
+  'CardImgWaxSeal',
+  'CardImgCarousel',
+  'CardImgCloudTide',
+  'CardImgDolly',
+  'CardImgDust',
+  'CardImgFlip',
+  'CardImgFloat',
+  'CardImgFlower',
+  'CardImgForestMist',
+  'CardImgInk',
+  'CardImgMaglev',
+  'CardImgMistReveal',
+  'CardImgNebulaBreath',
+  'CardImgPolarize',
+  'CardImgPrism',
+  'CardImgRain',
+  'CardImgRipple',
+  'CardImgRiver',
+  'CardImgTwinWings',
+  'CardImgDeepPulse',
+  'CardImgFilm',
+  'CardImgGravity',
+  'CardImgHydraulic',
+  'CardImgStatic',
+  'CardImgStripes',
+  'CardImgAurora',
+  'CardImgCube',
+  'CardImgDeepSea',
+  'CardImgFog',
+  'CardImgGalaxy',
+  'CardImgMirror',
+  'CardImgThermal',
+  'CardImgBloom',
+  'CardImgCrosshair',
+  'CardImgCurtain',
+  'CardImgDepth',
+  'CardImgGilded',
+  'CardImgMercury',
+  'CardImgProjector',
+  'CardImgTyndall',
+  'CardImgAbyss',
+  'CardImgAperture',
+  'CardImgDeconstruct',
+  'CardImgFocusShift',
+  'CardImgParallax',
+  'CardImgRift',
+  'CardImgStardust',
+  'CardImgVortex',
+  'CardImgWireless',
   'Card3DFlipGallery',
-  'Card3dHologram', 'Card3dHouse', 'Card3dTome',
-  'CardTextAurora', 'CardTextBioluminescent', 'CardTextBlur', 'CardTextBoiling', 'CardTextChladni', 'CardTextCinematic', 'CardTextCorona', 'CardTextCrystal', 'CardTextCyber', 'CardTextDomino', 'CardTextFirework', 'CardTextFluid3D', 'CardTextGalaxy', 'CardTextHologram', 'CardTextHolographic', 'CardTextInk', 'CardTextLaser', 'CardTextMagnetic', 'CardTextMetal', 'CardTextMoonlightEmbroider', 'CardTextMycelium', 'CardTextNeonCrack', 'CardTextNeonSign', 'CardTextOrganic', 'CardTextOrigami', 'CardTextParticleStorm', 'CardTextPrismDispersion', 'CardTextQuantumCollapse', 'CardTextSeismograph', 'CardTextSpikes', 'CardTextSweep', 'CardTextSynapse', 'CardTextTsunami3D', 'CardTextVoidRebirth', 'CardTextWaterWave',
+  'Card3dHologram',
+  'Card3dHouse',
+  'Card3dTome',
+  'CardTextAurora',
+  'CardTextBioluminescent',
+  'CardTextBlur',
+  'CardTextBoiling',
+  'CardTextChladni',
+  'CardTextCinematic',
+  'CardTextCorona',
+  'CardTextCrystal',
+  'CardTextCyber',
+  'CardTextDomino',
+  'CardTextFirework',
+  'CardTextFluid3D',
+  'CardTextGalaxy',
+  'CardTextHologram',
+  'CardTextHolographic',
+  'CardTextInk',
+  'CardTextLaser',
+  'CardTextMagnetic',
+  'CardTextMetal',
+  'CardTextMoonlightEmbroider',
+  'CardTextMycelium',
+  'CardTextNeonCrack',
+  'CardTextNeonSign',
+  'CardTextOrganic',
+  'CardTextOrigami',
+  'CardTextParticleStorm',
+  'CardTextPrismDispersion',
+  'CardTextQuantumCollapse',
+  'CardTextSeismograph',
+  'CardTextSpikes',
+  'CardTextSweep',
+  'CardTextSynapse',
+  'CardTextTsunami3D',
+  'CardTextVoidRebirth',
+  'CardTextWaterWave',
   'Card3dCube',
   'Card3dEntanglement',
   'Card3dSpectrum',
@@ -324,19 +449,51 @@ const cardComponents = computed(() => {
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
-  console.log([...listComponents].map((item) => item.dirName).join(','))
-  console.log([...timeComponents].map((item) => item.dirName).join(','))
-  console.log([...textComponents].map((item) => item.dirName).join(','))
-  console.log([...d3dComponents].map((item) => item.dirName).join(','))
+
+  // 处理 card-image 目录组件
+  const imageComponents = Object.entries(modulesImage)
+    .map(([path, module]) => {
+      const match = path.match(/\/card-image\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/Image/g, ' Image')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
+
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：使用 defineAsyncComponent
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
+        type: 'card-image'
+      }
+    })
+    .filter((item) => {
+      if (!dirNameList.includes(item.dirName) && item.component !== null) {
+        dirNameList1.push(item.dirName)
+      }
+      return !dirNameList.includes(item.dirName) && item.component !== null
+    })
+  console.log([...listComponents].map((item) => item.dirName))
+  console.log([...timeComponents].map((item) => item.dirName))
+  console.log([...textComponents].map((item) => item.dirName))
+  console.log([...d3dComponents].map((item) => item.dirName))
 
   console.log([...imgComponents].map((item) => item.dirName))
-  // 合并数组：card-img 组件在前，card-3d 其次，card-time 再次，card-list 最后
+  console.log([...imageComponents].map((item) => item.dirName))
+  // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后
   return [
+    ...imageComponents,
     ...imgComponents,
     ...textComponents,
     ...d3dComponents,
     ...timeComponents,
-    ...listComponents,
+    ...listComponents
   ]
 })
 
@@ -394,7 +551,7 @@ const initIntersectionObserver = () => {
       root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
-    }
+    },
   )
 
   // 观察所有页面
@@ -483,7 +640,7 @@ onUnmounted(() => {
     >
       <!-- 懒加载：只在进入视口时渲染组件 -->
       <component :is="cardInfo.component" v-if="visibleCards.has(index)" v-bind="propsMap[index]" />
-      <span class="position-absolute top-10px left-100px color-red z-index-99999">
+      <span class="position-absolute top-10px left-100px color-red z-99999">
         {{ cardInfo.dirName }}</span
       >
     </div>
