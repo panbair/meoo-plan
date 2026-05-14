@@ -13,8 +13,7 @@ const H = '#'
 // ============================================================
 
 // 动态导入所有组件源码（使用 ?raw 获取原始内容）
-const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {
-  eager: true,
+const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {eager: true,
   query: '?raw',
   import: 'default',
 })
@@ -210,8 +209,7 @@ function extractSFCParts(code: string) {
   const scriptMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/)
   const styleMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/)
 
-  return {
-    template: templateMatch?.[1] || '',
+  return {template: templateMatch?.[1] || '',
     script: scriptMatch?.[1] || '',
     style: styleMatch?.[1] || ''
   }
@@ -400,8 +398,7 @@ function extractStyleSummary(style: string): StyleSummary {
 function extractComponentSummary(sourceCode: string, readme: string | null): ComponentSummary {
   const { template, script, style } = extractSFCParts(sourceCode)
 
-  return {
-    template: extractTemplateSummary(template),
+  return {template: extractTemplateSummary(template),
     script: extractScriptSummary(script),
     style: extractStyleSummary(style)
   }
@@ -979,8 +976,16 @@ const editablePlanContent = ref('') // 可编辑的方案内容
 // 初始化/更新可编辑内容
 function initEditableContent() {
   if (enterpriseInfo.name && selectedComponents.value.length > 0) {
-    editablePlanContent.value = buildCopyContent(enterpriseInfo, selectedComponents.value, modulePositions.value)
+    editablePlanContent.value = buildCopyContent(
+      enterpriseInfo,
+      selectedComponents.value,
+      modulePositions.value,
+    )
   }
+}
+
+function OpenMeoo() {
+  window.open('https://meoo.com/')
 }
 
 async function copyPlanToClipboard() {
@@ -1003,13 +1008,13 @@ async function copyPlanToClipboard() {
   try {
     await navigator.clipboard.writeText(content)
     copySuccess.value = true
-    setTimeout(() => { copySuccess.value = false }, 2000)
+    setTimeout(() => {
+      copySuccess.value = false
+    }, 2000)
   } catch (err) {
     errorMessage.value = '复制失败，请手动复制下方内容'
   }
 }
-
-
 
 /**
  * 分析组件源码中的 ScrollTrigger 模式
@@ -1055,14 +1060,22 @@ function analyzeScrollTriggerMode(sourceCode: string): string | null {
     // toggleActions 模式
     const toggleMatch = block.match(/toggleActions\s*:\s*['"]([^'"]+)['"]/)
     if (toggleMatch) {
-      const actions = toggleMatch[1].split(' ').map(a => {
-        const map: Record<string, string> = {
-          'play': '▶️播放', 'pause': '⏸️暂停', 'resume': '▶️继续',
-          'reverse': '◀️倒放', 'restart': '🔄重播', 'reset': '🔚重置',
-          'complete': '✅完成', 'none': '❌无'
-        }
-        return map[a] || a
-      }).join(' | ')
+      const actions = toggleMatch[1]
+        .split(' ')
+        .map((a) => {
+          const map: Record<string, string> = {
+            play: '▶️播放',
+            pause: '⏸️暂停',
+            resume: '▶️继续',
+            reverse: '◀️倒放',
+            restart: '🔄重播',
+            reset: '🔚重置',
+            complete: '✅完成',
+            none: '❌无',
+          }
+          return map[a] || a
+        })
+        .join(' | ')
       details.push(`toggleActions: '${toggleMatch[1]}'（${actions}）`)
     }
 
@@ -1158,7 +1171,10 @@ function analyzeCanvasComponent(sourceCode: string): string | null {
   }
 
   // WebGL/Three.js
-  if (/getContext\s*\(\s*['"]webgl/.test(sourceCode) || /THREE\.WebGLRenderer|new WebGLRenderer/.test(sourceCode)) {
+  if (
+    /getContext\s*\(\s*['"]webgl/.test(sourceCode) ||
+    /THREE\.WebGLRenderer|new WebGLRenderer/.test(sourceCode)
+  ) {
     result.push('⚠️ 使用 WebGL/Three.js 渲染')
     result.push('   1. 必须在 useEffect + useRef 模式下初始化渲染器')
     result.push('   2. 需要处理 WebGL 上下文丢失事件 webglcontextlost')
@@ -1188,19 +1204,21 @@ function extractPropsInfo(sourceCode: string): string | null {
   const interfaceMatch = sourceCode.match(/interface\s+Props\s*\{([^}]+)\}/s)
   if (interfaceMatch) {
     const propsContent = interfaceMatch[1].trim()
-    const lines = propsContent.split('\n').filter(l => l.trim())
+    const lines = propsContent.split('\n').filter((l) => l.trim())
     if (lines.length > 0) {
-      return lines.map(l => l.trim()).join('\n')
+      return lines.map((l) => l.trim()).join('\n')
     }
   }
 
   // 尝试匹配 withDefaults(defineProps<...>(), {...})
-  const withDefaultsMatch = sourceCode.match(/withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s)
+  const withDefaultsMatch = sourceCode.match(
+    /withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s,
+  )
   if (withDefaultsMatch) {
     const defaultsContent = withDefaultsMatch[1].trim()
-    const lines = defaultsContent.split('\n').filter(l => l.trim())
+    const lines = defaultsContent.split('\n').filter((l) => l.trim())
     if (lines.length > 0) {
-      return '默认值:\n' + lines.map(l => l.trim()).join('\n')
+      return '默认值:\n' + lines.map((l) => l.trim()).join('\n')
     }
   }
 
@@ -1208,9 +1226,9 @@ function extractPropsInfo(sourceCode: string): string | null {
   const definePropsMatch = sourceCode.match(/defineProps<\{([^}]+)\}>\(\)/s)
   if (definePropsMatch) {
     const propsContent = definePropsMatch[1].trim()
-    const lines = propsContent.split('\n').filter(l => l.trim())
+    const lines = propsContent.split('\n').filter((l) => l.trim())
     if (lines.length > 0) {
-      return lines.map(l => l.trim()).join('\n')
+      return lines.map((l) => l.trim()).join('\n')
     }
   }
 
@@ -1245,21 +1263,39 @@ const vueToReactRules = [
   { vue: 'ref="elementRef"', react: 'const elementRef = useRef<HTMLDivElement>(null)' },
   { vue: 'onMounted(() => {...})', react: 'useEffect(() => {...}, [])' },
   { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
-  { vue: 'defineProps<Props>()', react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}' },
+  {vue: 'defineProps<Props>()',
+    react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
+  },
 ]
 
 /** 技术要求清单 - 带序号 */
 const techRequirements = [
   { num: 1, text: '**技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
   { num: 2, text: '**Vue → React 转换规则**:', indent: true },
-  { num: 3, text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`' },
-  { num: 4, text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图' },
-  { num: 5, text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写' },
-  { num: 6, text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断' },
-  { num: 7, text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建' },
-  { num: 8, text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发' },
-  { num: 9, text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`' },
-  { num: 10, text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验' },
+  {num: 3,
+    text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
+  },
+  {num: 4,
+    text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图',
+  },
+  {num: 5,
+    text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写',
+  },
+  {num: 6,
+    text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断',
+  },
+  {num: 7,
+    text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建',
+  },
+  {num: 8,
+    text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
+  },
+  {num: 9,
+    text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
+  },
+  {num: 10,
+    text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
+  },
 ]
 
 /** 输出文件清单 */
@@ -1312,7 +1348,7 @@ function buildCopyContent(
 ): string {
   // 模块位置标签映射
   const moduleLabels: Record<string, string> = Object.fromEntries(
-    positions.map(pos => [pos.key, pos.label])
+    positions.map((pos) => [pos.key, pos.label]),
   )
 
   // 按模块位置分组（过滤掉未分配模块的组件）
@@ -1330,7 +1366,9 @@ function buildCopyContent(
     }
   })
 
-  const moduleOrder = positions.map(p => p.key).filter(key => componentsByModule[key]?.length > 0)
+  const moduleOrder = positions
+    .map((p) => p.key)
+    .filter((key) => componentsByModule[key]?.length > 0)
 
   // 组件类型汇总
   const componentsByType: Record<string, number> = {}
@@ -1347,13 +1385,17 @@ function buildCopyContent(
   lines.push(sep('='), '🎯 企业网站开发需求 - 请在 meoo AI 平台生成 React 代码', sep('='), blank())
 
   // ===== Token 估算 =====
-  const totalChars = selectedComponents.reduce((sum, comp) =>
-    sum + comp.sourceCode.length + (comp.readme?.length || 0), 0)
+  const totalChars = selectedComponents.reduce(
+    (sum, comp) => sum + comp.sourceCode.length + (comp.readme?.length || 0),
+    0,
+  )
   const estimatedTokens = Math.ceil(totalChars / 4)
 
   if (estimatedTokens > 50000) {
     lines.push('⚠️ **Token 警告**', sep('-'))
-    lines.push(`当前选中的组件源码总量约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`)
+    lines.push(
+      `当前选中的组件源码总量约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`,
+    )
     lines.push('建议：')
     lines.push('1. 减少选中组件数量')
     lines.push('2. 或分批生成（先生成部分模块的代码）')
@@ -1361,16 +1403,22 @@ function buildCopyContent(
   }
 
   // ===== 角色设定与技术要求 =====
-  lines.push('📌 角色设定', sep('-'), '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，', '直接开发完整的、可运行的 React 企业网站代码。', blank())
+  lines.push(
+    '📌 角色设定',
+    sep('-'),
+    '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
+    '直接开发完整的、可运行的 React 企业网站代码。',
+    blank(),
+  )
 
   lines.push('⚙️ 核心技术要求（必须遵守）', sep('-'))
   // 1. 技术栈
   lines.push('1. **技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)')
   // 2. Vue → React 转换规则（带子项）
   lines.push('2. **Vue → React 转换规则**:')
-  vueToReactRules.forEach(rule => lines.push(`   - \`${rule.vue}\` → \`${rule.react}\``))
+  vueToReactRules.forEach((rule) => lines.push(`   - \`${rule.vue}\` → \`${rule.react}\``))
   // 3-7. 其他技术要求
-  const otherTechReqs = techRequirements.filter(t => t.num > 2)
+  const otherTechReqs = techRequirements.filter((t) => t.num > 2)
   otherTechReqs.forEach((req, idx) => lines.push(`${idx + 3}. ${req.text}`))
   lines.push(blank())
 
@@ -1386,10 +1434,13 @@ function buildCopyContent(
   lines.push('🎨 品牌主色（设计约束 - 必须遵守）', sep('-'))
   lines.push(`主色配置: ${enterpriseInfo.mainColors || '未设置'}`)
   if (enterpriseInfo.mainColors) {
-    const isGradient = enterpriseInfo.mainColors.includes('gradient') ||
-                       enterpriseInfo.mainColors.includes('linear-gradient')
-    lines.push(`   ⚠️ 约束: ${isGradient ? '使用渐变色，CSS 中必须使用 `background: linear-gradient(...)` 而非单一颜色' : '整体配色以该主色为核心，所有组件的 primary/accent 颜色必须基于此色值'}`)
-    mainColorConstraints.forEach(c => lines.push(`   • ${c}`))
+    const isGradient =
+      enterpriseInfo.mainColors.includes('gradient') ||
+      enterpriseInfo.mainColors.includes('linear-gradient')
+    lines.push(
+      `   ⚠️ 约束: ${isGradient ? '使用渐变色，CSS 中必须使用 `background: linear-gradient(...)` 而非单一颜色' : '整体配色以该主色为核心，所有组件的 primary/accent 颜色必须基于此色值'}`,
+    )
+    mainColorConstraints.forEach((c) => lines.push(`   • ${c}`))
   }
   lines.push(blank())
 
@@ -1398,7 +1449,7 @@ function buildCopyContent(
   lines.push(`设计理念: ${enterpriseInfo.designPhilosophy || '未填写（默认使用简洁现代风格）'}`)
   if (enterpriseInfo.designPhilosophy) {
     lines.push('   ⚠️ 约束: 所有组件的设计风格、动画节奏、视觉层次必须契合此理念')
-    designConstraints.forEach(c => lines.push(`   • ${c}`))
+    designConstraints.forEach((c) => lines.push(`   • ${c}`))
   }
   lines.push(blank())
 
@@ -1408,10 +1459,12 @@ function buildCopyContent(
   moduleOrder.forEach((pos, idx) => {
     const comps = componentsByModule[pos]
     const moduleName = moduleLabels[pos] || pos
-    const moduleDesc = positions.find(p => p.key === pos)?.desc || ''
+    const moduleDesc = positions.find((p) => p.key === pos)?.desc || ''
 
     lines.push(blank(), `${idx + 1}. 【${moduleName}】`)
-    if (moduleDesc) lines.push(`   描述：${moduleDesc}`)
+    if (moduleDesc) {
+      lines.push(`   描述：${moduleDesc}`)
+    }
     lines.push(`   📦 使用组件 (${comps.length}个)`, blank())
 
     comps.forEach((comp, compIdx) => {
@@ -1419,15 +1472,18 @@ function buildCopyContent(
 
       // README 效果描述
       if (comp.readme) {
-        const effectMatch = comp.readme.match(/### 核心效果\n([\s\S]*?)(?=##|$)/) ||
-                           comp.readme.match(/### 核心动画\n([\s\S]*?)(?=##|$)/)
+        const effectMatch =
+          comp.readme.match(/### 核心效果\n([\s\S]*?)(?=##|$)/) ||
+          comp.readme.match(/### 核心动画\n([\s\S]*?)(?=##|$)/)
         if (effectMatch) {
           const effects = effectMatch[1].match(/-\s*\*\*([^*]+)\*\*:\s*([^\n-]+)/g) || []
           if (effects.length > 0) {
             lines.push('   • 核心效果:')
             effects.slice(0, 5).forEach((e) => {
               const match = e.match(/-\s*\*\*([^*]+)\*\*:\s*([^\n-]+)/)
-              if (match) lines.push(`     - ${match[1]}: ${match[2].trim()}`)
+              if (match) {
+                lines.push(`     - ${match[1]}: ${match[2].trim()}`)
+              }
             })
           }
         }
@@ -1448,19 +1504,29 @@ function buildCopyContent(
       // Props 信息
       const propsInfo = extractPropsInfo(comp.sourceCode)
       if (propsInfo) {
-        lines.push('   • Props 定义:', ...propsInfo.split('\n').map(line => `     ${line}`))
+        lines.push('   • Props 定义:', ...propsInfo.split('\n').map((line) => `     ${line}`))
       } else {
         lines.push('   • Props 定义: 该组件无外部Props，内容在组件内部定义')
       }
 
       // 完整源码
-      lines.push('   • 完整 Vue 3 组件源码（转 React 时参考）:', '     ```vue',
-        ...comp.sourceCode.split('\n').map(l => '     ' + l), '     ```', blank())
+      lines.push(
+        '   • 完整 Vue 3 组件源码（转 React 时参考）:',
+        '     ```vue',
+        ...comp.sourceCode.split('\n').map((l) => '     ' + l),
+        '     ```',
+        blank(),
+      )
     })
   })
 
   // ===== 组件类型汇总 =====
-  lines.push(sep('-'), '📊 组件类型汇总', ...Object.entries(componentsByType).map(([type, count]) => `  ${type}: ${count}个`), blank())
+  lines.push(
+    sep('-'),
+    '📊 组件类型汇总',
+    ...Object.entries(componentsByType).map(([type, count]) => `  ${type}: ${count}个`),
+    blank(),
+  )
 
   // ===== 未分配模块的组件 =====
   if (unassignedComps.length > 0) {
@@ -1470,15 +1536,20 @@ function buildCopyContent(
   }
 
   // ===== 输出格式要求 =====
-  lines.push(sep('='), '📝 输出要求：直接生成完整的 React 网站代码', sep('='),
-    '请直接生成以下文件的完整代码（不要写方案文档，直接写代码）：', blank())
+  lines.push(
+    sep('='),
+    '📝 输出要求：直接生成完整的 React 网站代码',
+    sep('='),
+    '请直接生成以下文件的完整代码（不要写方案文档，直接写代码）：',
+    blank(),
+  )
 
   lines.push('### 必须生成的文件清单')
   outputFiles.forEach((f, i) => lines.push(`${i + 1}. **${f.file}** - ${f.desc}`))
   lines.push(blank())
 
   lines.push('### 代码要求')
-  codeRequirements.forEach(req => lines.push(`- ${req}`))
+  codeRequirements.forEach((req) => lines.push(`- ${req}`))
   lines.push(blank())
 
   // ===== 内容创作指南 =====
@@ -1522,7 +1593,9 @@ function buildCopyContent(
   lines.push('- **联系/CTA模块**：1张引导性图片（如握手、合作场景）')
   lines.push(blank())
   lines.push('##### 4.2 图片与动画的结合方式')
-  lines.push('- **粒子效果 + 星空/科技图片**：背景使用深空、星系、电路板等图片，前景叠加粒子动画，营造科技感')
+  lines.push(
+    '- **粒子效果 + 星空/科技图片**：背景使用深空、星系、电路板等图片，前景叠加粒子动画，营造科技感',
+  )
   lines.push('- **流体动画 + 自然/抽象图片**：使用水流、烟雾、渐变抽象图片，与流体动画呼应')
   lines.push('- **3D旋转 + 产品实拍图**：将企业真实产品图片放入3D卡片中旋转展示')
   lines.push('- **视差滚动 + 分层图片**：前景人物/产品、中景场景、远景天空，形成层次感')
@@ -1531,11 +1604,21 @@ function buildCopyContent(
   lines.push('##### 4.3 Unsplash 图片搜索技巧')
   lines.push('根据企业行业和模块主题，组合以下关键词搜索：')
   lines.push('```')
-  lines.push('科技行业：technology + innovation, AI + data, digital + transformation, startup + office')
-  lines.push('金融行业：finance + professional, business + meeting, trust + handshake, investment + growth')
-  lines.push('教育行业：education + learning, students + classroom, graduation + success, online + course')
-  lines.push('医疗行业：healthcare + doctor, medical + technology, patient + care, hospital + modern')
-  lines.push('制造业：manufacturing + factory, industrial + automation, production + quality, engineer + work')
+  lines.push(
+    '科技行业：technology + innovation, AI + data, digital + transformation, startup + office',
+  )
+  lines.push(
+    '金融行业：finance + professional, business + meeting, trust + handshake, investment + growth',
+  )
+  lines.push(
+    '教育行业：education + learning, students + classroom, graduation + success, online + course',
+  )
+  lines.push(
+    '医疗行业：healthcare + doctor, medical + technology, patient + care, hospital + modern',
+  )
+  lines.push(
+    '制造业：manufacturing + factory, industrial + automation, production + quality, engineer + work',
+  )
   lines.push('```')
   lines.push(blank())
   lines.push('##### 4.4 图片质量要求')
@@ -1546,7 +1629,9 @@ function buildCopyContent(
   lines.push('- **格式**：使用 `.jpg` 或 `.webp`，通过 URL 参数控制质量 `?w=1920&q=80`')
   lines.push(blank())
   lines.push('##### 4.5 图片布局建议')
-  lines.push('- **Hero 全屏背景**：`background-image: url(...)` + `background-size: cover` + 半透明遮罩层')
+  lines.push(
+    '- **Hero 全屏背景**：`background-image: url(...)` + `background-size: cover` + 半透明遮罩层',
+  )
   lines.push('- **左右分栏**：左侧文字 + 右侧图片（或反之），适合产品介绍')
   lines.push('- **网格画廊**：3列或4列网格展示多个产品/案例图片')
   lines.push('- **卡片覆盖**：图片作为卡片背景，上方叠加文字和按钮')
@@ -1584,10 +1669,14 @@ function buildCopyContent(
   lines.push('**示例代码**：')
   lines.push('```tsx')
   lines.push('// 入场动画 - 自然舒适')
-  lines.push('gsap.fromTo(element, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })')
+  lines.push(
+    'gsap.fromTo(element, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })',
+  )
   lines.push(blank())
   lines.push('// 弹跳入场 - 有活力')
-  lines.push('gsap.fromTo(element, { scale: 0 }, { scale: 1, duration: 0.8, ease: "back.out(1.7)" })')
+  lines.push(
+    'gsap.fromTo(element, { scale: 0 }, { scale: 1, duration: 0.8, ease: "back.out(1.7)" })',
+  )
   lines.push(blank())
   lines.push('// 滚动同步 - 平滑视差')
   lines.push('gsap.to(element, { y: -100, ease: "none", scrollTrigger: { trigger, scrub: 1 } })')
@@ -1616,7 +1705,9 @@ function buildCopyContent(
   lines.push('  - 保留必要的功能动画（如表单验证反馈）')
   lines.push('- 示例代码：')
   lines.push('```tsx')
-  lines.push('const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches')
+  lines.push(
+    'const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches',
+  )
   lines.push('if (!prefersReducedMotion) {')
   lines.push('  gsap.from(element, { opacity: 0, y: 50, duration: 1 })')
   lines.push('} else {')
@@ -1662,8 +1753,12 @@ function buildCopyContent(
   lines.push('##### 8.1 GSAP/ScrollTrigger 错误')
   lines.push('| 错误写法 | 正确写法 | 说明 |')
   lines.push('|---------|---------|------|')
-  lines.push('| `toggleActions: "play none none none"` | `toggleActions: "play none none reverse"` | 否则动画只播放一次，无法重复触发 |')
-  lines.push('| 遗漏 `gsap.registerPlugin(ScrollTrigger)` | 组件顶部必须注册 | 否则 ScrollTrigger 不工作 |')
+  lines.push(
+    '| `toggleActions: "play none none none"` | `toggleActions: "play none none reverse"` | 否则动画只播放一次，无法重复触发 |',
+  )
+  lines.push(
+    '| 遗漏 `gsap.registerPlugin(ScrollTrigger)` | 组件顶部必须注册 | 否则 ScrollTrigger 不工作 |',
+  )
   lines.push('| 在 render 中直接执行 GSAP | 必须在 `useEffect` 中执行 | 否则 DOM 未就绪 |')
   lines.push('| 忘记清理 ScrollTrigger | `return () => t.kill()` | 否则内存泄漏 |')
   lines.push('| `gsap.to(target, {...})` 无 `duration` | 添加 `duration: 0.6` | 否则动画立即完成 |')
@@ -1673,16 +1768,26 @@ function buildCopyContent(
   lines.push('##### 8.2 React Hooks 错误')
   lines.push('| 错误写法 | 正确写法 | 说明 |')
   lines.push('|---------|---------|------|')
-  lines.push('| `useEffect(() => { gsap.to(...) })` | `useEffect(() => { gsap.to(...); return () => kill() }, [])` | 必须有依赖数组和清理函数 |')
-  lines.push('| `useEffect(() => { anim = gsap.to(...) })` | 使用 `useRef` 保存：`const animRef = useRef(); animRef.current = gsap.to(...)` | 避免闭包问题 |')
-  lines.push('| 在 `useEffect` 外定义 ScrollTrigger | 在 `useEffect` 内创建并清理 | 确保 DOM 就绪 |')
+  lines.push(
+    '| `useEffect(() => { gsap.to(...) })` | `useEffect(() => { gsap.to(...); return () => kill() }, [])` | 必须有依赖数组和清理函数 |',
+  )
+  lines.push(
+    '| `useEffect(() => { anim = gsap.to(...) })` | 使用 `useRef` 保存：`const animRef = useRef(); animRef.current = gsap.to(...)` | 避免闭包问题 |',
+  )
+  lines.push(
+    '| 在 `useEffect` 外定义 ScrollTrigger | 在 `useEffect` 内创建并清理 | 确保 DOM 就绪 |',
+  )
   lines.push(blank())
   lines.push('##### 8.3 Canvas 错误')
   lines.push('| 错误写法 | 正确写法 | 说明 |')
   lines.push('|---------|---------|------|')
   lines.push('| 直接操作 DOM | 使用 `useRef` 获取 canvas | React 中必须用 ref |')
-  lines.push('| 在 render 中 `ctx.beginPath()` | 在 `useEffect` 中 `requestAnimationFrame` 循环 | 否则动画不流畅 |')
-  lines.push('| 遗漏 `canvas.width = container.offsetWidth` | 监听 resize 事件更新尺寸 | 否则 canvas 尺寸不对 |')
+  lines.push(
+    '| 在 render 中 `ctx.beginPath()` | 在 `useEffect` 中 `requestAnimationFrame` 循环 | 否则动画不流畅 |',
+  )
+  lines.push(
+    '| 遗漏 `canvas.width = container.offsetWidth` | 监听 resize 事件更新尺寸 | 否则 canvas 尺寸不对 |',
+  )
   lines.push('| 页面隐藏时继续动画 | 监听 `visibilitychange` 暂停 | 否则浪费性能 |')
   lines.push(blank())
   lines.push('##### 8.4 常见代码示例（正确写法）')
@@ -1695,7 +1800,9 @@ function buildCopyContent(
   lines.push('    gsap.fromTo(".element",')
   lines.push('      { opacity: 0, y: 50 },')
   lines.push('      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out",')
-  lines.push('        scrollTrigger: { trigger: ".element", start: "top 80%", toggleActions: "play none none reverse" }')
+  lines.push(
+    '        scrollTrigger: { trigger: ".element", start: "top 80%", toggleActions: "play none none reverse" }',
+  )
   lines.push('      }')
   lines.push('    )')
   lines.push('  })')
@@ -1709,7 +1816,9 @@ function buildCopyContent(
   lines.push('  const ctx = canvas.getContext("2d")')
   lines.push('  let animationId: number')
   lines.push('  ')
-  lines.push('  const resize = () => { canvas.width = container.offsetWidth; canvas.height = container.offsetHeight }')
+  lines.push(
+    '  const resize = () => { canvas.width = container.offsetWidth; canvas.height = container.offsetHeight }',
+  )
   lines.push('  resize()')
   lines.push('  window.addEventListener("resize", resize)')
   lines.push('  ')
@@ -1721,19 +1830,30 @@ function buildCopyContent(
   lines.push('    else draw()')
   lines.push('  })')
   lines.push('  ')
-  lines.push('  return () => { cancelAnimationFrame(animationId); window.removeEventListener("resize", resize) }')
+  lines.push(
+    '  return () => { cancelAnimationFrame(animationId); window.removeEventListener("resize", resize) }',
+  )
   lines.push('}, [])')
   lines.push('```')
   lines.push(blank())
 
   lines.push('### 输出顺序')
   lines.push('请按以下顺序输出代码文件（每个文件用 ```tsx 或 ```css 包裹）：')
-  ;['tailwind.config.js', 'index.css', '各个 React 组件（按依赖顺序）', 'App.tsx', 'main.tsx']
-    .forEach((f, i) => lines.push(`${i + 1}. ${f}`))
+  ;[
+    'tailwind.config.js',
+    'index.css',
+    '各个 React 组件（按依赖顺序）',
+    'App.tsx',
+    'main.tsx',
+  ].forEach((f, i) => lines.push(`${i + 1}. ${f}`))
   lines.push(blank())
 
   // 提示
-  lines.push(sep('='), '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 React 网站代码', sep('='))
+  lines.push(
+    sep('='),
+    '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 React 网站代码',
+    sep('='),
+  )
 
   return lines.join('\n')
 }
@@ -1927,33 +2047,42 @@ function updateGradientColor() {
 }
 
 // 监听 enterpriseInfo.mainColors 变化，同步模式状态
-watch(() => enterpriseInfo.mainColors, (val) => {
-  if (val) {
-    if (isGradientColor(val)) {
-      colorMode.value = 'gradient'
-      // 尝试解析渐变色值
-      const match = val.match(/#([0-9A-Fa-f]{6}).*#([0-9A-Fa-f]{6})/)
-      if (match) {
-        gradientStart.value = '#' + match[1]
-        gradientEnd.value = '#' + match[2]
+watch(
+  () => enterpriseInfo.mainColors,
+  (val) => {
+    if (val) {
+      if (isGradientColor(val)) {
+        colorMode.value = 'gradient'
+        // 尝试解析渐变色值
+        const match = val.match(/#([0-9A-Fa-f]{6}).*#([0-9A-Fa-f]{6})/)
+        if (match) {
+          gradientStart.value = '#' + match[1]
+          gradientEnd.value = '#' + match[2]
+        }
+        const angleMatch = val.match(/(\d+)deg/)
+        if (angleMatch) {
+          gradientAngle.value = parseInt(angleMatch[1])
+        }
+      } else if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        colorMode.value = 'solid'
+        singleColor.value = val
       }
-      const angleMatch = val.match(/(\d+)deg/)
-      if (angleMatch) {
-        gradientAngle.value = parseInt(angleMatch[1])
-      }
-    } else if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-      colorMode.value = 'solid'
-      singleColor.value = val
     }
-  }
-})
+  },
+)
 
 // 监听内容变化，更新可编辑内容（必须放在 enterpriseInfo 和 selectedComponents 声明之后）
 watch(
-  [() => enterpriseInfo.name, () => enterpriseInfo.industry, () => enterpriseInfo.description,
-   () => enterpriseInfo.targetAudience, () => enterpriseInfo.mainColors,
-   () => enterpriseInfo.websiteType, () => enterpriseInfo.designPhilosophy,
-   () => selectedComponents.value.length],
+  [
+    () => enterpriseInfo.name,
+    () => enterpriseInfo.industry,
+    () => enterpriseInfo.description,
+    () => enterpriseInfo.targetAudience,
+    () => enterpriseInfo.mainColors,
+    () => enterpriseInfo.websiteType,
+    () => enterpriseInfo.designPhilosophy,
+    () => selectedComponents.value.length,
+  ],
   () => {
     initEditableContent()
   },
@@ -1968,7 +2097,7 @@ const filteredComponentsByType = computed(() => {
   const keyword = searchKeyword.value.trim().toLowerCase()
 
   // 我的收藏分类（不受搜索影响）
-  const favoriteComps = allComponents.value.filter(c => isFavorite(c.dirName))
+  const favoriteComps = allComponents.value.filter((c) => isFavorite(c.dirName))
 
   if (!keyword) {
     const result: Record<string, ComponentInfo[]> = {}
@@ -2012,10 +2141,16 @@ const filteredComponentsByType = computed(() => {
 
 // 监听内容变化，更新可编辑内容（必须放在 enterpriseInfo 和 selectedComponents 声明之后）
 watch(
-  [() => enterpriseInfo.name, () => enterpriseInfo.industry, () => enterpriseInfo.description,
-   () => enterpriseInfo.targetAudience, () => enterpriseInfo.mainColors,
-   () => enterpriseInfo.websiteType, () => enterpriseInfo.designPhilosophy,
-   () => selectedComponents.value.length],
+  [
+    () => enterpriseInfo.name,
+    () => enterpriseInfo.industry,
+    () => enterpriseInfo.description,
+    () => enterpriseInfo.targetAudience,
+    () => enterpriseInfo.mainColors,
+    () => enterpriseInfo.websiteType,
+    () => enterpriseInfo.designPhilosophy,
+    () => selectedComponents.value.length,
+  ],
   () => {
     initEditableContent()
   },
@@ -2029,10 +2164,16 @@ const searchResultCount = computed(() => {
 
 // 监听内容变化，更新可编辑内容（必须放在 enterpriseInfo 和 selectedComponents 声明之后）
 watch(
-  [() => enterpriseInfo.name, () => enterpriseInfo.industry, () => enterpriseInfo.description,
-   () => enterpriseInfo.targetAudience, () => enterpriseInfo.mainColors,
-   () => enterpriseInfo.websiteType, () => enterpriseInfo.designPhilosophy,
-   () => selectedComponents.value.length],
+  [
+    () => enterpriseInfo.name,
+    () => enterpriseInfo.industry,
+    () => enterpriseInfo.description,
+    () => enterpriseInfo.targetAudience,
+    () => enterpriseInfo.mainColors,
+    () => enterpriseInfo.websiteType,
+    () => enterpriseInfo.designPhilosophy,
+    () => selectedComponents.value.length,
+  ],
   () => {
     initEditableContent()
   },
@@ -2241,7 +2382,7 @@ function clearSelection() {
 
 // 类型显示名称映射
 const typeLabels: Record<string, string> = {
-  'favorite': '❤️ 我的收藏',
+  favorite: '❤️ 我的收藏',
   'card-image': '图片转场',
   'card-img': '图片展示',
   'card-text': '文字动画',
@@ -2251,7 +2392,7 @@ const typeLabels: Record<string, string> = {
 }
 
 const typeColors: Record<string, string> = {
-  'favorite': '#ff4757',
+  favorite: '#ff4757',
   'card-image': '#667eea',
   'card-img': '#f093fb',
   'card-text': '#4facfe',
@@ -2292,9 +2433,9 @@ import hljs from 'highlight.js'
 const renderer = new Renderer()
 renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
   const language = lang && hljs.getLanguage(lang) ? lang : ''
-  const highlighted = language
-    ? hljs.highlight(text, { language }).value
-    : hljs.highlightAuto(text).value
+  const highlighted = language ?
+    hljs.highlight(text, { language }).value :
+    hljs.highlightAuto(text).value
   return `<pre><code class="hljs${language ? ` language-${language}` : ''}">${highlighted}</code></pre>`
 }
 
@@ -2399,6 +2540,26 @@ function renderMarkdown(text: string): string {
               {{ searchResultCount }} / {{ allComponents.length }} 个组件
             </span>
           </div>
+          <!-- 底部操作栏 -->
+          <footer class="ai-footer">
+            <div class="footer-stats">
+              <span>已选 {{ selectedComponents.length }} 个组件</span>
+              <span v-if="Object.keys(selectionStats).length">
+                ({{
+                  Object.entries(selectionStats)
+                    .map(([k, v]) => `${typeLabels[k] || k}: ${v}`)
+                    .join(', ')
+                }})
+              </span>
+            </div>
+            <button
+              class="btn btn-primary"
+              :disabled="!enterpriseInfo.name || selectedComponents.length === 0"
+              @click="activeTab = 'result'"
+            >
+              复制到 meoo AI →
+            </button>
+          </footer>
 
           <div class="component-list">
             <div v-for="(comps, type) in filteredComponentsByType" :key="type" class="type-group">
@@ -2574,7 +2735,10 @@ function renderMarkdown(text: string): string {
                 <button class="btn btn-sm btn-ghost" @click="openModuleEditor">⚙️ 完整配置</button>
                 <button
                   class="btn btn-sm"
-                  @click="saveModuleConfig(); cancelModuleSelection()"
+                  @click="
+                    saveModuleConfig();
+                    cancelModuleSelection()
+                  "
                 >
                   💾 保存全部修改
                 </button>
@@ -2888,7 +3052,10 @@ function renderMarkdown(text: string): string {
                       <button
                         v-for="preset in gradientPresets"
                         :key="preset.value"
-                        :class="['gradient-preset-btn', { active: enterpriseInfo.mainColors === preset.value }]"
+                        :class="[
+                          'gradient-preset-btn',
+                          { active: enterpriseInfo.mainColors === preset.value }
+                        ]"
                         :style="{ background: preset.value }"
                         :title="preset.name"
                         @click="enterpriseInfo.mainColors = preset.value"
@@ -2897,17 +3064,44 @@ function renderMarkdown(text: string): string {
                     <div class="gradient-editor">
                       <div class="gradient-editor-row">
                         <span class="gradient-label">起始色</span>
-                        <input v-model="gradientStart" type="color" class="color-input-sm" @input="applyGradient" />
-                        <input v-model="gradientStart" type="text" class="color-text-sm" @input="applyGradient" />
+                        <input
+                          v-model="gradientStart"
+                          type="color"
+                          class="color-input-sm"
+                          @input="applyGradient"
+                        />
+                        <input
+                          v-model="gradientStart"
+                          type="text"
+                          class="color-text-sm"
+                          @input="applyGradient"
+                        />
                       </div>
                       <div class="gradient-editor-row">
                         <span class="gradient-label">结束色</span>
-                        <input v-model="gradientEnd" type="color" class="color-input-sm" @input="applyGradient" />
-                        <input v-model="gradientEnd" type="text" class="color-text-sm" @input="applyGradient" />
+                        <input
+                          v-model="gradientEnd"
+                          type="color"
+                          class="color-input-sm"
+                          @input="applyGradient"
+                        />
+                        <input
+                          v-model="gradientEnd"
+                          type="text"
+                          class="color-text-sm"
+                          @input="applyGradient"
+                        />
                       </div>
                       <div class="gradient-editor-row">
                         <span class="gradient-label">角度</span>
-                        <input v-model.number="gradientAngle" type="range" min="0" max="360" class="angle-slider" @input="applyGradient" />
+                        <input
+                          v-model.number="gradientAngle"
+                          type="range"
+                          min="0"
+                          max="360"
+                          class="angle-slider"
+                          @input="applyGradient"
+                        />
                         <span class="angle-value">{{ gradientAngle }}°</span>
                       </div>
                     </div>
@@ -2949,7 +3143,7 @@ function renderMarkdown(text: string): string {
               </label>
               <span class="expand-hint">{{ showReferenceExample ? '点击收起' : '点击展开' }}</span>
             </div>
-            <div class="reference-example" v-show="showReferenceExample">
+            <div v-show="showReferenceExample" class="reference-example">
               <div class="ref-item">
                 <span class="ref-label">企业名称:</span>
                 <span class="ref-value">深圳AI网络有限公司</span>
@@ -2960,11 +3154,15 @@ function renderMarkdown(text: string): string {
               </div>
               <div class="ref-item">
                 <span class="ref-label">企业简介:</span>
-                <span class="ref-value">深圳AI网络有限公司是一家专注于前沿人工智能技术研发与商业应用的高科技企业。公司致力于为全球企业提供高效、智能的数字化转型方案，核心业务涵盖智能客服系统、企业级大数据分析平台及自动化营销工具。</span>
+                <span class="ref-value"
+                  >深圳AI网络有限公司是一家专注于前沿人工智能技术研发与商业应用的高科技企业。公司致力于为全球企业提供高效、智能的数字化转型方案，核心业务涵盖智能客服系统、企业级大数据分析平台及自动化营销工具。</span
+                >
               </div>
               <div class="ref-item">
                 <span class="ref-label">目标受众:</span>
-                <span class="ref-value">寻求数字化转型的中大型企业管理者（CEO/CTO）、互联网科技公司、电商品牌方</span>
+                <span class="ref-value"
+                  >寻求数字化转型的中大型企业管理者（CEO/CTO）、互联网科技公司、电商品牌方</span
+                >
               </div>
               <div class="ref-item">
                 <span class="ref-label">品牌主色:</span>
@@ -2977,7 +3175,9 @@ function renderMarkdown(text: string): string {
 
               <div class="ref-item">
                 <span class="ref-label">网站设计理念:</span>
-                <span class="ref-value"> 采用“未来极简主义”风格。在深空蓝的沉浸式背景下，运用电光紫的线性渐变与微发光效果勾勒核心元素，营造高端、神秘的科技氛围。布局上强调“呼吸感”与逻辑层级，大量留白以突出核心数据与业务价值。交互上引入细腻的动态效果（如数据流动的粒子背景、卡片悬停的微交互），将抽象的AI算法转化为可视化的流畅体验，向用户传递“精准、高效、智能”的品牌感知。</span>
+                <span class="ref-value">
+                  采用“未来极简主义”风格。在深空蓝的沉浸式背景下，运用电光紫的线性渐变与微发光效果勾勒核心元素，营造高端、神秘的科技氛围。布局上强调“呼吸感”与逻辑层级，大量留白以突出核心数据与业务价值。交互上引入细腻的动态效果（如数据流动的粒子背景、卡片悬停的微交互），将抽象的AI算法转化为可视化的流畅体验，向用户传递“精准、高效、智能”的品牌感知。</span
+                >
               </div>
             </div>
           </div>
@@ -3013,6 +3213,8 @@ function renderMarkdown(text: string): string {
               📋 {{ copySuccess ? '已复制到剪贴板' : '📋 复制完整信息' }}
             </button>
 
+            <button class="btn btn-primary btn-lg" @click="OpenMeoo">去MEOO AI</button>
+
             <p v-if="!enterpriseInfo.name" class="generate-hint">
               请先在「企业信息」标签页填写企业名称
             </p>
@@ -3043,27 +3245,6 @@ function renderMarkdown(text: string): string {
           </div>
         </div>
       </div>
-
-      <!-- 底部操作栏 -->
-      <footer class="ai-footer">
-        <div class="footer-stats">
-          <span>已选 {{ selectedComponents.length }} 个组件</span>
-          <span v-if="Object.keys(selectionStats).length">
-            ({{
-              Object.entries(selectionStats)
-                .map(([k, v]) => `${typeLabels[k] || k}: ${v}`)
-                .join(', ')
-            }})
-          </span>
-        </div>
-        <button
-          class="btn btn-primary"
-          :disabled="!enterpriseInfo.name || selectedComponents.length === 0"
-          @click="activeTab = 'result'"
-        >
-          复制到 meoo AI →
-        </button>
-      </footer>
     </div>
   </div>
 </template>
@@ -4758,6 +4939,7 @@ function renderMarkdown(text: string): string {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   margin-top: 20px;
+  margin-bottom: 20px;
 
   .footer-stats {
     color: rgba(255, 255, 255, 0.7);
@@ -5017,7 +5199,9 @@ function renderMarkdown(text: string): string {
 
   &.active {
     border-color: #fff;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow:
+      0 0 0 3px rgba(102, 126, 234, 0.5),
+      0 4px 12px rgba(0, 0, 0, 0.3);
     transform: scale(1.1);
   }
 }
@@ -5098,7 +5282,9 @@ function renderMarkdown(text: string): string {
 
   &.active {
     border-color: #fff;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow:
+      0 0 0 3px rgba(102, 126, 234, 0.5),
+      0 4px 12px rgba(0, 0, 0, 0.3);
     transform: scale(1.1);
   }
 }
