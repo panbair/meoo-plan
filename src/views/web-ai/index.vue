@@ -121,6 +121,9 @@ const modulePositions = ref<ModulePosition[]>(loadModulePositions())
 const showModuleEditor = ref(false)
 const editingPositions = ref<ModulePosition[]>([...modulePositions.value])
 
+// 参考示例展开状态
+const showReferenceExample = ref(true)
+
 function openModuleEditor() {
   editingPositions.value = modulePositions.value.map((p) => ({ ...p }))
   showModuleEditor.value = true
@@ -678,6 +681,7 @@ interface EnterpriseInfo {
   targetAudience: string
   mainColors: string
   websiteType: string
+  designPhilosophy: string
 }
 
 /**
@@ -961,22 +965,22 @@ ${compsList}`
 }
 
 // ============================================================
-// DeepSeek API调用（流式）
+// 复制方案到剪贴板（供 meoo AI 使用）
 // ============================================================
 
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'
-const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY || ''
-
-const isGenerating = ref(false)
-const generatedPlan = ref('')
 const errorMessage = ref('')
+const copySuccess = ref(false)
+const editablePlanContent = ref('') // 可编辑的方案内容
 
-async function generatePlan() {
-  if (!API_KEY) {
-    errorMessage.value = '请先在 .env 文件中配置 VITE_DEEPSEEK_API_KEY'
-    return
+// 初始化/更新可编辑内容
+function initEditableContent() {
+  if (enterpriseInfo.name && selectedComponents.value.length > 0) {
+    editablePlanContent.value = buildCopyContent(enterpriseInfo, selectedComponents.value, modulePositions.value)
   }
+}
 
+async function copyPlanToClipboard() {
+  // 验证
   if (selectedComponents.value.length === 0) {
     errorMessage.value = '请至少选择一个组件'
     return
@@ -987,79 +991,496 @@ async function generatePlan() {
     return
   }
 
-  isGenerating.value = true
   errorMessage.value = ''
-  generatedPlan.value = ''
-  const prompt = buildPrompt(enterpriseInfo, selectedComponents.value, modulePositions.value)
 
-  console.log(prompt)
-  console.log(8889)
+  // 使用可编辑的内容进行复制
+  const content = editablePlanContent.value
+
   try {
-    const response = await fetch(DEEPSEEK_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${API_KEY}` },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          {
-            role: 'system',
-            content:
-              '你是一位资深的 React + GSAP 动画专家。你必须100%复现用户选配的 Vue 组件效果，生成完整可运行的 React 代码。核心要求：1) 效果100%复现 - 用户选择这些组件是因为喜欢效果，代码必须完整实现；2) Vue到React转换 - v-for→map, ref()→useRef, reactive()→useState, onMounted→useEffect(()=>{},[]), gsap.fromTo(el,...)→gsap.fromTo(targetRef.current,...); 3) Props严格基于源码，只用源码中存在的Props；4) ScrollTrigger模式必须与源码一致 - scrub对应scrub，toggleActions对应toggleActions，禁止推断；5) Canvas组件必须用Canvas API重写粒子系统等效果；6) 代码必须完整可运行，包含import、export、useEffect清理等所有必要代码；7) 图片用Unsplash地址；8) GSAP插件必须注册；9) 优化后的代码性能建议：使用transform/opacity动画、will-change属性、requestAnimationFrame等。',
-          },
-          { role: 'user', content: prompt }
-        ],
-        stream: true,
-        temperature: 0.6,
-        max_tokens: 16384
-      }),
-    })
+    await navigator.clipboard.writeText(content)
+    copySuccess.value = true
+    setTimeout(() => { copySuccess.value = false }, 2000)
+  } catch (err) {
+    errorMessage.value = '复制失败，请手动复制下方内容'
+  }
+}
 
-    if (!response.ok) {
-      throw new Error(`API请求失败: ${response.status}`)
+
+
+/**
+ * 分析组件源码中的 ScrollTrigger 模式
+ */
+function analyzeScrollTriggerMode(sourceCode: string): string | null {
+  const result: string[] = []
+
+  // 检测是否有 ScrollTrigger 配置
+  if (!sourceCode.includes('ScrollTrigger')) {
+    return null
+  }
+
+  // 1. 提取完整的 ScrollTrigger 配置块
+  const stBlocks = sourceCode.match(/ScrollTrigger\s*:\s*\{[\s\S]*?\}/g) || []
+
+  // 2. 分析每个 ScrollTrigger 配置
+  stBlocks.forEach((block, idx) => {
+    const details: string[] = []
+
+    // start/end 参数
+    const startMatch = block.match(/start\s*:\s*['"]([^'"]+)['"]/)
+    const endMatch = block.match(/end\s*:\s*['"]([^'"]+)['"]/)
+    if (startMatch) {
+      details.push(`start: '${startMatch[1]}'`)
+    }
+    if (endMatch) {
+      details.push(`end: '${endMatch[1]}'`)
     }
 
-    const reader = response.body?.getReader()
-    if (!reader) {
-      throw new Error('无法读取响应流')
-    }
-
-    const decoder = new TextDecoder()
-    let buffer = ''
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) {
-        break
+    // scrub 模式（最重要）
+    const scrubMatch = block.match(/scrub\s*:\s*(true|false|\d+\.?\d*)/)
+    if (scrubMatch) {
+      const value = scrubMatch[1]
+      if (value === 'true') {
+        details.push('scrub: true（随滚动实时同步）')
+      } else if (value === 'false') {
+        details.push('scrub: false（自动播放一次）')
+      } else {
+        details.push(`scrub: ${value}（延迟${value}秒后同步）`)
       }
+    }
 
-      buffer += decoder.decode(value, { stream: true })
-      const lines = buffer.split('\n')
-      buffer = lines.pop() || ''
+    // toggleActions 模式
+    const toggleMatch = block.match(/toggleActions\s*:\s*['"]([^'"]+)['"]/)
+    if (toggleMatch) {
+      const actions = toggleMatch[1].split(' ').map(a => {
+        const map: Record<string, string> = {
+          'play': '▶️播放', 'pause': '⏸️暂停', 'resume': '▶️继续',
+          'reverse': '◀️倒放', 'restart': '🔄重播', 'reset': '🔚重置',
+          'complete': '✅完成', 'none': '❌无'
+        }
+        return map[a] || a
+      }).join(' | ')
+      details.push(`toggleActions: '${toggleMatch[1]}'（${actions}）`)
+    }
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6)
-          if (data === '[DONE]') {
-            continue
-          }
+    // pin 固定
+    if (/pin\s*:\s*true/.test(block)) {
+      const pinMatch = block.match(/pin\s*:\s*(true|['"][^'"]+['"])/)
+      if (pinMatch && pinMatch[1] === 'true') {
+        details.push('pin: true（滚动时固定元素）')
+      } else {
+        details.push(`pin: ${pinMatch[1]}（固定选择器）`)
+      }
+    }
 
-          try {
-            const json = JSON.parse(data)
-            const content = json.choices?.[0]?.delta?.content
-            if (content) {
-              generatedPlan.value += content
-            }
-          } catch (e) {
-            // 忽略解析错误
+    // markers 调试标记
+    if (/markers\s*:\s*true/.test(block)) {
+      details.push('⚠️ markers: true（仅调试使用）')
+    }
+
+    // ID 配置
+    const idMatch = block.match(/id\s*:\s*['"]([^'"]+)['"]/)
+    if (idMatch) {
+      details.push(`id: '${idMatch[1]}'`)
+    }
+
+    // paused 状态
+    if (/paused\s*:\s*true/.test(block)) {
+      details.push('⏸️ paused: true（需手动触发）')
+    }
+
+    // animation 类型
+    if (block.includes('animation:') && sourceCode.includes('timeline')) {
+      details.push('animation: timeline（时间轴动画）')
+    } else if (block.includes('animation:')) {
+      details.push('animation: 单个tween')
+    }
+
+    // 组装结果
+    if (details.length > 0) {
+      const prefix = stBlocks.length > 1 ? `【配置${idx + 1}】` : '【配置】'
+      result.push(`${prefix} ${details.join(' | ')}`)
+    }
+  })
+
+  // 3. 检测 timeline 特有的 paused 配置
+  if (sourceCode.includes('paused: true') && sourceCode.includes('gsap.timeline')) {
+    result.push('⏸️ timeline.paused: true（需外部触发 .play()）')
+  }
+
+  if (result.length === 0) {
+    return null
+  }
+
+  return result.join('\n       ')
+}
+
+/**
+ * 分析 Canvas 组件的特殊处理需求
+ */
+function analyzeCanvasComponent(sourceCode: string): string | null {
+  const result: string[] = []
+
+  // 检测 Canvas 使用
+  const hasCanvas = /<canvas/.test(sourceCode)
+  const hasGetContext = /getContext\s*\(\s*['"]2d['"]/.test(sourceCode)
+  const hasRequestAnimationFrame = /requestAnimationFrame/.test(sourceCode)
+
+  if (!hasCanvas && !hasGetContext) {
+    return null
+  }
+
+  // Canvas 2D
+  if (hasGetContext) {
+    result.push('⚠️ 使用 Canvas 2D API')
+    result.push('   1. React 中必须使用 useRef<HTMLCanvasElement>() 获取画布引用')
+    result.push('   2. Canvas 绑定必须在 useEffect 中执行（DOM 渲染后）')
+    result.push('   3. 动画循环需在 useEffect 中设置 requestAnimationFrame')
+    result.push('   4. 清理函数中必须取消动画帧 cancelAnimationFrame')
+    result.push('   5. 监听 resize 事件，及时更新 canvas 尺寸')
+
+    // 检测 Canvas 操作类型
+    if (/ctx\.drawImage/.test(sourceCode)) {
+      result.push('   • 检测到图片绘制 ctx.drawImage，需准备图片资源')
+    }
+    if (/ctx\.fillText|ctx\.strokeText/.test(sourceCode)) {
+      result.push('   • 检测到文字绘制 ctx.fillText/strokeText')
+    }
+    if (/ctx\.beginPath|ctx\.arc|ctx\.lineTo/.test(sourceCode)) {
+      result.push('   • 检测到路径绘制（圆/线条/矩形）')
+    }
+    if (/createLinearGradient|createRadialGradient/.test(sourceCode)) {
+      result.push('   • 检测到渐变填充')
+    }
+  }
+
+  // WebGL/Three.js
+  if (/getContext\s*\(\s*['"]webgl/.test(sourceCode) || /THREE\.WebGLRenderer|new WebGLRenderer/.test(sourceCode)) {
+    result.push('⚠️ 使用 WebGL/Three.js 渲染')
+    result.push('   1. 必须在 useEffect + useRef 模式下初始化渲染器')
+    result.push('   2. 需要处理 WebGL 上下文丢失事件 webglcontextlost')
+    result.push('   3. 动画循环中调用 renderer.render(scene, camera)')
+    result.push('   4. 组件卸载时调用 renderer.dispose() 释放资源')
+    result.push('   5. 考虑使用 @react-three/fiber 简化 Three.js 集成')
+  }
+
+  // GSAP Canvas 动画
+  if (hasRequestAnimationFrame && sourceCode.includes('gsap.')) {
+    result.push('   • 检测到 GSAP + requestAnimationFrame 混合动画，需确保两者的 RAF 同步')
+  }
+
+  // 性能提示
+  if (hasRequestAnimationFrame) {
+    result.push('   📌 性能建议：Canvas 动画建议添加 visibilitychange 监听，页面不可见时暂停')
+  }
+
+  return result.join('\n       ')
+}
+
+/**
+ * 提取组件的 Props 定义信息
+ */
+function extractPropsInfo(sourceCode: string): string | null {
+  // 尝试匹配 interface Props
+  const interfaceMatch = sourceCode.match(/interface\s+Props\s*\{([^}]+)\}/s)
+  if (interfaceMatch) {
+    const propsContent = interfaceMatch[1].trim()
+    const lines = propsContent.split('\n').filter(l => l.trim())
+    if (lines.length > 0) {
+      return lines.map(l => l.trim()).join('\n')
+    }
+  }
+
+  // 尝试匹配 withDefaults(defineProps<...>(), {...})
+  const withDefaultsMatch = sourceCode.match(/withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s)
+  if (withDefaultsMatch) {
+    const defaultsContent = withDefaultsMatch[1].trim()
+    const lines = defaultsContent.split('\n').filter(l => l.trim())
+    if (lines.length > 0) {
+      return '默认值:\n' + lines.map(l => l.trim()).join('\n')
+    }
+  }
+
+  // 尝试匹配 defineProps<{...}>()
+  const definePropsMatch = sourceCode.match(/defineProps<\{([^}]+)\}>\(\)/s)
+  if (definePropsMatch) {
+    const propsContent = definePropsMatch[1].trim()
+    const lines = propsContent.split('\n').filter(l => l.trim())
+    if (lines.length > 0) {
+      return lines.map(l => l.trim()).join('\n')
+    }
+  }
+
+  return null
+}
+
+// ============================================================
+// 构建复制内容 - 辅助函数
+// ============================================================
+
+/** 分隔线生成 */
+const sep = (char: string, len: number = 80) => char.repeat(len)
+
+/** 空行 */
+const blank = () => ''
+
+/** 企业信息字段配置 */
+const enterpriseInfoFields = [
+  { key: 'name', label: '企业名称' },
+  { key: 'industry', label: '所属行业' },
+  { key: 'description', label: '企业简介' },
+  { key: 'targetAudience', label: '目标受众' },
+  { key: 'mainColors', label: '品牌主色', fallback: '未设置' },
+  { key: 'websiteType', label: '网站类型' },
+  { key: 'designPhilosophy', label: '设计理念', fallback: '未填写' },
+] as const
+
+/** Vue → React 转换规则 */
+const vueToReactRules = [
+  { vue: 'v-for="item in list"', react: '{list.map(item => (...))}' },
+  { vue: 'v-if="condition"', react: '{condition && (...)}' },
+  { vue: 'ref="elementRef"', react: 'const elementRef = useRef<HTMLDivElement>(null)' },
+  { vue: 'onMounted(() => {...})', react: 'useEffect(() => {...}, [])' },
+  { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
+  { vue: 'defineProps<Props>()', react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}' },
+]
+
+/** 技术要求清单 - 带序号 */
+const techRequirements = [
+  { num: 1, text: '**技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
+  { num: 2, text: '**Vue → React 转换规则**:', indent: true },
+  { num: 3, text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`' },
+  { num: 4, text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`' },
+  { num: 5, text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写' },
+  { num: 6, text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断' },
+  { num: 7, text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建' },
+]
+
+/** 输出文件清单 */
+const outputFiles = [
+  { file: 'App.tsx', desc: '主应用组件（包含所有 Section 的组合）' },
+  { file: 'main.tsx', desc: '入口文件' },
+  { file: 'components/Navbar.tsx', desc: '导航栏组件' },
+  { file: 'components/Footer.tsx', desc: '页脚组件' },
+  { file: 'sections/[模块名].tsx', desc: '各模块的 Section 组件' },
+  { file: 'components/[组件名]/index.tsx', desc: '转换后的 React 组件' },
+  { file: 'index.css', desc: '全局样式（含 Tailwind 配置、CSS 变量）' },
+  { file: 'tailwind.config.js', desc: 'Tailwind 配置文件' },
+]
+
+/** 代码要求清单 */
+const codeRequirements = [
+  '每个文件必须是完整可运行的代码，包含所有 import/export',
+  '组件内部的 GSAP 动画逻辑必须完整实现，不能省略',
+  'Canvas 渲染逻辑必须用 useRef + useEffect 完整重写',
+  '所有 ScrollTrigger 必须在 useEffect 中正确初始化和清理',
+  '使用 TypeScript，所有组件必须有明确的类型定义',
+  '样式使用 Tailwind CSS + 自定义 CSS 变量',
+]
+
+/** 品牌主色约束 */
+const mainColorConstraints = [
+  '可使用 CSS 变量 `--primary-color` 统一管理',
+  '按钮、强调色使用品牌主色',
+  'Hover 状态可加深/加亮 10-20%',
+  '渐变色使用 `tint()` 或 `shade()` 派生辅助色',
+]
+
+/** 设计理念约束 */
+const designConstraints = [
+  '排版间距、圆角大小、阴影强度需统一',
+  '动画曲线(ease)选择应匹配设计调性',
+  '图片风格、图标粗细保持一致',
+]
+
+/**
+ * 构建复制内容 - 供 meoo AI 使用的完整信息
+ */
+function buildCopyContent(
+  enterpriseInfo: EnterpriseInfo,
+  selectedComponents: ComponentInfo[],
+  positions: ModulePosition[]
+): string {
+  // 模块位置标签映射
+  const moduleLabels: Record<string, string> = Object.fromEntries(
+    positions.map(pos => [pos.key, pos.label])
+  )
+
+  // 按模块位置分组（过滤掉未分配模块的组件）
+  const componentsByModule: Record<string, ComponentInfo[]> = {}
+  const unassignedComps: ComponentInfo[] = []
+
+  selectedComponents.forEach((comp) => {
+    if (!comp.modulePosition) {
+      unassignedComps.push(comp)
+    } else {
+      if (!componentsByModule[comp.modulePosition]) {
+        componentsByModule[comp.modulePosition] = []
+      }
+      componentsByModule[comp.modulePosition].push(comp)
+    }
+  })
+
+  const moduleOrder = positions.map(p => p.key).filter(key => componentsByModule[key]?.length > 0)
+
+  // 组件类型汇总
+  const componentsByType: Record<string, number> = {}
+  selectedComponents.forEach((comp) => {
+    componentsByType[comp.type] = (componentsByType[comp.type] || 0) + 1
+  })
+
+  // ============================================================
+  // 构建内容
+  // ============================================================
+  const lines: string[] = []
+
+  // 标题
+  lines.push(sep('='), '🎯 企业网站开发需求 - 请在 meoo AI 平台生成 React 代码', sep('='), blank())
+
+  // ===== Token 估算 =====
+  const totalChars = selectedComponents.reduce((sum, comp) =>
+    sum + comp.sourceCode.length + (comp.readme?.length || 0), 0)
+  const estimatedTokens = Math.ceil(totalChars / 4)
+
+  if (estimatedTokens > 50000) {
+    lines.push('⚠️ **Token 警告**', sep('-'))
+    lines.push(`当前选中的组件源码总量约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`)
+    lines.push('建议：')
+    lines.push('1. 减少选中组件数量')
+    lines.push('2. 或分批生成（先生成部分模块的代码）')
+    lines.push(blank())
+  }
+
+  // ===== 角色设定与技术要求 =====
+  lines.push('📌 角色设定', sep('-'), '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，', '直接开发完整的、可运行的 React 企业网站代码。', blank())
+
+  lines.push('⚙️ 核心技术要求（必须遵守）', sep('-'))
+  // 1. 技术栈
+  lines.push('1. **技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)')
+  // 2. Vue → React 转换规则（带子项）
+  lines.push('2. **Vue → React 转换规则**:')
+  vueToReactRules.forEach(rule => lines.push(`   - \`${rule.vue}\` → \`${rule.react}\``))
+  // 3-7. 其他技术要求
+  const otherTechReqs = techRequirements.filter(t => t.num > 2)
+  otherTechReqs.forEach((req, idx) => lines.push(`${idx + 3}. ${req.text}`))
+  lines.push(blank())
+
+  // ===== 企业信息 =====
+  lines.push('📋 企业信息', sep('-'))
+  enterpriseInfoFields.forEach(({ key, label, fallback }) => {
+    const value = (enterpriseInfo[key as keyof EnterpriseInfo] as string)?.trim() || ''
+    lines.push(`${label}: ${value || fallback || ''}`)
+  })
+  lines.push(blank())
+
+  // ===== 品牌主色约束 =====
+  lines.push('🎨 品牌主色（设计约束 - 必须遵守）', sep('-'))
+  lines.push(`主色配置: ${enterpriseInfo.mainColors || '未设置'}`)
+  if (enterpriseInfo.mainColors) {
+    const isGradient = enterpriseInfo.mainColors.includes('gradient') ||
+                       enterpriseInfo.mainColors.includes('linear-gradient')
+    lines.push(`   ⚠️ 约束: ${isGradient ? '使用渐变色，CSS 中必须使用 `background: linear-gradient(...)` 而非单一颜色' : '整体配色以该主色为核心，所有组件的 primary/accent 颜色必须基于此色值'}`)
+    mainColorConstraints.forEach(c => lines.push(`   • ${c}`))
+  }
+  lines.push(blank())
+
+  // ===== 设计理念约束 =====
+  lines.push('💡 设计理念（风格约束 - 必须体现）', sep('-'))
+  lines.push(`设计理念: ${enterpriseInfo.designPhilosophy || '未填写（默认使用简洁现代风格）'}`)
+  if (enterpriseInfo.designPhilosophy) {
+    lines.push('   ⚠️ 约束: 所有组件的设计风格、动画节奏、视觉层次必须契合此理念')
+    designConstraints.forEach(c => lines.push(`   • ${c}`))
+  }
+  lines.push(blank())
+
+  // ===== 模块组件规划 =====
+  lines.push('🧩 模块组件规划（用户已指定，不可更改）', sep('-'))
+
+  moduleOrder.forEach((pos, idx) => {
+    const comps = componentsByModule[pos]
+    const moduleName = moduleLabels[pos] || pos
+    const moduleDesc = positions.find(p => p.key === pos)?.desc || ''
+
+    lines.push(blank(), `${idx + 1}. 【${moduleName}】`)
+    if (moduleDesc) lines.push(`   描述：${moduleDesc}`)
+    lines.push(`   📦 使用组件 (${comps.length}个)`, blank())
+
+    comps.forEach((comp, compIdx) => {
+      lines.push(`   ${compIdx + 1}. ${comp.dirName} (${comp.type})`, '   ' + sep('-', 70))
+
+      // README 效果描述
+      if (comp.readme) {
+        const effectMatch = comp.readme.match(/### 核心效果\n([\s\S]*?)(?=##|$)/) ||
+                           comp.readme.match(/### 核心动画\n([\s\S]*?)(?=##|$)/)
+        if (effectMatch) {
+          const effects = effectMatch[1].match(/-\s*\*\*([^*]+)\*\*:\s*([^\n-]+)/g) || []
+          if (effects.length > 0) {
+            lines.push('   • 核心效果:')
+            effects.slice(0, 5).forEach((e) => {
+              const match = e.match(/-\s*\*\*([^*]+)\*\*:\s*([^\n-]+)/)
+              if (match) lines.push(`     - ${match[1]}: ${match[2].trim()}`)
+            })
           }
         }
       }
-    }
-  } catch (error: any) {
-    errorMessage.value = error.message || '生成方案时出错'
-  } finally {
-    isGenerating.value = false
+
+      // ScrollTrigger 模式分析
+      const scrollTriggerAnalysis = analyzeScrollTriggerMode(comp.sourceCode)
+      if (scrollTriggerAnalysis) {
+        lines.push('   • ScrollTrigger 模式:', `     ${scrollTriggerAnalysis}`)
+      }
+
+      // Canvas 组件特殊提示
+      const canvasAnalysis = analyzeCanvasComponent(comp.sourceCode)
+      if (canvasAnalysis) {
+        lines.push('   • 🎨 Canvas 特殊处理:', `     ${canvasAnalysis}`)
+      }
+
+      // Props 信息
+      const propsInfo = extractPropsInfo(comp.sourceCode)
+      if (propsInfo) {
+        lines.push('   • Props 定义:', ...propsInfo.split('\n').map(line => `     ${line}`))
+      } else {
+        lines.push('   • Props 定义: 该组件无外部Props，内容在组件内部定义')
+      }
+
+      // 完整源码
+      lines.push('   • 完整 Vue 3 组件源码（转 React 时参考）:', '     ```vue',
+        ...comp.sourceCode.split('\n').map(l => '     ' + l), '     ```', blank())
+    })
+  })
+
+  // ===== 组件类型汇总 =====
+  lines.push(sep('-'), '📊 组件类型汇总', ...Object.entries(componentsByType).map(([type, count]) => `  ${type}: ${count}个`), blank())
+
+  // ===== 未分配模块的组件 =====
+  if (unassignedComps.length > 0) {
+    lines.push(blank(), sep('-'), '⚠️ 未分配模块的组件（请先在组件选择器中指定模块位置）', sep('-'))
+    unassignedComps.forEach((comp, idx) => lines.push(`${idx + 1}. ${comp.dirName} (${comp.type})`))
+    lines.push(blank())
   }
+
+  // ===== 输出格式要求 =====
+  lines.push(sep('='), '📝 输出要求：直接生成完整的 React 网站代码', sep('='),
+    '请直接生成以下文件的完整代码（不要写方案文档，直接写代码）：', blank())
+
+  lines.push('### 必须生成的文件清单')
+  outputFiles.forEach((f, i) => lines.push(`${i + 1}. **${f.file}** - ${f.desc}`))
+  lines.push(blank())
+
+  lines.push('### 代码要求')
+  codeRequirements.forEach(req => lines.push(`- ${req}`))
+  lines.push(blank())
+
+  lines.push('### 输出顺序')
+  lines.push('请按以下顺序输出代码文件（每个文件用 ```tsx 或 ```css 包裹）：')
+  ;['tailwind.config.js', 'index.css', '各个 React 组件（按依赖顺序）', 'App.tsx', 'main.tsx']
+    .forEach((f, i) => lines.push(`${i + 1}. ${f}`))
+  lines.push(blank())
+
+  // 提示
+  lines.push(sep('='), '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 React 网站代码', sep('='))
+
+  return lines.join('\n')
 }
 
 // ============================================================
@@ -1163,8 +1584,126 @@ const enterpriseInfo = reactive<EnterpriseInfo>({
   description: '',
   targetAudience: '',
   mainColors: '',
-  websiteType: ''
+  websiteType: '',
+  designPhilosophy: ''
 })
+
+// 颜色选择器相关
+const singleColor = ref('#667eea')
+const gradientStart = ref('#FF6B6B')
+const gradientEnd = ref('#4ECDC4')
+const gradientAngle = ref(135)
+
+// 颜色模式：单色或渐变
+const colorMode = ref<'solid' | 'gradient'>('solid')
+
+// 颜色选择器弹出状态
+const showColorPicker = ref(false)
+
+// 切换颜色选择器显示
+function toggleColorPicker() {
+  showColorPicker.value = !showColorPicker.value
+}
+
+// 应用单色
+function applySolidColor() {
+  enterpriseInfo.mainColors = singleColor.value
+  colorMode.value = 'solid'
+}
+
+// 预设单色
+const solidColorPresets = [
+  { name: '科技蓝', value: '#667eea' },
+  { name: '活力粉', value: '#f093fb' },
+  { name: '清新蓝', value: '#4facfe' },
+  { name: '极光绿', value: '#43e97b' },
+  { name: '日出橙', value: '#fa709a' },
+  { name: '金黄', value: '#fee140' },
+  { name: '深紫', value: '#764ba2' },
+  { name: '电光蓝', value: '#00f2fe' },
+  { name: '霓虹紫', value: '#cc208e' },
+  { name: '深海蓝', value: '#537895' },
+  { name: '珊瑚红', value: '#f5576c' },
+  { name: '翠绿', value: '#38f9d7' },
+]
+
+// 预设渐变色
+const gradientPresets = [
+  { name: '科技蓝渐变', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+  { name: '活力橙渐变', value: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+  { name: '清新绿渐变', value: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+  { name: '极光渐变', value: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
+  { name: '日出渐变', value: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
+  { name: '深空渐变', value: 'linear-gradient(135deg, #0c3483 0%, #a2b6df 100%)' },
+  { name: '霓虹渐变', value: 'linear-gradient(135deg, #ff00cc 0%, #333399 100%)' },
+  { name: '极光紫渐变', value: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
+  { name: '深海渐变', value: 'linear-gradient(135deg, #537895 0%, #09203f 100%)' },
+  { name: '日出云渐变', value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { name: '紫罗兰渐变', value: 'linear-gradient(135deg, #cc208e 0%, #6713d2 100%)' },
+  { name: '蓝绿渐变', value: 'linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%)' },
+]
+
+// 判断当前颜色是否为渐变
+function isGradientColor(color: string): boolean {
+  return color.includes('gradient')
+}
+
+// 选择预设单色
+function selectSolidPreset(color: string) {
+  singleColor.value = color
+  enterpriseInfo.mainColors = color
+}
+
+// 从颜色选择器更新
+function updateColorFromPicker() {
+  enterpriseInfo.mainColors = singleColor.value
+}
+
+// 应用自定义渐变
+function applyGradient() {
+  const gradient = `linear-gradient(${gradientAngle.value}deg, ${gradientStart.value} 0%, ${gradientEnd.value} 100%)`
+  enterpriseInfo.mainColors = gradient
+  colorMode.value = 'gradient'
+}
+
+// 更新渐变色（实时预览）
+function updateGradientColor() {
+  // 实时更新预览，但用户需要点击应用按钮才生效
+}
+
+// 监听 enterpriseInfo.mainColors 变化，同步模式状态
+watch(() => enterpriseInfo.mainColors, (val) => {
+  if (val) {
+    if (isGradientColor(val)) {
+      colorMode.value = 'gradient'
+      // 尝试解析渐变色值
+      const match = val.match(/#([0-9A-Fa-f]{6}).*#([0-9A-Fa-f]{6})/)
+      if (match) {
+        gradientStart.value = '#' + match[1]
+        gradientEnd.value = '#' + match[2]
+      }
+      const angleMatch = val.match(/(\d+)deg/)
+      if (angleMatch) {
+        gradientAngle.value = parseInt(angleMatch[1])
+      }
+    } else if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+      colorMode.value = 'solid'
+      singleColor.value = val
+    }
+  }
+})
+
+// 监听内容变化，更新可编辑内容（必须放在 enterpriseInfo 和 selectedComponents 声明之后）
+watch(
+  [() => enterpriseInfo.name, () => enterpriseInfo.industry, () => enterpriseInfo.description,
+   () => enterpriseInfo.targetAudience, () => enterpriseInfo.mainColors,
+   () => enterpriseInfo.websiteType, () => enterpriseInfo.designPhilosophy,
+   () => selectedComponents.value.length],
+  () => {
+    initEditableContent()
+  },
+  { immediate: true }
+)
 
 // 搜索
 const searchKeyword = ref('')
@@ -1193,10 +1732,34 @@ const filteredComponentsByType = computed(() => {
   return grouped
 })
 
+// 监听内容变化，更新可编辑内容（必须放在 enterpriseInfo 和 selectedComponents 声明之后）
+watch(
+  [() => enterpriseInfo.name, () => enterpriseInfo.industry, () => enterpriseInfo.description,
+   () => enterpriseInfo.targetAudience, () => enterpriseInfo.mainColors,
+   () => enterpriseInfo.websiteType, () => enterpriseInfo.designPhilosophy,
+   () => selectedComponents.value.length],
+  () => {
+    initEditableContent()
+  },
+  { immediate: true }
+)
+
 // 搜索结果统计
 const searchResultCount = computed(() => {
   return Object.values(filteredComponentsByType.value).reduce((sum, comps) => sum + comps.length, 0)
 })
+
+// 监听内容变化，更新可编辑内容（必须放在 enterpriseInfo 和 selectedComponents 声明之后）
+watch(
+  [() => enterpriseInfo.name, () => enterpriseInfo.industry, () => enterpriseInfo.description,
+   () => enterpriseInfo.targetAudience, () => enterpriseInfo.mainColors,
+   () => enterpriseInfo.websiteType, () => enterpriseInfo.designPhilosophy,
+   () => selectedComponents.value.length],
+  () => {
+    initEditableContent()
+  },
+  { immediate: true }
+)
 
 // 搜索时自动展开所有匹配的类型
 watch(searchKeyword, (val) => {
@@ -1513,7 +2076,7 @@ function renderMarkdown(text: string): string {
           :class="['tab-btn', { active: activeTab === 'result' }]"
           @click="activeTab = 'result'"
         >
-          📄 生成结果
+          📋 复制信息
         </button>
       </nav>
 
@@ -1920,7 +2483,6 @@ function renderMarkdown(text: string): string {
           <div class="panel-header">
             <h3>填写企业信息</h3>
           </div>
-
           <div class="form-grid">
             <div class="form-group">
               <label>企业名称 *</label>
@@ -1967,11 +2529,109 @@ function renderMarkdown(text: string): string {
 
             <div class="form-group">
               <label>品牌主色</label>
-              <input
-                v-model="enterpriseInfo.mainColors"
-                type="text"
-                placeholder="例如：科技蓝 #0066FF、活力橙 #FF6600"
-              />
+              <div class="color-picker-wrapper">
+                <!-- 输入框 + 颜色选择按钮 -->
+                <div class="color-input-row">
+                  <input
+                    v-model="enterpriseInfo.mainColors"
+                    type="text"
+                    class="color-text-input"
+                    placeholder="输入颜色值，例如：科技蓝 #0066FF、活力橙 #FF6600"
+                  />
+                  <button
+                    class="color-picker-btn"
+                    :style="{ background: enterpriseInfo.mainColors || '#667eea' }"
+                    @click="toggleColorPicker"
+                  >
+                    <span class="picker-icon">🎨</span>
+                  </button>
+                </div>
+
+                <!-- 颜色选择器弹出层 -->
+                <div v-if="showColorPicker" class="color-picker-popup">
+                  <!-- 模式切换 -->
+                  <div class="mode-tabs">
+                    <button
+                      :class="['mode-tab', { active: colorMode === 'solid' }]"
+                      @click="colorMode = 'solid'"
+                    >
+                      <span class="mode-icon">●</span>
+                      单色
+                    </button>
+                    <button
+                      :class="['mode-tab', { active: colorMode === 'gradient' }]"
+                      @click="colorMode = 'gradient'"
+                    >
+                      <span class="mode-icon gradient-icon"></span>
+                      渐变
+                    </button>
+                  </div>
+
+                  <!-- 单色模式 -->
+                  <div v-if="colorMode === 'solid'" class="mode-content">
+                    <div class="color-preset-grid">
+                      <button
+                        v-for="preset in solidColorPresets"
+                        :key="preset.value"
+                        :class="['color-preset-btn', { active: singleColor === preset.value }]"
+                        :style="{ background: preset.value }"
+                        :title="preset.name"
+                        @click="selectSolidPreset(preset.value)"
+                      ></button>
+                    </div>
+                    <div class="custom-color-row">
+                      <span class="section-label">自定义</span>
+                      <input
+                        v-model="singleColor"
+                        type="color"
+                        class="color-input"
+                        @input="updateColorFromPicker"
+                      />
+                      <input
+                        v-model="singleColor"
+                        type="text"
+                        class="color-text-input-sm"
+                        placeholder="#0066FF"
+                        @input="updateColorFromPicker"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- 渐变模式 -->
+                  <div v-if="colorMode === 'gradient'" class="mode-content">
+                    <div class="gradient-presets">
+                      <button
+                        v-for="preset in gradientPresets"
+                        :key="preset.value"
+                        :class="['gradient-preset-btn', { active: enterpriseInfo.mainColors === preset.value }]"
+                        :style="{ background: preset.value }"
+                        :title="preset.name"
+                        @click="enterpriseInfo.mainColors = preset.value"
+                      ></button>
+                    </div>
+                    <div class="gradient-editor">
+                      <div class="gradient-editor-row">
+                        <span class="gradient-label">起始色</span>
+                        <input v-model="gradientStart" type="color" class="color-input-sm" @input="applyGradient" />
+                        <input v-model="gradientStart" type="text" class="color-text-sm" @input="applyGradient" />
+                      </div>
+                      <div class="gradient-editor-row">
+                        <span class="gradient-label">结束色</span>
+                        <input v-model="gradientEnd" type="color" class="color-input-sm" @input="applyGradient" />
+                        <input v-model="gradientEnd" type="text" class="color-text-sm" @input="applyGradient" />
+                      </div>
+                      <div class="gradient-editor-row">
+                        <span class="gradient-label">角度</span>
+                        <input v-model.number="gradientAngle" type="range" min="0" max="360" class="angle-slider" @input="applyGradient" />
+                        <span class="angle-value">{{ gradientAngle }}°</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 关闭按钮 -->
+                  <button class="close-picker-btn" @click="showColorPicker = false">×</button>
+                </div>
+              </div>
             </div>
 
             <div class="form-group form-group-full">
@@ -1985,20 +2645,70 @@ function renderMarkdown(text: string): string {
                 <option value="个人作品集">个人作品集</option>
               </select>
             </div>
+
+            <div class="form-group form-group-full">
+              <label>网站设计理念</label>
+              <textarea
+                v-model="enterpriseInfo.designPhilosophy"
+                rows="3"
+                placeholder="描述网站的设计风格、核心特色、用户体验追求等..."
+              ></textarea>
+            </div>
+          </div>
+          <!-- 参考示例 -->
+          <div class="form-group form-group-full">
+            <div class="reference-header" @click="showReferenceExample = !showReferenceExample">
+              <label class="reference-title">
+                <span class="expand-icon" :class="{ expanded: showReferenceExample }">▶</span>
+                参考示例
+              </label>
+              <span class="expand-hint">{{ showReferenceExample ? '点击收起' : '点击展开' }}</span>
+            </div>
+            <div class="reference-example" v-show="showReferenceExample">
+              <div class="ref-item">
+                <span class="ref-label">企业名称:</span>
+                <span class="ref-value">深圳AI网络有限公司</span>
+              </div>
+              <div class="ref-item">
+                <span class="ref-label">所属行业:</span>
+                <span class="ref-value">科技/互联网</span>
+              </div>
+              <div class="ref-item">
+                <span class="ref-label">企业简介:</span>
+                <span class="ref-value">深圳AI网络有限公司是一家专注于前沿人工智能技术研发与商业应用的高科技企业。公司致力于为全球企业提供高效、智能的数字化转型方案，核心业务涵盖智能客服系统、企业级大数据分析平台及自动化营销工具。</span>
+              </div>
+              <div class="ref-item">
+                <span class="ref-label">目标受众:</span>
+                <span class="ref-value">寻求数字化转型的中大型企业管理者（CEO/CTO）、互联网科技公司、电商品牌方</span>
+              </div>
+              <div class="ref-item">
+                <span class="ref-label">品牌主色:</span>
+                <span class="ref-value">深空蓝（#0F172A）搭配 电光紫（#7C3AED）</span>
+              </div>
+              <div class="ref-item">
+                <span class="ref-label">网站类型:</span>
+                <span class="ref-value">企业官网</span>
+              </div>
+
+              <div class="ref-item">
+                <span class="ref-label">网站设计理念:</span>
+                <span class="ref-value"> 采用“未来极简主义”风格。在深空蓝的沉浸式背景下，运用电光紫的线性渐变与微发光效果勾勒核心元素，营造高端、神秘的科技氛围。布局上强调“呼吸感”与逻辑层级，大量留白以突出核心数据与业务价值。交互上引入细腻的动态效果（如数据流动的粒子背景、卡片悬停的微交互），将抽象的AI算法转化为可视化的流畅体验，向用户传递“精准、高效、智能”的品牌感知。</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- 生成结果 -->
+        <!-- 复制到 meoo AI -->
         <div v-if="activeTab === 'result'" class="tab-panel">
           <div class="panel-header">
-            <h3>生成结果</h3>
+            <h3>复制到 meoo AI</h3>
             <div class="panel-actions">
-              <button v-if="generatedPlan" class="btn btn-sm" @click="copyPlan">📋 复制内容</button>
+              <button v-if="copySuccess" class="btn btn-sm btn-success">✅ 已复制</button>
             </div>
           </div>
 
-          <!-- 生成按钮区域 -->
-          <div v-if="!generatedPlan && !isGenerating" class="generate-section">
+          <!-- 复制按钮区域 -->
+          <div class="generate-section">
             <div class="generate-summary">
               <div class="summary-item">
                 <span class="summary-label">已选组件</span>
@@ -2013,9 +2723,9 @@ function renderMarkdown(text: string): string {
             <button
               class="btn btn-primary btn-lg"
               :disabled="!enterpriseInfo.name || selectedComponents.length === 0"
-              @click="generatePlan"
+              @click="copyPlanToClipboard"
             >
-              🚀 开始生成方案
+              📋 {{ copySuccess ? '已复制到剪贴板' : '📋 复制完整信息' }}
             </button>
 
             <p v-if="!enterpriseInfo.name" class="generate-hint">
@@ -2024,12 +2734,9 @@ function renderMarkdown(text: string): string {
             <p v-else-if="selectedComponents.length === 0" class="generate-hint">
               请先在「组件选配」标签页选择组件
             </p>
-          </div>
-
-          <!-- 加载状态 -->
-          <div v-if="isGenerating" class="loading-section">
-            <div class="loading-spinner"></div>
-            <p>正在生成方案，请稍候...</p>
+            <p v-else class="generate-hint">
+              💡 直接编辑下方内容，然后点击「复制完整信息」粘贴到 meoo AI
+            </p>
           </div>
 
           <!-- 错误提示 -->
@@ -2037,12 +2744,17 @@ function renderMarkdown(text: string): string {
             <p>{{ errorMessage }}</p>
           </div>
 
-          <!-- 方案内容 -->
-          <div v-if="generatedPlan && !isGenerating" class="plan-content">
-            <button class="btn btn-primary regenerate-btn" @click="generatePlan">
-              🔄 重新生成
-            </button>
-            <div class="markdown-body" v-html="renderMarkdown(generatedPlan)"></div>
+          <!-- 可编辑内容 -->
+          <div v-if="enterpriseInfo.name && selectedComponents.length > 0" class="plan-content">
+            <div class="preview-section">
+              <h4>📝 可编辑内容（直接修改后再复制）</h4>
+              <textarea
+                v-model="editablePlanContent"
+                class="editable-textarea"
+                placeholder="编辑内容..."
+                rows="20"
+              ></textarea>
+            </div>
           </div>
         </div>
       </div>
@@ -2064,7 +2776,7 @@ function renderMarkdown(text: string): string {
           :disabled="!enterpriseInfo.name || selectedComponents.length === 0"
           @click="activeTab = 'result'"
         >
-          生成方案 →
+          复制到 meoo AI →
         </button>
       </footer>
     </div>
@@ -3059,6 +3771,94 @@ function renderMarkdown(text: string): string {
   }
 }
 
+// 参考示例
+.reference-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px 0;
+  user-select: none;
+
+  .reference-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+  }
+
+  .expand-icon {
+    font-size: 0.75rem;
+    color: #667eea;
+    transition: transform 0.3s ease;
+    display: inline-block;
+
+    &.expanded {
+      transform: rotate(90deg);
+    }
+  }
+
+  .expand-hint {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    transition: color 0.3s;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+}
+
+.reference-example {
+  background: rgba(102, 126, 234, 0.08);
+  border: 1px dashed rgba(102, 126, 234, 0.4);
+  border-radius: 12px;
+  padding: 16px 20px;
+  animation: slideDown 0.3s ease;
+  margin-bottom: 20px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ref-item {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &:first-child {
+    padding-top: 0;
+  }
+}
+
+.ref-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.ref-value {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 // 表单
 .form-grid {
   display: grid;
@@ -3714,5 +4514,446 @@ function renderMarkdown(text: string): string {
       text-align: center;
     }
   }
+}
+
+// 可编辑文本区域
+.preview-section {
+  margin-top: 20px;
+
+  h4 {
+    color: #667eea;
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+}
+
+.editable-textarea {
+  width: 100%;
+  min-height: 500px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #e0e0e0;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: all 0.3s;
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+// 颜色选择器
+.color-picker-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// 输入框 + 按钮行
+.color-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.color-text-input {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: 'Fira Code', monospace;
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.85rem;
+  }
+}
+
+// 颜色选择按钮
+.color-picker-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  .picker-icon {
+    font-size: 1.2rem;
+    filter: grayscale(1) brightness(2);
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+// 颜色选择器弹出层
+.color-picker-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  padding: 16px;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+
+  .close-picker-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+  }
+}
+
+// 模式切换标签
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.mode-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  .mode-icon {
+    font-size: 0.9rem;
+
+    &.gradient-icon {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 3px;
+    }
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  }
+}
+
+// 模式内容区
+.mode-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// 单色预设网格
+.color-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.color-preset-btn {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+
+  &:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 1;
+  }
+
+  &.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+  }
+}
+
+// 自定义颜色行
+.custom-color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+
+  .section-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+  }
+
+  .color-text-input-sm {
+    width: 90px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-family: 'Fira Code', monospace;
+
+    &:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+  }
+}
+
+.color-input {
+  width: 40px;
+  height: 34px;
+  padding: 2px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+  }
+}
+
+// 渐变色预设
+.gradient-presets {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.gradient-preset-btn {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 1;
+  }
+
+  &.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+  }
+}
+
+.single-color-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .section-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+  }
+}
+
+.color-input {
+  width: 50px;
+  height: 38px;
+  padding: 2px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+  }
+}
+
+.color-text-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9rem;
+
+  &.full-width {
+    flex: 1;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.8rem;
+  }
+}
+
+.gradient-editor {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gradient-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gradient-label {
+  width: 60px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.color-input-sm {
+  width: 36px;
+  height: 30px;
+  padding: 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 3px;
+  }
+}
+
+.color-text-sm {
+  width: 90px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.8rem;
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+}
+
+.angle-slider {
+  flex: 1;
+  min-width: 100px;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+  border-radius: 3px;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.angle-value {
+  min-width: 40px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
 }
 </style>
