@@ -13,7 +13,7 @@ const H = '#'
 // ============================================================
 
 // 动态导入所有组件源码（使用 ?raw 获取原始内容）
-const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {eager: true,
+const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', { eager: true,
   query: '?raw',
   import: 'default',
 })
@@ -96,7 +96,7 @@ const defaultModulePositions: ModulePosition[] = [
     label: '页脚',
     icon: '📋',
     desc: '链接/版权信息'
-  },
+  }
 ]
 
 const MODULE_CONFIG_KEY = 'web-ai-module-positions'
@@ -214,7 +214,7 @@ function extractSFCParts(code: string) {
   const scriptMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/)
   const styleMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/)
 
-  return {template: templateMatch?.[1] || '',
+  return { template: templateMatch?.[1] || '',
     script: scriptMatch?.[1] || '',
     style: styleMatch?.[1] || ''
   }
@@ -403,7 +403,7 @@ function extractStyleSummary(style: string): StyleSummary {
 function extractComponentSummary(sourceCode: string, readme: string | null): ComponentSummary {
   const { template, script, style } = extractSFCParts(sourceCode)
 
-  return {template: extractTemplateSummary(template),
+  return { template: extractTemplateSummary(template),
     script: extractScriptSummary(script),
     style: extractStyleSummary(style)
   }
@@ -1268,39 +1268,39 @@ const vueToReactRules = [
   { vue: 'ref="elementRef"', react: 'const elementRef = useRef<HTMLDivElement>(null)' },
   { vue: 'onMounted(() => {...})', react: 'useEffect(() => {...}, [])' },
   { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
-  {vue: 'defineProps<Props>()',
+  { vue: 'defineProps<Props>()',
     react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
-  }
+  },
 ]
 
 /** 技术要求清单 - 带序号 */
 const techRequirements = [
   { num: 1, text: '**技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
   { num: 2, text: '**Vue → React 转换规则**:', indent: true },
-  {num: 3,
+  { num: 3,
     text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
   },
-  {num: 4,
+  { num: 4,
     text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图',
   },
-  {num: 5,
+  { num: 5,
     text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写',
   },
-  {num: 6,
+  { num: 6,
     text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断',
   },
-  {num: 7,
+  { num: 7,
     text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建',
   },
-  {num: 8,
+  { num: 8,
     text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
   },
-  {num: 9,
+  { num: 9,
     text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
   },
-  {num: 10,
+  { num: 10,
     text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
-  }
+  },
 ]
 
 /** 输出文件清单 */
@@ -3190,7 +3190,7 @@ function renderMarkdown(text: string): string {
               📋 {{ copySuccess ? '已复制到剪贴板' : '📋 复制完整信息' }}
             </button>
 
-            <button class="btn btn-primary btn-lg" @click="OpenMeoo">去MEOO AI</button>
+            <button class="btn btn-primary btn-lg meoo-btn" @click="OpenMeoo">去MEOO AI</button>
 
             <p v-if="!enterpriseInfo.name" class="generate-hint">
               请先在「企业信息」标签页填写企业名称
@@ -3260,7 +3260,9 @@ function renderMarkdown(text: string): string {
   flex-direction: column;
   min-height: calc(100vh - 40px);
 }
-
+.meoo-btn {
+  margin-left: 10px;
+}
 // 头部
 .ai-header {
   text-align: center;
