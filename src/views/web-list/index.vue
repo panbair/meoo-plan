@@ -1,5 +1,18 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, shallowRef, defineAsyncComponent } from 'vue'
+import {
+  computed,
+  ref,
+  onMounted,
+  onUnmounted,
+  shallowRef,
+  defineAsyncComponent,
+  watch,
+  nextTick,
+} from 'vue'
+import { useRouter } from 'vue-router'
+
+// 获取 router 实例
+const router = useRouter()
 
 // ==================== 预加载数量控制 ====================
 const PRELOAD_COUNT = 2 // 视口上方预加载数量
@@ -7,6 +20,55 @@ const VISIBLE_BUFFER = 2 // 视口下方预加载数量
 
 // ==================== 懒加载模式 ====================
 const LAZY_MODE = true // 设为 false 可关闭懒加载
+
+// ==================== 分类筛选 ====================
+// 当前选中的分类（默认全部）
+const activeCategory = ref('all')
+
+// ==================== 收藏功能 ====================
+// 从 localStorage 加载收藏的组件名列表
+const loadFavorites = (): string[] => {
+  try {
+    const saved = localStorage.getItem('cardFavorites')
+    return saved ? JSON.parse(saved) : []
+  } catch {
+    return []
+  }
+}
+
+// 收藏的组件名列表
+const favorites = ref<string[]>(loadFavorites())
+
+// 保存收藏到 localStorage
+const saveFavorites = () => {
+  localStorage.setItem('cardFavorites', JSON.stringify(favorites.value))
+}
+
+// 切换收藏状态
+const toggleFavorite = (dirName: string) => {
+  const index = favorites.value.indexOf(dirName)
+  if (index === -1) {
+    favorites.value.push(dirName)
+  } else {
+    favorites.value.splice(index, 1)
+  }
+  saveFavorites()
+}
+
+// 检查组件是否已收藏
+const isFavorite = (dirName: string) => favorites.value.includes(dirName)
+
+// 添加收藏分类
+const categories = [
+  { key: 'all', label: '全部' },
+  { key: 'card-image', label: '图片' },
+  { key: 'card-img', label: '图像' },
+  { key: 'card-text', label: '文字' },
+  { key: 'card-3d', label: '3D' },
+  { key: 'card-time', label: '时间' },
+  { key: 'card-list', label: '列表' },
+  { key: 'favorite', label: '我的收藏' },
+]
 
 // ==================== 响应式数据 ====================
 const visibleCards = ref(new Set<number>())
@@ -511,6 +573,17 @@ const cardComponents = computed(() => {
   ]
 })
 
+// ==================== 分类筛选后的组件列表 ====================
+const filteredComponents = computed(() => {
+  if (activeCategory.value === 'all') {
+    return cardComponents.value
+  }
+  if (activeCategory.value === 'favorite') {
+    return cardComponents.value.filter((comp) => isFavorite(comp.dirName))
+  }
+  return cardComponents.value.filter((comp) => comp.type === activeCategory.value)
+})
+
 // ==================== 模板引用 ====================
 const setPageRef = (el: Element | ComponentPublicInstance | null, index: number) => {
   const element = el instanceof Element ? el : (el as any)?.$el
@@ -525,13 +598,26 @@ const setPageRef = (el: Element | ComponentPublicInstance | null, index: number)
 const initIntersectionObserver = () => {
   if (!LAZY_MODE) {
     // 非懒加载模式：预加载前 N 个
-    cardComponents.value.forEach((_, index) => {
+    filteredComponents.value.forEach((_, index) => {
       if (index < PRELOAD_COUNT) {
         visibleCards.value.add(index)
       }
     })
     return
   }
+
+  // 等待一小段时间确保 DOM 已更新
+  setTimeout(() => {
+    // 重新从 DOM 中获取所有页面元素
+    const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
+    pageEls.forEach((el, index) => {
+      el.setAttribute('data-index', String(index))
+      observer?.observe(el)
+    })
+
+    // 触发初始可见性检查
+    handleScroll()
+  }, 50)
 
   observer = new IntersectionObserver(
     (entries) => {
@@ -547,7 +633,7 @@ const initIntersectionObserver = () => {
           // 预加载下一个
           for (let i = 1; i <= VISIBLE_BUFFER; i++) {
             const nextIndex = index + i
-            if (nextIndex < cardComponents.value.length) {
+            if (nextIndex < filteredComponents.value.length) {
               visibleCards.value?.add(nextIndex)
             }
           }
@@ -561,17 +647,11 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    { root: null,
+    {root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
     }
   )
-
-  // 观察所有页面
-  pageRefs.value.forEach((el, index) => {
-    el.dataset.index = String(index)
-    observer?.observe(el)
-  })
 }
 
 // ==================== 滚动监听（备用） ====================
@@ -583,13 +663,10 @@ const handleScroll = () => {
   const viewportHeight = window.innerHeight
   const scrollTop = window.scrollY
 
-  cardComponents.value.forEach((_, index) => {
-    const pageEl = pageRefs.value.get(index)
-    if (!pageEl) {
-      return
-    }
-
-    const rect = pageEl.getBoundingClientRect()
+  // 直接从 DOM 获取所有卡片页面元素
+  const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
+  pageEls.forEach((el, index) => {
+    const rect = el.getBoundingClientRect()
     const pageTop = rect.top + scrollTop
 
     // 在视口范围内或预加载范围内
@@ -614,7 +691,7 @@ onMounted(() => {
 
   // 初始化可见性
   if (!LAZY_MODE) {
-    cardComponents.value.forEach((_, index) => {
+    filteredComponents.value.forEach((_, index) => {
       if (index < PRELOAD_COUNT) {
         visibleCards.value?.add(index)
       }
@@ -630,14 +707,46 @@ onUnmounted(() => {
   observer?.disconnect()
   window.removeEventListener('scroll', handleScroll)
 })
+
+// ==================== 分类切换时重置可见性 ====================
+watch(activeCategory, () => {
+  // 切换分类时清空可见卡片和 pageRefs
+  visibleCards.value.clear()
+  pageRefs.value.clear()
+  // 断开旧的 observer
+  observer?.disconnect()
+  observer = null
+
+  // 等待 DOM 更新后再重新初始化 Observer
+  nextTick(() => {
+    if (LAZY_MODE) {
+      initIntersectionObserver()
+    }
+  })
+})
 </script>
 
 <template>
   <div class="web-list">
+    <!-- 顶部悬浮分类选项卡 -->
+    <div class="category-tabs">
+      <button
+        v-for="cat in categories"
+        :key="cat.key"
+        :class="['tab-btn', { active: activeCategory === cat.key }]"
+        @click="activeCategory = cat.key"
+      >
+        {{ cat.label }}
+      </button>
+      <button class="tab-btn generate-btn" @click="router.push('/web-ai')">
+        去生成方案
+      </button>
+    </div>
+
     <div class="page page1">
       <h1 class="page-title">Creative Cards Gallery</h1>
       <p class="page-desc">Scroll down to explore interactive card animations</p>
-      <div>数量：{{ cardComponents.length }}</div>
+      <div>数量：{{ filteredComponents.length }}</div>
       <div class="scroll-indicator">
         <span></span>
         <span></span>
@@ -646,16 +755,22 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-for="(cardInfo, index) in cardComponents"
+      v-for="(cardInfo, index) in filteredComponents"
       :key="cardInfo.name"
       :ref="(el) => setPageRef(el, index)"
       :class="['page', `page-card-${index + 1}`]"
     >
       <!-- 懒加载：只在进入视口时渲染组件 -->
       <component :is="cardInfo.component" v-if="visibleCards.has(index)" v-bind="propsMap[index]" />
-      <span class="position-absolute top-10px left-100px color-red z-99999">
-        {{ cardInfo.dirName }}</span
-      >
+      <div class="card-info position-absolute top-10px left-100px z-99999">
+        <span class="card-name">{{ cardInfo.dirName }}</span>
+        <button
+          :class="['favorite-btn', { active: isFavorite(cardInfo.dirName) }]"
+          @click="toggleFavorite(cardInfo.dirName)"
+        >
+          {{ isFavorite(cardInfo.dirName) ? '❤️' : '🤍' }}
+        </button>
+      </div>
     </div>
 
     <div class="page page-footer">
@@ -671,6 +786,102 @@ onUnmounted(() => {
   width: 100vw;
   min-height: 100vh;
   overflow-x: hidden;
+
+  // ==================== 顶部悬浮分类选项卡 ====================
+  .category-tabs {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    .tab-btn {
+      padding: 8px 18px;
+      background: transparent;
+      border: none;
+      border-radius: 25px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+
+      &:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.active {
+        color: #fff;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      &.generate-btn {
+        color: #fff;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        font-weight: 600;
+
+        &:hover {
+          background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+
+  // ==================== 卡片信息 ====================
+  .card-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+
+    .card-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 12px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .favorite-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+      &:hover {
+        transform: scale(1.15);
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      &.active {
+        background: rgba(255, 0, 0, 0.3);
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+      }
+    }
+  }
 
   .page {
     width: 100vw;

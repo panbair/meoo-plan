@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive, watch } from 'vue'
+import { useFavorites } from '@/composables/useFavorites'
+
+// 收藏功能
+const { favorites, isFavorite } = useFavorites()
 
 // Markdown标题符号（避免模板字符串解析问题）
 const H = '#'
@@ -1711,10 +1715,21 @@ const searchKeyword = ref('')
 // 搜索过滤后的组件（按类型分组）
 const filteredComponentsByType = computed(() => {
   const keyword = searchKeyword.value.trim().toLowerCase()
+
+  // 我的收藏分类（不受搜索影响）
+  const favoriteComps = allComponents.value.filter(c => isFavorite(c.dirName))
+
   if (!keyword) {
-    return componentsByType.value
+    const result: Record<string, ComponentInfo[]> = {}
+    // 如果有收藏，添加收藏分类在最前面
+    if (favoriteComps.length > 0) {
+      result['favorite'] = favoriteComps
+    }
+    // 合并其他分类
+    return { ...result, ...componentsByType.value }
   }
 
+  // 搜索模式
   const grouped: Record<string, ComponentInfo[]> = {}
   for (const [type, comps] of Object.entries(componentsByType.value)) {
     const filtered = comps.filter(
@@ -1729,6 +1744,18 @@ const filteredComponentsByType = computed(() => {
       grouped[type] = filtered
     }
   }
+
+  // 如果搜索关键词匹配收藏，也添加到结果中
+  const favoriteFiltered = favoriteComps.filter(
+    (c) =>
+      c.name.toLowerCase().includes(keyword) ||
+      c.dirName.toLowerCase().includes(keyword) ||
+      (c.readme && c.readme.toLowerCase().includes(keyword)),
+  )
+  if (favoriteFiltered.length > 0) {
+    grouped['favorite'] = favoriteFiltered
+  }
+
   return grouped
 })
 
@@ -1963,6 +1990,7 @@ function clearSelection() {
 
 // 类型显示名称映射
 const typeLabels: Record<string, string> = {
+  'favorite': '❤️ 我的收藏',
   'card-image': '图片转场',
   'card-img': '图片展示',
   'card-text': '文字动画',
@@ -1972,6 +2000,7 @@ const typeLabels: Record<string, string> = {
 }
 
 const typeColors: Record<string, string> = {
+  'favorite': '#ff4757',
   'card-image': '#667eea',
   'card-img': '#f093fb',
   'card-text': '#4facfe',
@@ -1995,6 +2024,11 @@ onMounted(() => {
   // 默认展开前两个类型
   expandedTypes.add('card-image')
   expandedTypes.add('card-img')
+
+  // 如果有收藏，默认展开收藏分类
+  if (favorites.value.length > 0) {
+    expandedTypes.add('favorite')
+  }
 })
 </script>
 
