@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive, watch } from 'vue'
 import { useFavorites } from '@/composables/useFavorites'
+import { useRouter } from 'vue-router'
 
+// 获取 router 实例
+const router = useRouter()
 // 收藏功能
 const { favorites, isFavorite } = useFavorites()
 
@@ -13,7 +16,7 @@ const H = '#'
 // ============================================================
 
 // 动态导入所有组件源码（使用 ?raw 获取原始内容）
-const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', { eager: true,
+const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {eager: true,
   query: '?raw',
   import: 'default',
 })
@@ -214,7 +217,7 @@ function extractSFCParts(code: string) {
   const scriptMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/)
   const styleMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/)
 
-  return { template: templateMatch?.[1] || '',
+  return {template: templateMatch?.[1] || '',
     script: scriptMatch?.[1] || '',
     style: styleMatch?.[1] || ''
   }
@@ -403,7 +406,7 @@ function extractStyleSummary(style: string): StyleSummary {
 function extractComponentSummary(sourceCode: string, readme: string | null): ComponentSummary {
   const { template, script, style } = extractSFCParts(sourceCode)
 
-  return { template: extractTemplateSummary(template),
+  return {template: extractTemplateSummary(template),
     script: extractScriptSummary(script),
     style: extractStyleSummary(style)
   }
@@ -1268,7 +1271,7 @@ const vueToReactRules = [
   { vue: 'ref="elementRef"', react: 'const elementRef = useRef<HTMLDivElement>(null)' },
   { vue: 'onMounted(() => {...})', react: 'useEffect(() => {...}, [])' },
   { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
-  { vue: 'defineProps<Props>()',
+  {vue: 'defineProps<Props>()',
     react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
   },
 ]
@@ -1277,28 +1280,28 @@ const vueToReactRules = [
 const techRequirements = [
   { num: 1, text: '**技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
   { num: 2, text: '**Vue → React 转换规则**:', indent: true },
-  { num: 3,
+  {num: 3,
     text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
   },
-  { num: 4,
+  {num: 4,
     text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图',
   },
-  { num: 5,
+  {num: 5,
     text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写',
   },
-  { num: 6,
+  {num: 6,
     text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断',
   },
-  { num: 7,
+  {num: 7,
     text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建',
   },
-  { num: 8,
+  {num: 8,
     text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
   },
-  { num: 9,
+  {num: 9,
     text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
   },
-  { num: 10,
+  {num: 10,
     text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
   },
 ]
@@ -2520,6 +2523,12 @@ function renderMarkdown(text: string): string {
               选择组件 <span class="component-count">{{ allComponents.length }}个可用</span>
             </h3>
             <div class="panel-actions">
+              <button class="btn btn-visual" @click="router.push('/web-list')">
+                <span class="btn-icon">🎨</span>
+                <span class="btn-text">展示组件可视化</span>
+              </button>
+            </div>
+            <div class="panel-actions">
               <button class="btn btn-sm btn-ghost" @click="clearSelection">清空选择</button>
             </div>
           </div>
@@ -3130,7 +3139,11 @@ function renderMarkdown(text: string): string {
                   <input v-model="editingModule.label" class="edit-input" placeholder="名称" />
                 </div>
                 <div class="edit-row">
-                  <input v-model="editingModule.desc" class="edit-input edit-input-full" placeholder="描述" />
+                  <input
+                    v-model="editingModule.desc"
+                    class="edit-input edit-input-full"
+                    placeholder="描述"
+                  />
                 </div>
                 <div class="edit-actions">
                   <button class="btn btn-primary" @click="saveEditModule">💾 保存</button>
@@ -3152,12 +3165,28 @@ function renderMarkdown(text: string): string {
                     <span class="pos-label">{{ pos.label }}</span>
                     <span class="pos-desc">{{ pos.desc }}</span>
                     <span v-if="getComponentsByPosition(pos.key).length > 0" class="pos-used-by">
-                      {{ getComponentsByPosition(pos.key).map((c) => c.name).join(', ') }}
+                      {{
+                        getComponentsByPosition(pos.key)
+                          .map((c) => c.name)
+                          .join(', ')
+                      }}
                     </span>
                   </button>
                   <div class="pos-actions">
-                    <button class="pos-action-btn" @click.stop="startEditModule(index)" title="编辑">✏️</button>
-                    <button class="pos-action-btn" @click.stop="deleteModuleInSelector(index)" title="删除">🗑️</button>
+                    <button
+                      class="pos-action-btn"
+                      title="编辑"
+                      @click.stop="startEditModule(index)"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      class="pos-action-btn"
+                      title="删除"
+                      @click.stop="deleteModuleInSelector(index)"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
                 <button class="module-pos-btn add-new" @click="addModuleInSelector">
@@ -3245,7 +3274,11 @@ function renderMarkdown(text: string): string {
 $gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
 $gradient-secondary: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%);
 $gradient-dark: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-$gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+$gradient-glass: linear-gradient(
+  135deg,
+  rgba(255, 255, 255, 0.1) 0%,
+  rgba(255, 255, 255, 0.05) 100%
+);
 $shadow-glow: 0 0 40px rgba(102, 126, 234, 0.3);
 $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
 
@@ -3281,15 +3314,16 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     right: 0;
     bottom: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 60px 60px;
     pointer-events: none;
   }
 }
 
 @keyframes gradientShift {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -3395,7 +3429,8 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     border-radius: 12px;
   }
 
-  span, .tab-text {
+  span,
+  .tab-text {
     position: relative;
     z-index: 1;
   }
@@ -3549,7 +3584,11 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
 
   &.has-selected {
-    background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(102, 126, 234, 0.15) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
     border-left: 3px solid var(--type-color);
   }
 
@@ -3617,7 +3656,7 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
     pointer-events: none;
   }
 
@@ -3625,13 +3664,17 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(102, 126, 234, 0.3);
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(102, 126, 234, 0.1);
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(102, 126, 234, 0.1);
   }
 
   &.selected {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.15) 100%);
     border: 1px solid rgba(102, 126, 234, 0.5);
-    box-shadow: 0 0 25px rgba(102, 126, 234, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 0 25px rgba(102, 126, 234, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
     &::after {
       content: '';
@@ -3793,11 +3836,14 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
 
   @keyframes selectingPulse {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.4);
     }
     50% {
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2), 0 0 20px rgba(102, 126, 234, 0.3);
+      box-shadow:
+        0 0 0 4px rgba(102, 126, 234, 0.2),
+        0 0 20px rgba(102, 126, 234, 0.3);
     }
   }
 }
@@ -3817,7 +3863,9 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   &:focus-within {
     border-color: rgba(102, 126, 234, 0.6);
     background: rgba(102, 126, 234, 0.06);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 0 0 4px rgba(102, 126, 234, 0.1),
+      0 8px 32px rgba(0, 0, 0, 0.2);
   }
 
   .search-icon {
@@ -3925,7 +3973,9 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5), 0 0 60px rgba(102, 126, 234, 0.15);
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(102, 126, 234, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -4095,7 +4145,9 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(102, 126, 234, 0.1);
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -4231,7 +4283,7 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 1;
     max-width: 90%;
-  /*  overflow: hidden;
+    /*  overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;*/
   }
@@ -4293,8 +4345,13 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 // 模块选择器内嵌编辑
@@ -4390,7 +4447,9 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.7), 0 0 50px rgba(102, 126, 234, 0.15);
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.7),
+    0 0 50px rgba(102, 126, 234, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -4526,7 +4585,7 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
     transition: left 0.5s;
   }
 
@@ -4767,7 +4826,9 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
       outline: none;
       border-color: rgba(102, 126, 234, 0.6);
       background-color: rgba(102, 126, 234, 0.06);
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 32px rgba(0, 0, 0, 0.2);
+      box-shadow:
+        0 0 0 4px rgba(102, 126, 234, 0.1),
+        0 8px 32px rgba(0, 0, 0, 0.2);
     }
 
     option {
@@ -5095,6 +5156,59 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 20px rgba(67, 233, 123, 0.4);
+    }
+  }
+
+  &-visual {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    &:hover {
+      border-color: rgba(102, 126, 234, 0.6);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
+
+      &::before {
+        opacity: 1;
+      }
+
+      .btn-icon {
+        transform: rotate(10deg) scale(1.1);
+      }
+    }
+
+    .btn-icon {
+      font-size: 1.2rem;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s;
+    }
+
+    .btn-text {
+      position: relative;
+      z-index: 1;
     }
   }
 }

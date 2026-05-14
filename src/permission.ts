@@ -24,7 +24,7 @@ NProgress.configure({
 /**
  * 白名单路由（无需登录即可访问）
  */
-const whiteList = ['/login', '/register', '/forgot-password', '/404', '/403']
+const whiteList = ['/login', '/register', '/forgot-password', '/404', '/403', '/web-list', '/web-ai']
 
 /**
  * 是否已添加动态路由
