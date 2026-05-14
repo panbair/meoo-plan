@@ -96,7 +96,7 @@ const defaultModulePositions: ModulePosition[] = [
     label: '页脚',
     icon: '📋',
     desc: '链接/版权信息'
-  }
+  },
 ]
 
 const MODULE_CONFIG_KEY = 'web-ai-module-positions'
@@ -126,6 +126,11 @@ const editingPositions = ref<ModulePosition[]>([...modulePositions.value])
 
 // 参考示例展开状态
 const showReferenceExample = ref(true)
+
+function saveAll() {
+  saveModuleConfig()
+  cancelModuleSelection()
+}
 
 function openModuleEditor() {
   editingPositions.value = modulePositions.value.map((p) => ({ ...p }))
@@ -1265,7 +1270,7 @@ const vueToReactRules = [
   { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
   {vue: 'defineProps<Props>()',
     react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
-  },
+  }
 ]
 
 /** 技术要求清单 - 带序号 */
@@ -1295,7 +1300,7 @@ const techRequirements = [
   },
   {num: 10,
     text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
-  },
+  }
 ]
 
 /** 输出文件清单 */
@@ -2540,26 +2545,6 @@ function renderMarkdown(text: string): string {
               {{ searchResultCount }} / {{ allComponents.length }} 个组件
             </span>
           </div>
-          <!-- 底部操作栏 -->
-          <footer class="ai-footer">
-            <div class="footer-stats">
-              <span>已选 {{ selectedComponents.length }} 个组件</span>
-              <span v-if="Object.keys(selectionStats).length">
-                ({{
-                  Object.entries(selectionStats)
-                    .map(([k, v]) => `${typeLabels[k] || k}: ${v}`)
-                    .join(', ')
-                }})
-              </span>
-            </div>
-            <button
-              class="btn btn-primary"
-              :disabled="!enterpriseInfo.name || selectedComponents.length === 0"
-              @click="activeTab = 'result'"
-            >
-              复制到 meoo AI →
-            </button>
-          </footer>
 
           <div class="component-list">
             <div v-for="(comps, type) in filteredComponentsByType" :key="type" class="type-group">
@@ -2733,15 +2718,7 @@ function renderMarkdown(text: string): string {
 
               <div class="module-selector-footer">
                 <button class="btn btn-sm btn-ghost" @click="openModuleEditor">⚙️ 完整配置</button>
-                <button
-                  class="btn btn-sm"
-                  @click="
-                    saveModuleConfig();
-                    cancelModuleSelection()
-                  "
-                >
-                  💾 保存全部修改
-                </button>
+                <button class="btn btn-sm" @click="saveAll">💾 保存全部修改</button>
               </div>
             </div>
           </div>
@@ -3245,6 +3222,26 @@ function renderMarkdown(text: string): string {
           </div>
         </div>
       </div>
+      <!-- 底部操作栏 -->
+      <footer class="ai-footer">
+        <div class="footer-stats">
+          <span>已选 {{ selectedComponents.length }} 个组件</span>
+          <span v-if="Object.keys(selectionStats).length">
+            ({{
+              Object.entries(selectionStats)
+                .map(([k, v]) => `${typeLabels[k] || k}: ${v}`)
+                .join(', ')
+            }})
+          </span>
+        </div>
+        <button
+          class="btn btn-primary"
+          :disabled="!enterpriseInfo.name || selectedComponents.length === 0"
+          @click="activeTab = 'result'"
+        >
+          复制到 meoo AI →
+        </button>
+      </footer>
     </div>
   </div>
 </template>
