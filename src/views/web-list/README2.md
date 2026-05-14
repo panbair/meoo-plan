@@ -1,6 +1,3 @@
-CardImageCarbonCrystal   CardImageCrossCrack  CardTimeLuxeDrop CardTimeLuxury  CardTextCorona  CardTextFluid3D
-
-
 <think>
 用户想要我详细分析当前项目中的卡片动画，并提出更好的方案建议。我需要先查看项目中已有的所有卡片组件，了解它们的特点和实现方式，然后给出专业的分析和建议。
 
