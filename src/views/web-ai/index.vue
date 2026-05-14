@@ -2483,7 +2483,7 @@ function renderMarkdown(text: string): string {
           :class="['tab-btn', { active: activeTab === 'components' }]"
           @click="activeTab = 'components'"
         >
-          📦 组件选配
+          <span class="tab-text">📦 组件选配</span>
           <span v-if="selectedComponents.length" class="tab-badge">
             {{ selectedComponents.length }}
           </span>
@@ -2492,13 +2492,13 @@ function renderMarkdown(text: string): string {
           :class="['tab-btn', { active: activeTab === 'enterprise' }]"
           @click="activeTab = 'enterprise'"
         >
-          🏢 企业信息
+          <span class="tab-text">🏢 企业信息</span>
         </button>
         <button
           :class="['tab-btn', { active: activeTab === 'codecopy' }]"
           @click="activeTab = 'codecopy'"
         >
-          📋 组件代码
+          <span class="tab-text">📋 组件代码</span>
           <span v-if="selectedComponents.length" class="tab-badge code-badge">
             {{ selectedComponents.length }}
           </span>
@@ -2507,7 +2507,7 @@ function renderMarkdown(text: string): string {
           :class="['tab-btn', { active: activeTab === 'result' }]"
           @click="activeTab = 'result'"
         >
-          📋 复制信息
+          <span class="tab-text">📋 复制信息</span>
         </button>
       </nav>
 
@@ -3247,96 +3247,218 @@ function renderMarkdown(text: string): string {
 </template>
 
 <style lang="scss" scoped>
+// 高端渐变色变量
+$gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+$gradient-secondary: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%);
+$gradient-dark: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+$gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+$shadow-glow: 0 0 40px rgba(102, 126, 234, 0.3);
+$shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+
 .web-ai {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: 20px;
+  background: $gradient-dark;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+
+  // 动态背景网格
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    animation: gradientShift 15s ease-in-out infinite;
+  }
+
+  // 网格线背景
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 .ai-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 40px);
+  min-height: calc(100vh - 48px);
+  position: relative;
+  z-index: 1;
 }
+
 .meoo-btn {
   margin-left: 10px;
 }
+
 // 头部
 .ai-header {
   text-align: center;
-  padding: 30px 0;
+  padding: 40px 0 32px;
+  position: relative;
 }
 
 .ai-title {
-  font-size: 2rem;
-  color: #fff;
-  margin: 0 0 10px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 12px;
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+  position: relative;
+  display: inline-block;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: $gradient-primary;
+    border-radius: 2px;
+  }
 
   .title-icon {
-    margin-right: 10px;
+    margin-right: 12px;
+    -webkit-text-fill-color: initial;
+    filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5));
   }
 }
 
 .ai-subtitle {
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 20px 0 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
 }
 
 // Tabs
 .ai-tabs {
   display: flex;
-  gap: 10px;
-  padding: 0 20px;
+  gap: 8px;
+  padding: 0 8px;
   margin-bottom: 20px;
+  background: $gradient-glass;
+  border-radius: 16px;
+  padding: 6px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tab-btn {
   flex: 1;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
+  padding: 14px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  transition: all 0.3s;
-  font-size: 1rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.95rem;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: $gradient-primary;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 12px;
+  }
+
+  span, .tab-text {
+    position: relative;
+    z-index: 1;
+  }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
   }
 
   &.active {
-    background: rgba(102, 126, 234, 0.3);
-    border-color: #667eea;
     color: #fff;
+    box-shadow: $shadow-glow;
+    
+    &::before {
+      opacity: 1;
+    }
+    
+    .tab-badge {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
   }
 
   .tab-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
     margin-left: 8px;
-    padding: 2px 8px;
-    background: #667eea;
+    padding: 0 6px;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s;
   }
 }
 
 // 配置按钮
 .config-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: $gradient-glass;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: all 0.3s;
+  font-weight: 500;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
   }
 }
 
@@ -3347,20 +3469,23 @@ function renderMarkdown(text: string): string {
 // 内容区
 .ai-content {
   flex: 1;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 20px;
+  background: $gradient-glass;
+  border-radius: 20px;
+  padding: 24px;
   overflow: auto;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: $shadow-card;
 }
 
 .tab-panel {
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -3372,19 +3497,20 @@ function renderMarkdown(text: string): string {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
   h3 {
     margin: 0;
     color: #fff;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+    font-weight: 600;
   }
 
   .component-count {
     color: rgba(255, 255, 255, 0.5);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: normal;
     margin-left: 10px;
   }
@@ -3399,57 +3525,65 @@ function renderMarkdown(text: string): string {
 .component-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 16px;
 }
 
 .type-group {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
 }
 
 .type-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 15px 20px;
-  background: rgba(255, 255, 255, 0.05);
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
   --type-color: #667eea;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
   }
 
   &.has-selected {
-    background: rgba(102, 126, 234, 0.15);
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%);
     border-left: 3px solid var(--type-color);
   }
 
   .type-expand {
     width: 20px;
     color: var(--type-color);
-    font-size: 0.8rem;
+    font-size: 0.7rem;
+    transition: transform 0.3s;
   }
 
   .type-name {
     color: #fff;
     font-weight: 600;
+    font-size: 1rem;
   }
 
   .type-count {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
   }
 
   .type-selected {
     color: var(--type-color);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    background: rgba(102, 126, 234, 0.2);
-    padding: 3px 10px;
-    border-radius: 12px;
+    background: rgba(102, 126, 234, 0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
   }
 
   .type-actions {
@@ -3462,80 +3596,102 @@ function renderMarkdown(text: string): string {
 .type-components {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 15px;
+  gap: 14px;
+  padding: 16px;
 }
 
 .component-card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  gap: 10px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.3s;
-  min-height: 80px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 85px;
+  position: relative;
+  overflow: hidden;
+
+  // 光泽效果
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    pointer-events: none;
+  }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(102, 126, 234, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(102, 126, 234, 0.1);
   }
 
   &.selected {
-    background: rgba(102, 126, 234, 0.25);
-    border-color: #667eea;
-    box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 25px rgba(102, 126, 234, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: $gradient-primary;
+    }
   }
 
   .card-select-area {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex: 1;
     min-width: 0;
     cursor: pointer;
   }
 
   .card-checkbox {
-    width: 22px;
-    height: 22px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: transparent;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
     background: rgba(255, 255, 255, 0.05);
 
     .selected & {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-color: #667eea;
-      box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+      background: $gradient-primary;
+      border-color: transparent;
+      box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
     }
 
     .check-icon {
       color: #fff;
       font-weight: bold;
-      animation: checkPop 0.3s ease;
+      animation: checkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
   }
 
   @keyframes checkPop {
     0% {
-      transform: scale(0);
-    }
-    50% {
-      transform: scale(1.2);
+      transform: scale(0) rotate(-180deg);
     }
     100% {
-      transform: scale(1);
+      transform: scale(1) rotate(0deg);
     }
   }
 
@@ -3552,97 +3708,102 @@ function renderMarkdown(text: string): string {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: 0.3px;
   }
 
   .card-key {
     display: block;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.45);
     font-size: 0.8rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-top: 2px;
+    margin-top: 4px;
   }
 
   .card-badge {
-    padding: 3px 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.7);
     flex-shrink: 0;
   }
 
   .card-badges {
     display: flex;
-    gap: 5px;
+    gap: 6px;
     flex-shrink: 0;
   }
 
   .module-position-tag {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 3px 10px;
-    background: rgba(102, 126, 234, 0.35);
-    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 20px;
     font-size: 0.75rem;
-    color: #667eea;
+    color: #a8b8ff;
+    font-weight: 500;
   }
 
   .card-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-shrink: 0;
     justify-content: flex-end;
   }
 
   .card-action-btn {
-    padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.08);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 0.85rem;
-    transition: all 0.2s;
+    transition: all 0.3s;
     opacity: 0.8;
 
     &:hover {
       opacity: 1;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
       transform: scale(1.05);
     }
 
     &.code-btn {
       background: rgba(102, 126, 234, 0.25);
-      color: #667eea;
+      color: #a8b8ff;
 
       &:hover {
-        background: rgba(102, 126, 234, 0.45);
+        background: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
       }
     }
 
     &.copy-btn {
-      background: rgba(67, 233, 123, 0.25);
-      color: #43e97b;
+      background: rgba(67, 233, 123, 0.2);
+      color: #7dffb3;
 
       &:hover {
-        background: rgba(67, 233, 123, 0.45);
+        background: rgba(67, 233, 123, 0.35);
+        box-shadow: 0 0 15px rgba(67, 233, 123, 0.3);
       }
     }
   }
 
   .is-selecting {
-    box-shadow: 0 0 0 2px #667eea;
-    animation: pulse 1s infinite;
+    border-color: #667eea;
+    animation: selectingPulse 1.5s ease-in-out infinite;
   }
 
-  @keyframes pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5);
+  @keyframes selectingPulse {
+    0%, 100% {
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.4);
     }
     50% {
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2), 0 0 20px rgba(102, 126, 234, 0.3);
     }
   }
 }
@@ -3651,23 +3812,24 @@ function renderMarkdown(text: string): string {
 .search-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  transition: all 0.3s;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:focus-within {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.08);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.6);
+    background: rgba(102, 126, 234, 0.06);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 32px rgba(0, 0, 0, 0.2);
   }
 
   .search-icon {
-    font-size: 1rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
+    filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.5));
   }
 
   .search-input {
@@ -3676,7 +3838,7 @@ function renderMarkdown(text: string): string {
     border: none;
     outline: none;
     color: #fff;
-    font-size: 0.95rem;
+    font-size: 1rem;
     padding: 4px 0;
 
     &::placeholder {
@@ -3685,21 +3847,21 @@ function renderMarkdown(text: string): string {
   }
 
   .search-clear {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s;
+    font-size: 1rem;
+    transition: all 0.3s;
     flex-shrink: 0;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 100, 100, 0.3);
       color: #fff;
     }
   }
@@ -3709,9 +3871,10 @@ function renderMarkdown(text: string): string {
     color: rgba(255, 255, 255, 0.5);
     white-space: nowrap;
     flex-shrink: 0;
-    padding: 2px 10px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
+    padding: 4px 12px;
+    background: rgba(102, 126, 234, 0.15);
+    border-radius: 20px;
+    font-weight: 500;
   }
 }
 
@@ -3719,12 +3882,12 @@ function renderMarkdown(text: string): string {
 .module-config-tip {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px dashed rgba(102, 126, 234, 0.3);
-  border-radius: 8px;
+  gap: 14px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border: 1px dashed rgba(102, 126, 234, 0.35);
+  border-radius: 12px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
 }
@@ -3732,13 +3895,15 @@ function renderMarkdown(text: string): string {
 .link-btn {
   background: none;
   border: none;
-  color: #667eea;
+  color: #a8b8ff;
   cursor: pointer;
   font-size: 0.9rem;
-  text-decoration: underline;
+  font-weight: 500;
+  transition: all 0.3s;
 
   &:hover {
-    color: #8b9df7;
+    color: #667eea;
+    text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
   }
 }
 
@@ -3749,23 +3914,24 @@ function renderMarkdown(text: string): string {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
 }
 
 .module-selector {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 600px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #302b63 100%);
+  border-radius: 20px;
+  padding: 28px;
+  max-width: 650px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .module-selector-header {
@@ -3998,25 +4164,26 @@ function renderMarkdown(text: string): string {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1001;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(10px);
 }
 
 .module-editor {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 700px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #302b63 100%);
+  border-radius: 24px;
+  padding: 32px;
+  max-width: 750px;
   width: 90%;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.7), 0 0 50px rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .module-editor-header {
@@ -4131,37 +4298,56 @@ function renderMarkdown(text: string): string {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: $gradient-primary;
   border: none;
   color: #fff;
-  padding: 10px 24px;
-  border-radius: 8px;
+  padding: 12px 28px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+    
+    &::before {
+      left: 100%;
+    }
   }
 }
 
 // 模块预览
 .module-preview {
-  margin-top: 24px;
-  padding: 20px;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 12px;
+  margin-top: 28px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
   h4 {
     color: #fff;
     font-size: 1rem;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 }
 
@@ -4173,44 +4359,46 @@ function renderMarkdown(text: string): string {
 
 .preview-module-group {
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .preview-module-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: rgba(102, 126, 234, 0.15);
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.1) 100%);
   border-bottom: 1px solid rgba(102, 126, 234, 0.2);
 
   .preview-module-icon {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .preview-module-name {
-    color: #667eea;
+    color: #a8b8ff;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 }
 
 .preview-module-components {
-  padding: 8px;
+  padding: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .preview-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 12px;
+  padding: 10px 14px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 
   .preview-name {
     color: #fff;
@@ -4219,19 +4407,20 @@ function renderMarkdown(text: string): string {
   .preview-remove {
     background: rgba(255, 100, 100, 0.2);
     border: none;
-    color: #ff6464;
-    width: 20px;
-    height: 20px;
+    color: #ff8080;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 1rem;
     transition: all 0.3s;
 
     &:hover {
       background: rgba(255, 100, 100, 0.4);
+      transform: scale(1.1);
     }
   }
 }
@@ -4276,12 +4465,12 @@ function renderMarkdown(text: string): string {
 }
 
 .reference-example {
-  background: rgba(102, 126, 234, 0.08);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.06) 100%);
   border: 1px dashed rgba(102, 126, 234, 0.4);
-  border-radius: 12px;
-  padding: 16px 20px;
-  animation: slideDown 0.3s ease;
-  margin-bottom: 20px;
+  border-radius: 16px;
+  padding: 20px 24px;
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 24px;
 }
 
 @keyframes slideDown {
@@ -4328,7 +4517,7 @@ function renderMarkdown(text: string): string {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 24px;
 }
 
 .form-group {
@@ -4338,26 +4527,28 @@ function renderMarkdown(text: string): string {
 
   label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
   }
 
   input,
   select,
   textarea {
     width: 100%;
-    padding: 12px 40px 12px 15px;
-    background: rgba(255, 255, 255, 0.05);
+    padding: 14px 45px 14px 16px;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 12px;
     color: #fff;
     font-size: 1rem;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' fill-opacity='0.5' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 15px center;
+    background-position: right 18px center;
     cursor: pointer;
 
     &::placeholder {
@@ -4366,8 +4557,9 @@ function renderMarkdown(text: string): string {
 
     &:focus {
       outline: none;
-      border-color: #667eea;
-      background-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(102, 126, 234, 0.6);
+      background-color: rgba(102, 126, 234, 0.06);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 8px 32px rgba(0, 0, 0, 0.2);
     }
 
     option {
@@ -4934,14 +5126,18 @@ function renderMarkdown(text: string): string {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  padding: 20px 24px;
+  background: $gradient-glass;
+  border-radius: 16px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: $shadow-card;
 
   .footer-stats {
     color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
 
     span {
       margin-right: 5px;
