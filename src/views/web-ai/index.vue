@@ -2638,91 +2638,6 @@ function renderMarkdown(text: string): string {
             </div>
           </div>
 
-          <!-- 模块位置选择器 -->
-          <div
-            v-if="selectedModuleComp"
-            class="module-selector-overlay"
-            @click.self="cancelModuleSelection"
-          >
-            <div class="module-selector">
-              <div class="module-selector-header">
-                <h4>选择模块位置</h4>
-                <p>
-                  您选择了: <strong>{{ selectedModuleComp.name }}</strong>
-                </p>
-                <button class="close-btn" @click="cancelModuleSelection">×</button>
-              </div>
-
-              <!-- 编辑模式 -->
-              <div v-if="editingModuleInSelector" class="module-edit-form">
-                <h5>{{ editingModuleIndex !== null ? '编辑模块' : '新增模块' }}</h5>
-                <div class="edit-row">
-                  <input v-model="editingModule.icon" class="edit-icon" placeholder="图标" />
-                  <input v-model="editingModule.key" class="edit-key" placeholder="key" />
-                </div>
-                <div class="edit-row">
-                  <input v-model="editingModule.label" class="edit-label" placeholder="名称" />
-                  <input v-model="editingModule.desc" class="edit-desc" placeholder="描述" />
-                </div>
-                <div class="edit-actions">
-                  <button class="btn btn-sm btn-primary" @click="saveEditModule">保存</button>
-                  <button class="btn btn-sm btn-ghost" @click="cancelEditModule">取消</button>
-                </div>
-              </div>
-
-              <div class="module-position-grid">
-                <div
-                  v-for="(pos, index) in editingPositions"
-                  :key="pos.key + index"
-                  class="module-pos-btn-wrapper"
-                >
-                  <button
-                    class="module-pos-btn"
-                    @click="selectModulePosition(selectedModuleComp!, pos.key)"
-                  >
-                    <span class="pos-icon">{{ pos.icon }}</span>
-                    <span class="pos-label">{{ pos.label }}</span>
-                    <span class="pos-desc">{{ pos.desc }}</span>
-                    <span v-if="getComponentsByPosition(pos.key).length > 0" class="pos-used-by">
-                      已选:
-                      {{
-                        getComponentsByPosition(pos.key)
-                          .map((c) => c.name)
-                          .join(', ')
-                      }}
-                    </span>
-                  </button>
-                  <div class="pos-actions">
-                    <button
-                      class="pos-action-btn edit"
-                      title="编辑"
-                      @click.stop="startEditModule(index)"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      class="pos-action-btn delete"
-                      title="删除"
-                      @click.stop="deleteModuleInSelector(index)"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-                <button class="module-pos-btn add-new" @click="addModuleInSelector">
-                  <span class="pos-icon">➕</span>
-                  <span class="pos-label">添加新模块</span>
-                  <span class="pos-desc">新增一个自定义模块</span>
-                </button>
-              </div>
-
-              <div class="module-selector-footer">
-                <button class="btn btn-sm btn-ghost" @click="openModuleEditor">⚙️ 完整配置</button>
-                <button class="btn btn-sm" @click="saveAll">💾 保存全部修改</button>
-              </div>
-            </div>
-          </div>
-
           <!-- 已选模块预览 -->
           <div v-if="selectedComponents.length > 0" class="module-preview">
             <h4>📋 模块规划预览</h4>
@@ -2748,40 +2663,6 @@ function renderMarkdown(text: string): string {
                     <button class="preview-remove" @click="toggleComponent(comp)">×</button>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 模块配置编辑器 -->
-          <div
-            v-if="showModuleEditor"
-            class="module-editor-overlay"
-            @click.self="closeModuleEditor"
-          >
-            <div class="module-editor">
-              <div class="module-editor-header">
-                <h3>⚙️ 模块配置</h3>
-                <p class="editor-tip">配置模块位置，可增删改。修改后自动保存到浏览器。</p>
-                <button class="close-btn" @click="closeModuleEditor">×</button>
-              </div>
-              <div class="module-editor-body">
-                <div
-                  v-for="(pos, index) in editingPositions"
-                  :key="pos.key + index"
-                  class="module-editor-item"
-                >
-                  <input v-model="pos.icon" class="edit-icon" placeholder="图标" />
-                  <input v-model="pos.key" class="edit-key" placeholder="key" />
-                  <input v-model="pos.label" class="edit-label" placeholder="名称" />
-                  <input v-model="pos.desc" class="edit-desc" placeholder="描述" />
-                  <button class="remove-btn" @click="removeModulePosition(index)">🗑️</button>
-                </div>
-              </div>
-              <div class="module-editor-footer">
-                <button class="btn btn-sm" @click="addModulePosition">+ 添加模块</button>
-                <button class="btn btn-sm btn-ghost" @click="resetModuleConfig">恢复默认</button>
-                <div class="footer-spacer"></div>
-                <button class="btn btn-primary" @click="saveModuleConfig">保存配置</button>
               </div>
             </div>
           </div>
@@ -3222,6 +3103,119 @@ function renderMarkdown(text: string): string {
           </div>
         </div>
       </div>
+
+      <!-- 全屏模块位置选择器 -->
+      <Teleport to="body">
+        <div
+          v-if="selectedModuleComp"
+          class="fullscreen-modal-overlay"
+          @click.self="cancelModuleSelection"
+        >
+          <div class="fullscreen-modal">
+            <div class="modal-header">
+              <div class="modal-title">
+                <h3>选择模块位置</h3>
+                <p>为「{{ selectedModuleComp.name }}」选择放置位置</p>
+              </div>
+              <button class="modal-close" @click="cancelModuleSelection">×</button>
+            </div>
+
+            <div class="modal-body">
+              <!-- 编辑模式 -->
+              <div v-if="editingModuleInSelector" class="module-edit-form">
+                <h5>{{ editingModuleIndex !== null ? '编辑模块' : '新增模块' }}</h5>
+                <div class="edit-row">
+                  <input v-model="editingModule.icon" class="edit-input" placeholder="图标" />
+                  <input v-model="editingModule.key" class="edit-input" placeholder="key" />
+                  <input v-model="editingModule.label" class="edit-input" placeholder="名称" />
+                </div>
+                <div class="edit-row">
+                  <input v-model="editingModule.desc" class="edit-input edit-input-full" placeholder="描述" />
+                </div>
+                <div class="edit-actions">
+                  <button class="btn btn-primary" @click="saveEditModule">💾 保存</button>
+                  <button class="btn btn-ghost" @click="cancelEditModule">取消</button>
+                </div>
+              </div>
+
+              <div class="module-position-grid">
+                <div
+                  v-for="(pos, index) in editingPositions"
+                  :key="pos.key + index"
+                  class="module-pos-card"
+                >
+                  <button
+                    class="module-pos-btn"
+                    @click="selectModulePosition(selectedModuleComp!, pos.key)"
+                  >
+                    <span class="pos-icon">{{ pos.icon }}</span>
+                    <span class="pos-label">{{ pos.label }}</span>
+                    <span class="pos-desc">{{ pos.desc }}</span>
+                    <span v-if="getComponentsByPosition(pos.key).length > 0" class="pos-used-by">
+                      {{ getComponentsByPosition(pos.key).map((c) => c.name).join(', ') }}
+                    </span>
+                  </button>
+                  <div class="pos-actions">
+                    <button class="pos-action-btn" @click.stop="startEditModule(index)" title="编辑">✏️</button>
+                    <button class="pos-action-btn" @click.stop="deleteModuleInSelector(index)" title="删除">🗑️</button>
+                  </div>
+                </div>
+                <button class="module-pos-btn add-new" @click="addModuleInSelector">
+                  <span class="pos-icon">➕</span>
+                  <span class="pos-label">添加新模块</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-ghost" @click="openModuleEditor">⚙️ 完整配置</button>
+              <button class="btn btn-primary" @click="saveAll">💾 保存全部</button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
+      <!-- 全屏模块配置编辑器 -->
+      <Teleport to="body">
+        <div
+          v-if="showModuleEditor"
+          class="fullscreen-modal-overlay"
+          @click.self="closeModuleEditor"
+        >
+          <div class="fullscreen-modal">
+            <div class="modal-header">
+              <div class="modal-title">
+                <h3>⚙️ 模块配置</h3>
+                <p>配置模块位置，可增删改。修改后自动保存到浏览器。</p>
+              </div>
+              <button class="modal-close" @click="closeModuleEditor">×</button>
+            </div>
+
+            <div class="modal-body">
+              <div class="module-editor-list">
+                <div
+                  v-for="(pos, index) in editingPositions"
+                  :key="pos.key + index"
+                  class="module-editor-row"
+                >
+                  <input v-model="pos.icon" class="edit-input" placeholder="图标" />
+                  <input v-model="pos.key" class="edit-input" placeholder="key" />
+                  <input v-model="pos.label" class="edit-input" placeholder="名称" />
+                  <input v-model="pos.desc" class="edit-input edit-input-wide" placeholder="描述" />
+                  <button class="remove-btn" @click="removeModulePosition(index)">🗑️</button>
+                </div>
+              </div>
+              <button class="btn btn-ghost mt-4" @click="addModulePosition">+ 添加模块</button>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-ghost" @click="resetModuleConfig">恢复默认</button>
+              <button class="btn btn-primary" @click="saveModuleConfig">💾 保存配置</button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
       <!-- 底部操作栏 -->
       <footer class="ai-footer">
         <div class="footer-stats">
@@ -3270,7 +3264,7 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
       radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
       radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
       radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.08) 0%, transparent 70%);
@@ -3286,7 +3280,7 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: 
+    background-image:
       linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
     background-size: 60px 60px;
@@ -3414,11 +3408,11 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   &.active {
     color: #fff;
     box-shadow: $shadow-glow;
-    
+
     &::before {
       opacity: 1;
     }
-    
+
     .tab-badge {
       background: rgba(255, 255, 255, 0.25);
       color: #fff;
@@ -3638,7 +3632,7 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.15) 100%);
     border: 1px solid rgba(102, 126, 234, 0.5);
     box-shadow: 0 0 25px rgba(102, 126, 234, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -3907,6 +3901,177 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
 }
 
+// 全屏弹窗
+.fullscreen-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(12px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.fullscreen-modal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 24px;
+  width: 95%;
+  max-width: 950px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5), 0 0 60px rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  background: rgba(102, 126, 234, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  .modal-title {
+    h3 {
+      color: #fff;
+      font-size: 1.4rem;
+      margin: 0 0 6px;
+    }
+    p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+  }
+
+  .modal-close {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.3s;
+
+    &:hover {
+      background: rgba(255, 100, 100, 0.3);
+      color: #ff6b6b;
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 32px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+// 编辑输入框样式
+.edit-input {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+
+  &:focus {
+    outline: none;
+    border-color: rgba(102, 126, 234, 0.5);
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  &.edit-input-full {
+    flex: 1;
+  }
+
+  &.edit-input-wide {
+    flex: 2;
+    min-width: 200px;
+  }
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+// 模块编辑器列表
+.module-editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.module-editor-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  .edit-input {
+    flex: 1;
+  }
+
+  .remove-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 100, 100, 0.15);
+    border: 1px solid rgba(255, 100, 100, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(255, 100, 100, 0.3);
+      border-color: rgba(255, 100, 100, 0.5);
+    }
+  }
+}
+
 // 模块选择器
 .module-selector-overlay {
   position: fixed;
@@ -3978,77 +4143,158 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
 
 .module-position-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.module-pos-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+    transform: translateY(-4px);
+
+    .pos-actions {
+      opacity: 1;
+    }
+  }
 }
 
 .module-pos-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  gap: 10px;
+  padding: 24px 20px;
+  background: transparent;
+  border: none;
   cursor: pointer;
   transition: all 0.3s;
   text-align: center;
+  width: 100%;
+  position: relative;
 
-  &:hover {
-    background: rgba(102, 126, 234, 0.2);
-    border-color: #667eea;
-    transform: translateY(-2px);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: $gradient-primary;
+    opacity: 0;
+    transition: opacity 0.3s;
   }
 
-  &.used {
-    opacity: 0.5;
-    cursor: not-allowed;
+  &:hover::before {
+    opacity: 0.1;
+  }
 
-    &:hover {
-      transform: none;
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.1);
-    }
+  &:active::before {
+    opacity: 0.2;
   }
 
   .pos-icon {
-    font-size: 1.5rem;
+    font-size: 2.2rem;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
   }
 
   .pos-label {
     color: #fff;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    position: relative;
+    z-index: 1;
   }
 
   .pos-desc {
     color: rgba(255, 255, 255, 0.5);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    position: relative;
+    z-index: 1;
+    line-height: 1.4;
   }
 
   .pos-used-by {
-    margin-top: 4px;
-    padding: 2px 8px;
+    margin-top: 6px;
+    padding: 4px 10px;
     background: rgba(255, 100, 100, 0.2);
-    border-radius: 4px;
-    font-size: 0.7rem;
-    color: #ff6464;
+    border: 1px solid rgba(255, 100, 100, 0.3);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: #ff8888;
+    position: relative;
+    z-index: 1;
+    max-width: 90%;
+  /*  overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;*/
   }
 
   &.add-new {
     border: 2px dashed rgba(102, 126, 234, 0.4);
     background: rgba(102, 126, 234, 0.05);
+    border-radius: 16px;
+
+    &::before {
+      display: none;
+    }
 
     &:hover {
       border-color: #667eea;
-      background: rgba(102, 126, 234, 0.2);
+      background: rgba(102, 126, 234, 0.15);
+      transform: translateY(-4px);
+
+      .pos-icon {
+        animation: pulse 1s infinite;
+      }
     }
 
     .pos-icon {
-      font-size: 1.5rem;
+      font-size: 2rem;
     }
   }
+}
+
+.pos-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+
+.pos-action-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(102, 126, 234, 0.4);
+    border-color: #667eea;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 // 模块选择器内嵌编辑
@@ -4107,44 +4353,6 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-  }
-}
-
-.module-pos-btn-wrapper {
-  position: relative;
-
-  .pos-actions {
-    display: flex;
-    gap: 4px;
-    position: absolute;
-    top: 8px;
-    right: 8px;
-  }
-
-  .module-pos-btn {
-    width: 100%;
-    min-height: 100px;
-    padding: 16px;
-  }
-}
-
-.pos-action-btn {
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  padding: 6px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  opacity: 0.8;
-
-  &:hover {
-    opacity: 1;
-    background: rgba(0, 0, 0, 0.8);
-  }
-
-  &.delete:hover {
-    background: rgba(255, 100, 100, 0.6);
   }
 }
 
@@ -4325,7 +4533,7 @@ $shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
-    
+
     &::before {
       left: 100%;
     }

@@ -66,7 +66,7 @@ const categories = [
   { key: 'card-text', label: '文字' },
   { key: 'card-3d', label: '3D' },
   { key: 'card-time', label: '时间' },
-  { key: 'card-list', label: '列表' },
+  { key: 'card-list', label: '基础' },
   { key: 'favorite', label: '我的收藏' },
 ]
 
@@ -391,9 +391,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-list'
       }
     })
@@ -423,9 +423,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-time'
       }
     })
@@ -453,9 +453,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-text'
       }
     })
@@ -483,9 +483,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-3d'
       }
     })
@@ -513,9 +513,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-img'
       }
     })
@@ -543,9 +543,9 @@ const cardComponents = computed(() => {
         name: name || dirName,
         path,
         // 懒加载模式：使用 defineAsyncComponent
-        component: LAZY_MODE
-          ? defineAsyncComponent(() => import(/* @vite-ignore */ path))
-          : (module as any)?.default || null,
+        component: LAZY_MODE ?
+          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          (module as any)?.default || null,
         type: 'card-image'
       }
     })
@@ -647,10 +647,10 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    {root: null,
+    { root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
-    }
+    },
   )
 }
 
@@ -738,9 +738,7 @@ watch(activeCategory, () => {
       >
         {{ cat.label }}
       </button>
-      <button class="tab-btn generate-btn" @click="router.push('/web-ai')">
-        去生成方案
-      </button>
+      <button class="tab-btn generate-btn" @click="router.push('/web-ai')">去生成方案</button>
     </div>
 
     <div class="page page1">
