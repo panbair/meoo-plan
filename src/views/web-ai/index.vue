@@ -1257,6 +1257,7 @@ const techRequirements = [
   { num: 5, text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写' },
   { num: 6, text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断' },
   { num: 7, text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建' },
+  { num: 8, text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发' },
 ]
 
 /** 输出文件清单 */
