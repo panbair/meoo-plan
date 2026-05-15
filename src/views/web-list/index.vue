@@ -1203,7 +1203,7 @@ const enterpriseInfo = reactive<EnterpriseInfo>({
   description: '',
   targetAudience: '',
   mainColors: '',
-  websiteType: '',
+  websiteType: '企业官网',  // 默认企业官网，不可修改
   designPhilosophy: '',
 })
 
