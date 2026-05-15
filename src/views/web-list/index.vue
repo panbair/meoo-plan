@@ -11,6 +11,10 @@ import {
   reactive,
 } from 'vue'
 import { useRouter } from 'vue-router'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用）====================
 const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {
@@ -1357,6 +1361,8 @@ const categories = [
 // ==================== 响应式数据 ====================
 const visibleCards = ref(new Set<number>())
 const pageRefs = ref<Map<number, HTMLElement>>(new Map())
+const particlesContainerRef = ref<HTMLElement | null>(null)
+const bubblesContainerRef = ref<HTMLElement | null>(null)
 const propsMap = ref<Map<number, Record<string, unknown>>>(new Map())
 let observer: IntersectionObserver | null = null
 
@@ -1963,6 +1969,195 @@ const handleScroll = () => {
   })
 }
 
+// ==================== 气泡粒子系统 ====================
+const createExtraBubbles = () => {
+  if (!bubblesContainerRef.value) return
+  
+  const container = bubblesContainerRef.value
+  const colors = [
+    'rgba(255, 105, 180, 0.6)',   // 粉红
+    'rgba(138, 43, 226, 0.5)',    // 紫罗兰
+    'rgba(0, 191, 255, 0.5)',     // 电光蓝
+    'rgba(100, 255, 218, 0.5)',   // 青色
+    'rgba(255, 182, 193, 0.6)',   // 浅粉
+    'rgba(173, 216, 230, 0.5)',   // 天蓝
+  ]
+  
+  // 创建 50 个气泡
+  for (let i = 0; i < 50; i++) {
+    const bubble = document.createElement('div')
+    bubble.className = 'bubble-particle'
+    
+    const size = 4 + Math.random() * 8
+    const x = Math.random() * 100
+    const duration = 15 + Math.random() * 20
+    const delay = Math.random() * -30
+    const color = colors[Math.floor(Math.random() * colors.length)]
+    
+    bubble.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${x}%;
+      background: radial-gradient(circle at 30% 30%, white, ${color});
+      box-shadow: 0 0 ${size}px ${color}, inset 0 0 ${size/2}px rgba(255,255,255,0.3);
+      animation: bubbleFloat ${duration}s linear infinite;
+      animation-delay: ${delay}s;
+      opacity: 0;
+    `
+    container.appendChild(bubble)
+  }
+}
+
+// ==================== GSAP 动画 ====================
+const initPage1Animations = () => {
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+  
+  // 入场动画序列
+  tl.fromTo('.page1-bg-effects', { opacity: 0 }, { opacity: 1, duration: 1 })
+    .fromTo('.floating-orb', 
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 0.6, duration: 1.5, stagger: 0.2 },
+      '-=0.5'
+    )
+    .fromTo('.hero-badge',
+      { y: -50, opacity: 0, scale: 0.8 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)' },
+      '-=1'
+    )
+    // 标题字符 3D 立体入场动画
+    .fromTo('.page-title .title-line',
+      { y: 80, opacity: 0, scale: 0.8, rotateX: -45 },
+      { y: 0, opacity: 1, scale: 1, rotateX: 0, duration: 1, stagger: 0.15, ease: 'expo.out' },
+      '-=0.5'
+    )
+    // 每个字符单独 3D 旋转入场
+    .fromTo('.page-title .char',
+      { y: 60, opacity: 0, rotateX: -90, rotateY: 45, scale: 0.5 },
+      { 
+        y: 0, 
+        opacity: 1, 
+        rotateX: 0, 
+        rotateY: 0, 
+        scale: 1, 
+        duration: 0.8, 
+        stagger: { each: 0.06, from: 'start' }, 
+        ease: 'elastic.out(1, 0.6)' 
+      },
+      '-=0.8'
+    )
+    // 副标题词语动画
+    .fromTo('.page-desc .desc-word',
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, stagger: 0.08 },
+      '-=0.5'
+    )
+    // 功能标签动画
+    .fromTo('.feature-tags .tag',
+      { scale: 0, opacity: 0, y: 20 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: 'elastic.out(1, 0.5)' },
+      '-=0.3'
+    )
+    // 中文信息块动画
+    .fromTo('.chinese-info .info-block',
+      { x: -60, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.8, stagger: 0.2, ease: 'power2.out' },
+      '-=0.5'
+    )
+    // 统计数字动画
+    .fromTo('.component-stats',
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8 },
+      '-=0.3'
+    )
+    .fromTo('.stat-number',
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, stagger: 0.15 },
+      '-=0.6'
+    )
+    // 滚动指示器动画
+    .fromTo('.scroll-indicator',
+      { opacity: 0, y: -20 },
+      { opacity: 1, y: 0, duration: 0.6 },
+      '-=0.2'
+    )
+
+  // 持续动画 - 浮动光球呼吸效果
+  gsap.to('.orb-1', {
+    y: -30,
+    scale: 1.1,
+    duration: 3,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  })
+  gsap.to('.orb-2', {
+    y: 20,
+    x: 15,
+    scale: 0.95,
+    duration: 2.5,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  })
+  gsap.to('.orb-3', {
+    y: -20,
+    x: -10,
+    scale: 1.05,
+    duration: 3.5,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  })
+
+  // 标题 3D 悬浮视差效果（鼠标跟随）
+  const titleEl = document.querySelector('.page-title')
+  if (titleEl) {
+    titleEl.addEventListener('mousemove', (e) => {
+      const rect = titleEl.getBoundingClientRect()
+      const x = (e.clientX - rect.left - rect.width / 2) / rect.width
+      const y = (e.clientY - rect.top - rect.height / 2) / rect.height
+      gsap.to('.page-title .char', {
+        rotateY: (i) => x * 20 * (i % 2 === 0 ? 1 : -1),
+        rotateX: (i) => -y * 15 * (i % 2 === 0 ? 1 : -1),
+        duration: 0.5,
+        ease: 'power2.out'
+      })
+    })
+    titleEl.addEventListener('mouseleave', () => {
+      gsap.to('.page-title .char', {
+        rotateY: 0,
+        rotateX: 0,
+        duration: 0.8,
+        ease: 'elastic.out(1, 0.5)'
+      })
+    })
+  }
+
+  // 渐变色字符持续光泽动画
+  gsap.to('.page-title .char.accent', {
+    backgroundPosition: '200% 50%',
+    duration: 3,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  })
+
+  // 网格动画 - 淡入
+  gsap.fromTo('.grid-lines', 
+    { opacity: 0 },
+    { opacity: 1, duration: 2, delay: 0.5 }
+  )
+  gsap.fromTo('.grid-dots', 
+    { opacity: 0 },
+    { opacity: 1, duration: 2, delay: 0.8 }
+  )
+  // 脉冲圆环动画
+  gsap.fromTo('.pulse-ring', 
+    { scale: 0.5, opacity: 0 },
+    { scale: 1, opacity: 1, duration: 1.5, stagger: 0.3, ease: 'power2.out' }
+  )
+}
+
 // ==================== 生命周期 ====================
 onMounted(() => {
   // 确保 visibleCards 初始化
@@ -1985,11 +2180,19 @@ onMounted(() => {
     setTimeout(initIntersectionObserver, 100)
     window.addEventListener('scroll', handleScroll, { passive: true })
   }
+
+  // 初始化 page1 GSAP 动画
+  nextTick(() => {
+    createExtraBubbles()
+    initPage1Animations()
+  })
 })
 
 onUnmounted(() => {
   observer?.disconnect()
   window.removeEventListener('scroll', handleScroll)
+  // 清理所有 GSAP 动画
+  gsap.killTweensOf('.page1 *')
 })
 
 // ==================== 分类切换时重置可见性 ====================
@@ -2026,16 +2229,115 @@ watch(activeCategory, () => {
     </div>
 
     <div class="page page1">
-      <h1 class="page-title">Creative Cards Gallery</h1>
-      <p class="page-desc">Scroll down to explore interactive card animations</p>
-      <div>
-         适用于快速构建具有丰富动画效果的企业官网
+      <!-- 背景装饰层 -->
+      <div class="page1-bg-effects">
+        <!-- JS 动态粒子效果 -->
+        <div class="particles" ref="particlesContainerRef"></div>
+        <!-- 额外气泡粒子 -->
+        <div class="extra-bubbles" ref="bubblesContainerRef"></div>
+        <!-- 动态光束 -->
+        <div class="light-beam beam-1"></div>
+        <div class="light-beam beam-2"></div>
+        <div class="light-beam beam-3"></div>
+        <div class="light-beam beam-4"></div>
+        <!-- 扫描线 -->
+        <div class="scanline"></div>
+        <!-- 脉冲圆环 -->
+        <div class="pulse-ring ring-1"></div>
+        <div class="pulse-ring ring-2"></div>
+        <div class="pulse-ring ring-3"></div>
+        <!-- 浮动光球 -->
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+        <!-- 网格层 -->
+        <div class="grid-lines"></div>
+        <div class="grid-dots"></div>
       </div>
-      <div>产品展示页</div>
-      <div>营销落地页等</div>
-      <div>AI一键生成开发方案</div>
-      <div>数量：{{ filteredComponents.length }}</div>
-      <div class="scroll-indicator">
+      
+      <!-- 主内容区 -->
+      <div class="page1-content">
+        <!-- 顶部标签 -->
+        <div class="hero-badge" ref="badgeRef">
+          <span class="badge-icon">✨</span>
+          <span class="badge-text">AI-Powered</span>
+        </div>
+        
+        <!-- 主标题 - 3D 立体字符动画 -->
+        <h1 class="page-title" ref="titleRef">
+          <span class="title-line" data-text="Creative">
+            <span v-for="(char, i) in 'Creative'" :key="'c1-'+i" class="char" :data-char="char">{{ char }}</span>
+          </span>
+          <span class="title-line" data-text="Cards">
+            <span v-for="(char, i) in 'Cards'" :key="'c2-'+i" class="char accent" :data-char="char">{{ char }}</span>
+          </span>
+          <span class="title-line" data-text="Gallery">
+            <span v-for="(char, i) in 'Gallery'" :key="'c3-'+i" class="char" :data-char="char">{{ char }}</span>
+          </span>
+        </h1>
+        
+        <!-- 副标题 -->
+        <p class="page-desc" ref="descRef">
+          <span class="desc-word" v-for="(word, i) in ['Scroll', 'down', 'to', 'explore', 'interactive', 'card', 'animations']" :key="i">{{ word }}</span>
+        </p>
+        
+        <!-- 功能标签组 -->
+        <div class="feature-tags" ref="tagsRef">
+          <div class="tag tag-primary">
+            <span class="tag-icon">🚀</span>
+            <span class="tag-text">快速构建</span>
+          </div>
+          <div class="tag tag-gradient">
+            <span class="tag-icon">💎</span>
+            <span class="tag-text">丰富动画</span>
+          </div>
+          <div class="tag tag-success">
+            <span class="tag-icon">🎯</span>
+            <span class="tag-text">AI生成</span>
+          </div>
+        </div>
+        
+        <!-- 中文说明区 -->
+        <div class="chinese-info" ref="chineseRef">
+          <div class="info-block">
+            <span class="info-icon">🏢</span>
+            <span class="info-text">企业官网</span>
+          </div>
+          <div class="info-block">
+            <span class="info-icon">🎨</span>
+            <span class="info-text">产品展示</span>
+          </div>
+          <div class="info-block">
+            <span class="info-icon">📈</span>
+            <span class="info-text">营销落地</span>
+          </div>
+          <div class="info-block highlight">
+            <span class="info-icon">🤖</span>
+            <span class="info-text">AI生成</span>
+          </div>
+        </div>
+        
+        <!-- 组件数量统计 -->
+        <div class="component-stats" ref="statsRef">
+          <div class="stat-number">
+            <span class="stat-value">{{ filteredComponents.length }}</span>
+            <span class="stat-label">精选组件</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-number">
+            <span class="stat-value">7</span>
+            <span class="stat-label">分类</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-number">
+            <span class="stat-value">∞</span>
+            <span class="stat-label">可能</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 底部滚动指示器 -->
+      <div class="scroll-indicator" ref="scrollRef">
         <span></span>
         <span></span>
         <span></span>
@@ -2814,16 +3116,755 @@ watch(activeCategory, () => {
   }
 }
 
-// ==================== 页面背景 ====================
+// ==================== Page1 主页面样式 ====================
 .page1 {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(
+    135deg,
+    #0c0c1e 0%,
+    #1a0a2e 15%,
+    #2d1b4a 30%,
+    #1e3a5f 50%,
+    #0d3b4a 70%,
+    #0a2a3a 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  position: relative;
+  overflow: hidden;
 
-  .page-title {
-    color: #fff;
+  // 背景特效层
+  .page1-bg-effects {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+
+    // CSS 粒子层 - 极光幻彩
+    .particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: rgba(255, 105, 180, 0.6);
+        box-shadow: 
+          calc(var(--x1, 10) * 1px) calc(var(--y1, 20) * 1px) 0 rgba(255, 105, 180, 0.8),
+          calc(var(--x2, 30) * 1px) calc(var(--y2, 40) * 1px) 0 rgba(138, 43, 226, 0.7),
+          calc(var(--x3, 50) * 1px) calc(var(--y3, 60) * 1px) 0 rgba(0, 191, 255, 0.6),
+          calc(var(--x4, 70) * 1px) calc(var(--y4, 80) * 1px) 0 rgba(100, 255, 218, 0.5);
+        animation: particleFloat 20s linear infinite;
+      }
+
+      &::after {
+        width: 2px;
+        height: 2px;
+        animation-delay: -10s;
+        animation-duration: 25s;
+        background: rgba(255, 255, 255, 0.5);
+        box-shadow: 
+          calc(var(--x5, 15) * 1px) calc(var(--y5, 25) * 1px) 0 rgba(255, 182, 193, 0.7),
+          calc(var(--x6, 45) * 1px) calc(var(--y6, 55) * 1px) 0 rgba(173, 216, 230, 0.6),
+          calc(var(--x7, 85) * 1px) calc(var(--y7, 95) * 1px) 0 rgba(221, 160, 221, 0.5);
+      }
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    // 额外气泡粒子容器
+    .extra-bubbles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+
+      .bubble-particle {
+        position: absolute;
+        border-radius: 50%;
+        animation: bubbleFloat 20s linear infinite;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 15%;
+          left: 20%;
+          width: 30%;
+          height: 30%;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 50%;
+          filter: blur(1px);
+        }
+      }
+    }
+
+    @keyframes bubbleFloat {
+      0% {
+        transform: translateY(100vh) translateX(0) scale(0);
+        opacity: 0;
+      }
+      5% {
+        transform: translateY(95vh) translateX(10px) scale(1);
+        opacity: 0.8;
+      }
+      25% {
+        transform: translateY(75vh) translateX(-15px) scale(1.1);
+        opacity: 0.9;
+      }
+      50% {
+        transform: translateY(50vh) translateX(20px) scale(1);
+        opacity: 0.8;
+      }
+      75% {
+        transform: translateY(25vh) translateX(-10px) scale(0.95);
+        opacity: 0.7;
+      }
+      95% {
+        opacity: 0.4;
+      }
+      100% {
+        transform: translateY(-10vh) translateX(15px) scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    // 浮动光球 - 极光幻彩
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.7;
+      animation: orbFloat 10s ease-in-out infinite;
+      
+      &.orb-1 {
+        width: 450px;
+        height: 450px;
+        background: radial-gradient(circle, rgba(138, 43, 226, 0.5) 0%, rgba(75, 0, 130, 0.3) 40%, transparent 70%);
+        top: -120px;
+        right: -100px;
+        animation-delay: 0s;
+      }
+      
+      &.orb-2 {
+        width: 380px;
+        height: 380px;
+        background: radial-gradient(circle, rgba(0, 191, 255, 0.45) 0%, rgba(138, 43, 226, 0.25) 40%, transparent 70%);
+        bottom: 20%;
+        left: -80px;
+        animation-delay: -3s;
+      }
+      
+      &.orb-3 {
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(255, 105, 180, 0.4) 0%, rgba(0, 191, 255, 0.2) 40%, transparent 70%);
+        bottom: -50px;
+        right: 20%;
+        animation-delay: -6s;
+      }
+    }
+
+    @keyframes orbFloat {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.7;
+      }
+      33% {
+        transform: translate(30px, -40px) scale(1.1);
+        opacity: 0.9;
+      }
+      66% {
+        transform: translate(-20px, 20px) scale(0.95);
+        opacity: 0.6;
+      }
+    }
+
+    // 光束效果 - 极光幻彩
+    .light-beam {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255, 105, 180, 0.15) 30%,
+        rgba(138, 43, 226, 0.2) 50%,
+        rgba(0, 191, 255, 0.15) 70%,
+        transparent 100%
+      );
+      animation: beamPulse 4s ease-in-out infinite;
+
+      &.beam-1 { left: 15%; animation-delay: 0s; }
+      &.beam-2 { left: 35%; animation-delay: -1s; }
+      &.beam-3 { left: 65%; animation-delay: -2s; }
+      &.beam-4 { left: 85%; animation-delay: -3s; }
+    }
+
+    @keyframes beamPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 0.6; transform: scaleY(1.1); }
+    }
+
+    // 酷炫网格层 - 多层效果
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      
+      // 底层：透视网格（模拟地平线）
+      &::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        background: 
+          linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(138, 43, 226, 0.05) 100%
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 49px,
+            rgba(138, 43, 226, 0.2) 49px,
+            rgba(138, 43, 226, 0.2) 50px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 49px,
+            rgba(0, 191, 255, 0.15) 49px,
+            rgba(0, 191, 255, 0.15) 50px
+          );
+        transform: perspective(500px) rotateX(60deg);
+        transform-origin: bottom;
+        animation: perspectiveGrid 8s linear infinite;
+      }
+
+      // 中层：三角形网格图案
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: 
+          linear-gradient(30deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
+          linear-gradient(150deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
+          linear-gradient(30deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
+          linear-gradient(150deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
+          linear-gradient(60deg, rgba(0, 212, 170, 0.08) 25%, transparent 25.5%, transparent 75%, rgba(0, 212, 170, 0.08) 75%),
+          linear-gradient(60deg, rgba(0, 212, 170, 0.08) 25%, transparent 25.5%, transparent 75%, rgba(0, 212, 170, 0.08) 75%);
+        background-size: 80px 140px;
+        background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+        opacity: 0.6;
+        animation: triangleGrid 15s linear infinite;
+      }
+    }
+
+    @keyframes perspectiveGrid {
+      0% { background-position: 0 0, 0 0, 0 0; }
+      100% { background-position: 0 50px, 0 50px, 0 50px; }
+    }
+
+    @keyframes triangleGrid {
+      0% { background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px; }
+      100% { background-position: 0 -140px, 0 -140px, 40px -70px, 40px -70px, 0 -140px, 40px -70px; }
+    }
+
+    // 网格节点高光点 - 极光幻彩
+    .grid-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255, 105, 180, 0.5) 1px, transparent 1px);
+      background-size: 100px 100px;
+      animation: dotPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+
+    // 脉冲圆环效果 - 极光幻彩
+    .pulse-ring {
+      position: absolute;
+      border: 1px solid rgba(255, 105, 180, 0.4);
+      border-radius: 50%;
+      animation: ringExpand 4s ease-out infinite;
+
+      &.ring-1 {
+        width: 200px;
+        height: 200px;
+        top: 20%;
+        right: 15%;
+        animation-delay: 0s;
+      }
+
+      &.ring-2 {
+        width: 300px;
+        height: 300px;
+        bottom: 30%;
+        left: 10%;
+        animation-delay: -1.5s;
+      }
+
+      &.ring-3 {
+        width: 150px;
+        height: 150px;
+        top: 60%;
+        right: 30%;
+        animation-delay: -3s;
+      }
+    }
+
+    @keyframes ringExpand {
+      0% {
+        transform: scale(0.5);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    // 扫描线效果 - 极光幻彩
+    .scanline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.4), rgba(0, 191, 255, 0.3), transparent);
+      animation: scanDown 6s linear infinite;
+      opacity: 0.6;
+    }
+
+    @keyframes scanDown {
+      0% { top: -5%; opacity: 0; }
+      10% { opacity: 0.5; }
+      90% { opacity: 0.5; }
+      100% { top: 105%; opacity: 0; }
+    }
   }
 
+  // 主内容区 - 宽松布局
+  .page1-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 120px 20px 100px;
+    text-align: center;
+  }
+
+  // Hero 标签
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    margin-bottom: 32px;
+
+    .badge-icon {
+      font-size: 1rem;
+      animation: sparkle 1.5s ease-in-out infinite;
+    }
+
+    .badge-text {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+  }
+
+  @keyframes sparkle {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+  }
+
+  // 主标题 - 3D 立体效果
+  .page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 0 0 40px 0;
+    transform-style: preserve-3d;
+    position: relative;
+
+    .title-line {
+      display: block;
+      position: relative;
+      transform-style: preserve-3d;
+
+      // 3D 透视容器 - 精致阴影
+      &::before {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.8) 0%,
+          rgba(200, 200, 255, 0.5) 50%,
+          transparent 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transform: translateY(2px) translateZ(-5px);
+        filter: blur(1px);
+        opacity: 0.4;
+        z-index: -1;
+      }
+    }
+
+    .char {
+      display: inline-block;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+      animation: float3d 3s ease-in-out infinite;
+      
+      // 立体多层阴影 - 极光青配色
+      text-shadow: 
+        // 青色柔和发光
+        0 0 15px rgba(0, 245, 212, 0.5),
+        0 0 30px rgba(0, 245, 212, 0.3),
+        // 2层凸起
+        1px 1px 0 #0a3d3d,
+        2px 2px 0 #082828,
+        // 柔和底部阴影
+        0 4px 8px rgba(0, 0, 0, 0.3);
+
+      // 内发光效果
+      &::before {
+        content: attr(data-char);
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.7) 0%,
+          rgba(200, 255, 250, 0.4) 50%,
+          transparent 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transform: translateZ(1px);
+      }
+
+      &.accent {
+        background: linear-gradient(
+          135deg, 
+          #00d4aa 0%, 
+          #00b4d8 25%,
+          #0077b6 50%,
+          #023e8a 75%,
+          #03045e 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        background-size: 200% 200%;
+        animation: gradientShift 4s ease infinite, float3d 3s ease-in-out infinite;
+        
+        // 极光蓝字符的精致阴影
+        text-shadow: 
+          0 0 20px rgba(0, 180, 216, 0.6),
+          0 0 40px rgba(0, 119, 182, 0.4),
+          2px 2px 0 #012a4a,
+          0 4px 8px rgba(0, 0, 0, 0.3);
+        
+        &::before {
+          background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(200, 250, 255, 0.4) 40%,
+            transparent 100%
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      }
+
+      &:hover {
+        transform: translateY(-6px) scale(1.1) rotateX(8deg);
+        text-shadow: 
+          0 0 25px rgba(255, 200, 87, 0.9),
+          0 0 50px rgba(255, 180, 50, 0.6),
+          1px 1px 0 #3d2a00,
+          2px 2px 0 #2a1d00,
+          0 6px 12px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    // 字符交错动画延迟
+    .char:nth-child(1) { animation-delay: 0s; }
+    .char:nth-child(2) { animation-delay: 0.1s; }
+    .char:nth-child(3) { animation-delay: 0.2s; }
+    .char:nth-child(4) { animation-delay: 0.3s; }
+    .char:nth-child(5) { animation-delay: 0.4s; }
+    .char:nth-child(6) { animation-delay: 0.5s; }
+    .char:nth-child(7) { animation-delay: 0.6s; }
+  }
+
+  @keyframes float3d {
+    0%, 100% { 
+      transform: translateY(0) rotateX(0deg) rotateY(0deg); 
+    }
+    25% { 
+      transform: translateY(-3px) rotateX(2deg) rotateY(1deg); 
+    }
+    50% { 
+      transform: translateY(-6px) rotateX(0deg) rotateY(0deg); 
+    }
+    75% { 
+      transform: translateY(-3px) rotateX(-2deg) rotateY(-1deg); 
+    }
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  // 副标题
   .page-desc {
+    font-size: 1rem;
     color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 32px;
+    max-width: 600px;
+    line-height: 1.6;
+
+    .desc-word {
+      display: inline-block;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: #00d9ff;
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  // 功能标签组
+  .feature-tags {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+
+      &:hover {
+        transform: translateY(-3px) scale(1.05);
+      }
+
+      .tag-icon {
+        font-size: 1rem;
+      }
+
+      &.tag-primary {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%);
+        border: 1px solid rgba(99, 102, 241, 0.5);
+        color: #fff;
+      }
+
+      &.tag-gradient {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
+      }
+
+      &.tag-success {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        border: none;
+        color: #1a1a2e;
+        box-shadow: 0 4px 20px rgba(67, 233, 123, 0.4);
+      }
+    }
+  }
+
+  // 中文信息区 - 宽松布局
+  .chinese-info {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 800px;
+
+    @media (max-width: 640px) {
+      gap: 8px;
+    }
+
+    .info-block {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      cursor: default;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(0, 180, 216, 0.5);
+        transform: translateY(-2px);
+      }
+
+      &.highlight {
+        background: linear-gradient(135deg, rgba(0, 180, 216, 0.25) 0%, rgba(0, 119, 182, 0.2) 100%);
+        border-color: rgba(0, 180, 216, 0.6);
+      }
+
+      .info-icon {
+        font-size: 1rem;
+      }
+
+      .info-text {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+  }
+
+  // 组件统计 - 宽松
+  .component-stats {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 12px 28px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+
+    .stat-number {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+
+      .stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00d4aa 0%, #00b4d8 50%, #0077b6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 36px;
+      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.3), transparent);
+    }
+  }
+
+  // 滚动指示器 - 宽松
+  .scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    span {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid rgba(255, 255, 255, 0.5);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+      transform: rotate(45deg);
+      animation: scrollBounce 1.5s ease-in-out infinite;
+
+      &:nth-child(2) {
+        animation-delay: 0.2s;
+        opacity: 0.6;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0.4s;
+        opacity: 0.3;
+      }
+    }
+  }
+
+  @keyframes scrollBounce {
+    0%, 100% {
+      transform: rotate(45deg) translateY(0);
+      opacity: 1;
+    }
+    50% {
+      transform: rotate(45deg) translateY(8px);
+      opacity: 0.5;
+    }
   }
 }
 
