@@ -83,8 +83,6 @@ interface ModulePosition {
 
 const defaultModulePositions: ModulePosition[] = [
   { key: 'hero', label: '首屏 Hero', icon: '🎯', desc: '全屏首图/视频开场' },
-  { key: 'screen2', label: '第二屏', icon: '📱', desc: '核心业务/价值主张' },
-  { key: 'screen3', label: '第三屏', icon: '📊', desc: '数据展示/优势介绍' },
   { key: 'feature', label: '特色模块', icon: '⭐', desc: '产品特点/服务优势' },
   { key: 'product', label: '产品/案例', icon: '🎨', desc: '作品展示/产品列表' },
   { key: 'about', label: '关于我们', icon: '👥', desc: '团队/品牌故事' },
@@ -2114,7 +2112,7 @@ watch(activeCategory, () => {
           </button>
           <!-- 复制方案按钮 -->
           <button class="selection-copy-btn" @click="copyPlanToClipboard">
-            {{ copySuccess ? '✅ 已复制' : '📋 复制方案' }}
+            {{ copySuccess ? '✅ 已生成方案' : '📋 生成方案' }}
           </button>
         </div>
       </div>
@@ -2210,9 +2208,13 @@ watch(activeCategory, () => {
               </span>
               <span v-else class="pos-empty">暂无组件</span>
             </button>
+            <button class="module-pos-btn add-new" @click="openModuleEditor">
+              <span class="pos-icon">➕</span>
+              <span class="pos-label">添加新模块</span>
+            </button>
           </div>
           <div class="module-selector-footer">
-            <button class="btn btn-ghost" @click="openModuleEditor">⚙️ 完整配置</button>
+            <button class="btn btn-ghost" @click="openModuleEditor">⚙️ 设置模块</button>
             <button class="btn btn-primary" @click="cancelModuleSelection">✓ 关闭</button>
           </div>
         </div>
@@ -3305,6 +3307,33 @@ watch(activeCategory, () => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  &.add-new {
+    border: 2px dashed rgba(102, 126, 234, 0.4);
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    &::before {
+      display: none;
+    }
+
+    &:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.15);
+      transform: translateY(-4px);
+
+      .pos-icon {
+        animation: pulse 1s infinite;
+      }
+    }
+
+    .pos-icon {
+      font-size: 2rem;
+    }
   }
 
   .pos-empty {
