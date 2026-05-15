@@ -643,18 +643,35 @@ const buildCopyContent = (): string => {
   // 标题
   lines.push(sep('='), '🎯 企业网站开发需求 - 请在 meoo AI 平台生成 React 代码', sep('='), blank())
 
-  // ===== Token 估算 =====
+  // ===== 优先级说明 =====
+  lines.push('📌 **优先级说明**：')
+  lines.push('- 🔴 **必须遵守**：不遵守会导致功能错误或性能问题')
+  lines.push('- 🟡 **强烈建议**：最佳实践，显著提升代码质量')
+  lines.push('- 🟢 **可选优化**：锦上添花，有时间再实现')
+  lines.push(blank())
+
+  // ===== Token 估算（更准确） =====
   const totalChars = selectedComponents.value.reduce((sum, comp) => {
     const sourceCode = getComponentSourceCode(comp)
     const readme = getComponentReadme(comp)
     return sum + sourceCode.length + readme.length
   }, 0)
-  const estimatedTokens = Math.ceil(totalChars / 4)
+  // 考虑 Markdown 格式化开销（约增加 35%）
+  const markdownOverhead = Math.ceil(totalChars * 0.35)
+  const estimatedTokens = Math.ceil((totalChars + markdownOverhead) / 4)
 
-  if (estimatedTokens > 50000) {
+  if (estimatedTokens > 100000) {
+    lines.push('🚨 **严重 Token 警告**', sep('-'))
+    lines.push(`当前内容约 ${estimatedTokens.toLocaleString()} tokens，远超模型上下文限制！`)
+    lines.push('**必须采取以下措施：**')
+    lines.push('1. 将组件分为多个批次生成（每批 ≤8 个组件）')
+    lines.push('2. 先生成核心模块（Hero + 产品展示），再生成辅助模块')
+    lines.push('3. 考虑移除部分组件的完整源码，仅保留关键动画逻辑')
+    lines.push(blank())
+  } else if (estimatedTokens > 50000) {
     lines.push('⚠️ **Token 警告**', sep('-'))
     lines.push(
-      `当前选中的组件源码总量约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`,
+      `当前内容约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`,
     )
     lines.push('建议：')
     lines.push('1. 减少选中组件数量')
@@ -851,6 +868,174 @@ const buildCopyContent = (): string => {
   lines.push('  - 教育行业：温暖、启发、成长')
   lines.push('  - 医疗行业：关怀、精准、生命')
   lines.push(blank())
+
+  // ===== 文字组件设计规范（自动检测 card-text 类型） =====
+  const hasTextComponents = selectedComponents.value.some(comp => comp.type === 'card-text')
+  if (hasTextComponents) {
+    lines.push('#### 3.5 🎨 GSAP 文字动画组件设计规范（重要）')
+    lines.push('**检测到您选择了 card-text 类型的文字动画组件，请严格遵循以下设计规范：**')
+    lines.push(blank())
+
+    lines.push('##### 3.5.1 文字组件参考标准')
+    lines.push('所有文字动画必须参考 `src/views/web-list/card-text` 目录下的 Vue3 组件设计，包括：')
+    lines.push('- **CardTextBlur**: 模糊揭示动画（blur filter + y 位移 + opacity）')
+    lines.push('- **CardTextNeonSign**: 霓虹灯效果（text-shadow 动画 + 发光效果）')
+    lines.push('- **CardTextHologram**: 全息投影效果（gradient text + shimmer 动画）')
+    lines.push('- **CardTextParticleStorm**: 粒子风暴文字（Canvas 粒子组成文字）')
+    lines.push('- **CardTextFluid3D**: 3D 流体文字（3D transform + fluid motion）')
+    lines.push('- **CardTextCyber**: 赛博朋克风格（glitch effect + scan lines）')
+    lines.push('- **CardTextGalaxy**: 星系文字（旋转星云效果）')
+    lines.push('- **CardTextLaser**: 激光扫描效果（linear-gradient mask 动画）')
+    lines.push('- 以及其他 20+ 种文字特效组件')
+    lines.push(blank())
+
+    lines.push('##### 3.5.2 核心技术要求（必须遵守）')
+    lines.push('1. **Vue3 → React 转换规则**：')
+    lines.push('   - 使用 `useRef` 替代 `ref()` 获取 DOM 元素')
+    lines.push('   - 在 `useEffect` 中初始化 GSAP 动画，确保 DOM 已渲染')
+    lines.push('   - 使用 `gsap.context()` 包裹所有动画代码，便于清理')
+    lines.push('   - 在 `return () => ctx.revert()` 中清理所有动画')
+    lines.push(blank())
+
+    lines.push('2. **ScrollTrigger 配置标准**：')
+    lines.push('   ```tsx')
+    lines.push('   scrollTrigger: {')
+    lines.push('     trigger: sectionRef.current,')
+    lines.push('     start: "top 80%",  // 元素顶部到达视口80%时开始')
+    lines.push('     end: "top 20%",    // 元素顶部到达视口20%时结束')
+    lines.push('     scrub: 1.5,        // 平滑系数，值越大动画越平滑')
+    lines.push('     toggleActions: "play none none reverse"')
+    lines.push('   }')
+    lines.push('   ```')
+    lines.push(blank())
+
+    lines.push('3. **文字动画常见模式**：')
+    lines.push('   - **模糊揭示**：`{ filter: "blur(20px)", opacity: 0, y: 120 }` → `{ filter: "blur(0px)", opacity: 1, y: 0 }`')
+    lines.push('   - **缩放入场**：`{ scale: 0.8, opacity: 0 }` → `{ scale: 1, opacity: 1 }`')
+    lines.push('   - **交错延迟**：使用 `stagger: 0.15` 让多个段落依次动画')
+    lines.push('   - **3D 旋转**：`{ rotationX: -45, opacity: 0 }` → `{ rotationX: 0, opacity: 1 }`')
+    lines.push('   - **渐变遮罩**：使用 `background-clip: text` + animated gradient')
+    lines.push(blank())
+
+    lines.push('4. **性能优化要点**：')
+    lines.push('   - 使用 `will-change: transform, opacity` 提升动画性能')
+    lines.push('   - 避免同时动画大量文字元素（建议 ≤10 个段落）')
+    lines.push('   - Canvas 文字动画需监听 `visibilitychange` 暂停')
+    lines.push('   - 移动端简化动画（减少 blur 半径、降低粒子数量）')
+    lines.push(blank())
+
+    lines.push('5. **响应式设计**：')
+    lines.push('   - 桌面端（≥1024px）：完整动画效果，字体大小 18-24px')
+    lines.push('   - 平板端（768-1023px）：简化动画，字体大小 16-20px')
+    lines.push('   - 移动端（<768px）：仅保留淡入效果，字体大小 14-18px')
+    lines.push('   - 超小屏幕（<480px）：禁用复杂动画，确保可读性')
+    lines.push(blank())
+
+    lines.push('##### 3.5.3 完整代码示例（React + GSAP）')
+    lines.push('```tsx')
+    lines.push('import { useRef, useEffect } from "react"')
+    lines.push('import gsap from "gsap"')
+    lines.push('import { ScrollTrigger } from "gsap/ScrollTrigger"')
+    lines.push(blank())
+    lines.push('gsap.registerPlugin(ScrollTrigger)')
+    lines.push(blank())
+    lines.push('const TextSection = () => {')
+    lines.push('  const sectionRef = useRef<HTMLElement>(null)')
+    lines.push('  const titleRef = useRef<HTMLHeadingElement>(null)')
+    lines.push('  const paragraphRefs = useRef<(HTMLParagraphElement | null)[]>([])')
+    lines.push(blank())
+    lines.push('  useEffect(() => {')
+    lines.push('    const ctx = gsap.context(() => {')
+    lines.push('      // 标题动画 - 模糊揭示')
+    lines.push('      if (titleRef.current) {')
+    lines.push('        gsap.fromTo(titleRef.current,')
+    lines.push('          { y: 120, opacity: 0, filter: "blur(20px)" },')
+    lines.push('          {')
+    lines.push('            y: 0,')
+    lines.push('            opacity: 1,')
+    lines.push('            filter: "blur(0px)",')
+    lines.push('            duration: 1.2,')
+    lines.push('            ease: "power3.out",')
+    lines.push('            scrollTrigger: {')
+    lines.push('              trigger: sectionRef.current,')
+    lines.push('              start: "top 80%",')
+    lines.push('              end: "top 20%",')
+    lines.push('              scrub: 1.5')
+    lines.push('            }')
+    lines.push('          }')
+    lines.push('        )')
+    lines.push('      }')
+    lines.push(blank())
+    lines.push('      // 段落交错动画')
+    lines.push('      const validParagraphs = paragraphRefs.current.filter(Boolean)')
+    lines.push('      if (validParagraphs.length > 0) {')
+    lines.push('        gsap.fromTo(validParagraphs,')
+    lines.push('          { y: 150, opacity: 0, filter: "blur(25px)" },')
+    lines.push('          {')
+    lines.push('            y: 0,')
+    lines.push('            opacity: 1,')
+    lines.push('            filter: "blur(0px)",')
+    lines.push('            duration: 1.2,')
+    lines.push('            ease: "power3.out",')
+    lines.push('            stagger: 0.15,')
+    lines.push('            scrollTrigger: {')
+    lines.push('              trigger: sectionRef.current,')
+    lines.push('              start: "top 80%",')
+    lines.push('              end: "top 20%",')
+    lines.push('              scrub: 1.5')
+    lines.push('            }')
+    lines.push('          }')
+    lines.push('        )')
+    lines.push('      }')
+    lines.push('    }, sectionRef)')
+    lines.push(blank())
+    lines.push('    return () => ctx.revert() // ✅ 清理所有动画')
+    lines.push('  }, [])')
+    lines.push(blank())
+    lines.push('  return (')
+    lines.push('    <section ref={sectionRef} className="text-section">')
+    lines.push('      <h2 ref={titleRef}>企业核心价值</h2>')
+    lines.push('      <p ref={el => paragraphRefs.current[0] = el}>第一段内容...</p>')
+    lines.push('      <p ref={el => paragraphRefs.current[1] = el}>第二段内容...</p>')
+    lines.push('      <p ref={el => paragraphRefs.current[2] = el}>第三段内容...</p>')
+    lines.push('    </section>')
+    lines.push('  )')
+    lines.push('}')
+    lines.push('```')
+    lines.push(blank())
+
+    lines.push('##### 3.5.4 文字内容与动画的匹配原则')
+    lines.push('| 文字特效类型 | 适用文案主题 | 动画节奏 |')
+    lines.push('|------------|------------|---------|')
+    lines.push('| 模糊揭示（Blur） | 渐进式披露、深度洞察 | 缓慢优雅（1.2-1.5s） |')
+    lines.push('| 霓虹发光（Neon） | 活力、创新、突破 | 快速闪烁（0.6-0.8s） |')
+    lines.push('| 全息投影（Hologram） | 科技感、未来感 | 中等速度（1.0-1.2s） |')
+    lines.push('| 粒子风暴（Particle） | 数据、连接、网络 | 动态爆发（0.8-1.0s） |')
+    lines.push('| 3D 流体（Fluid3D） | 灵活、变革、适应 | 流畅自然（1.2-1.5s） |')
+    lines.push('| 赛博朋克（Cyber） | 数字化、AI、自动化 | 机械节奏（0.5-0.7s） |')
+    lines.push('| 激光扫描（Laser） | 精准、聚焦、目标 | 线性匀速（1.0s） |')
+    lines.push(blank())
+
+    lines.push('##### 3.5.5 常见错误警告')
+    lines.push('❌ **禁止的做法**：')
+    lines.push('- 直接在 render 中执行 GSAP 动画（必须在 useEffect 中）')
+    lines.push('- 使用 className 选择器（如 `.title`），应使用 ref 引用具体元素')
+    lines.push('- 忘记清理 ScrollTrigger（导致内存泄漏）')
+    lines.push('- 对所有文字使用相同动画（应根据内容层次差异化）')
+    lines.push('- 动画持续时间过长（>2s 会让用户失去耐心）')
+    lines.push('- 在移动端使用复杂的 blur/canvas 动画（性能差）')
+    lines.push(blank())
+
+    lines.push('✅ **正确的做法**：')
+    lines.push('- 使用 `gsap.context()` 包裹动画，便于批量清理')
+    lines.push('- 为每个文字元素设置唯一的 ref（避免冲突）')
+    lines.push('- ScrollTrigger 配置 `scrub: 1.5` 实现平滑滚动绑定')
+    lines.push('- 标题用强动画（blur + scale + y），段落用弱动画（仅 y + opacity）')
+    lines.push('- 添加 `prefers-reduced-motion` 检测，为敏感用户禁用动画')
+    lines.push('- 使用 `will-change` 提示浏览器优化渲染')
+    lines.push(blank())
+  }
+
   lines.push('#### 4. 🖼️ 图片使用策略（重点）')
   lines.push('**原则：图片不是装饰，而是内容的视觉化表达。每个模块至少使用1-2张高质量图片。**')
   lines.push(blank())
@@ -919,7 +1104,71 @@ const buildCopyContent = (): string => {
   lines.push('- 使用 Tailwind 响应式类：`<img className="w-full md:w-1/2 lg:w-1/3" />`')
   lines.push('- Hero 背景图在移动端可切换为更简洁的版本')
   lines.push(blank())
-  lines.push('##### 4.8 GSAP 缓动函数选择')
+
+  lines.push('##### 4.8 🟡 Tailwind CSS 响应式断点标准')
+  lines.push('**🟢 统一使用以下断点进行响应式设计：**')
+  lines.push(blank())
+  lines.push('| 断点 | 屏幕宽度 | Tailwind 前缀 | 适用场景 |')
+  lines.push('|-----|---------|--------------|---------|')
+  lines.push('| sm | ≥640px | `sm:` | 手机横屏 |')
+  lines.push('| md | ≥768px | `md:` | 平板竖屏 |')
+  lines.push('| lg | ≥1024px | `lg:` | 平板横屏/小笔记本 |')
+  lines.push('| xl | ≥1280px | `xl:` | 桌面显示器 |')
+  lines.push('| 2xl | ≥1536px | `2xl:` | 大显示器 |')
+  lines.push(blank())
+  lines.push('**🟢 示例代码：**')
+  lines.push('```tsx')
+  lines.push('// 响应式字体大小')
+  lines.push('<h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl">')
+  lines.push('  企业标题')
+  lines.push('</h2>')
+  lines.push(blank())
+  lines.push('// 响应式布局')
+  lines.push('<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">')
+  lines.push('  {/* 卡片内容 */}')
+  lines.push('</div>')
+  lines.push(blank())
+  lines.push('// 响应式间距')
+  lines.push('<section className="py-12 md:py-16 lg:py-24 px-4 md:px-8 lg:px-16">')
+  lines.push('  {/* 内容 */}')
+  lines.push('</section>')
+  lines.push('```')
+  lines.push(blank())
+
+  lines.push('##### 4.9 🟡 TypeScript 类型定义规范')
+  lines.push('**🟢 所有组件必须严格遵循 TypeScript 类型定义：**')
+  lines.push(blank())
+  lines.push('```tsx')
+  lines.push('// 1. Props 接口定义')
+  lines.push('interface HeroSectionProps {')
+  lines.push('  title: string')
+  lines.push('  subtitle?: string  // 可选属性')
+  lines.push('  imageUrl: string')
+  lines.push('  onCtaClick?: () => void  // 回调函数')
+  lines.push('}')
+  lines.push(blank())
+  lines.push('// 2. 组件定义')
+  lines.push('const HeroSection: React.FC<HeroSectionProps> = ({')
+  lines.push('  title,')
+  lines.push('  subtitle,')
+  lines.push('  imageUrl,')
+  lines.push('  onCtaClick')
+  lines.push('}) => {')
+  lines.push('  // ... 组件逻辑')
+  lines.push('}')
+  lines.push(blank())
+  lines.push('// 3. Ref 类型')
+  lines.push('const sectionRef = useRef<HTMLElement>(null)')
+  lines.push('const canvasRef = useRef<HTMLCanvasElement>(null)')
+  lines.push('```')
+  lines.push(blank())
+  lines.push('**🔴 禁止的做法：**')
+  lines.push('- ❌ 使用 `any` 类型（除非绝对必要）')
+  lines.push('- ❌ Props 不定义类型直接使用')
+  lines.push('- ❌ 事件处理函数参数类型为 `any`')
+  lines.push(blank())
+
+  lines.push('##### 4.10 GSAP 缓动函数选择')
   lines.push('**原则：不同场景使用不同的缓动函数，让动画更自然、更符合用户预期**')
   lines.push(blank())
   lines.push('| 动画类型 | 推荐缓动函数 | 效果描述 |')
@@ -1099,6 +1348,185 @@ const buildCopyContent = (): string => {
   lines.push('}, [])')
   lines.push('```')
   lines.push(blank())
+
+  // ===== 生成后验证清单 =====
+  lines.push('#### 9. ✅ 生成后验证清单（重要）')
+  lines.push('**生成代码后，请逐项检查以下内容，确保动画设计和内容显示正确：**')
+  lines.push(blank())
+
+  lines.push('##### 9.1 ScrollTrigger 设计验证')
+  lines.push('- [ ] **触发器配置检查**：')
+  lines.push('  - trigger 元素是否正确指向目标 DOM')
+  lines.push('  - start/end 位置是否合理（如 "top 80%" 到 "top 10%"）')
+  lines.push('  - scrub 值是否设置（推荐 1-2，避免 true）')
+  lines.push('  - toggleActions 是否与 scrub 模式匹配（scrub 模式下应为 "none none none none"）')
+  lines.push(blank())
+
+  lines.push('- [ ] **动画时间线检查**：')
+  lines.push('  - gsap.timeline 是否正确创建并关联到 ScrollTrigger')
+  lines.push('  - 动画阶段划分是否清晰（入场、展开、悬浮等）')
+  lines.push('  - stagger 延迟是否合理，避免所有元素同时动画')
+  lines.push('  - ease 缓动函数是否合适（避免 linear，推荐 power2.out、expo.out 等）')
+  lines.push(blank())
+
+  lines.push('- [ ] **清理机制检查**：')
+  lines.push('  - useEffect return 中是否正确调用 scrollTrigger.kill()')
+  lines.push('  - 是否使用 gsap.context() 包裹动画代码并调用 ctx.revert()')
+  lines.push('  - Canvas 动画是否正确取消 requestAnimationFrame')
+  lines.push('  - 页面隐藏时是否暂停动画（visibilitychange 监听）')
+  lines.push(blank())
+
+  lines.push('- [ ] **性能优化检查**：')
+  lines.push('  - 动画元素是否添加 will-change: transform')
+  lines.push('  - 是否避免在滚动处理函数中执行昂贵操作')
+  lines.push('  - 粒子/Canvas 动画是否在不可见时停止')
+  lines.push('  - 是否使用 transform 而非 top/left 进行位移动画')
+  lines.push(blank())
+
+  lines.push('##### 9.2 内容显示验证')
+  lines.push('- [ ] **3D 变换检查**：')
+  lines.push('  - 父容器是否设置 transform-style: preserve-3d')
+  lines.push('  - perspective 值是否合理（推荐 800-1600px）')
+  lines.push('  - 子元素的 transform-origin 是否正确')
+  lines.push('  - backface-visibility 是否按需设置')
+  lines.push(blank())
+
+  lines.push('- [ ] **元素可见性检查**：')
+  lines.push('  - 初始状态 opacity/scale 是否正确（折叠态 vs 展开态）')
+  lines.push('  - z-index 层级是否合理，避免元素被遮挡')
+  lines.push('  - overflow: hidden 是否影响内容显示')
+  lines.push('  - 响应式断点下内容是否正常显示')
+  lines.push(blank())
+
+  lines.push('- [ ] **文本内容检查**：')
+  lines.push('  - 标题、描述文案是否与企业信息匹配')
+  lines.push('  - 文案长度是否适合容器宽度（避免溢出或过短）')
+  lines.push('  - 字体大小在移动端是否可读（≥14px）')
+  lines.push('  - 文字颜色与背景对比度是否足够（≥4.5:1）')
+  lines.push(blank())
+
+  lines.push('- [ ] **图片加载检查**：')
+  lines.push('  - 图片 URL 是否有效（Unsplash 格式）')
+  lines.push('  - 是否添加 alt 属性和 loading="lazy"')
+  lines.push('  - 图片尺寸是否适配容器（object-fit: cover）')
+  lines.push('  - 图片加载失败是否有降级方案')
+  lines.push(blank())
+
+  lines.push('##### 9.3 交互体验验证')
+  lines.push('- [ ] **滚动行为检查**：')
+  lines.push('  - 滚动时动画是否流畅（无卡顿、跳跃）')
+  lines.push('  - 反向滚动时动画是否正确回退')
+  lines.push('  - 快速滚动时动画是否保持稳定')
+  lines.push('  - 滚动到不同区域时进度指示是否正确更新')
+  lines.push(blank())
+
+  lines.push('- [ ] **鼠标交互检查**：')
+  lines.push('  - hover 效果是否正常工作（如有）')
+  lines.push('  - 点击事件是否可触发（如有按钮/链接）')
+  lines.push('  - 光标样式是否正确（pointer/default）')
+  lines.push('  - 焦点状态是否清晰可见（键盘导航）')
+  lines.push(blank())
+
+  lines.push('- [ ] **响应式检查**：')
+  lines.push('  - 桌面端（≥1024px）：布局完整，动画流畅')
+  lines.push('  - 平板端（768-1023px）：元素不重叠，文字可读')
+  lines.push('  - 移动端（<768px）：单列布局，触摸友好')
+  lines.push('  - 超小屏幕（<480px）：内容不溢出，按钮可点击')
+  lines.push(blank())
+
+  lines.push('##### 9.4 浏览器兼容性验证')
+  lines.push('- [ ] **现代浏览器测试**：')
+  lines.push('  - Chrome/Edge：GSAP 动画正常，Canvas 渲染流畅')
+  lines.push('  - Firefox：3D 变换正确，渐变背景显示正常')
+  lines.push('  - Safari：iOS 上触摸滚动流畅，prefers-reduced-motion 生效')
+  lines.push('  - 移动端浏览器：触摸事件正常，性能良好')
+  lines.push(blank())
+
+  lines.push('- [ ] **降级方案检查**：')
+  lines.push('  - JS 禁用时：内容仍可阅读（SEO 友好）')
+  lines.push('  - GSAP 加载失败时：有 CSS fallback 动画')
+  lines.push('  - prefers-reduced-motion 用户：动画简化或禁用')
+  lines.push('  - 低性能设备：减少粒子数量或禁用复杂效果')
+  lines.push(blank())
+
+  lines.push('##### 9.5 调试工具使用建议')
+  lines.push('**使用以下工具验证动画质量：**')
+  lines.push('1. **GSAP DevTools**：安装 Chrome 扩展，实时查看时间线和 ScrollTrigger')
+  lines.push('2. **Chrome DevTools Performance**：录制滚动过程，检查 FPS 和强制重排')
+  lines.push('3. **Lighthouse**：运行性能审计，确保评分 ≥90')
+  lines.push('4. **Responsive Viewer**：同时预览多个断点的显示效果')
+  lines.push('5. **Accessibility Insights**：检查可访问性问题')
+  lines.push(blank())
+
+  lines.push('##### 9.6 🚀 性能预算（Performance Budget - 必须达标）')
+  lines.push('🟡 **生成的代码必须满足以下性能指标：**')
+  lines.push(blank())
+  lines.push('| 指标 | 目标值 | 测量工具 |')
+  lines.push('|-----|-------|---------|')
+  lines.push('| 首屏加载时间（FCP） | < 1.8s | Lighthouse |')
+  lines.push('| 最大内容绘制（LCP） | < 2.5s | Lighthouse |')
+  lines.push('| 累积布局偏移（CLS） | < 0.1 | Lighthouse |')
+  lines.push('| 首次输入延迟（FID） | < 100ms | Lighthouse |')
+  lines.push('| 动画帧率（FPS） | ≥ 55fps | Chrome DevTools Performance |')
+  lines.push('| JS Bundle 大小 | < 300KB（gzip） | Webpack Bundle Analyzer |')
+  lines.push('| CSS 文件大小 | < 50KB（gzip） | Webpack Bundle Analyzer |')
+  lines.push(blank())
+  lines.push('**🟡 性能优化强制措施：**')
+  lines.push('- [ ] 所有图片使用 `loading="lazy"` + `decoding="async"`')
+  lines.push('- [ ] GSAP 动画使用 `will-change: transform, opacity`')
+  lines.push('- [ ] Canvas 动画在不可见时暂停（`visibilitychange` 监听）')
+  lines.push('- [ ] 使用 `React.memo()` 包裹纯展示组件')
+  lines.push('- [ ] 避免在滚动事件中执行昂贵操作（使用 throttle/debounce）')
+  lines.push('- [ ] 使用 `IntersectionObserver` 替代部分 ScrollTrigger 场景')
+  lines.push(blank())
+
+  lines.push('##### 9.7 🛡️ 错误边界与降级方案')
+  lines.push('🟡 **必须为以下场景提供降级方案：**')
+  lines.push(blank())
+  lines.push('###### 9.7.1 GSAP 加载失败')
+  lines.push('```tsx')
+  lines.push('const [gsapLoaded, setGsapLoaded] = useState(false)')
+  lines.push(blank())
+  lines.push('useEffect(() => {')
+  lines.push('  import("gsap").then(() => {')
+  lines.push('    setGsapLoaded(true)')
+  lines.push('  }).catch(() => {')
+  lines.push('    document.documentElement.classList.add("no-gsap")')
+  lines.push('  })')
+  lines.push('}, [])')
+  lines.push('// CSS fallback')
+  lines.push('// .no-gsap .animated-element { animation: fadeIn 0.6s ease-out; }')
+  lines.push('```')
+  lines.push(blank())
+  lines.push('###### 9.7.2 图片加载失败')
+  lines.push('```tsx')
+  lines.push('const [imgError, setImgError] = useState(false)')
+  lines.push(blank())
+  lines.push('<img')
+  lines.push('  src={imageUrl}')
+  lines.push('  alt={altText}')
+  lines.push('  onError={() => setImgError(true)}')
+  lines.push('  className={imgError ? "fallback-bg" : ""}')
+  lines.push('/>')
+  lines.push('```')
+  lines.push(blank())
+  lines.push('###### 9.7.3 ScrollTrigger 初始化失败')
+  lines.push('```tsx')
+  lines.push('useEffect(() => {')
+  lines.push('  try {')
+  lines.push('    gsap.registerPlugin(ScrollTrigger)')
+  lines.push('    // ... 动画代码')
+  lines.push('  } catch (error) {')
+  lines.push('    console.warn("ScrollTrigger 初始化失败，使用简化动画", error)')
+  lines.push('    gsap.from(element, { opacity: 0, duration: 0.6 })')
+  lines.push('  })')
+  lines.push('}, [])')
+  lines.push('```')
+  lines.push(blank())
+
+  lines.push('**如果发现任何问题，请立即修正并重新验证，直到所有检查项通过。**')
+  lines.push(blank())
+
   lines.push('### 输出顺序')
   lines.push('请按以下顺序输出代码文件（每个文件用 ```tsx 或 ```css 包裹）：')
   ;[
@@ -1179,7 +1607,7 @@ async function copyPlanToClipboard() {
 
 // 打开 meoo AI
 function OpenMeoo() {
-  window.open('https://ai.meoo.com', '_blank')
+  window.open('https://meoo.com/', '_blank')
 }
 
 // 初始化已选组件
@@ -1346,7 +1774,7 @@ onMounted(() => {
   Object.assign(enterpriseInfo, saved)
 })
 
-// 添加收藏分类
+// 添加收藏和已选分类
 const categories = [
   { key: 'all', label: '全部' },
   { key: 'card-image', label: '图片' },
@@ -1356,6 +1784,7 @@ const categories = [
   { key: 'card-time', label: '时间' },
   { key: 'card-list', label: '基础' },
   { key: 'favorite', label: '我的收藏' },
+  { key: 'selected', label: '已选组件' },
 ]
 
 // ==================== 响应式数据 ====================
@@ -1871,6 +2300,11 @@ const filteredComponents = computed(() => {
   if (activeCategory.value === 'favorite') {
     return cardComponents.value.filter((comp) => isFavorite(comp.dirName))
   }
+  if (activeCategory.value === 'selected') {
+    // 只显示已选中的组件，基于 selectedComponents 的 dirName 过滤
+    const selectedNames = new Set(selectedComponents.value.map((c) => c.dirName))
+    return cardComponents.value.filter((comp) => selectedNames.has(comp.dirName))
+  }
   return cardComponents.value.filter((comp) => comp.type === activeCategory.value)
 })
 
@@ -1972,7 +2406,7 @@ const handleScroll = () => {
 // ==================== 气泡粒子系统 ====================
 const createExtraBubbles = () => {
   if (!bubblesContainerRef.value) return
-  
+
   const container = bubblesContainerRef.value
   const colors = [
     'rgba(255, 105, 180, 0.6)',   // 粉红
@@ -1982,18 +2416,18 @@ const createExtraBubbles = () => {
     'rgba(255, 182, 193, 0.6)',   // 浅粉
     'rgba(173, 216, 230, 0.5)',   // 天蓝
   ]
-  
+
   // 创建 50 个气泡
   for (let i = 0; i < 50; i++) {
     const bubble = document.createElement('div')
     bubble.className = 'bubble-particle'
-    
+
     const size = 4 + Math.random() * 8
     const x = Math.random() * 100
     const duration = 15 + Math.random() * 20
     const delay = Math.random() * -30
     const color = colors[Math.floor(Math.random() * colors.length)]
-    
+
     bubble.style.cssText = `
       width: ${size}px;
       height: ${size}px;
@@ -2011,10 +2445,10 @@ const createExtraBubbles = () => {
 // ==================== GSAP 动画 ====================
 const initPage1Animations = () => {
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-  
+
   // 入场动画序列
   tl.fromTo('.page1-bg-effects', { opacity: 0 }, { opacity: 1, duration: 1 })
-    .fromTo('.floating-orb', 
+    .fromTo('.floating-orb',
       { scale: 0, opacity: 0 },
       { scale: 1, opacity: 0.6, duration: 1.5, stagger: 0.2 },
       '-=0.5'
@@ -2033,15 +2467,15 @@ const initPage1Animations = () => {
     // 每个字符单独 3D 旋转入场
     .fromTo('.page-title .char',
       { y: 60, opacity: 0, rotateX: -90, rotateY: 45, scale: 0.5 },
-      { 
-        y: 0, 
-        opacity: 1, 
-        rotateX: 0, 
-        rotateY: 0, 
-        scale: 1, 
-        duration: 0.8, 
-        stagger: { each: 0.06, from: 'start' }, 
-        ease: 'elastic.out(1, 0.6)' 
+      {
+        y: 0,
+        opacity: 1,
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        duration: 0.8,
+        stagger: { each: 0.06, from: 'start' },
+        ease: 'elastic.out(1, 0.6)'
       },
       '-=0.8'
     )
@@ -2143,16 +2577,16 @@ const initPage1Animations = () => {
   })
 
   // 网格动画 - 淡入
-  gsap.fromTo('.grid-lines', 
+  gsap.fromTo('.grid-lines',
     { opacity: 0 },
     { opacity: 1, duration: 2, delay: 0.5 }
   )
-  gsap.fromTo('.grid-dots', 
+  gsap.fromTo('.grid-dots',
     { opacity: 0 },
     { opacity: 1, duration: 2, delay: 0.8 }
   )
   // 脉冲圆环动画
-  gsap.fromTo('.pulse-ring', 
+  gsap.fromTo('.pulse-ring',
     { scale: 0.5, opacity: 0 },
     { scale: 1, opacity: 1, duration: 1.5, stagger: 0.3, ease: 'power2.out' }
   )
@@ -2254,7 +2688,7 @@ watch(activeCategory, () => {
         <div class="grid-lines"></div>
         <div class="grid-dots"></div>
       </div>
-      
+
       <!-- 主内容区 -->
       <div class="page1-content">
         <!-- 顶部标签 -->
@@ -2262,7 +2696,7 @@ watch(activeCategory, () => {
           <span class="badge-icon">✨</span>
           <span class="badge-text">AI-Powered</span>
         </div>
-        
+
         <!-- 主标题 - 3D 立体字符动画 -->
         <h1 class="page-title" ref="titleRef">
           <span class="title-line" data-text="Creative">
@@ -2275,12 +2709,12 @@ watch(activeCategory, () => {
             <span v-for="(char, i) in 'Gallery'" :key="'c3-'+i" class="char" :data-char="char">{{ char }}</span>
           </span>
         </h1>
-        
+
         <!-- 副标题 -->
         <p class="page-desc" ref="descRef">
           <span class="desc-word" v-for="(word, i) in ['Scroll', 'down', 'to', 'explore', 'interactive', 'card', 'animations']" :key="i">{{ word }}</span>
         </p>
-        
+
         <!-- 功能标签组 -->
         <div class="feature-tags" ref="tagsRef">
           <div class="tag tag-primary">
@@ -2296,7 +2730,7 @@ watch(activeCategory, () => {
             <span class="tag-text">AI生成</span>
           </div>
         </div>
-        
+
         <!-- 中文说明区 -->
         <div class="chinese-info" ref="chineseRef">
           <div class="info-block">
@@ -2316,7 +2750,7 @@ watch(activeCategory, () => {
             <span class="info-text">AI生成</span>
           </div>
         </div>
-        
+
         <!-- 组件数量统计 -->
         <div class="component-stats" ref="statsRef">
           <div class="stat-number">
@@ -2335,7 +2769,7 @@ watch(activeCategory, () => {
           </div>
         </div>
       </div>
-      
+
       <!-- 底部滚动指示器 -->
       <div class="scroll-indicator" ref="scrollRef">
         <span></span>
@@ -3153,7 +3587,7 @@ watch(activeCategory, () => {
         height: 4px;
         border-radius: 50%;
         background: rgba(255, 105, 180, 0.6);
-        box-shadow: 
+        box-shadow:
           calc(var(--x1, 10) * 1px) calc(var(--y1, 20) * 1px) 0 rgba(255, 105, 180, 0.8),
           calc(var(--x2, 30) * 1px) calc(var(--y2, 40) * 1px) 0 rgba(138, 43, 226, 0.7),
           calc(var(--x3, 50) * 1px) calc(var(--y3, 60) * 1px) 0 rgba(0, 191, 255, 0.6),
@@ -3167,7 +3601,7 @@ watch(activeCategory, () => {
         animation-delay: -10s;
         animation-duration: 25s;
         background: rgba(255, 255, 255, 0.5);
-        box-shadow: 
+        box-shadow:
           calc(var(--x5, 15) * 1px) calc(var(--y5, 25) * 1px) 0 rgba(255, 182, 193, 0.7),
           calc(var(--x6, 45) * 1px) calc(var(--y6, 55) * 1px) 0 rgba(173, 216, 230, 0.6),
           calc(var(--x7, 85) * 1px) calc(var(--y7, 95) * 1px) 0 rgba(221, 160, 221, 0.5);
@@ -3260,7 +3694,7 @@ watch(activeCategory, () => {
       filter: blur(70px);
       opacity: 0.7;
       animation: orbFloat 10s ease-in-out infinite;
-      
+
       &.orb-1 {
         width: 450px;
         height: 450px;
@@ -3269,7 +3703,7 @@ watch(activeCategory, () => {
         right: -100px;
         animation-delay: 0s;
       }
-      
+
       &.orb-2 {
         width: 380px;
         height: 380px;
@@ -3278,7 +3712,7 @@ watch(activeCategory, () => {
         left: -80px;
         animation-delay: -3s;
       }
-      
+
       &.orb-3 {
         width: 320px;
         height: 320px;
@@ -3334,7 +3768,7 @@ watch(activeCategory, () => {
     .grid-lines {
       position: absolute;
       inset: 0;
-      
+
       // 底层：透视网格（模拟地平线）
       &::before {
         content: '';
@@ -3343,7 +3777,7 @@ watch(activeCategory, () => {
         left: 0;
         right: 0;
         height: 60%;
-        background: 
+        background:
           linear-gradient(
             to bottom,
             transparent 0%,
@@ -3373,7 +3807,7 @@ watch(activeCategory, () => {
         content: '';
         position: absolute;
         inset: 0;
-        background-image: 
+        background-image:
           linear-gradient(30deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
           linear-gradient(150deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
           linear-gradient(30deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
@@ -3560,9 +3994,9 @@ watch(activeCategory, () => {
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       transform-style: preserve-3d;
       animation: float3d 3s ease-in-out infinite;
-      
+
       // 立体多层阴影 - 极光青配色
-      text-shadow: 
+      text-shadow:
         // 青色柔和发光
         0 0 15px rgba(0, 245, 212, 0.5),
         0 0 30px rgba(0, 245, 212, 0.3),
@@ -3592,8 +4026,8 @@ watch(activeCategory, () => {
 
       &.accent {
         background: linear-gradient(
-          135deg, 
-          #00d4aa 0%, 
+          135deg,
+          #00d4aa 0%,
           #00b4d8 25%,
           #0077b6 50%,
           #023e8a 75%,
@@ -3604,14 +4038,14 @@ watch(activeCategory, () => {
         background-clip: text;
         background-size: 200% 200%;
         animation: gradientShift 4s ease infinite, float3d 3s ease-in-out infinite;
-        
+
         // 极光蓝字符的精致阴影
-        text-shadow: 
+        text-shadow:
           0 0 20px rgba(0, 180, 216, 0.6),
           0 0 40px rgba(0, 119, 182, 0.4),
           2px 2px 0 #012a4a,
           0 4px 8px rgba(0, 0, 0, 0.3);
-        
+
         &::before {
           background: linear-gradient(
             180deg,
@@ -3627,7 +4061,7 @@ watch(activeCategory, () => {
 
       &:hover {
         transform: translateY(-6px) scale(1.1) rotateX(8deg);
-        text-shadow: 
+        text-shadow:
           0 0 25px rgba(255, 200, 87, 0.9),
           0 0 50px rgba(255, 180, 50, 0.6),
           1px 1px 0 #3d2a00,
@@ -3647,17 +4081,17 @@ watch(activeCategory, () => {
   }
 
   @keyframes float3d {
-    0%, 100% { 
-      transform: translateY(0) rotateX(0deg) rotateY(0deg); 
+    0%, 100% {
+      transform: translateY(0) rotateX(0deg) rotateY(0deg);
     }
-    25% { 
-      transform: translateY(-3px) rotateX(2deg) rotateY(1deg); 
+    25% {
+      transform: translateY(-3px) rotateX(2deg) rotateY(1deg);
     }
-    50% { 
-      transform: translateY(-6px) rotateX(0deg) rotateY(0deg); 
+    50% {
+      transform: translateY(-6px) rotateX(0deg) rotateY(0deg);
     }
-    75% { 
-      transform: translateY(-3px) rotateX(-2deg) rotateY(-1deg); 
+    75% {
+      transform: translateY(-3px) rotateX(-2deg) rotateY(-1deg);
     }
   }
 
@@ -3947,7 +4381,7 @@ watch(activeCategory, () => {
   bottom: 20px;
   right: 20px;
   width: 380px;
-  max-height: 60vh;
+  //max-height: 60vh;
   background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(102, 126, 234, 0.3);
@@ -4131,7 +4565,7 @@ watch(activeCategory, () => {
 }
 
 .selection-list {
-  max-height: calc(60vh - 70px);
+  max-height: 500px;
   overflow-y: auto;
   padding: 12px;
   transition: all 0.3s ease;
@@ -4609,7 +5043,7 @@ watch(activeCategory, () => {
 .copy-content-wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 32px;
+  padding: 10px 32px;
 
   h4 {
     color: rgba(255, 255, 255, 0.8);
