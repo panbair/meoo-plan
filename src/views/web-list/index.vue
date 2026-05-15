@@ -2028,6 +2028,12 @@ watch(activeCategory, () => {
     <div class="page page1">
       <h1 class="page-title">Creative Cards Gallery</h1>
       <p class="page-desc">Scroll down to explore interactive card animations</p>
+      <div>
+         适用于快速构建具有丰富动画效果的企业官网
+      </div>
+      <div>产品展示页</div>
+      <div>营销落地页等</div>
+      <div>AI一键生成开发方案</div>
       <div>数量：{{ filteredComponents.length }}</div>
       <div class="scroll-indicator">
         <span></span>
