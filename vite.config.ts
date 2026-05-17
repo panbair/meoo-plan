@@ -95,19 +95,25 @@ export default defineConfig(({ mode }) => {
         customDomId: '__svg__icons__dom__'
       }),
 
-      // HTML 模板
-      createHtmlPlugin({
-        minify: buildMode,
-        template: 'index.html',
-        inject: {
-          data: {
-            title: env.VITE_APP_TITLE || '管理系统',
-            injectScript: buildMode
-              ? `<script src="/inject.js"></script>`
-              : ''
-          }
-        }
-      }),
+      // HTML 模板（临时禁用，避免 logo.svg 处理错误）
+      // createHtmlPlugin({
+      //   minify: buildMode,
+      //   template: 'index.html',
+      //   inject: {
+      //     data: {
+      //       title: env.VITE_APP_TITLE || '管理系统',
+      //       injectScript: buildMode
+      //         ? `<script src="/inject.js"></script>`
+      //         : ''
+      //     },
+      //     ejsOptions: {
+      //       rmWhitespace: true
+      //     }
+      //   },
+      //   transformOptions: {
+      //     assetsInclude: []
+      //   }
+      // }),
 
       // Vue I18n (禁用预编译插件以避免 esbuild 错误)
       // vue-i18n 默认可以直接工作，不需要 unplugin
@@ -138,8 +144,7 @@ export default defineConfig(({ mode }) => {
         open: false,
         gzipSize: true,
         brotliSize: true,
-        filename: 'dist/stats.html',
-        backgroundColor: '#f5f5f5'
+        filename: 'dist/stats.html'
       }) as Plugin)
     ].filter(Boolean) as Plugin[],
 
@@ -346,14 +351,14 @@ export default defineConfig(({ mode }) => {
     // 实验性配置
     experimental: {
       // 构建时的并行处理
-      buildParallelModules: true,
-      // Render chunk link
-      renderBuiltUrl(filename: string) {
-        if (isProduction(mode)) {
-          return { runtime: `/public/${filename}` }
-        }
-        return { relative: true }
-      }
+      buildParallelModules: true
+      // Render chunk link（禁用，避免 HTML 脚本路径问题）
+      // renderBuiltUrl(filename: string) {
+      //   if (isProduction(mode)) {
+      //     return { runtime: `/public/${filename}` }
+      //   }
+      //   return { relative: true }
+      // }
     },
 
     // 日志级别

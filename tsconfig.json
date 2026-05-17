@@ -24,7 +24,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "noUncheckedSideEffectImports": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "baseUrl": ".",

@@ -194,7 +194,6 @@ onMounted(() => {
           ease: 'power3.out'
         })
       }
-      }
 
       if (subtitleEl.length) {
         gsap.from(subtitleEl, {

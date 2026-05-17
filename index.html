@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" prefix="og: http://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
     <!-- SEO Meta Tags -->
-    <title><%= title %></title>
-    <meta name="description" content="Meeo Plan 管理平台 - 现代化企业级后台管理系统" />
-    <meta name="keywords" content="Vue3, Vite, Element Plus, 管理后台, 后台管理系统" />
+    <title>Meeo Plan - 现代化企业级管理平台 | Vue3 + Element Plus 后台管理系统</title>
+    <meta name="description" content="Meeo Plan 是一个基于 Vue3、Vite 和 Element Plus 构建的现代化企业级管理平台。提供流畅的交互动画、响应式设计和丰富的数据可视化组件，助力企业数字化转型。" />
+    <meta name="keywords" content="Meeo Plan, Vue3管理后台, Vite后台系统, Element Plus, 企业管理系统, 数据可视化, 后台管理模板, SPA单页应用, TypeScript, 前端框架" />
     <meta name="author" content="Meeo Plan Team" />
-    <meta name="robots" content="noindex, nofollow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="revisit-after" content="7 days" />
+    <link rel="canonical" href="https://meoo-plan.example.com/" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <link rel="shortcut icon" href="/logo.svg" />
-    <link rel="apple-touch-icon" href="/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.ico" />
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="apple-touch-icon" href="./favicon.ico" />
 
     <!-- Theme Color -->
     <meta name="theme-color" content="#409eff" />
@@ -24,16 +27,69 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="<%= title %>" />
-    <meta property="og:description" content="现代化企业级后台管理系统" />
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/logo.svg" />
+    <meta property="og:url" content="https://meoo-plan.example.com/" />
+    <meta property="og:title" content="Meeo Plan - 现代化企业级管理平台" />
+    <meta property="og:description" content="基于 Vue3、Vite 和 Element Plus 构建的现代化企业级管理平台，提供流畅交互动画和数据可视化。" />
+    <meta property="og:image" content="https://meoo-plan.example.com/og-image.png" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="Meeo Plan" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://meoo-plan.example.com/" />
+    <meta name="twitter:title" content="Meeo Plan - 现代化企业级管理平台" />
+    <meta name="twitter:description" content="基于 Vue3、Vite 和 Element Plus 构建的现代化企业级管理平台。" />
+    <meta name="twitter:image" content="https://meoo-plan.example.com/og-image.png" />
+
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Meeo Plan",
+      "url": "https://meoo-plan.example.com/",
+      "description": "现代化企业级管理平台",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Meeo Plan Team",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://meoo-plan.example.com/favicon.ico"
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://meoo-plan.example.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Structured Data - Software Application -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Meeo Plan",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web Browser",
+      "description": "基于 Vue3 的现代化企业级管理平台",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      },
+      "programmingLanguage": {
+        "@type": "ComputerLanguage",
+        "name": "Vue.js"
+      }
+    }
+    </script>
 
     <!-- Content Security Policy (生产环境) -->
-    <% if (injectScript) { %>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src 'none';" />
-    <% } %>
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-src 'none';" /> -->
   </head>
   <body>
     <div id="app"></div>
