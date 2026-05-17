@@ -16,8 +16,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ==================== 源码和README导入（供 AI 方案使用）====================
-const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {eager: true,
+// ==================== 源码和README导入（供 AI 方案使用，按需加载）====================
+const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {
   query: '?raw',
   import: 'default',
 })
@@ -25,7 +25,7 @@ const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,li
 // 动态导入所有README
 const readmeModules = import.meta.glob(
   '../web-list/card-{image,img,text,3d,time,list}/*/README.md',
-  { eager: true, query: '?raw', import: 'default' }
+  { query: '?raw', import: 'default' }
 )
 
 // 获取 router 实例
@@ -1855,19 +1855,19 @@ const bubblesContainerRef = ref<HTMLElement | null>(null)
 const propsMap = ref<Map<number, Record<string, unknown>>>(new Map())
 let observer: IntersectionObserver | null = null
 
-// ==================== 动态导入组件 ====================
+// ==================== 动态导入组件（按需加载）===================
 // card-list 目录组件
-const modules = import.meta.glob('./card-list/*/[^/]*.vue', { eager: true })
+const modules = import.meta.glob('./card-list/*/[^/]*.vue')
 // card-time 目录组件（精确匹配主文件）
-const modulesTime = import.meta.glob('./card-time/*/CardTime*.vue', { eager: true })
+const modulesTime = import.meta.glob('./card-time/*/CardTime*.vue')
 // card-3d 目录组件
-const modules3d = import.meta.glob('./card-3d/*/[^/]*.vue', { eager: true })
+const modules3d = import.meta.glob('./card-3d/*/[^/]*.vue')
 // card-img 目录组件
-const modulesImg = import.meta.glob('./card-img/*/[^/]*.vue', { eager: true })
+const modulesImg = import.meta.glob('./card-img/*/[^/]*.vue')
 // card-image 目录组件
-const modulesImage = import.meta.glob('./card-image/*/[^/]*.vue', { eager: true })
+const modulesImage = import.meta.glob('./card-image/*/[^/]*.vue')
 // card-text 目录组件
-const modulesText = import.meta.glob('./card-text/*/[^/]*.vue', { eager: true })
+const modulesText = import.meta.glob('./card-text/*/[^/]*.vue')
 
 /**
  * 自动化构建组件列表
@@ -2169,9 +2169,9 @@ const cardComponents = computed(() => {
         dirName,
         name: name || dirName,
         path,
-        // 懒加载模式：使用 defineAsyncComponent
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
         component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          defineAsyncComponent(module as any) :
           (module as any)?.default || null,
         type: 'card-list'
       }
@@ -2201,9 +2201,9 @@ const cardComponents = computed(() => {
         dirName,
         name: name || dirName,
         path,
-        // 懒加载模式：使用 defineAsyncComponent
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
         component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          defineAsyncComponent(module as any) :
           (module as any)?.default || null,
         type: 'card-time'
       }
@@ -2231,9 +2231,9 @@ const cardComponents = computed(() => {
         dirName,
         name: name || dirName,
         path,
-        // 懒加载模式：使用 defineAsyncComponent
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
         component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          defineAsyncComponent(module as any) :
           (module as any)?.default || null,
         type: 'card-text'
       }
@@ -2261,9 +2261,9 @@ const cardComponents = computed(() => {
         dirName,
         name: name || dirName,
         path,
-        // 懒加载模式：使用 defineAsyncComponent
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
         component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          defineAsyncComponent(module as any) :
           (module as any)?.default || null,
         type: 'card-3d'
       }
@@ -2291,9 +2291,9 @@ const cardComponents = computed(() => {
         dirName,
         name: name || dirName,
         path,
-        // 懒加载模式：使用 defineAsyncComponent
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
         component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          defineAsyncComponent(module as any) :
           (module as any)?.default || null,
         type: 'card-img'
       }
@@ -2321,9 +2321,9 @@ const cardComponents = computed(() => {
         dirName,
         name: name || dirName,
         path,
-        // 懒加载模式：使用 defineAsyncComponent
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
         component: LAZY_MODE ?
-          defineAsyncComponent(() => import(/* @vite-ignore */ path)) :
+          defineAsyncComponent(module as any) :
           (module as any)?.default || null,
         type: 'card-image'
       }

@@ -238,12 +238,7 @@ export default defineConfig(({ mode }) => {
       // Rollup 配置
       rollupOptions: {
         treeshake: {
-          moduleSideEffects: (id: string) => {
-            // 保留副作用
-            if (id.includes('virtual:')) return false
-            if (id.includes('element-plus/theme-chalk')) return true
-            return false
-          },
+          moduleSideEffects: true, // 保留所有模块的副作用
           propertyReadSideEffects: false,
           tryCatchDeoptimization: true
         },

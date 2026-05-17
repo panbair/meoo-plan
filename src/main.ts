@@ -110,10 +110,10 @@ async function bootstrap() {
   // 安装性能监控
   performanceMonitor.install(app)
 
-  // 注册 Service Worker（生产环境）
-  if (import.meta.env.PROD) {
-    serviceWorkerManager.register()
-  }
+  // 注册 Service Worker（生产环境，临时禁用以调试）
+  // if (import.meta.env.PROD) {
+  //   serviceWorkerManager.register()
+  // }
 
   // 全局属性
   app.config.globalProperties.$performance = performanceMonitor

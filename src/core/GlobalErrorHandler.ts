@@ -50,13 +50,14 @@ class GlobalErrorHandler {
     this.addErrorLog(errorLog)
     this.reportError(errorLog)
 
-    // 生产环境显示友好提示
+    // 生产环境显示友好提示（临时禁用，用于调试）
     if (!this.isDevelopment) {
-      ElNotification.error({
-        title: '系统错误',
-        message: '页面发生错误，请刷新重试',
-        duration: 3000
-      })
+      console.error('Vue Error:', err, 'Info:', info)
+      // ElNotification.error({
+      //   title: '系统错误',
+      //   message: '页面发生错误，请刷新重试',
+      //   duration: 3000
+      // })
     }
   }
 
