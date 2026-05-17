@@ -188,6 +188,16 @@ export default defineConfig(({ mode }) => {
         '/upload': {
           target: env.VITE_UPLOAD_URL || 'http://localhost:8080',
           changeOrigin: true
+        },
+        // AI API 代理 - 解决跨域问题
+        '/ai-proxy': {
+          target: 'https://dashscope.aliyuncs.com',
+          changeOrigin: true,
+          rewrite: (p: string) => p.replace(/^\/ai-proxy/, '/compatible-mode/v1'),
+          secure: true,
+          headers: {
+            'Origin': 'https://dashscope.aliyuncs.com'
+          }
         }
       },
       // 开发服务器监听

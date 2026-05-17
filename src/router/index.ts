@@ -55,6 +55,12 @@ const staticRoutes: RouteRecordRaw[] = [
     name: 'WebAI',
     component: () => import('@/views/web-ai/index.vue'),
     meta: { title: '网站AI方案', icon: 'Document', noCache: false }
+  },
+  {
+    path: '/solution-generator',
+    name: 'SolutionGenerator',
+    component: () => import('@/views/solution-generator/index.vue'),
+    meta: { title: '智能方案生成器', icon: 'MagicStick', noCache: false }
   }
 ]
 
