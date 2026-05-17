@@ -17,8 +17,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用）====================
-const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {
-  eager: true,
+const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {eager: true,
   query: '?raw',
   import: 'default',
 })
@@ -121,7 +120,7 @@ const defaultModulePositions: ModulePosition[] = [
     label: '页脚',
     icon: '📋',
     desc: '链接/版权信息'
-  }
+  },
 ]
 
 const MODULE_CONFIG_KEY = 'web-ai-module-positions'
@@ -344,39 +343,48 @@ const vueToReactRules = [
   { vue: 'ref="elementRef"', react: 'const elementRef = useRef<HTMLDivElement>(null)' },
   { vue: 'onMounted(() => {...})', react: 'useEffect(() => {...}, [])' },
   { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
-  { vue: 'defineProps<Props>()',
+  {
+    vue: 'defineProps<Props>()',
     react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
-  }
+  },
 ]
 
 /** 技术要求清单 - 带序号 */
 const techRequirements = [
   { num: 1, text: '**技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
   { num: 2, text: '**Vue → React 转换规则**:', indent: true },
-  { num: 3,
+  {
+    num: 3,
     text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
   },
-  { num: 4,
+  {
+    num: 4,
     text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图',
   },
-  { num: 5,
+  {
+    num: 5,
     text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写',
   },
-  { num: 6,
+  {
+    num: 6,
     text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断',
   },
-  { num: 7,
+  {
+    num: 7,
     text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建',
   },
-  { num: 8,
+  {
+    num: 8,
     text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
   },
-  { num: 9,
+  {
+    num: 9,
     text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
   },
-  { num: 10,
+  {
+    num: 10,
     text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
-  }
+  },
 ]
 
 /** 输出文件清单 */
@@ -713,7 +721,9 @@ const buildCopyContent = (): string => {
     sep('-'),
     '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
     '直接开发完整的、可运行的 React 企业网站代码。',
-     '必须严格根据企业信息来设计内容',
+    '你是一位资深产品设计师，你必须基于用户选配的 Vue 组件，',
+    '必须严格根据企业信息来设计内容',
+    '内容图文结合设计最好！',
     blank(),
   )
 
@@ -2421,11 +2431,10 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    {
-      root: null,
+    {root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
-    }
+    },
   )
 }
 
@@ -2700,7 +2709,7 @@ const initPage1Animations = () => {
       duration: 1.5,
       stagger: 0.3,
       ease: 'power2.out'
-    }
+    },
   )
 }
 
