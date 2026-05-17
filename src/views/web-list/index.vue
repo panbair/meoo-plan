@@ -2780,7 +2780,9 @@ watch(activeCategory, () => {
       >
         {{ cat.label }}
       </button>
+<!--
       <button class="tab-btn generate-btn" @click="router.push('/web-ai')">去生成方案</button>
+-->
     </div>
 
     <div class="page page1">

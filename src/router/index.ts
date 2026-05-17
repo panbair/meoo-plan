@@ -61,11 +61,11 @@ const staticRoutes: RouteRecordRaw[] = [
     name: 'SolutionGenerator',
     component: () => import('@/views/solution-generator/index.vue'),
     meta: { title: '智能方案生成器', icon: 'MagicStick', noCache: false }
-  }
+  },
 ]
 
 // 根布局路由 - 动态路由将挂载在此路由下
-const rootRoute: RouteRecordRaw = {
+/*const rootRoute: RouteRecordRaw = {
   path: '/',
   name: 'Home',
   component: () => import('@/layout/index.vue'),
@@ -84,6 +84,14 @@ const rootRoute: RouteRecordRaw = {
       }
     }
   ],
+}*/
+
+const rootRoute: RouteRecordRaw = {
+  path: '/',
+  name: 'Home',
+  component: () => import('@/views/web-list/index.vue'),
+  redirect: '/web-list',
+  meta: { title: '首页', icon: 'HomeFilled' },
 }
 
 const router = createRouter({
