@@ -615,9 +615,17 @@
 
         <div class="form-actions" v-if="generatedSolutions.length > 0">
           <button class="btn btn-prev" @click="prevStep">← 返回修改</button>
-          <button class="btn btn-export" @click="exportSolution">
-            📥 导出完整方案
-          </button>
+          <div class="export-buttons">
+            <button class="btn btn-export" @click="exportToTxt" title="下载为TXT文件（meoo AI专用）">
+              📥 下载 meoo AI 方案
+            </button>
+            <button class="btn btn-copy" @click="copyToClipboard" title="复制到剪贴板">
+              📋 复制方案内容
+            </button>
+            <button class="btn btn-secondary" @click="exportSolution" title="下载JSON格式（开发者用）">
+              🔧 导出 JSON
+            </button>
+          </div>
         </div>
       </div>
     </main>
@@ -1256,15 +1264,16 @@ function getPerformanceRating(level: string) {
 }
 
 function generateReasons(type: string) {
+  const visualStyleName = getVisualStyleName(formData.visualStyle)
   const reasons = {
     visual: [
-      `采用${getVisualStyleName()}风格的高级动画组件`,
+      `采用${visualStyleName}风格的高级动画组件`,
       '使用Canvas粒子和WebGL效果，视觉冲击力强',
       '适合追求品牌形象和用户体验的项目',
       '需要较好的设备性能和加载时间容忍度'
     ],
     balanced: [
-      `结合${getVisualStyleName()}风格的中级组件`,
+      `结合${visualStyleName}风格的中级组件`,
       '平衡视觉效果和加载性能',
       '适合大多数企业官网的标准配置',
       '良好的兼容性和用户体验'
@@ -1290,6 +1299,7 @@ function generateModuleSolutions(type: string) {
     const components = getComponentsForModule(moduleKey, type)
     
     modules.push({
+      key: moduleKey,  // 添加模块标识
       icon: module.icon,
       name: module.name,
       components
@@ -1483,11 +1493,6 @@ function getColorScheme(style: string) {
   return schemes[style] || schemes.minimal
 }
 
-function getVisualStyleName() {
-  const style = visualStyles.find(s => s.value === formData.visualStyle)
-  return style ? style.name : '现代'
-}
-
 function copySolutionCode() {
   // 复制方案代码到剪贴板
   const code = generateSolutionCode()
@@ -1608,6 +1613,736 @@ async function exportSolution() {
   } catch (error: any) {
     console.error('❌ 导出失败:', error)
     alert(`导出失败：${error.message}`)
+  }
+}
+
+// ==================== meoo AI 专用 TXT 导出功能 ====================
+
+/**
+ * 生成 meoo AI 专用的开发指令文档（TXT格式）
+ */
+function generateMeooAIContent(solution: any, form: any): string {
+  const timestamp = new Date().toLocaleString('zh-CN')
+  
+  // 构建图片资源规范
+  const imageSpecs = generateImageSpecifications(solution, form)
+  
+  // 构建动画规范
+  const animationSpecs = generateAnimationSpecifications(solution)
+  
+  // 构建模块详细说明
+  const moduleDetails = generateModuleDetails(solution, form)
+  
+  // 组装完整文档
+  const content = `
+# 🌐 网站开发方案 - ${solution.name}
+
+> ⚠️ **重要提示**：请严格按照此开发文档生成网站，务必保留文档中推荐的 Unsplash 图片链接，并确保 GSAP 动画效果完整实现。
+
+**生成时间**: ${timestamp}  
+**方案类型**: ${form.websiteType} - ${form.industry}  
+**企业名称**: ${form.companyName || '未指定'}  
+**视觉风格**: ${getVisualStyleName(form.visualStyle)}  
+**情感氛围**: ${form.emotions.join('、') || '未指定'}  
+
+---
+
+## 📋 一、项目概述
+
+### 1.1 业务描述
+${form.businessDesc}
+
+### 1.2 目标用户
+${form.targetAudience || '未指定'}
+
+### 1.3 品牌关键词
+${form.brandKeywords || '未指定'}
+
+### 1.4 技术要求
+- **目标设备**: ${getDeviceLabel(form.targetDevice)}
+- **性能预算**: ${getBudgetLabel(form.budget)}
+- **开发周期**: ${form.timeline === 'urgent' ? '紧急（2周内）' : form.timeline === 'normal' ? '正常（1个月）' : '宽松（2个月）'}
+- **性能优先级**: ${getPerformanceLabel(form.performancePriority)}
+
+---
+
+## 🎨 二、视觉设计规范
+
+### 2.1 配色方案
+${generateColorPalette(solution)}
+
+### 2.2 字体规范
+- **主标题字体**: 使用现代无衬线字体（如 Inter、Roboto、思源黑体）
+- **正文字体**: 清晰易读的无衬线字体
+- **字号层级**: H1(48px) > H2(36px) > H3(28px) > Body(16px) > Small(14px)
+
+### 2.3 间距系统
+- **基础单位**: 8px
+- **模块间距**: 80px - 120px
+- **内边距**: 40px - 60px
+- **卡片间距**: 24px - 32px
+
+---
+
+## 🖼️ 三、图片资源规范（Unsplash）
+
+**重要说明**：
+- ✅ 所有图片必须使用 Unsplash 高质量图片
+- ✅ 图片尺寸要求：宽度至少 1920px，质量参数 q=80
+- ✅ 图片主题必须与模块内容匹配
+- ✅ 避免使用低分辨率或模糊图片
+
+${imageSpecs}
+
+---
+
+## ✨ 四、动画效果规范
+
+${animationSpecs}
+
+---
+
+## 📦 五、模块详细设计
+
+${moduleDetails}
+
+---
+
+## 🔧 六、技术实现要求
+
+### 6.1 前端框架
+- **推荐框架**: React 18+ 或 Vue 3+
+- **状态管理**: Zustand (React) 或 Pinia (Vue)
+- **路由**: React Router 或 Vue Router
+- **样式方案**: Tailwind CSS 或 SCSS
+
+### 6.2 动画库
+- **GSAP**: 用于复杂滚动动画和时间轴控制
+- **Framer Motion**: 用于组件级过渡动画（React）
+- **Three.js**: 如需3D效果时使用
+
+### 6.3 性能优化
+- **图片懒加载**: 使用 Intersection Observer API
+- **代码分割**: 按路由和组件动态导入
+- **缓存策略**: Service Worker + CDN
+- **首屏加载**: LCP < 2.5s, FID < 100ms, CLS < 0.1
+
+### 6.4 响应式设计
+- **断点设置**: Mobile(<768px), Tablet(768-1024px), Desktop(>1024px)
+- **移动端优先**: 确保触摸友好，按钮最小 44x44px
+- **横竖屏适配**: 支持屏幕旋转
+
+---
+
+## 📱 七、页面结构建议
+
+${generatePageStructure(solution)}
+
+---
+
+## 🎯 八、核心功能清单
+
+${generateFeatureList(solution)}
+
+---
+
+## 💡 九、开发注意事项
+
+### 9.1 必须实现的功能
+1. ✅ 所有模块的响应式布局
+2. ✅ 平滑滚动和视差效果
+3. ✅ 图片懒加载和渐进式加载
+4. ✅ SEO 友好的 HTML 结构
+5. ✅ 无障碍访问支持（ARIA 标签）
+
+### 9.2 可选增强功能
+- 🌟 深色模式切换
+- 🌟 多语言支持（i18n）
+- 🌟 在线客服集成
+- 🌟 表单验证和提交反馈
+- 🌟 社交媒体分享
+
+### 9.3 避免的问题
+- ❌ 不要使用过大的图片文件（单张 > 500KB）
+- ❌ 不要过度使用动画导致性能问题
+- ❌ 不要忽略移动端体验
+- ❌ 不要硬编码文本内容
+
+---
+
+## 📊 十、验收标准
+
+### 10.1 视觉效果
+- [ ] 配色符合品牌调性
+- [ ] 图片清晰且主题相关
+- [ ] 动画流畅自然
+- [ ] 整体风格统一
+
+### 10.2 功能完整性
+- [ ] 所有模块正常显示
+- [ ] 交互元素可点击
+- [ ] 表单可提交
+- [ ] 链接正确跳转
+
+### 10.3 性能指标
+- [ ] 首屏加载时间 < 3s
+- [ ] 页面总大小 < 2MB
+- [ ] Lighthouse 评分 > 90
+- [ ] 无明显卡顿
+
+---
+
+## 🚀 十一、交付物清单
+
+1. ✅ 完整的源代码（Git 仓库）
+2. ✅ 部署好的在线演示地址
+3. ✅ 技术文档和 API 说明
+4. ✅ 图片资源清单
+5. ✅ 浏览器兼容性测试报告
+
+---
+
+**生成工具**: Meoo Plan 智能方案生成器 v8.1  
+**文档版本**: 1.0  
+**最后更新**: ${timestamp}
+
+---
+
+> 🎯 **最终提醒**：请严格按照此开发文档生成网站，务必保留文档中推荐的 Unsplash 图片链接，并确保 GSAP 动画效果完整实现。
+
+💬 **提示**：请将此文档发送给 meoo AI，它将基于此规范生成完整的网站代码。
+`.trim()
+  
+  return content
+}
+
+/**
+ * 生成图片资源规范
+ */
+function generateImageSpecifications(solution: any, form: any): string {
+  const industryImages: Record<string, { theme: string; keywords: string }> = {
+    tech: { theme: 'technology', keywords: 'technology,computer,code,ai,digital' },
+    healthcare: { theme: 'healthcare', keywords: 'medical,doctor,hospital,health' },
+    education: { theme: 'education', keywords: 'education,school,learning,book' },
+    finance: { theme: 'finance', keywords: 'finance,money,business,banking' },
+    ecommerce: { theme: 'shopping', keywords: 'shopping,product,store,retail' },
+    creative: { theme: 'creative', keywords: 'design,art,creative,colorful' },
+    food: { theme: 'food', keywords: 'food,restaurant,cooking,cuisine' },
+    travel: { theme: 'travel', keywords: 'travel,landscape,nature,adventure' },
+    real_estate: { theme: 'architecture', keywords: 'building,architecture,house,interior' },
+    default: { theme: 'business', keywords: 'business,office,professional,team' }
+  }
+  
+  const industryKey = form.industry.toLowerCase().replace(/[\s-]/g, '_')
+  const imageConfig = industryImages[industryKey] || industryImages.default
+  
+  let specs = `### 3.1 图片选择原则
+
+**行业主题**: ${imageConfig.theme}  
+**关键词**: ${imageConfig.keywords}
+
+**Unsplash 搜索建议**:
+- 访问: https://unsplash.com/s/photos/${encodeURIComponent(imageConfig.keywords.split(',')[0])}
+- 筛选: 横向图片，高分辨率
+- 质量参数: 添加 \`?w=1920&q=80\` 到图片 URL
+
+---
+
+### 3.2 各模块推荐图片
+
+`
+  
+  // 为每个模块生成具体的图片推荐
+  solution.modules.forEach((module: any, index: number) => {
+    const moduleImageTheme = getModuleImageTheme(module.key, imageConfig.keywords)
+    const imageUrl = `https://source.unsplash.com/1920x1080/?${encodeURIComponent(moduleImageTheme)}&sig=${index}`
+    
+    specs += `#### ${module.name}
+- **推荐主题**: ${moduleImageTheme}
+- **图片 URL 示例**: \`${imageUrl}\`
+- **实际使用时**: 替换为具体的 Unsplash 图片 ID
+- **数量**: ${module.components.length > 3 ? '3-5 张' : '1-2 张'}
+- **用途**: ${getImageUsageDescription(module.key)}
+
+`
+  })
+  
+  specs += `### 3.3 图片优化要求
+
+1. **格式选择**:
+   - 照片: WebP 或 JPG（质量 80%）
+   - 图标/图形: SVG 或 PNG
+   - 透明背景: PNG-24
+
+2. **尺寸规范**:
+   - Hero 背景图: 1920x1080px (最大 300KB)
+   - 卡片配图: 800x600px (最大 150KB)
+   - Logo/图标: 按需调整（SVG 优先）
+   - 头像: 400x400px (最大 100KB)
+
+3. **加载优化**:
+   - 使用懒加载（lazy loading）
+   - 提供低分辨率占位图
+   - 实现渐进式加载
+   - 添加 alt 文本（SEO + 无障碍）
+`
+  
+  return specs
+}
+
+/**
+ * 根据模块类型获取图片主题
+ */
+function getModuleImageTheme(moduleKey: string, industryKeywords: string): string {
+  const themeMap: Record<string, string> = {
+    hero: 'modern,minimal,abstract',
+    about: 'team,office,people,working',
+    products: 'product,technology,innovation',
+    technology: 'tech,code,development,software',
+    cases: 'success,achievement,result',
+    news: 'news,writing,media,publishing',
+    partners: 'partnership,collaboration,handshake',
+    contact: 'contact,communication,email'
+  }
+  
+  const baseTheme = themeMap[moduleKey] || 'business,professional'
+  return `${baseTheme},${industryKeywords}`
+}
+
+/**
+ * 获取图片用途描述
+ */
+function getImageUsageDescription(moduleKey: string): string {
+  const descriptions: Record<string, string> = {
+    hero: '首屏全屏背景图，营造视觉冲击力，展示品牌核心价值',
+    about: '团队照片、办公环境、企业文化展示，增强信任感',
+    products: '产品特写、使用场景、功能演示，突出产品优势',
+    technology: '技术架构图、代码界面、开发工具，展示技术实力',
+    cases: '客户案例成果、前后对比、数据图表，证明专业能力',
+    news: '新闻配图、博客封面、文章插图，提升内容吸引力',
+    partners: '合作伙伴 Logo、签约仪式、联合活动，展示生态合作',
+    contact: '联系方式图标、地图截图、客服形象，方便用户联系'
+  }
+  
+  return descriptions[moduleKey] || '通用业务图片，与模块主题相关'
+}
+
+/**
+ * 生成动画效果规范
+ */
+function generateAnimationSpecifications(solution: any): string {
+  return `
+### 4.1 滚动动画（GSAP ScrollTrigger）
+
+**入场动画**:
+- 元素从下方淡入: opacity 0→1, y: 50px→0, duration: 0.8s
+- 元素从左侧滑入: x: -100px→0, duration: 0.6s
+- 元素缩放出现: scale: 0.8→1, duration: 0.5s
+
+**视差效果**:
+- 背景图片: 滚动速度 50% （比前景慢）
+- 装饰元素: 滚动速度 150% （比前景快）
+- 多层叠加: 创造深度感
+
+**时间轴控制**:
+- 使用 GSAP Timeline 串联多个动画
+- stagger 延迟: 0.1s - 0.3s
+- ease 缓动: power2.out 或 expo.out
+
+### 4.2 交互动画
+
+**悬停效果**:
+- 卡片悬浮: translateY(-8px) + box-shadow 增强
+- 按钮悬浮: scale(1.05) + 颜色渐变
+- 图片悬浮: scale(1.1) + overlay 显示
+
+**点击反馈**:
+- 按钮点击: scale(0.95) 快速回弹
+- 链接点击: 下划线展开动画
+- Tab 切换: 滑块移动 + 内容淡入淡出
+
+### 4.3 页面过渡
+
+**路由切换**:
+- 淡入淡出: opacity 0→1, duration: 0.3s
+- 滑动切换: x: 100%→0, duration: 0.4s
+- 缩放切换: scale: 0.9→1, duration: 0.3s
+
+**加载状态**:
+- Skeleton 骨架屏
+- Progress bar 进度条
+- Spinner 旋转加载器
+
+### 4.4 性能注意事项
+
+- ✅ 使用 will-change 优化动画性能
+- ✅ 优先使用 transform 和 opacity（GPU 加速）
+- ✅ 避免同时动画过多元素（< 10 个）
+- ✅ 移动端减少复杂动画（降级处理）
+- ✅ 尊重用户的 prefers-reduced-motion 设置
+`
+}
+
+/**
+ * 生成模块详细说明
+ */
+function generateModuleDetails(solution: any, form: any): string {
+  let details = ''
+  
+  solution.modules.forEach((module: any, index: number) => {
+    details += `### ${index + 1}. ${module.name}\n\n`
+    details += `**模块标识**: \`${module.key}\`  \n`
+    details += `**组件数量**: ${module.components.length} 个  \n`
+    details += `**主要功能**: ${getModuleFunctionDescription(module.key)}\n\n`
+    
+    details += `**包含组件**:\n\n`
+    module.components.forEach((comp: any, compIndex: number) => {
+      details += `${compIndex + 1}. **${comp.name}** (${comp.type})\n`
+      details += `   - 用途: ${comp.purpose}\n`
+      details += `   - 特性: ${comp.features?.join('、') || '标准功能'}\n\n`
+    })
+    
+    details += `**布局建议**:\n`
+    details += `- ${getLayoutSuggestion(module.key)}\n\n`
+    details += `**交互逻辑**:\n`
+    details += `- ${getInteractionLogic(module.key)}\n\n`
+    details += '---\n\n'
+  })
+  
+  return details
+}
+
+/**
+ * 获取模块功能描述
+ */
+function getModuleFunctionDescription(moduleKey: string): string {
+  const descriptions: Record<string, string> = {
+    hero: '展示品牌核心价值主张，吸引用户继续浏览',
+    about: '介绍企业背景、发展历程、团队实力和价值观',
+    products: '展示产品线、服务特色、价格方案和优势对比',
+    technology: '展示技术架构、核心能力、专利技术和研发实力',
+    cases: '展示成功案例、客户见证、数据统计和成果展示',
+    news: '发布企业动态、行业资讯、技术文章和活动信息',
+    partners: '展示合作伙伴、生态系统、认证资质和荣誉奖项',
+    contact: '提供联系方式、在线留言、地图导航和客服入口'
+  }
+  
+  return descriptions[moduleKey] || '通用功能模块'
+}
+
+/**
+ * 获取布局建议
+ */
+function getLayoutSuggestion(moduleKey: string): string {
+  const suggestions: Record<string, string> = {
+    hero: '全屏高度（100vh），居中对齐，大标题 + CTA 按钮',
+    about: '左右分栏布局，左侧文字介绍，右侧图片或视频',
+    products: '网格布局（3列桌面 / 2列平板 / 1列手机），卡片式设计',
+    technology: '时间轴或流程图形式，步骤化展示',
+    cases: '瀑布流或轮播图，支持筛选和分类',
+    news: '列表或卡片网格，显示标题、摘要、日期和缩略图',
+    partners: 'Logo 墙（自动滚动或静态网格），支持 hover 放大',
+    contact: '两栏布局，左侧联系信息，右侧表单'
+  }
+  
+  return suggestions[moduleKey] || '标准模块化布局'
+}
+
+/**
+ * 获取交互逻辑
+ */
+function getInteractionLogic(moduleKey: string): string {
+  const logics: Record<string, string> = {
+    hero: 'CTA 按钮点击跳转到产品页或联系页，滚动指示器引导下滑',
+    about: '团队成员卡片点击弹出详细介绍，时间轴节点可展开',
+    products: '产品卡片点击查看详情，Tab 切换不同分类，价格计算器',
+    technology: '技术栈图标 hover 显示详情，架构图可缩放查看',
+    cases: '案例卡片点击打开案例详情，支持图片画廊和前后对比',
+    news: '文章卡片点击进入全文，支持搜索和标签筛选',
+    partners: 'Logo 点击跳转到合作伙伴网站，hover 显示合作简介',
+    contact: '表单实时验证，提交后显示成功消息，地图标记可交互'
+  }
+  
+  return logics[moduleKey] || '标准交互模式'
+}
+
+/**
+ * 生成页面结构建议
+ */
+function generatePageStructure(solution: any): string {
+  let structure = '```\n'
+  structure += '网站首页结构:\n\n'
+  structure += '┌─────────────────────────────┐\n'
+  structure += '│         Header / Nav         │  ← 固定顶部导航\n'
+  structure += '├─────────────────────────────┤\n'
+  
+  solution.modules.forEach((module: any) => {
+    structure += `│     ${module.name.padEnd(27)}│  ← ${module.key}\n`
+    structure += '├─────────────────────────────┤\n'
+  })
+  
+  structure += '│         Footer                │  ← 页脚信息\n'
+  structure += '└─────────────────────────────┘\n'
+  structure += '```\n'
+  
+  return structure
+}
+
+/**
+ * 生成功能清单
+ */
+function generateFeatureList(solution: any): string {
+  let features = ''
+  
+  const commonFeatures = [
+    '✅ 响应式导航栏（移动端汉堡菜单）',
+    '✅ 平滑滚动（smooth scroll）',
+    '✅ 返回顶部按钮',
+    '✅ 图片懒加载',
+    '✅ SEO 元标签优化',
+    '✅ 社交媒体分享按钮',
+    '✅ Google Analytics 集成',
+    '✅ Cookie 同意弹窗（GDPR 合规）'
+  ]
+  
+  features += '### 通用功能\n\n'
+  commonFeatures.forEach(f => features += `${f}\n`)
+  features += '\n'
+  
+  // 根据模块添加特定功能
+  solution.modules.forEach((module: any) => {
+    const moduleFeatures = getModuleSpecificFeatures(module.key)
+    if (moduleFeatures.length > 0) {
+      features += `### ${module.name} 特有功能\n\n`
+      moduleFeatures.forEach(f => features += `${f}\n`)
+      features += '\n'
+    }
+  })
+  
+  return features
+}
+
+/**
+ * 获取模块特定功能
+ */
+function getModuleSpecificFeatures(moduleKey: string): string[] {
+  const featureMap: Record<string, string[]> = {
+    hero: [
+      '- 动态打字机效果（typewriter effect）',
+      '- 粒子背景或视频背景',
+      '- 滚动指示器动画'
+    ],
+    about: [
+      '- 团队成员轮播',
+      '- 公司数据统计动画（计数器）',
+      '- 发展历程时间轴'
+    ],
+    products: [
+      '- 产品筛选和排序',
+      '- 价格对比表',
+      '- 产品详情模态框'
+    ],
+    technology: [
+      '- 技术栈图标动画',
+      '- 交互式架构图',
+      '- 代码片段高亮'
+    ],
+    cases: [
+      '- 案例筛选（按行业/类型）',
+      '- 前后对比滑块',
+      '- 客户评价轮播'
+    ],
+    news: [
+      '- 文章搜索功能',
+      '- 标签云',
+      '- RSS 订阅'
+    ],
+    partners: [
+      '- Logo 无限滚动',
+      '- 合作伙伴分类筛选',
+      '- 合作案例链接'
+    ],
+    contact: [
+      '- 表单字段验证',
+      '- 地图集成（Google Maps / 高德）',
+      '- 在线客服聊天窗口'
+    ]
+  }
+  
+  return featureMap[moduleKey] || []
+}
+
+/**
+ * 获取视觉风格名称
+ */
+function getVisualStyleName(value: string): string {
+  const styles: Record<string, string> = {
+    tech: '科技感/未来风',
+    nature: '自然/生态风',
+    luxury: '高端/奢华风',
+    minimal: '简约/现代风',
+    creative: '创意/艺术风',
+    vintage: '复古/怀旧风'
+  }
+  return styles[value] || value
+}
+
+/**
+ * 获取设备标签
+ */
+function getDeviceLabel(value: string): string {
+  const labels: Record<string, string> = {
+    mobile: '仅移动端',
+    desktop: '仅桌面端',
+    both: '响应式（全平台）'
+  }
+  return labels[value] || value
+}
+
+/**
+ * 获取预算标签
+ */
+function getBudgetLabel(value: string): string {
+  const labels: Record<string, string> = {
+    low: '低预算（精简版）',
+    medium: '中等预算（标准版）',
+    high: '高预算（高级版）',
+    unlimited: '不限预算（旗舰版）'
+  }
+  return labels[value] || value
+}
+
+/**
+ * 生成配色方案描述
+ */
+function generateColorPalette(solution: any): string {
+  const palette = solution.colorPalette || {}
+  return `
+- **主色调**: ${palette.primary || '#667eea'} - 用于主要按钮、链接、强调元素
+- **辅助色**: ${palette.secondary || '#764ba2'} - 用于次要按钮、背景装饰
+- **强调色**: ${palette.accent || '#f093fb'} - 用于 CTA、通知、特殊标记
+- **背景色**: ${palette.background || '#ffffff'} - 页面背景
+- **文字色**: ${palette.text || '#333333'} - 正文文字
+- **边框色**: ${palette.border || '#e0e0e0'} - 卡片边框、分隔线
+
+**配色原则**:
+- 主色占比 60%，辅助色 30%，强调色 10%
+- 保持足够的对比度（WCAG AA 标准）
+- 深色模式和浅色模式都需适配
+`
+}
+
+/**
+ * 导出为 meoo AI 专用 TXT 格式
+ */
+async function exportToTxt() {
+  try {
+    console.log('📝 开始生成 meoo AI 指令文档...')
+    
+    // 验证表单数据
+    if (!validateFormData()) {
+      return
+    }
+    
+    // 获取当前选中的方案
+    const currentSolution = generatedSolutions.value[activeSolution.value]
+    if (!currentSolution) {
+      alert('请先生成方案！')
+      return
+    }
+    
+    // 生成 meoo AI 格式的内容
+    const meooContent = generateMeooAIContent(currentSolution, formData)
+    
+    // 创建并下载 TXT 文件
+    const blob = new Blob([meooContent], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `meoo-ai-instruction-${currentSolution.name.replace(/\s+/g, '-')}-${Date.now()}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    
+    console.log('✅ TXT 方案导出成功！')
+    alert(
+      `✅ meoo AI 指令文档已导出！\n\n` +
+      `文件名: meoo-ai-instruction-*.txt\n\n` +
+      `下一步：\n` +
+      `1. 打开 meoo AI 平台\n` +
+      `2. 上传此 TXT 文件或复制内容粘贴\n` +
+      `3. meoo AI 将根据规范生成完整网站代码\n\n` +
+      `💡 提示：文档中已包含 Unsplash 图片规范和 GSAP 动画要求`
+    )
+    
+  } catch (error: any) {
+    console.error('❌ 导出失败:', error)
+    alert(`导出失败：${error.message}`)
+  }
+}
+
+/**
+ * 验证表单数据
+ */
+function validateFormData(): boolean {
+  const requiredFields = [
+    { key: 'websiteType', label: '网站类型' },
+    { key: 'industry', label: '所属行业' },
+    { key: 'businessDesc', label: '核心业务描述' }
+  ]
+  
+  for (const field of requiredFields) {
+    if (!formData[field.key as keyof typeof formData]) {
+      alert(`请填写必填项：${field.label}`)
+      currentStep.value = 0 // 返回第一步
+      return false
+    }
+  }
+  
+  if (generatedSolutions.value.length === 0) {
+    alert('请先生成方案！')
+    return false
+  }
+  
+  return true
+}
+
+/**
+ * 复制到剪贴板
+ */
+async function copyToClipboard() {
+  try {
+    // 验证表单数据
+    if (!validateFormData()) {
+      return
+    }
+    
+    // 获取当前选中的方案
+    const currentSolution = generatedSolutions.value[activeSolution.value]
+    if (!currentSolution) {
+      alert('请先生成方案！')
+      return
+    }
+    
+    // 生成 meoo AI 格式的内容
+    const meooContent = generateMeooAIContent(currentSolution, formData)
+    
+    // 复制到剪贴板
+    await navigator.clipboard.writeText(meooContent)
+    
+    console.log('✅ 方案内容已复制到剪贴板！')
+    alert(
+      `✅ 方案内容已复制到剪贴板！\n\n` +
+      `下一步：\n` +
+      `1. 打开 meoo AI 平台\n` +
+      `2. 在对话框中粘贴（Ctrl+V）\n` +
+      `3. 发送消息，meoo AI 将自动生成代码\n\n` +
+      `💡 提示：也可以点击"下载 meoo AI 方案"保存为文件`
+    )
+  } catch (error: any) {
+    console.error('❌ 复制失败:', error)
+    alert(`复制失败：${error.message}\n\n请使用"下载 meoo AI 方案"按钮`)
   }
 }
 
@@ -2602,6 +3337,11 @@ function generateSolutionCode() {
   margin-top: 40px;
   padding-top: 30px;
   border-top: 2px solid #f0f0f0;
+  
+  .export-buttons {
+    display: flex;
+    gap: 15px;
+  }
 }
 
 .btn {
@@ -2685,6 +3425,16 @@ function generateSolutionCode() {
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+    }
+  }
+  
+  &.btn-copy {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+    color: white;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 152, 0, 0.4);
     }
   }
 }

@@ -1,0 +1,249 @@
+================================================================================
+🎯 企业网站开发需求 - 请在 meoo AI 平台生成 React 代码
+================================================================================
+
+📌 **优先级说明**：
+- 🔴 **必须遵守**：不遵守会导致功能错误或性能问题
+- 🟡 **强烈建议**：最佳实践，显著提升代码质量
+- 🟢 **可选优化**：锦上添花，有时间再实现
+
+📌 角色设定
+--------------------------------------------------------------------------------
+你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的方案，
+直接开发完整的、可运行的 React 企业网站代码。
+
+📌 企业信息
+--------------------------------------------------------------------------------
+企业名称: 深圳未来AI网络科技有限公司
+所属行业: 科技/互联网/AI
+企业简介: AI 快速部署、智能系统开发、企业数字化 AI 解决方案、人工智能工具研发与技术服务，为各行各业提供轻量化高效 AI 应用落地服务
+目标受众: 30-45 岁企业创始人、企业管理层、技术负责人、中小型实体商家与互联网从业者，集中在一二线及珠三角城市，需求为低成本快速接入 AI 功能、提升办公与经营效率、数字化转型升级、定制专属智能业务系统
+品牌主色: #00FFFF 搭配 #FF00FF
+网站类型: 企业官网
+
+📌 设计理念
+--------------------------------------------------------------------------------
+采用“未来科技感”设计理念。以深圳未来AI网络科技有限公司的品牌特色为核心，通过现代化的视觉语言和流畅的交互动效，展现企业的专业形象和创新精神。布局上强调信息层级和用户体验，色彩上使用品牌主色调营造统一的视觉感受。动画效果细腻流畅，增强用户的浏览体验和品牌记忆点。
+
+📌 技术要求
+--------------------------------------------------------------------------------
+• 🔴 **技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP 3.12+
+• 🔴 **GSAP 插件**: 必须注册 ScrollTrigger 插件 (`gsap.registerPlugin(ScrollTrigger)`)
+• 🔴 **样式方案**: Tailwind CSS + 自定义 CSS 变量（见配色方案部分）
+• 🟡 **响应式**: 支持桌面端 (≥1024px)、平板 (768-1023px)、移动端 (<768px)
+• 🟡 **性能指标**:
+  - Lighthouse Performance 评分 > 90
+  - First Contentful Paint (FCP) < 1.8s
+  - Largest Contentful Paint (LCP) < 2.5s
+  - Cumulative Layout Shift (CLS) < 0.1
+• 🟢 **SEO**: 添加必要的 meta 标签、Open Graph 信息和语义化 HTML
+
+📌 Vue → React 转换规则 (Critical Migration Guide)
+--------------------------------------------------------------------------------
+• v-for="item in list" → {list.map((item, index) => (<Component key={index} />))}
+• v-if="condition" → {condition && (<Component />)}
+• v-show="condition" → style={{ display: condition ? "block" : "none" }}
+• ref="elementRef" → const elementRef = useRef<HTMLDivElement>(null)
+• @click="handler" → onClick={handler}
+• :class="{ active: isActive }" → className={isActive ? "active" : ""}
+• onMounted(() => {...}) → useEffect(() => {...}, [])
+• defineProps<Props>() → interface Props {...}; const Component: React.FC<Props> = (props) => {...}
+• emit("event", data) → 通过 props 传递回调函数
+• <slot></slot> → {props.children}
+
+📌 GSAP 动画要求 (Animation Implementation Rules)
+--------------------------------------------------------------------------------
+• 🔴 每个使用 ScrollTrigger 的组件文件顶部必须写：
+  ```typescript
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+  ```
+• 🔴 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行：
+  ```typescript
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(".hero-title", { opacity: 0, y: 50 }, { duration: 1, ease: "power3.out" })
+    })
+    return () => ctx.revert() // 清理
+  }, [])
+  ```
+• 🔴 非首屏模块才使用 ScrollTrigger 根据滚动触发
+• 🟡 动画时长控制在 0.5-1.5 秒之间
+• 🟡 推荐缓动函数: power3.out, back.out(1.7), elastic.out(1, 0.3)
+• 🟡 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入）
+• 🟢 使用 `gsap.quickTo()` 优化高频触发的动画（如鼠标跟随）
+• 🟢 避免同时对同一元素使用多个 GSAP 实例（会冲突）
+
+📌 网站模块结构
+--------------------------------------------------------------------------------
+1. 🎯 首页英雄区
+   - CardTextCyber (文字特效): 赛博风格标题
+   - CardImgAurora (背景效果): 极光背景
+   - CardImgNebulaBreath (粒子特效): 星云呼吸效果
+   - CardTextHologram (交互按钮): 全息CTA按钮
+
+2. 👥 关于我们
+   - CardTimeQuantumLeap (时间轴): 量子跃迁时间线
+   - CardImgNebulaBreath (粒子网络): 星云呼吸效果
+   - CardTextFirework (数据统计): 烟花数字动画
+
+3. 📦 产品/服务
+   - Card3DFlipGallery (3D展示): 3D翻转画廊
+   - CardImgPrism (产品展示): 棱镜效果
+   - CardTextCorona (文字特效): 日冕文字
+
+4. ⚙️ 技术优势
+   - CardTextCyber (文字特效): 技术标题
+   - CardImgNebulaBreath (粒子网络): 技术架构图
+   - Card3DFlipGallery (3D展示): 技术特性展示
+
+5. 📧 联系我们
+   - CardTextHologram (交互按钮): 全息联系表单
+   - CardImgAurora (背景效果): 极光背景
+   - CardTextCrystal (水晶按钮): 提交按钮
+
+📌 输出文件清单
+--------------------------------------------------------------------------------
+• App.tsx - 主应用组件（包含所有 Section 的组合）
+• main.tsx - 入口文件
+• components/Navbar.tsx - 导航栏组件
+• components/Footer.tsx - 页脚组件
+• sections/[模块名].tsx - 各模块的 Section 组件
+• index.css - 全局样式（含 Tailwind 配置、CSS 变量）
+• tailwind.config.js - Tailwind 配置文件
+
+📌 代码要求
+--------------------------------------------------------------------------------
+• 🔴 每个文件必须是完整可运行的代码，包含所有 import/export
+• 🔴 组件内部的 GSAP 动画逻辑必须完整实现，不能省略
+• 🔴 所有 ScrollTrigger 必须在 useEffect 中正确初始化和清理
+• 🟡 使用 TypeScript，所有组件必须有明确的类型定义
+• 🟡 样式使用 Tailwind CSS + 自定义 CSS 变量
+• 🟡 性能优化：确保动画流畅度 ≥60fps，使用 will-change 提示浏览器
+• 🟢 错误处理：图片加载失败时显示占位图或纯色背景
+
+📌 ScrollTrigger 完整清理模板 (Cleanup Pattern)
+--------------------------------------------------------------------------------
+必须在 useEffect cleanup 中调用清理函数，防止内存泄漏：
+```typescript
+useEffect(() => {
+  const ctx = gsap.context(() => {
+    const tweens = gsap.utils.toArray(".animate-item").map((item, i) => {
+      return gsap.fromTo(item, {
+        scrollTrigger: {
+          trigger: item,
+          start: "top 80%",
+          end: "bottom 20%",
+          toggleActions: "play none none reverse"
+        },
+        opacity: 1,
+        y: 0
+      })
+    })
+    
+    // 清理函数
+    return () => {
+      tweens.forEach(t => t.kill())
+      ScrollTrigger.getAll().forEach(t => t.kill())
+    }
+  })
+  
+  return () => ctx.revert()
+}, [])
+```
+
+📌 配色方案与 CSS 变量定义
+--------------------------------------------------------------------------------
+请在 index.css 中定义以下 CSS 变量：
+```css
+:root {
+  --primary-color: #00FFFF;
+  --secondary-color: #FF00FF;
+  --background-color: #000000;
+  --accent-color: #00FF00;
+}
+```
+
+使用建议：
+• 按钮、链接、强调色使用 `var(--primary-color)`
+• Hover 状态可使用 `filter: brightness(1.2)` 加深/加亮
+• 背景渐变建议使用主色到辅色的线性渐变
+• 文字颜色应确保与背景的对比度符合 WCAG AA 标准
+
+📌 核心组件实现指南 (GSAP Animation Logic)
+--------------------------------------------------------------------------------
+请根据以下逻辑实现对应的动画效果，确保视觉冲击力：
+
+【首页英雄区】
+• CardTextCyber:
+  - 核心逻辑: 使用 GSAP timeline 实现文字逐字显现，配合 text-shadow 霓虹发光效果和轻微的 glitch 故障抖动
+  - 参考路径: src/views/web-list/**/CardTextCyber.vue
+• CardImgAurora:
+  - 核心逻辑: 背景使用 CSS gradient 配合 GSAP 改变 background-position 实现流动
+  - 参考路径: src/views/web-list/**/CardImgAurora.vue
+• CardImgNebulaBreath:
+  - 核心逻辑: 使用 Canvas 或 SVG 粒子系统，实现星云的呼吸式缩放和旋转
+  - 参考路径: src/views/web-list/**/CardImgNebulaBreath.vue
+• CardTextHologram:
+  - 核心逻辑: 实现全息投影的扫描线效果和色彩偏移 (chromatic aberration)
+  - 参考路径: src/views/web-list/**/CardTextHologram.vue
+
+【关于我们】
+• CardTimeQuantumLeap:
+  - 核心逻辑: 使用时间轴节点之间的粒子连线动画，模拟量子跃迁
+  - 参考路径: src/views/web-list/**/CardTimeQuantumLeap.vue
+• CardImgNebulaBreath:
+  - 核心逻辑: 使用 Canvas 或 SVG 粒子系统，实现星云的呼吸式缩放和旋转
+  - 参考路径: src/views/web-list/**/CardImgNebulaBreath.vue
+• CardTextFirework:
+  - 核心逻辑: 使用 GSAP 粒子系统模拟烟花绽放，文字从中心炸开
+  - 参考路径: src/views/web-list/**/CardTextFirework.vue
+
+【产品/服务】
+• Card3DFlipGallery:
+  - 核心逻辑: 使用 CSS 3D transforms 和 GSAP 控制 rotationX/Y 实现画廊翻转
+  - 参考路径: src/views/web-list/**/Card3DFlipGallery.vue
+• CardImgPrism:
+  - 核心逻辑: 使用 CSS clip-path 或 transform rotate 实现棱镜折射的多层叠加
+  - 参考路径: src/views/web-list/**/CardImgPrism.vue
+• CardTextCorona:
+  - 核心逻辑: 添加日冕光晕扩散效果，使用 box-shadow 多层叠加动画
+  - 参考路径: src/views/web-list/**/CardTextCorona.vue
+
+【技术优势】
+• CardTextCyber:
+  - 核心逻辑: 使用 GSAP timeline 实现文字逐字显现，配合 text-shadow 霓虹发光效果和轻微的 glitch 故障抖动
+  - 参考路径: src/views/web-list/**/CardTextCyber.vue
+• CardImgNebulaBreath:
+  - 核心逻辑: 使用 Canvas 或 SVG 粒子系统，实现星云的呼吸式缩放和旋转
+  - 参考路径: src/views/web-list/**/CardImgNebulaBreath.vue
+• Card3DFlipGallery:
+  - 核心逻辑: 使用 CSS 3D transforms 和 GSAP 控制 rotationX/Y 实现画廊翻转
+  - 参考路径: src/views/web-list/**/Card3DFlipGallery.vue
+
+【联系我们】
+• CardTextHologram:
+  - 核心逻辑: 实现全息投影的扫描线效果和色彩偏移 (chromatic aberration)
+  - 参考路径: src/views/web-list/**/CardTextHologram.vue
+• CardImgAurora:
+  - 核心逻辑: 背景使用 CSS gradient 配合 GSAP 改变 background-position 实现流动
+  - 参考路径: src/views/web-list/**/CardImgAurora.vue
+• CardTextCrystal:
+  - 核心逻辑: 添加水晶质感的背景裁剪 (background-clip: text) 和 shimmer 闪光扫过效果
+  - 参考路径: src/views/web-list/**/CardTextCrystal.vue
+
+⚠️ 常见错误避免 (Critical Pitfalls)
+--------------------------------------------------------------------------------
+• ❌ 不要在 useEffect 中忘记清理 GSAP 实例（会导致内存泄漏）
+• ❌ 不要在没有注册 ScrollTrigger 的情况下直接使用它
+• ❌ 不要对大量元素同时使用 filter: blur()（性能杀手）
+• ❌ 不要在移动端使用超过 100 个粒子的 Canvas 动画
+• ✅ 必须使用 `will-change: transform` 提示浏览器优化动画层
+✅ 图片必须设置固定宽高或使用 aspect-ratio 避免 CLS
+• ✅ 使用 `gsap.context()` 管理组件级别的动画作用域
+• ✅ 对于复杂动画，考虑使用 `requestAnimationFrame` 配合 GSAP
+
+================================================================================
+🎉 请基于以上需求生成完整的 React 网站代码
+================================================================================

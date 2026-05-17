@@ -86,12 +86,42 @@ interface ModulePosition {
 }
 
 const defaultModulePositions: ModulePosition[] = [
-  { key: 'hero', label: '首屏 Hero', icon: '🎯', desc: '全屏首图/视频开场' },
-  { key: 'feature', label: '特色模块', icon: '⭐', desc: '产品特点/服务优势' },
-  { key: 'product', label: '产品/案例', icon: '🎨', desc: '作品展示/产品列表' },
-  { key: 'about', label: '关于我们', icon: '👥', desc: '团队/品牌故事' },
-  { key: 'contact', label: '联系/CTA', icon: '📧', desc: '表单/联系方式' },
-  { key: 'footer', label: '页脚', icon: '📋', desc: '链接/版权信息' },
+  {
+    key: 'hero',
+    label: '首屏 Hero',
+    icon: '🎯',
+    desc: '全屏首图/视频开场'
+  },
+  {
+    key: 'feature',
+    label: '特色模块',
+    icon: '⭐',
+    desc: '产品特点/服务优势'
+  },
+  {
+    key: 'product',
+    label: '产品/案例',
+    icon: '🎨',
+    desc: '作品展示/产品列表'
+  },
+  {
+    key: 'about',
+    label: '关于我们',
+    icon: '👥',
+    desc: '团队/品牌故事'
+  },
+  {
+    key: 'contact',
+    label: '联系/CTA',
+    icon: '📧',
+    desc: '表单/联系方式'
+  },
+  {
+    key: 'footer',
+    label: '页脚',
+    icon: '📋',
+    desc: '链接/版权信息'
+  }
 ]
 
 const MODULE_CONFIG_KEY = 'web-ai-module-positions'
@@ -123,8 +153,8 @@ interface ComponentSelectInfo {
   type: string
   selected: boolean
   modulePosition: string
-  sourceCode?: string  // 组件源码
-  readme?: string | null  // README内容
+  sourceCode?: string // 组件源码
+  readme?: string | null // README内容
 }
 
 const selectedComponents = ref<ComponentSelectInfo[]>([])
@@ -314,39 +344,39 @@ const vueToReactRules = [
   { vue: 'ref="elementRef"', react: 'const elementRef = useRef<HTMLDivElement>(null)' },
   { vue: 'onMounted(() => {...})', react: 'useEffect(() => {...}, [])' },
   { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
-  {vue: 'defineProps<Props>()',
+  { vue: 'defineProps<Props>()',
     react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
-  },
+  }
 ]
 
 /** 技术要求清单 - 带序号 */
 const techRequirements = [
   { num: 1, text: '**技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
   { num: 2, text: '**Vue → React 转换规则**:', indent: true },
-  {num: 3,
+  { num: 3,
     text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
   },
-  {num: 4,
+  { num: 4,
     text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图',
   },
-  {num: 5,
+  { num: 5,
     text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写',
   },
-  {num: 6,
+  { num: 6,
     text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断',
   },
-  {num: 7,
+  { num: 7,
     text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建',
   },
-  {num: 8,
+  { num: 8,
     text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
   },
-  {num: 9,
+  { num: 9,
     text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
   },
-  {num: 10,
+  { num: 10,
     text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
-  },
+  }
 ]
 
 /** 输出文件清单 */
@@ -670,9 +700,7 @@ const buildCopyContent = (): string => {
     lines.push(blank())
   } else if (estimatedTokens > 50000) {
     lines.push('⚠️ **Token 警告**', sep('-'))
-    lines.push(
-      `当前内容约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`,
-    )
+    lines.push(`当前内容约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`)
     lines.push('建议：')
     lines.push('1. 减少选中组件数量')
     lines.push('2. 或分批生成（先生成部分模块的代码）')
@@ -685,6 +713,7 @@ const buildCopyContent = (): string => {
     sep('-'),
     '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
     '直接开发完整的、可运行的 React 企业网站代码。',
+     '必须严格根据企业信息来设计内容',
     blank(),
   )
 
@@ -697,6 +726,9 @@ const buildCopyContent = (): string => {
   lines.push(blank())
 
   // ===== 企业信息 =====
+
+  lines.push('*必须严格根据企业信息来设计内容！')
+
   lines.push('📋 企业信息', sep('-'))
   enterpriseInfoFields.forEach(({ key, label, fallback }) => {
     const value = (enterpriseInfo[key as keyof EnterpriseInfo] as string)?.trim() || ''
@@ -870,7 +902,7 @@ const buildCopyContent = (): string => {
   lines.push(blank())
 
   // ===== 文字组件设计规范（自动检测 card-text 类型） =====
-  const hasTextComponents = selectedComponents.value.some(comp => comp.type === 'card-text')
+  const hasTextComponents = selectedComponents.value.some((comp) => comp.type === 'card-text')
   if (hasTextComponents) {
     lines.push('#### 3.5 🎨 GSAP 文字动画组件设计规范（重要）')
     lines.push('**检测到您选择了 card-text 类型的文字动画组件，请严格遵循以下设计规范：**')
@@ -910,10 +942,14 @@ const buildCopyContent = (): string => {
     lines.push(blank())
 
     lines.push('3. **文字动画常见模式**：')
-    lines.push('   - **模糊揭示**：`{ filter: "blur(20px)", opacity: 0, y: 120 }` → `{ filter: "blur(0px)", opacity: 1, y: 0 }`')
+    lines.push(
+      '   - **模糊揭示**：`{ filter: "blur(20px)", opacity: 0, y: 120 }` → `{ filter: "blur(0px)", opacity: 1, y: 0 }`',
+    )
     lines.push('   - **缩放入场**：`{ scale: 0.8, opacity: 0 }` → `{ scale: 1, opacity: 1 }`')
     lines.push('   - **交错延迟**：使用 `stagger: 0.15` 让多个段落依次动画')
-    lines.push('   - **3D 旋转**：`{ rotationX: -45, opacity: 0 }` → `{ rotationX: 0, opacity: 1 }`')
+    lines.push(
+      '   - **3D 旋转**：`{ rotationX: -45, opacity: 0 }` → `{ rotationX: 0, opacity: 1 }`',
+    )
     lines.push('   - **渐变遮罩**：使用 `background-clip: text` + animated gradient')
     lines.push(blank())
 
@@ -1351,7 +1387,9 @@ const buildCopyContent = (): string => {
 
   // ===== 生成后验证清单 =====
   lines.push('#### 9. ✅ 生成后验证清单（重要）')
+  lines.push('**生成的内容言根据企业信息来设计**')
   lines.push('**生成代码后，请逐项检查以下内容，确保动画设计和内容显示正确：**')
+
   lines.push(blank())
 
   lines.push('##### 9.1 ScrollTrigger 设计验证')
@@ -1633,7 +1671,7 @@ const enterpriseInfo = reactive<EnterpriseInfo>({
   description: '',
   targetAudience: '',
   mainColors: '',
-  websiteType: '企业官网',  // 默认企业官网，不可修改
+  websiteType: '企业官网', // 默认企业官网，不可修改
   designPhilosophy: '',
 })
 
@@ -1641,15 +1679,17 @@ const enterpriseInfo = reactive<EnterpriseInfo>({
 const loadEnterpriseInfo = (): EnterpriseInfo => {
   try {
     const saved = localStorage.getItem('cardEnterpriseInfo')
-    return saved ? JSON.parse(saved) : {
-      name: '',
-      industry: '',
-      description: '',
-      targetAudience: '',
-      mainColors: '',
-      websiteType: '',
-      designPhilosophy: '',
-    }
+    return saved ?
+      JSON.parse(saved) :
+      {
+          name: '',
+          industry: '',
+          description: '',
+          targetAudience: '',
+          mainColors: '',
+          websiteType: '',
+          designPhilosophy: '',
+        }
   } catch {
     return {
       name: '',
@@ -1669,9 +1709,13 @@ const saveEnterpriseInfo = () => {
 }
 
 // 监听企业信息变化，自动保存
-watch(enterpriseInfo, () => {
-  saveEnterpriseInfo()
-}, { deep: true })
+watch(
+  enterpriseInfo,
+  () => {
+    saveEnterpriseInfo()
+  },
+  { deep: true },
+)
 
 // 颜色选择器相关
 const showColorPicker = ref(false)
@@ -1759,9 +1803,15 @@ const hasEnterpriseInfo = computed(() => {
 // 获取企业信息摘要
 const enterpriseInfoSummary = computed(() => {
   const parts: string[] = []
-  if (enterpriseInfo.name) parts.push(enterpriseInfo.name)
-  if (enterpriseInfo.industry) parts.push(enterpriseInfo.industry)
-  if (enterpriseInfo.mainColors) parts.push('已设置品牌色')
+  if (enterpriseInfo.name) {
+    parts.push(enterpriseInfo.name)
+  }
+  if (enterpriseInfo.industry) {
+    parts.push(enterpriseInfo.industry)
+  }
+  if (enterpriseInfo.mainColors) {
+    parts.push('已设置品牌色')
+  }
   return parts.length > 0 ? parts.join(' · ') : '未填写'
 })
 
@@ -2371,10 +2421,11 @@ const initIntersectionObserver = () => {
         }
       })
     },
-    { root: null,
+    {
+      root: null,
       rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
       threshold: 0
-    },
+    }
   )
 }
 
@@ -2405,16 +2456,18 @@ const handleScroll = () => {
 
 // ==================== 气泡粒子系统 ====================
 const createExtraBubbles = () => {
-  if (!bubblesContainerRef.value) return
+  if (!bubblesContainerRef.value) {
+    return
+  }
 
   const container = bubblesContainerRef.value
   const colors = [
-    'rgba(255, 105, 180, 0.6)',   // 粉红
-    'rgba(138, 43, 226, 0.5)',    // 紫罗兰
-    'rgba(0, 191, 255, 0.5)',     // 电光蓝
-    'rgba(100, 255, 218, 0.5)',   // 青色
-    'rgba(255, 182, 193, 0.6)',   // 浅粉
-    'rgba(173, 216, 230, 0.5)',   // 天蓝
+    'rgba(255, 105, 180, 0.6)', // 粉红
+    'rgba(138, 43, 226, 0.5)', // 紫罗兰
+    'rgba(0, 191, 255, 0.5)', // 电光蓝
+    'rgba(100, 255, 218, 0.5)', // 青色
+    'rgba(255, 182, 193, 0.6)', // 浅粉
+    'rgba(173, 216, 230, 0.5)', // 天蓝
   ]
 
   // 创建 50 个气泡
@@ -2433,7 +2486,7 @@ const createExtraBubbles = () => {
       height: ${size}px;
       left: ${x}%;
       background: radial-gradient(circle at 30% 30%, white, ${color});
-      box-shadow: 0 0 ${size}px ${color}, inset 0 0 ${size/2}px rgba(255,255,255,0.3);
+      box-shadow: 0 0 ${size}px ${color}, inset 0 0 ${size / 2}px rgba(255,255,255,0.3);
       animation: bubbleFloat ${duration}s linear infinite;
       animation-delay: ${delay}s;
       opacity: 0;
@@ -2448,25 +2501,59 @@ const initPage1Animations = () => {
 
   // 入场动画序列
   tl.fromTo('.page1-bg-effects', { opacity: 0 }, { opacity: 1, duration: 1 })
-    .fromTo('.floating-orb',
+    .fromTo(
+      '.floating-orb',
       { scale: 0, opacity: 0 },
-      { scale: 1, opacity: 0.6, duration: 1.5, stagger: 0.2 },
+      {
+        scale: 1,
+        opacity: 0.6,
+        duration: 1.5,
+        stagger: 0.2
+      },
       '-=0.5'
     )
-    .fromTo('.hero-badge',
+    .fromTo(
+      '.hero-badge',
       { y: -50, opacity: 0, scale: 0.8 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)' },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        ease: 'back.out(1.7)'
+      },
       '-=1'
     )
     // 标题字符 3D 立体入场动画
-    .fromTo('.page-title .title-line',
-      { y: 80, opacity: 0, scale: 0.8, rotateX: -45 },
-      { y: 0, opacity: 1, scale: 1, rotateX: 0, duration: 1, stagger: 0.15, ease: 'expo.out' },
+    .fromTo(
+      '.page-title .title-line',
+      {
+        y: 80,
+        opacity: 0,
+        scale: 0.8,
+        rotateX: -45
+      },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        rotateX: 0,
+        duration: 1,
+        stagger: 0.15,
+        ease: 'expo.out'
+      },
       '-=0.5'
     )
     // 每个字符单独 3D 旋转入场
-    .fromTo('.page-title .char',
-      { y: 60, opacity: 0, rotateX: -90, rotateY: 45, scale: 0.5 },
+    .fromTo(
+      '.page-title .char',
+      {
+        y: 60,
+        opacity: 0,
+        rotateX: -90,
+        rotateY: 45,
+        scale: 0.5
+      },
       {
         y: 0,
         opacity: 1,
@@ -2480,36 +2567,60 @@ const initPage1Animations = () => {
       '-=0.8'
     )
     // 副标题词语动画
-    .fromTo('.page-desc .desc-word',
+    .fromTo(
+      '.page-desc .desc-word',
       { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, stagger: 0.08 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.08
+      },
       '-=0.5'
     )
     // 功能标签动画
-    .fromTo('.feature-tags .tag',
+    .fromTo(
+      '.feature-tags .tag',
       { scale: 0, opacity: 0, y: 20 },
-      { scale: 1, opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: 'elastic.out(1, 0.5)' },
+      {
+        scale: 1,
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: 'elastic.out(1, 0.5)'
+      },
       '-=0.3'
     )
     // 中文信息块动画
-    .fromTo('.chinese-info .info-block',
+    .fromTo(
+      '.chinese-info .info-block',
       { x: -60, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.8, stagger: 0.2, ease: 'power2.out' },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: 'power2.out'
+      },
       '-=0.5'
     )
     // 统计数字动画
-    .fromTo('.component-stats',
-      { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8 },
-      '-=0.3'
-    )
-    .fromTo('.stat-number',
+    .fromTo('.component-stats', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.3')
+    .fromTo(
+      '.stat-number',
       { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, stagger: 0.15 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.15
+      },
       '-=0.6'
     )
     // 滚动指示器动画
-    .fromTo('.scroll-indicator',
+    .fromTo(
+      '.scroll-indicator',
       { opacity: 0, y: -20 },
       { opacity: 1, y: 0, duration: 0.6 },
       '-=0.2'
@@ -2577,18 +2688,19 @@ const initPage1Animations = () => {
   })
 
   // 网格动画 - 淡入
-  gsap.fromTo('.grid-lines',
-    { opacity: 0 },
-    { opacity: 1, duration: 2, delay: 0.5 }
-  )
-  gsap.fromTo('.grid-dots',
-    { opacity: 0 },
-    { opacity: 1, duration: 2, delay: 0.8 }
-  )
+  gsap.fromTo('.grid-lines', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.5 })
+  gsap.fromTo('.grid-dots', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.8 })
   // 脉冲圆环动画
-  gsap.fromTo('.pulse-ring',
+  gsap.fromTo(
+    '.pulse-ring',
     { scale: 0.5, opacity: 0 },
-    { scale: 1, opacity: 1, duration: 1.5, stagger: 0.3, ease: 'power2.out' }
+    {
+      scale: 1,
+      opacity: 1,
+      duration: 1.5,
+      stagger: 0.3,
+      ease: 'power2.out'
+    }
   )
 }
 
@@ -2666,9 +2778,9 @@ watch(activeCategory, () => {
       <!-- 背景装饰层 -->
       <div class="page1-bg-effects">
         <!-- JS 动态粒子效果 -->
-        <div class="particles" ref="particlesContainerRef"></div>
+        <div ref="particlesContainerRef" class="particles"></div>
         <!-- 额外气泡粒子 -->
-        <div class="extra-bubbles" ref="bubblesContainerRef"></div>
+        <div ref="bubblesContainerRef" class="extra-bubbles"></div>
         <!-- 动态光束 -->
         <div class="light-beam beam-1"></div>
         <div class="light-beam beam-2"></div>
@@ -2692,31 +2804,54 @@ watch(activeCategory, () => {
       <!-- 主内容区 -->
       <div class="page1-content">
         <!-- 顶部标签 -->
-        <div class="hero-badge" ref="badgeRef">
+        <div ref="badgeRef" class="hero-badge">
           <span class="badge-icon">✨</span>
           <span class="badge-text">AI-Powered</span>
         </div>
 
         <!-- 主标题 - 3D 立体字符动画 -->
-        <h1 class="page-title" ref="titleRef">
+        <h1 ref="titleRef" class="page-title">
           <span class="title-line" data-text="Creative">
-            <span v-for="(char, i) in 'Creative'" :key="'c1-'+i" class="char" :data-char="char">{{ char }}</span>
+            <span v-for="(char, i) in 'Creative'" :key="'c1-' + i" class="char" :data-char="char">{{
+              char
+            }}</span>
           </span>
           <span class="title-line" data-text="Cards">
-            <span v-for="(char, i) in 'Cards'" :key="'c2-'+i" class="char accent" :data-char="char">{{ char }}</span>
+            <span
+              v-for="(char, i) in 'Cards'"
+              :key="'c2-' + i"
+              class="char accent"
+              :data-char="char"
+              >{{ char }}</span
+            >
           </span>
           <span class="title-line" data-text="Gallery">
-            <span v-for="(char, i) in 'Gallery'" :key="'c3-'+i" class="char" :data-char="char">{{ char }}</span>
+            <span v-for="(char, i) in 'Gallery'" :key="'c3-' + i" class="char" :data-char="char">{{
+              char
+            }}</span>
           </span>
         </h1>
 
         <!-- 副标题 -->
-        <p class="page-desc" ref="descRef">
-          <span class="desc-word" v-for="(word, i) in ['Scroll', 'down', 'to', 'explore', 'interactive', 'card', 'animations']" :key="i">{{ word }}</span>
+        <p ref="descRef" class="page-desc">
+          <span
+            v-for="(word, i) in [
+              'Scroll',
+              'down',
+              'to',
+              'explore',
+              'interactive',
+              'card',
+              'animations'
+            ]"
+            :key="i"
+            class="desc-word"
+            >{{ word }}</span
+          >
         </p>
 
         <!-- 功能标签组 -->
-        <div class="feature-tags" ref="tagsRef">
+        <div ref="tagsRef" class="feature-tags">
           <div class="tag tag-primary">
             <span class="tag-icon">🚀</span>
             <span class="tag-text">快速构建</span>
@@ -2732,7 +2867,7 @@ watch(activeCategory, () => {
         </div>
 
         <!-- 中文说明区 -->
-        <div class="chinese-info" ref="chineseRef">
+        <div ref="chineseRef" class="chinese-info">
           <div class="info-block">
             <span class="info-icon">🏢</span>
             <span class="info-text">企业官网</span>
@@ -2752,7 +2887,7 @@ watch(activeCategory, () => {
         </div>
 
         <!-- 组件数量统计 -->
-        <div class="component-stats" ref="statsRef">
+        <div ref="statsRef" class="component-stats">
           <div class="stat-number">
             <span class="stat-value">{{ filteredComponents.length }}</span>
             <span class="stat-label">精选组件</span>
@@ -2771,7 +2906,7 @@ watch(activeCategory, () => {
       </div>
 
       <!-- 底部滚动指示器 -->
-      <div class="scroll-indicator" ref="scrollRef">
+      <div ref="scrollRef" class="scroll-indicator">
         <span></span>
         <span></span>
         <span></span>
@@ -2791,8 +2926,8 @@ watch(activeCategory, () => {
         <!-- 选择按钮 -->
         <button
           :class="['select-btn', { active: isSelected(cardInfo.dirName) }]"
-          @click="toggleSelect(cardInfo.dirName, cardInfo.name, cardInfo.path, cardInfo.type)"
           :title="isSelected(cardInfo.dirName) ? '已选中，点击取消' : '点击选择组件'"
+          @click="toggleSelect(cardInfo.dirName, cardInfo.name, cardInfo.path, cardInfo.type)"
         >
           {{ isSelected(cardInfo.dirName) ? '☑️' : '⬜' }}
         </button>
@@ -2801,8 +2936,14 @@ watch(activeCategory, () => {
           v-if="isSelected(cardInfo.dirName) && getComponentModulePosition(cardInfo.dirName)"
           class="module-tag"
         >
-          {{ modulePositions.find(m => m.key === getComponentModulePosition(cardInfo.dirName))?.icon }}
-          {{ modulePositions.find(m => m.key === getComponentModulePosition(cardInfo.dirName))?.label }}
+          {{
+            modulePositions.find((m) => m.key === getComponentModulePosition(cardInfo.dirName))
+              ?.icon
+          }}
+          {{
+            modulePositions.find((m) => m.key === getComponentModulePosition(cardInfo.dirName))
+              ?.label
+          }}
         </span>
         <!-- 收藏按钮 -->
         <button
@@ -2815,15 +2956,17 @@ watch(activeCategory, () => {
         <button
           v-if="isSelected(cardInfo.dirName)"
           class="module-btn"
-          @click="openModuleSelector({
-            dirName: cardInfo.dirName,
-            name: cardInfo.name,
-            path: cardInfo.path,
-            type: cardInfo.type,
-            selected: true,
-            modulePosition: getComponentModulePosition(cardInfo.dirName)
-          })"
           title="选择模块位置"
+          @click="
+            openModuleSelector({
+              dirName: cardInfo.dirName,
+              name: cardInfo.name,
+              path: cardInfo.path,
+              type: cardInfo.type,
+              selected: true,
+              modulePosition: getComponentModulePosition(cardInfo.dirName)
+            })
+          "
         >
           📦
         </button>
@@ -2838,17 +2981,20 @@ watch(activeCategory, () => {
     <!-- 已选组件预览面板 -->
     <div v-if="selectedComponents.length > 0" class="selection-panel">
       <div class="selection-header">
-
         <div class="header-actions">
           <!-- 模块设置按钮 -->
-          <button class="selection-module-btn" @click="openModuleSelectorForConfig" title="配置模块位置">
+          <button
+            class="selection-module-btn"
+            title="配置模块位置"
+            @click="openModuleSelectorForConfig"
+          >
             ⚙️ 模块配置
           </button>
           <!-- 企业信息按钮 -->
           <button
             :class="['selection-enterprise-btn', { active: hasEnterpriseInfo }]"
-            @click="openEnterpriseModal"
             :title="hasEnterpriseInfo ? '已填写企业信息' : '填写企业信息'"
+            @click="openEnterpriseModal"
           >
             {{ hasEnterpriseInfo ? '🏢 已填写' : '🏢 企业信息' }}
           </button>
@@ -2866,17 +3012,21 @@ watch(activeCategory, () => {
           <span class="title-count">{{ selectedComponents.length }}</span>
         </div>
         <div class="title-actions">
-          <button class="title-reset" @click="resetSelectedComponents" title="清空已选组件">
+          <button class="title-reset" title="清空已选组件" @click="resetSelectedComponents">
             🔄
           </button>
-          <button class="title-collapse" @click="toggleSelectionList" :title="selectionListCollapsed ? '展开' : '收起'">
+          <button
+            class="title-collapse"
+            :title="selectionListCollapsed ? '展开' : '收起'"
+            @click="toggleSelectionList"
+          >
             {{ selectionListCollapsed ? '▼' : '▲' }}
           </button>
         </div>
       </div>
       <div class="selection-list" :class="{ collapsed: selectionListCollapsed }">
         <div
-          v-for="pos in modulePositions.filter(p => getComponentsByPosition(p.key).length > 0)"
+          v-for="pos in modulePositions.filter((p) => getComponentsByPosition(p.key).length > 0)"
           :key="pos.key"
           class="selection-module-group"
         >
@@ -2892,30 +3042,42 @@ watch(activeCategory, () => {
               class="selection-item"
             >
               <span class="item-name">{{ comp.name }}</span>
-              <button class="item-remove" @click="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)">×</button>
+              <button
+                class="item-remove"
+                @click="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)"
+              >
+                ×
+              </button>
             </div>
           </div>
         </div>
         <!-- 未分配模块的组件 -->
         <div
-          v-if="selectedComponents.filter(c => !c.modulePosition).length > 0"
+          v-if="selectedComponents.filter((c) => !c.modulePosition).length > 0"
           class="selection-module-group unassigned"
         >
           <div class="selection-module-header">
             <span>⚠️</span>
             <span>未分配模块</span>
-            <span class="count">({{ selectedComponents.filter(c => !c.modulePosition).length }})</span>
+            <span class="count"
+              >({{ selectedComponents.filter((c) => !c.modulePosition).length }})</span
+            >
           </div>
           <div class="selection-module-items">
             <div
-              v-for="comp in selectedComponents.filter(c => !c.modulePosition)"
+              v-for="comp in selectedComponents.filter((c) => !c.modulePosition)"
               :key="comp.dirName"
               class="selection-item"
               @click="openModuleSelector(comp)"
             >
               <span class="item-name">{{ comp.name }}</span>
               <button class="item-add" @click.stop="openModuleSelector(comp)">+</button>
-              <button class="item-remove" @click.stop="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)">×</button>
+              <button
+                class="item-remove"
+                @click.stop="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)"
+              >
+                ×
+              </button>
             </div>
           </div>
         </div>
@@ -2932,7 +3094,13 @@ watch(activeCategory, () => {
         <div class="module-selector">
           <div class="module-selector-header">
             <h4>{{ isConfigMode ? '⚙️ 模块配置' : '选择模块位置' }}</h4>
-            <p>{{ isConfigMode ? '管理模块位置，点击模块可查看已分配的组件' : '为「' + currentSelectingComp?.name + '」选择放置位置' }}</p>
+            <p>
+              {{
+                isConfigMode
+                  ? '管理模块位置，点击模块可查看已分配的组件'
+                  : '为「' + currentSelectingComp?.name + '」选择放置位置'
+              }}
+            </p>
             <button class="close-btn" @click="cancelModuleSelection">×</button>
           </div>
           <div class="module-position-grid">
@@ -2965,11 +3133,7 @@ watch(activeCategory, () => {
 
     <!-- 全屏模块配置编辑器 -->
     <Teleport to="body">
-      <div
-        v-if="showModuleEditor"
-        class="fullscreen-modal-overlay"
-        @click.self="closeModuleEditor"
-      >
+      <div v-if="showModuleEditor" class="fullscreen-modal-overlay" @click.self="closeModuleEditor">
         <div class="fullscreen-modal">
           <div class="modal-header">
             <div class="modal-title">
@@ -3227,7 +3391,9 @@ watch(activeCategory, () => {
                   <span class="expand-icon" :class="{ expanded: showReferenceExample }">▶</span>
                   参考示例
                 </label>
-                <span class="expand-hint">{{ showReferenceExample ? '点击收起' : '点击展开' }}</span>
+                <span class="expand-hint">{{
+                  showReferenceExample ? '点击收起' : '点击展开'
+                }}</span>
               </div>
               <div v-show="showReferenceExample" class="reference-example">
                 <div class="ref-item">
@@ -3277,11 +3443,7 @@ watch(activeCategory, () => {
 
     <!-- 复制到 meoo AI 弹层 -->
     <Teleport to="body">
-      <div
-        v-if="showCopyModal"
-        class="copy-modal-overlay"
-        @click.self="closeCopyModal"
-      >
+      <div v-if="showCopyModal" class="copy-modal-overlay" @click.self="closeCopyModal">
         <div class="copy-modal">
           <div class="copy-modal-header">
             <div class="modal-title">
@@ -3325,9 +3487,7 @@ watch(activeCategory, () => {
             <button class="btn btn-primary copy-btn" @click="copyContent">
               {{ copySuccess ? '✅ 已复制' : '📋 复制完整信息' }}
             </button>
-            <button class="btn btn-primary meoo-btn" @click="OpenMeoo">
-              去 meoo AI
-            </button>
+            <button class="btn btn-primary meoo-btn" @click="OpenMeoo">去 meoo AI</button>
           </div>
         </div>
       </div>
@@ -3626,9 +3786,15 @@ watch(activeCategory, () => {
     }
 
     @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     // 额外气泡粒子容器
@@ -3698,7 +3864,12 @@ watch(activeCategory, () => {
       &.orb-1 {
         width: 450px;
         height: 450px;
-        background: radial-gradient(circle, rgba(138, 43, 226, 0.5) 0%, rgba(75, 0, 130, 0.3) 40%, transparent 70%);
+        background: radial-gradient(
+          circle,
+          rgba(138, 43, 226, 0.5) 0%,
+          rgba(75, 0, 130, 0.3) 40%,
+          transparent 70%
+        );
         top: -120px;
         right: -100px;
         animation-delay: 0s;
@@ -3707,7 +3878,12 @@ watch(activeCategory, () => {
       &.orb-2 {
         width: 380px;
         height: 380px;
-        background: radial-gradient(circle, rgba(0, 191, 255, 0.45) 0%, rgba(138, 43, 226, 0.25) 40%, transparent 70%);
+        background: radial-gradient(
+          circle,
+          rgba(0, 191, 255, 0.45) 0%,
+          rgba(138, 43, 226, 0.25) 40%,
+          transparent 70%
+        );
         bottom: 20%;
         left: -80px;
         animation-delay: -3s;
@@ -3716,7 +3892,12 @@ watch(activeCategory, () => {
       &.orb-3 {
         width: 320px;
         height: 320px;
-        background: radial-gradient(circle, rgba(255, 105, 180, 0.4) 0%, rgba(0, 191, 255, 0.2) 40%, transparent 70%);
+        background: radial-gradient(
+          circle,
+          rgba(255, 105, 180, 0.4) 0%,
+          rgba(0, 191, 255, 0.2) 40%,
+          transparent 70%
+        );
         bottom: -50px;
         right: 20%;
         animation-delay: -6s;
@@ -3724,7 +3905,8 @@ watch(activeCategory, () => {
     }
 
     @keyframes orbFloat {
-      0%, 100% {
+      0%,
+      100% {
         transform: translate(0, 0) scale(1);
         opacity: 0.7;
       }
@@ -3753,15 +3935,34 @@ watch(activeCategory, () => {
       );
       animation: beamPulse 4s ease-in-out infinite;
 
-      &.beam-1 { left: 15%; animation-delay: 0s; }
-      &.beam-2 { left: 35%; animation-delay: -1s; }
-      &.beam-3 { left: 65%; animation-delay: -2s; }
-      &.beam-4 { left: 85%; animation-delay: -3s; }
+      &.beam-1 {
+        left: 15%;
+        animation-delay: 0s;
+      }
+      &.beam-2 {
+        left: 35%;
+        animation-delay: -1s;
+      }
+      &.beam-3 {
+        left: 65%;
+        animation-delay: -2s;
+      }
+      &.beam-4 {
+        left: 85%;
+        animation-delay: -3s;
+      }
     }
 
     @keyframes beamPulse {
-      0%, 100% { opacity: 0.3; transform: scaleY(1); }
-      50% { opacity: 0.6; transform: scaleY(1.1); }
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: scaleY(1);
+      }
+      50% {
+        opacity: 0.6;
+        transform: scaleY(1.1);
+      }
     }
 
     // 酷炫网格层 - 多层效果
@@ -3778,11 +3979,7 @@ watch(activeCategory, () => {
         right: 0;
         height: 60%;
         background:
-          linear-gradient(
-            to bottom,
-            transparent 0%,
-            rgba(138, 43, 226, 0.05) 100%
-          ),
+          linear-gradient(to bottom, transparent 0%, rgba(138, 43, 226, 0.05) 100%),
           repeating-linear-gradient(
             90deg,
             transparent,
@@ -3808,27 +4005,95 @@ watch(activeCategory, () => {
         position: absolute;
         inset: 0;
         background-image:
-          linear-gradient(30deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
-          linear-gradient(150deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
-          linear-gradient(30deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
-          linear-gradient(150deg, rgba(0, 180, 216, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 216, 0.1) 87.5%),
-          linear-gradient(60deg, rgba(0, 212, 170, 0.08) 25%, transparent 25.5%, transparent 75%, rgba(0, 212, 170, 0.08) 75%),
-          linear-gradient(60deg, rgba(0, 212, 170, 0.08) 25%, transparent 25.5%, transparent 75%, rgba(0, 212, 170, 0.08) 75%);
+          linear-gradient(
+            30deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            150deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            30deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            150deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            60deg,
+            rgba(0, 212, 170, 0.08) 25%,
+            transparent 25.5%,
+            transparent 75%,
+            rgba(0, 212, 170, 0.08) 75%
+          ),
+          linear-gradient(
+            60deg,
+            rgba(0, 212, 170, 0.08) 25%,
+            transparent 25.5%,
+            transparent 75%,
+            rgba(0, 212, 170, 0.08) 75%
+          );
         background-size: 80px 140px;
-        background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+        background-position:
+          0 0,
+          0 0,
+          40px 70px,
+          40px 70px,
+          0 0,
+          40px 70px;
         opacity: 0.6;
         animation: triangleGrid 15s linear infinite;
       }
     }
 
     @keyframes perspectiveGrid {
-      0% { background-position: 0 0, 0 0, 0 0; }
-      100% { background-position: 0 50px, 0 50px, 0 50px; }
+      0% {
+        background-position:
+          0 0,
+          0 0,
+          0 0;
+      }
+      100% {
+        background-position:
+          0 50px,
+          0 50px,
+          0 50px;
+      }
     }
 
     @keyframes triangleGrid {
-      0% { background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px; }
-      100% { background-position: 0 -140px, 0 -140px, 40px -70px, 40px -70px, 0 -140px, 40px -70px; }
+      0% {
+        background-position:
+          0 0,
+          0 0,
+          40px 70px,
+          40px 70px,
+          0 0,
+          40px 70px;
+      }
+      100% {
+        background-position:
+          0 -140px,
+          0 -140px,
+          40px -70px,
+          40px -70px,
+          0 -140px,
+          40px -70px;
+      }
     }
 
     // 网格节点高光点 - 极光幻彩
@@ -3841,8 +4106,13 @@ watch(activeCategory, () => {
     }
 
     @keyframes dotPulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.7; }
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+      50% {
+        opacity: 0.7;
+      }
     }
 
     // 脉冲圆环效果 - 极光幻彩
@@ -3894,16 +4164,32 @@ watch(activeCategory, () => {
       left: 0;
       right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.4), rgba(0, 191, 255, 0.3), transparent);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 105, 180, 0.4),
+        rgba(0, 191, 255, 0.3),
+        transparent
+      );
       animation: scanDown 6s linear infinite;
       opacity: 0.6;
     }
 
     @keyframes scanDown {
-      0% { top: -5%; opacity: 0; }
-      10% { opacity: 0.5; }
-      90% { opacity: 0.5; }
-      100% { top: 105%; opacity: 0; }
+      0% {
+        top: -5%;
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.5;
+      }
+      90% {
+        opacity: 0.5;
+      }
+      100% {
+        top: 105%;
+        opacity: 0;
+      }
     }
   }
 
@@ -3947,8 +4233,15 @@ watch(activeCategory, () => {
   }
 
   @keyframes sparkle {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.8; }
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
   }
 
   // 主标题 - 3D 立体效果
@@ -4037,7 +4330,9 @@ watch(activeCategory, () => {
         -webkit-text-fill-color: transparent;
         background-clip: text;
         background-size: 200% 200%;
-        animation: gradientShift 4s ease infinite, float3d 3s ease-in-out infinite;
+        animation:
+          gradientShift 4s ease infinite,
+          float3d 3s ease-in-out infinite;
 
         // 极光蓝字符的精致阴影
         text-shadow:
@@ -4071,17 +4366,32 @@ watch(activeCategory, () => {
     }
 
     // 字符交错动画延迟
-    .char:nth-child(1) { animation-delay: 0s; }
-    .char:nth-child(2) { animation-delay: 0.1s; }
-    .char:nth-child(3) { animation-delay: 0.2s; }
-    .char:nth-child(4) { animation-delay: 0.3s; }
-    .char:nth-child(5) { animation-delay: 0.4s; }
-    .char:nth-child(6) { animation-delay: 0.5s; }
-    .char:nth-child(7) { animation-delay: 0.6s; }
+    .char:nth-child(1) {
+      animation-delay: 0s;
+    }
+    .char:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+    .char:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+    .char:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+    .char:nth-child(5) {
+      animation-delay: 0.4s;
+    }
+    .char:nth-child(6) {
+      animation-delay: 0.5s;
+    }
+    .char:nth-child(7) {
+      animation-delay: 0.6s;
+    }
   }
 
   @keyframes float3d {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0) rotateX(0deg) rotateY(0deg);
     }
     25% {
@@ -4096,8 +4406,13 @@ watch(activeCategory, () => {
   }
 
   @keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
   }
 
   // 副标题
@@ -4148,7 +4463,11 @@ watch(activeCategory, () => {
       }
 
       &.tag-primary {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.3) 0%,
+          rgba(168, 85, 247, 0.3) 100%
+        );
         border: 1px solid rgba(99, 102, 241, 0.5);
         color: #fff;
       }
@@ -4201,7 +4520,11 @@ watch(activeCategory, () => {
       }
 
       &.highlight {
-        background: linear-gradient(135deg, rgba(0, 180, 216, 0.25) 0%, rgba(0, 119, 182, 0.2) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(0, 180, 216, 0.25) 0%,
+          rgba(0, 119, 182, 0.2) 100%
+        );
         border-color: rgba(0, 180, 216, 0.6);
       }
 
@@ -4291,7 +4614,8 @@ watch(activeCategory, () => {
   }
 
   @keyframes scrollBounce {
-    0%, 100% {
+    0%,
+    100% {
       transform: rotate(45deg) translateY(0);
       opacity: 1;
     }
@@ -4387,7 +4711,9 @@ watch(activeCategory, () => {
   border: 1px solid rgba(102, 126, 234, 0.3);
   border-radius: 16px;
   z-index: 9998;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(102, 126, 234, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(102, 126, 234, 0.1);
   overflow: hidden;
 }
 
@@ -4560,8 +4886,13 @@ watch(activeCategory, () => {
 }
 
 @keyframes pulse-subtle {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .selection-list {
@@ -4693,7 +5024,9 @@ watch(activeCategory, () => {
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(102, 126, 234, 0.1);
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -4865,7 +5198,9 @@ watch(activeCategory, () => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(102, 126, 234, 0.1);
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -5148,19 +5483,41 @@ watch(activeCategory, () => {
 }
 
 @keyframes toast-shake {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  20% { transform: translateX(-50%) translateY(-10px); }
-  40% { transform: translateX(-50%) translateY(10px); }
-  60% { transform: translateX(-50%) translateY(-5px); }
-  80% { transform: translateX(-50%) translateY(5px); }
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  20% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+  40% {
+    transform: translateX(-50%) translateY(10px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+  80% {
+    transform: translateX(-50%) translateY(5px);
+  }
 }
 
 @keyframes shake {
-  0%, 100% { transform: rotate(0deg); }
-  20% { transform: rotate(-15deg); }
-  40% { transform: rotate(15deg); }
-  60% { transform: rotate(-10deg); }
-  80% { transform: rotate(10deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-15deg);
+  }
+  40% {
+    transform: rotate(15deg);
+  }
+  60% {
+    transform: rotate(-10deg);
+  }
+  80% {
+    transform: rotate(10deg);
+  }
 }
 
 .error-fade-enter-active,
