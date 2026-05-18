@@ -664,13 +664,12 @@ const buildCopyContent = (): string => {
 
   // 辅助函数：获取组件源码
   const getComponentSourceCode = (comp: ComponentSelectInfo): string => {
-    return (comp.sourceCode as string) || (vueModules[comp.path] as string) || ''
+    return (comp.sourceCode as string) || ''
   }
 
   // 辅助函数：获取组件 README
   const getComponentReadme = (comp: ComponentSelectInfo): string => {
-    const readmePath = comp.path.replace(/\.vue$/, '/README.md')
-    return (comp.readme as string) || (readmeModules[readmePath] as string) || ''
+    return (comp.readme as string) || ''
   }
 
   // ============================================================
@@ -787,10 +786,9 @@ const buildCopyContent = (): string => {
       lines.push(`   ${compIdx + 1}. ${comp.dirName} (${comp.type})`, '   ' + sep('-', 70))
 
       // 从 vueModules 动态获取源码
-      const sourceCode = (comp.sourceCode as string) || (vueModules[comp.path] as string) || ''
+      const sourceCode = getComponentSourceCode(comp)
       // 从 readmeModules 动态获取 README
-      const readmePath = comp.path.replace(/\.vue$/, '/README.md')
-      const readme = (comp.readme as string) || (readmeModules[readmePath] as string) || ''
+      const readme = getComponentReadme(comp)
 
       // README 效果描述
       if (readme) {
@@ -1659,9 +1657,61 @@ function OpenMeoo() {
 }
 
 // 初始化已选组件
-onMounted(() => {
+onMounted(async () => {
   selectedComponents.value = loadSelectedComponents()
+  
+  // 预加载所有已选组件的源码和README
+  await preloadComponentSources(selectedComponents.value)
 })
+
+// 预加载组件源码
+const preloadComponentSources = async (components: ComponentSelectInfo[]) => {
+  for (const comp of components) {
+    if (!comp.sourceCode) {
+      try {
+        const moduleLoader = vueModules[comp.path]
+        if (moduleLoader && typeof moduleLoader === 'function') {
+          const module = await moduleLoader()
+          comp.sourceCode = module.default || module
+        }
+      } catch (error) {
+        console.error(`Failed to load source code for ${comp.path}:`, error)
+      }
+    }
+    
+    if (!comp.readme) {
+      try {
+        const readmePath = comp.path.replace(/\.vue$/, '/README.md')
+        const readmeLoader = readmeModules[readmePath]
+        if (readmeLoader && typeof readmeLoader === 'function') {
+          const module = await readmeLoader()
+          comp.readme = module.default || module
+        }
+      } catch (error) {
+        console.error(`Failed to load README for ${comp.path}:`, error)
+        comp.readme = null
+      }
+    }
+  }
+}
+
+// 监听已选组件变化，自动保存并预加载源码
+watch(
+  selectedComponents,
+  async (newVal, oldVal) => {
+    saveSelectedComponents()
+    
+    // 找出新增的组件并预加载
+    const newComps = newVal.filter(newComp => 
+      !oldVal.some(oldComp => oldComp.dirName === newComp.dirName)
+    )
+    
+    if (newComps.length > 0) {
+      await preloadComponentSources(newComps)
+    }
+  },
+  { deep: true }
+)
 
 // ==================== 企业信息功能（从 web-ai 迁移） ====================
 interface EnterpriseInfo {
