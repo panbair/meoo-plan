@@ -18,14 +18,14 @@ import NProgress from 'nprogress'
 gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用，按需加载）====================
-const vueModules = import.meta.glob('../web-list/card-{image,img,text,3d,time,list}/*/[^R]*.vue', {
+const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list}/*/*.vue', {
   query: '?raw',
   import: 'default',
 })
 
 // 动态导入所有README
 const readmeModules = import.meta.glob(
-  '../web-list/card-{image,img,text,3d,time,list}/*/README.md',
+  './card-{image,img,text,3d,time,list}/*/README.md',
   { query: '?raw', import: 'default' }
 )
 
