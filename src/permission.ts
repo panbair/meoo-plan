@@ -14,11 +14,12 @@ import type { MenuPermission } from '@/types/permission'
 
 // NProgress 配置
 NProgress.configure({
-  showSpinner: false,
-  easing: 'ease',
-  speed: 500,
-  trickleSpeed: 200,
-  minimum: 0.3
+  showSpinner: false, // 隐藏旋转图标
+  easing: 'ease', // 动画缓动
+  speed: 600, // 动画速度
+  trickleSpeed: 150, // 自动增长间隔
+  minimum: 0.2, // 最小百分比
+  template: '<div class="bar" role="bar"><div class="peg"></div></div>' // 自定义模板
 })
 
 /**
@@ -112,8 +113,14 @@ router.beforeEach(async (to, _from, next) => {
   const hasToken = !!getAccessToken()
   const userStore = useUserStore()
 
-  // 白名单路由，直接通过
+  // 白名单路由，直接通过（但保持进度条显示）
   if (whiteList.includes(to.path)) {
+    // 对于 web-list 等需要预加载的页面，延迟关闭进度条
+    if (to.path === '/web-list' || to.path === '/web-ai') {
+      // 进度条会持续显示，直到页面完全加载
+      next()
+      return
+    }
     next()
     NProgress.done()
     return

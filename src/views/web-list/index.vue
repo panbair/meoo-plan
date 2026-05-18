@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'vue-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import NProgress from 'nprogress'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -36,6 +37,11 @@ const isLoading = ref(true)
 const loadingProgress = ref(0)
 const loadingText = ref('正在初始化...')
 
+// ==================== 延迟加载配置 ====================
+const LAZY_LOAD_DELAY = 1500 // 首屏延迟加载时间（毫秒）
+const BATCH_SIZE = 5 // 每批加载的组件数量
+const BATCH_DELAY = 300 // 批次间延迟（毫秒）
+
 // ==================== 预加载数量控制 ====================
 const PRELOAD_COUNT = 2 // 视口上方预加载数量
 const VISIBLE_BUFFER = 2 // 视口下方预加载数量
@@ -46,6 +52,31 @@ const LAZY_MODE = true // 设为 false 可关闭懒加载
 // ==================== 分类筛选 ====================
 // 当前选中的分类（默认全部）
 const activeCategory = ref('all')
+
+// 监听分类变化，滚动到顶部
+watch(activeCategory, () => {
+  // 使用 nextTick 确保 DOM 更新后再滚动
+  nextTick(() => {
+    let top = 0
+    // 尝试多种滚动方式
+    window.scrollTo({
+      top: top,
+      behavior: 'smooth'
+    })
+
+    // 同时滚动 documentElement（兼容不同浏览器）
+    document.documentElement.scrollTo({
+      top: top,
+      behavior: 'smooth'
+    })
+
+    // 也滚动 body
+    document.body.scrollTo({
+      top: top,
+      behavior: 'smooth'
+    })
+  })
+})
 
 // ==================== 收藏功能 ====================
 // 从 localStorage 加载收藏的组件名列表
@@ -1664,55 +1695,69 @@ function OpenMeoo() {
 // 初始化已选组件
 onMounted(async () => {
   selectedComponents.value = loadSelectedComponents()
-  
-  // 预加载所有已选组件的源码和README
-  if (selectedComponents.value.length > 0) {
-    loadingText.value = '正在加载组件资源...'
-    await preloadComponentSources(selectedComponents.value)
-  }
-  
-  // 延迟关闭 loading，确保页面渲染完成
+
+  // 先显示页面，延迟加载源码
   setTimeout(() => {
     isLoading.value = false
-  }, 300)
+    NProgress.done()
+
+    // 延迟后再预加载源码（不阻塞首屏）
+    if (selectedComponents.value.length > 0) {
+      preloadComponentSourcesBatch(selectedComponents.value)
+    }
+  }, LAZY_LOAD_DELAY)
 })
 
-// 预加载组件源码
-const preloadComponentSources = async (components: ComponentSelectInfo[]) => {
+// 分批预加载组件源码（非阻塞）
+const preloadComponentSourcesBatch = async (components: ComponentSelectInfo[]) => {
   const total = components.length
   let loaded = 0
-  
-  for (const comp of components) {
-    if (!comp.sourceCode) {
-      try {
-        const moduleLoader = vueModules[comp.path]
-        if (moduleLoader && typeof moduleLoader === 'function') {
-          loadingText.value = `正在加载组件源码 (${loaded + 1}/${total})...`
-          const module = await moduleLoader()
-          comp.sourceCode = module.default || module
-        }
-      } catch (error) {
-        console.error(`Failed to load source code for ${comp.path}:`, error)
-      }
+
+  // 分批处理，避免一次性加载过多
+  for (let i = 0; i < total; i += BATCH_SIZE) {
+    const batch = components.slice(i, i + BATCH_SIZE)
+
+    // 批次间延迟，让浏览器有时间响应
+    if (i > 0) {
+      await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
     }
-    
-    if (!comp.readme) {
-      try {
-        const readmePath = comp.path.replace(/\.vue$/, '/README.md')
-        const readmeLoader = readmeModules[readmePath]
-        if (readmeLoader && typeof readmeLoader === 'function') {
-          const module = await readmeLoader()
-          comp.readme = module.default || module
+
+    // 并行加载当前批次
+    await Promise.all(
+      batch.map(async (comp) => {
+        if (!comp.sourceCode) {
+          try {
+            const moduleLoader = vueModules[comp.path]
+            if (moduleLoader && typeof moduleLoader === 'function') {
+              const module = await moduleLoader()
+              comp.sourceCode = module.default || module
+            }
+          } catch (error) {
+            console.error(`Failed to load source code for ${comp.path}:`, error)
+          }
         }
-      } catch (error) {
-        console.error(`Failed to load README for ${comp.path}:`, error)
-        comp.readme = null
-      }
-    }
-    
-    loaded++
-    loadingProgress.value = Math.round((loaded / total) * 100)
+
+        if (!comp.readme) {
+          try {
+            const readmePath = comp.path.replace(/\.vue$/, '/README.md')
+            const readmeLoader = readmeModules[readmePath]
+            if (readmeLoader && typeof readmeLoader === 'function') {
+              const module = await readmeLoader()
+              comp.readme = module.default || module
+            }
+          } catch (error) {
+            console.error(`Failed to load README for ${comp.path}:`, error)
+            comp.readme = null
+          }
+        }
+
+        loaded++
+        loadingProgress.value = Math.round((loaded / total) * 100)
+      })
+    )
   }
+
+  console.log(`✅ 所有组件源码加载完成 (${total}个)`)
 }
 
 // 监听已选组件变化，自动保存并预加载源码
@@ -1720,14 +1765,15 @@ watch(
   selectedComponents,
   async (newVal, oldVal) => {
     saveSelectedComponents()
-    
+
     // 找出新增的组件并预加载
-    const newComps = newVal.filter(newComp => 
+    const newComps = newVal.filter(newComp =>
       !oldVal.some(oldComp => oldComp.dirName === newComp.dirName)
     )
-    
+
     if (newComps.length > 0) {
-      await preloadComponentSources(newComps)
+      // 新增组件也使用分批加载
+      preloadComponentSourcesBatch(newComps)
     }
   },
   { deep: true }
@@ -6326,17 +6372,17 @@ watch(activeCategory, () => {
   height: 100%;
   border: 3px solid transparent;
   border-radius: 50%;
-  
+
   &:nth-child(1) {
     border-top-color: #667eea;
     animation: spin 1.5s linear infinite;
   }
-  
+
   &:nth-child(2) {
     border-right-color: #764ba2;
     animation: spin 2s linear infinite reverse;
   }
-  
+
   &:nth-child(3) {
     border-bottom-color: #f093fb;
     animation: spin 2.5s linear infinite;
