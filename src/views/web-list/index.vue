@@ -31,6 +31,11 @@ const readmeModules = import.meta.glob(
 // 获取 router 实例
 const router = useRouter()
 
+// ==================== Loading 状态 ====================
+const isLoading = ref(true)
+const loadingProgress = ref(0)
+const loadingText = ref('正在初始化...')
+
 // ==================== 预加载数量控制 ====================
 const PRELOAD_COUNT = 2 // 视口上方预加载数量
 const VISIBLE_BUFFER = 2 // 视口下方预加载数量
@@ -1661,16 +1666,28 @@ onMounted(async () => {
   selectedComponents.value = loadSelectedComponents()
   
   // 预加载所有已选组件的源码和README
-  await preloadComponentSources(selectedComponents.value)
+  if (selectedComponents.value.length > 0) {
+    loadingText.value = '正在加载组件资源...'
+    await preloadComponentSources(selectedComponents.value)
+  }
+  
+  // 延迟关闭 loading，确保页面渲染完成
+  setTimeout(() => {
+    isLoading.value = false
+  }, 300)
 })
 
 // 预加载组件源码
 const preloadComponentSources = async (components: ComponentSelectInfo[]) => {
+  const total = components.length
+  let loaded = 0
+  
   for (const comp of components) {
     if (!comp.sourceCode) {
       try {
         const moduleLoader = vueModules[comp.path]
         if (moduleLoader && typeof moduleLoader === 'function') {
+          loadingText.value = `正在加载组件源码 (${loaded + 1}/${total})...`
           const module = await moduleLoader()
           comp.sourceCode = module.default || module
         }
@@ -1692,6 +1709,9 @@ const preloadComponentSources = async (components: ComponentSelectInfo[]) => {
         comp.readme = null
       }
     }
+    
+    loaded++
+    loadingProgress.value = Math.round((loaded / total) * 100)
   }
 }
 
@@ -2819,6 +2839,26 @@ watch(activeCategory, () => {
 </script>
 
 <template>
+  <!-- Loading 遮罩层 -->
+  <Teleport to="body">
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+        </div>
+        <div class="loading-text">{{ loadingText }}</div>
+        <div v-if="selectedComponents.length > 0" class="loading-progress-bar">
+          <div class="progress-fill" :style="{ width: loadingProgress + '%' }"></div>
+        </div>
+        <div v-if="selectedComponents.length > 0" class="loading-progress-text">
+          {{ loadingProgress }}%
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
   <div class="web-list">
     <!-- 顶部悬浮分类选项卡 -->
     <div class="category-tabs">
@@ -6251,5 +6291,96 @@ watch(activeCategory, () => {
       transform: scale(1.1);
     }
   }
+}
+
+// ==================== Loading 界面样式 ====================
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(10px);
+}
+
+.loading-content {
+  text-align: center;
+  color: #fff;
+}
+
+.loading-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 30px;
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  
+  &:nth-child(1) {
+    border-top-color: #667eea;
+    animation: spin 1.5s linear infinite;
+  }
+  
+  &:nth-child(2) {
+    border-right-color: #764ba2;
+    animation: spin 2s linear infinite reverse;
+  }
+  
+  &:nth-child(3) {
+    border-bottom-color: #f093fb;
+    animation: spin 2.5s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 1px;
+}
+
+.loading-progress-bar {
+  width: 300px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 auto 10px;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.loading-progress-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
 }
 </style>
