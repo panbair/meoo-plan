@@ -7171,3 +7171,38 @@ CardImageNebulaBirth
 CardImageVolcanoErupt
 火山喷发
 底部岩浆涌动，碎片被喷射后坠落归位，熔岩粒子飞溅
+
+
+
+
+交互体验类
+DrawingCanvas（手绘画板） — 支持压感、多图层、撤销重做的矢量绘图组件
+GesturePlayground（手势操控台） — 识别捏合/旋转/滑动手势来操控3D物体
+VoiceVisualizer（语音可视化器） — 通过麦克风实时将声音转为频谱/波形动画
+DragPhysicsEngine（物理拖拽引擎） — 可拖拽元素带有真实重力、碰撞、弹性物理模拟
+🧬 数据可视化类
+SankeyFlow（桑基图流向图） — 交互式能量/数据流向可视化
+TreemapZoom（矩形树图缩放） — 可无限层级下钻的矩形树图
+RadarMorphChart（雷达变形图） — 支持多维数据对比的动态变形雷达图
+TimelineRiver（时间河流图） — 类似 GitHub Contributions 但更立体的时间流可视化
+🌐 3D/WebGL 沉浸类
+TerrainGenerator（地形生成器） — 基于噪声算法实时生成可交互3D地形
+PortalTransition（传送门转场） — 页面间通过3D传送门洞穴效果无缝切换
+FluidSimulation（流体模拟） — 基于Navier-Stokes方程的2D流体交互模拟
+CrystalRefraction（水晶折射） — 真实光线折射效果的水晶棱镜组件
+🎮 游戏化组件
+MazeGenerator（迷宫生成器） — 可玩的随机迷宫生成与求解可视化
+PixelArtEditor（像素画编辑器） — 网格式像素画创作工具，支持动画帧导出
+AchievementSystem（成就系统） — 游戏化成就解锁弹窗与进度追踪组件
+🛠 实用高级组件
+MarkdownLiveEditor（Markdown实时编辑器） — 分屏编辑预览，支持Mermaid图表/数学公式
+CommandPalette（命令面板） — 类VSCode Ctrl+Shift+P的模糊搜索命令面板
+FormBuilder（表单构建器） — 拖拽式可视化表单设计器，JSON Schema驱动
+CodeDiffViewer（代码差异对比器） — 支持行内/并排对比的语法高亮Diff查看器
+KanbanBoard（看板面板） — 支持拖拽排序、泳道、WIP限制的任务看板
+✨ 前沿创意类
+AIImagePromptBuilder（AI图像提示词构建器） — 可视化拼接Stable Diffusion/MidJourney提示词
+EmotionHeatmap（情感热力图） — 基于文本情感分析的实时热力可视化
+MusicSequencer（音乐序列器） — 网格式节拍编辑器，Web Audio API实时播放
+HandwritingRecognition（手写识别） — 手写输入转文字，支持中英文
+AugmentedReality（AR叠加层） — 利用WebXR在摄像头画面上叠加3D虚拟元素
