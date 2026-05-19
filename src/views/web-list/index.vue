@@ -158,30 +158,26 @@ const isFavorite = (dirName: string) => favorites.value.includes(dirName)
 // ==================== 兼容性复制工具函数 ====================
 /**
  * 兼容性复制文本到剪贴板
- * 优先使用现代 API，降级到传统方法
+ * 优先使用传统方法（兼容性更好），现代 API 作为备选
  */
 const copyToClipboard = async (text: string): Promise<boolean> => {
-  // 方法1: 尝试使用现代 Clipboard API
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    try {
-      await navigator.clipboard.writeText(text)
-      console.log('✅ 使用 Clipboard API 复制成功')
-      return true
-    } catch (err) {
-      console.warn('Clipboard API 失败，尝试降级方案:', err)
-    }
-  }
-  
-  // 方法2: 降级到 document.execCommand
+  // 方法1: 使用 document.execCommand（兼容性最好，支持 HTTP/HTTPS）
   try {
     const textArea = document.createElement('textarea')
     textArea.value = text
+    
+    // 确保元素不可见但可以被选中
     textArea.style.position = 'fixed'
-    textArea.style.left = '-999999px'
-    textArea.style.top = '-999999px'
+    textArea.style.left = '-9999px'
+    textArea.style.top = '-9999px'
+    textArea.style.opacity = '0'
+    textArea.setAttribute('readonly', '')
+    
     document.body.appendChild(textArea)
-    textArea.focus()
+    
+    // 选中并复制
     textArea.select()
+    textArea.setSelectionRange(0, textArea.value.length)
     
     const successful = document.execCommand('copy')
     document.body.removeChild(textArea)
@@ -190,13 +186,31 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
       console.log('✅ 使用 execCommand 复制成功')
       return true
     } else {
-      console.error('execCommand 复制失败')
-      return false
+      console.warn('⚠️ execCommand 返回 false，尝试 Clipboard API')
     }
   } catch (err) {
-    console.error('所有复制方法都失败:', err)
-    return false
+    console.warn('⚠️ execCommand 失败，尝试 Clipboard API:', err)
   }
+  
+  // 方法2: 尝试使用现代 Clipboard API（需要 HTTPS）
+  try {
+    // 更严格的检查
+    if (typeof navigator !== 'undefined' && 
+        navigator.clipboard && 
+        typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(text)
+      console.log('✅ 使用 Clipboard API 复制成功')
+      return true
+    } else {
+      console.warn('⚠️ Clipboard API 不可用')
+    }
+  } catch (err) {
+    console.error('❌ Clipboard API 也失败:', err)
+  }
+  
+  // 所有方法都失败
+  console.error('❌ 所有复制方法都失败')
+  return false
 }
 
 // 复制组件代码
@@ -1786,12 +1800,20 @@ function closeCopyModal() {
 // 实际复制内容到剪贴板
 async function copyContent() {
   try {
-    await navigator.clipboard.writeText(editablePlanContent.value)
-    copySuccess.value = true
-    setTimeout(() => {
-      copySuccess.value = false
-    }, 2000)
+    // 使用兼容性复制函数
+    const success = await copyToClipboard(editablePlanContent.value)
+    
+    if (success) {
+      copySuccess.value = true
+      setTimeout(() => {
+        copySuccess.value = false
+      }, 2000)
+    } else {
+      errorMessage.value = '复制失败，请手动复制'
+      showCopyErrorModal('❌ 复制失败', '浏览器不支持自动复制，请手动选择内容复制')
+    }
   } catch (err) {
+    console.error('复制方案失败:', err)
     errorMessage.value = '复制失败，请手动复制'
     showCopyErrorModal('❌ 复制失败', '请手动复制内容')
   }
