@@ -90,10 +90,10 @@ const cleanupAllAnimations = () => {
 watch(activeCategory, () => {
   // 先清理所有动画，避免内存泄漏
   cleanupAllAnimations()
-  
+
   // 清空可见卡片集合，触发重新加载
   visibleCards.value.clear()
-  
+
   // 使用 nextTick 确保 DOM 更新后再滚动
   nextTick(() => {
     let top = 0
@@ -114,7 +114,7 @@ watch(activeCategory, () => {
       top: top,
       behavior: 'smooth'
     })
-    
+
     // 重新初始化 Intersection Observer
     setTimeout(() => {
       initIntersectionObserver()
@@ -165,23 +165,23 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
   try {
     const textArea = document.createElement('textarea')
     textArea.value = text
-    
+
     // 确保元素不可见但可以被选中
     textArea.style.position = 'fixed'
     textArea.style.left = '-9999px'
     textArea.style.top = '-9999px'
     textArea.style.opacity = '0'
     textArea.setAttribute('readonly', '')
-    
+
     document.body.appendChild(textArea)
-    
+
     // 选中并复制
     textArea.select()
     textArea.setSelectionRange(0, textArea.value.length)
-    
+
     const successful = document.execCommand('copy')
     document.body.removeChild(textArea)
-    
+
     if (successful) {
       console.log('✅ 使用 execCommand 复制成功')
       return true
@@ -191,12 +191,12 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
   } catch (err) {
     console.warn('⚠️ execCommand 失败，尝试 Clipboard API:', err)
   }
-  
+
   // 方法2: 尝试使用现代 Clipboard API（需要 HTTPS）
   try {
     // 更严格的检查
-    if (typeof navigator !== 'undefined' && 
-        navigator.clipboard && 
+    if (typeof navigator !== 'undefined' &&
+        navigator.clipboard &&
         typeof navigator.clipboard.writeText === 'function') {
       await navigator.clipboard.writeText(text)
       console.log('✅ 使用 Clipboard API 复制成功')
@@ -207,7 +207,7 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
   } catch (err) {
     console.error('❌ Clipboard API 也失败:', err)
   }
-  
+
   // 所有方法都失败
   console.error('❌ 所有复制方法都失败')
   return false
@@ -218,7 +218,7 @@ const copyComponentCode = async (cardInfo: any) => {
   try {
     // 获取组件源码
     let sourceCode = ''
-    
+
     // 从已选组件中查找是否有源码
     const selectedComp = selectedComponents.value.find(c => c.dirName === cardInfo.dirName)
     if (selectedComp && selectedComp.sourceCode) {
@@ -235,11 +235,11 @@ const copyComponentCode = async (cardInfo: any) => {
         }
       }
     }
-    
+
     if (sourceCode) {
       // 使用兼容性复制函数
       const success = await copyToClipboard(sourceCode)
-      
+
       if (success) {
         showCopyErrorModal('✅ 复制成功', `组件 ${cardInfo.name} 的代码已复制到剪贴板`)
       } else {
@@ -1802,7 +1802,7 @@ async function copyContent() {
   try {
     // 使用兼容性复制函数
     const success = await copyToClipboard(editablePlanContent.value)
-    
+
     if (success) {
       copySuccess.value = true
       setTimeout(() => {
@@ -1883,13 +1883,13 @@ onMounted(async () => {
 
   // 初始化 GSAP 动画
   initPage1Animations()
-  
+
   // 创建气泡粒子
   createExtraBubbles()
-  
+
   // 初始化 Intersection Observer
   initIntersectionObserver()
-  
+
   // 监听滚动事件
   window.addEventListener('scroll', handleScroll, { passive: true })
 
@@ -1909,19 +1909,19 @@ onMounted(async () => {
 onUnmounted(() => {
   // 清理所有 GSAP 动画
   cleanupAllAnimations()
-  
+
   // 移除滚动监听
   window.removeEventListener('scroll', handleScroll)
-  
+
   // 清理 Intersection Observer
   if (observer) {
     observer.disconnect()
     observer = null
   }
-  
+
   // 清空可见卡片集合
   visibleCards.value.clear()
-  
+
   console.log('✅ 组件已卸载，所有资源已清理')
 })
 
@@ -2205,7 +2205,9 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue')
 /**
  * 自动化构建组件列表
  */
-/*const dirNameList = [
+const dirNameList = [
+  'CardImgCinematicMask', 'CardImgLiquidMorph', 'CardImgNegativeReveal', 'CardImgNovaBirth', 'CardImgTimeFracture',
+  'CardImageAuroraWave', 'CardImageDimensionTear', 'CardImageFiberOptic', 'CardImageGravityWell', 'CardImageHoloPrism', 'CardImageInfraredShift', 'CardImageKaleidoscope', 'CardImageLightningStrike', 'CardImageMagneticField', 'CardImagePhoenixRise', 'CardImageSandstorm', 'CardImageTsunami', 'CardImageXRayScan',
   'CardImageCarbonBlade',
   'CardImageCarbonCrystal',
   'CardImageCrossCrack',
@@ -2416,8 +2418,8 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue')
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /!*'Card3DFlipGallery',
-  'CardAbstractGeometry',*!/
+  /*'Card3DFlipGallery',
+  'CardAbstractGeometry',*/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -2482,8 +2484,8 @@ const modulesText = import.meta.glob('./card-text/*/[^/]*.vue')
   'CardVoid',
   'CardVortex',
   'CardWave'
-]*/
-const dirNameList = []
+]
+// const dirNameList = []
 const dirNameList1 = []
 
 const cardComponents = computed(() => {
@@ -2667,13 +2669,13 @@ const cardComponents = computed(() => {
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
-  // console.log([...listComponents].map((item) => item.dirName))
-  // console.log([...timeComponents].map((item) => item.dirName))
-  // console.log([...textComponents].map((item) => item.dirName))
-  // console.log([...d3dComponents].map((item) => item.dirName))
-  //
-  // console.log([...imgComponents].map((item) => item.dirName))
-  // console.log([...imageComponents].map((item) => item.dirName))
+  console.log([...listComponents].map((item) => item.dirName))
+  console.log([...timeComponents].map((item) => item.dirName))
+  console.log([...textComponents].map((item) => item.dirName))
+  console.log([...d3dComponents].map((item) => item.dirName))
+
+  console.log([...imgComponents].map((item) => item.dirName))
+  console.log([...imageComponents].map((item) => item.dirName))
   // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后
   return [
     ...imageComponents,
@@ -3039,7 +3041,7 @@ const initPage1Animations = () => {
     // 网格动画 - 淡入
     gsap.fromTo('.grid-lines', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.5 })
     gsap.fromTo('.grid-dots', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.8 })
-    
+
     // 脉冲圆环动画
     gsap.fromTo(
       '.pulse-ring',

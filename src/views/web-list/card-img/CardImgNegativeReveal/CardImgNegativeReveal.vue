@@ -122,7 +122,7 @@ onMounted(() => {
 
   const ctx = gsap.context(() => {
     // ===== 初始状态设置 =====
-    
+
     // 内容容器初始状态
     gsap.set(contentWrapperRef.value, {
       opacity: 0,
@@ -283,7 +283,7 @@ onMounted(() => {
     })
 
     // ===== 独立呼吸动画 =====
-    
+
     // 边缘光晕脉冲
     const edgeGlowTl = gsap.timeline({ repeat: -1, yoyo: true })
     edgeGlowTl.to(edgeGlowRef.value, {
@@ -364,7 +364,7 @@ onUnmounted(() => {
 .bg-gradient {
   position: absolute;
   inset: 0;
-  background: 
+  background:
     radial-gradient(ellipse 80% 60% at 50% 30%, rgba(60, 50, 80, 0.15) 0%, transparent 60%),
     radial-gradient(ellipse 60% 50% at 30% 70%, rgba(80, 60, 100, 0.1) 0%, transparent 50%),
     radial-gradient(ellipse 50% 40% at 70% 50%, rgba(50, 70, 100, 0.08) 0%, transparent 40%);
@@ -373,10 +373,10 @@ onUnmounted(() => {
 .bg-light-rays {
   position: absolute;
   inset: -50%;
-  background: 
-    conic-gradient(from 0deg at 50% 50%, 
-      transparent 0deg, 
-      rgba(100, 80, 120, 0.03) 30deg, 
+  background:
+    conic-gradient(from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(100, 80, 120, 0.03) 30deg,
       transparent 60deg,
       rgba(80, 100, 120, 0.02) 90deg,
       transparent 120deg,
@@ -396,17 +396,12 @@ onUnmounted(() => {
 // 内容容器
 .content-wrapper {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70vw;
-  max-width: 900px;
-  aspect-ratio: 16 / 10;
-  border-radius: 8px;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 
-    0 30px 80px rgba(0, 0, 0, 0.7),
-    0 60px 120px rgba(20, 15, 30, 0.5);
   will-change: transform, opacity;
 }
 
@@ -415,12 +410,12 @@ onUnmounted(() => {
   position: absolute;
   inset: 0;
   z-index: 10;
-  background: 
-    linear-gradient(180deg, 
-      #1a1a1a 0%, 
-      #2a2a2a 30%, 
-      #222222 50%, 
-      #2a2a2a 70%, 
+  background:
+    linear-gradient(180deg,
+      #1a1a1a 0%,
+      #2a2a2a 30%,
+      #222222 50%,
+      #2a2a2a 70%,
       #1a1a1a 100%
     );
   will-change: clip-path, opacity;
@@ -429,7 +424,7 @@ onUnmounted(() => {
 .grain-texture {
   position: absolute;
   inset: 0;
-  background: 
+  background:
     repeating-linear-gradient(
       0deg,
       transparent,
@@ -519,7 +514,7 @@ onUnmounted(() => {
   inset: 0;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: 
+  background:
     radial-gradient(ellipse 2% 3% at 15% 25%, rgba(255, 255, 255, 0.05) 0%, transparent 100%),
     radial-gradient(ellipse 3% 2% at 85% 15%, rgba(255, 255, 255, 0.04) 0%, transparent 100%),
     radial-gradient(ellipse 2% 4% at 90% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 100%),
@@ -561,7 +556,7 @@ onUnmounted(() => {
     font-weight: 600;
     color: #e8e4f0;
     letter-spacing: 12px;
-    text-shadow: 
+    text-shadow:
       0 0 20px rgba(120, 100, 150, 0.5),
       0 0 40px rgba(100, 80, 130, 0.3),
       0 2px 4px rgba(0, 0, 0, 0.5);
