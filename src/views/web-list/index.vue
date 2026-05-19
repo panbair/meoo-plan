@@ -53,8 +53,47 @@ const LAZY_MODE = true // 设为 false 可关闭懒加载
 // 当前选中的分类（默认全部）
 const activeCategory = ref('all')
 
-// 监听分类变化，滚动到顶部
+// ==================== GSAP 动画管理 ====================
+// 存储所有 GSAP 动画上下文，用于批量清理
+let gsapContext: gsap.Context | null = null
+
+/**
+ * 清理所有 GSAP 动画和 ScrollTrigger 实例
+ * 在切换分类或组件卸载时调用，防止内存泄漏和性能问题
+ */
+const cleanupAllAnimations = () => {
+  try {
+    // 1. 清理 gsap.context（如果存在）
+    if (gsapContext) {
+      gsapContext.revert()
+      gsapContext = null
+    }
+
+    // 2. 杀死所有正在运行的 tweens
+    gsap.globalTimeline.clear()
+
+    // 3. 杀死所有 ScrollTrigger 实例
+    ScrollTrigger.getAll().forEach(trigger => {
+      trigger.kill()
+    })
+
+    // 4. 清除所有延迟调用
+    gsap.delayedCall(0, () => {}).kill()
+
+    console.log('✅ 已清理所有 GSAP 动画和 ScrollTrigger')
+  } catch (error) {
+    console.error('清理 GSAP 动画时出错:', error)
+  }
+}
+
+// 监听分类变化，滚动到顶部并清理动画
 watch(activeCategory, () => {
+  // 先清理所有动画，避免内存泄漏
+  cleanupAllAnimations()
+  
+  // 清空可见卡片集合，触发重新加载
+  visibleCards.value.clear()
+  
   // 使用 nextTick 确保 DOM 更新后再滚动
   nextTick(() => {
     let top = 0
@@ -75,6 +114,11 @@ watch(activeCategory, () => {
       top: top,
       behavior: 'smooth'
     })
+    
+    // 重新初始化 Intersection Observer
+    setTimeout(() => {
+      initIntersectionObserver()
+    }, 100)
   })
 })
 
@@ -1768,6 +1812,18 @@ function OpenMeoo() {
 onMounted(async () => {
   selectedComponents.value = loadSelectedComponents()
 
+  // 初始化 GSAP 动画
+  initPage1Animations()
+  
+  // 创建气泡粒子
+  createExtraBubbles()
+  
+  // 初始化 Intersection Observer
+  initIntersectionObserver()
+  
+  // 监听滚动事件
+  window.addEventListener('scroll', handleScroll, { passive: true })
+
   // 先显示页面，延迟加载源码
   setTimeout(() => {
     isLoading.value = false
@@ -1778,6 +1834,26 @@ onMounted(async () => {
       preloadComponentSourcesBatch(selectedComponents.value)
     }
   }, LAZY_LOAD_DELAY)
+})
+
+// 组件卸载时清理所有动画和资源
+onUnmounted(() => {
+  // 清理所有 GSAP 动画
+  cleanupAllAnimations()
+  
+  // 移除滚动监听
+  window.removeEventListener('scroll', handleScroll)
+  
+  // 清理 Intersection Observer
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+  
+  // 清空可见卡片集合
+  visibleCards.value.clear()
+  
+  console.log('✅ 组件已卸载，所有资源已清理')
 })
 
 // 分批预加载组件源码（非阻塞）
@@ -2694,266 +2770,222 @@ const createExtraBubbles = () => {
 
 // ==================== GSAP 动画 ====================
 const initPage1Animations = () => {
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-
-  // 入场动画序列
-  tl.fromTo('.page1-bg-effects', { opacity: 0 }, { opacity: 1, duration: 1 })
-    .fromTo(
-      '.floating-orb',
-      { scale: 0, opacity: 0 },
-      {
-        scale: 1,
-        opacity: 0.6,
-        duration: 1.5,
-        stagger: 0.2
-      },
-      '-=0.5'
-    )
-    .fromTo(
-      '.hero-badge',
-      { y: -50, opacity: 0, scale: 0.8 },
-      {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 0.8,
-        ease: 'back.out(1.7)'
-      },
-      '-=1'
-    )
-    // 标题字符 3D 立体入场动画
-    .fromTo(
-      '.page-title .title-line',
-      {
-        y: 80,
-        opacity: 0,
-        scale: 0.8,
-        rotateX: -45
-      },
-      {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        rotateX: 0,
-        duration: 1,
-        stagger: 0.15,
-        ease: 'expo.out'
-      },
-      '-=0.5'
-    )
-    // 每个字符单独 3D 旋转入场
-    .fromTo(
-      '.page-title .char',
-      {
-        y: 60,
-        opacity: 0,
-        rotateX: -90,
-        rotateY: 45,
-        scale: 0.5
-      },
-      {
-        y: 0,
-        opacity: 1,
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1,
-        duration: 0.8,
-        stagger: { each: 0.06, from: 'start' },
-        ease: 'elastic.out(1, 0.6)'
-      },
-      '-=0.8'
-    )
-    // 副标题词语动画
-    .fromTo(
-      '.page-desc .desc-word',
-      { y: 30, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.08
-      },
-      '-=0.5'
-    )
-    // 功能标签动画
-    .fromTo(
-      '.feature-tags .tag',
-      { scale: 0, opacity: 0, y: 20 },
-      {
-        scale: 1,
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        stagger: 0.15,
-        ease: 'elastic.out(1, 0.5)'
-      },
-      '-=0.3'
-    )
-    // 中文信息块动画
-    .fromTo(
-      '.chinese-info .info-block',
-      { x: -60, opacity: 0 },
-      {
-        x: 0,
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: 'power2.out'
-      },
-      '-=0.5'
-    )
-    // 统计数字动画
-    .fromTo('.component-stats', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.3')
-    .fromTo(
-      '.stat-number',
-      { y: 20, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.15
-      },
-      '-=0.6'
-    )
-    // 滚动指示器动画
-    .fromTo(
-      '.scroll-indicator',
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.6 },
-      '-=0.2'
-    )
-
-  // 持续动画 - 浮动光球呼吸效果
-  gsap.to('.orb-1', {
-    y: -30,
-    scale: 1.1,
-    duration: 3,
-    repeat: -1,
-    yoyo: true,
-    ease: 'sine.inOut'
-  })
-  gsap.to('.orb-2', {
-    y: 20,
-    x: 15,
-    scale: 0.95,
-    duration: 2.5,
-    repeat: -1,
-    yoyo: true,
-    ease: 'sine.inOut'
-  })
-  gsap.to('.orb-3', {
-    y: -20,
-    x: -10,
-    scale: 1.05,
-    duration: 3.5,
-    repeat: -1,
-    yoyo: true,
-    ease: 'sine.inOut'
-  })
-
-  // 标题 3D 悬浮视差效果（鼠标跟随）
-  const titleEl = document.querySelector('.page-title')
-  if (titleEl) {
-    titleEl.addEventListener('mousemove', (e) => {
-      const rect = titleEl.getBoundingClientRect()
-      const x = (e.clientX - rect.left - rect.width / 2) / rect.width
-      const y = (e.clientY - rect.top - rect.height / 2) / rect.height
-      gsap.to('.page-title .char', {
-        rotateY: (i) => x * 20 * (i % 2 === 0 ? 1 : -1),
-        rotateX: (i) => -y * 15 * (i % 2 === 0 ? 1 : -1),
-        duration: 0.5,
-        ease: 'power2.out'
-      })
-    })
-    titleEl.addEventListener('mouseleave', () => {
-      gsap.to('.page-title .char', {
-        rotateY: 0,
-        rotateX: 0,
-        duration: 0.8,
-        ease: 'elastic.out(1, 0.5)'
-      })
-    })
+  // 先清理之前的动画上下文
+  if (gsapContext) {
+    gsapContext.revert()
   }
 
-  // 渐变色字符持续光泽动画
-  gsap.to('.page-title .char.accent', {
-    backgroundPosition: '200% 50%',
-    duration: 3,
-    repeat: -1,
-    yoyo: true,
-    ease: 'sine.inOut'
-  })
+  // 创建新的动画上下文
+  gsapContext = gsap.context(() => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
-  // 网格动画 - 淡入
-  gsap.fromTo('.grid-lines', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.5 })
-  gsap.fromTo('.grid-dots', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.8 })
-  // 脉冲圆环动画
-  gsap.fromTo(
-    '.pulse-ring',
-    { scale: 0.5, opacity: 0 },
-    {
-      scale: 1,
-      opacity: 1,
-      duration: 1.5,
-      stagger: 0.3,
-      ease: 'power2.out'
-    },
-  )
+    // 入场动画序列
+    tl.fromTo('.page1-bg-effects', { opacity: 0 }, { opacity: 1, duration: 1 })
+      .fromTo(
+        '.floating-orb',
+        { scale: 0, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 0.6,
+          duration: 1.5,
+          stagger: 0.2
+        },
+        '-=0.5'
+      )
+      .fromTo(
+        '.hero-badge',
+        { y: -50, opacity: 0, scale: 0.8 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: 'back.out(1.7)'
+        },
+        '-=1'
+      )
+      // 标题字符 3D 立体入场动画
+      .fromTo(
+        '.page-title .title-line',
+        {
+          y: 80,
+          opacity: 0,
+          scale: 0.8,
+          rotateX: -45
+        },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          rotateX: 0,
+          duration: 1,
+          stagger: 0.15,
+          ease: 'expo.out'
+        },
+        '-=0.5'
+      )
+      // 每个字符单独 3D 旋转入场
+      .fromTo(
+        '.page-title .char',
+        {
+          y: 60,
+          opacity: 0,
+          rotateX: -90,
+          rotateY: 45,
+          scale: 0.5
+        },
+        {
+          y: 0,
+          opacity: 1,
+          rotateX: 0,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: { each: 0.06, from: 'start' },
+          ease: 'elastic.out(1, 0.6)'
+        },
+        '-=0.8'
+      )
+      // 副标题词语动画
+      .fromTo(
+        '.page-desc .desc-word',
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.08
+        },
+        '-=0.5'
+      )
+      // 功能标签动画
+      .fromTo(
+        '.feature-tags .tag',
+        { scale: 0, opacity: 0, y: 20 },
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.15,
+          ease: 'elastic.out(1, 0.5)'
+        },
+        '-=0.3'
+      )
+      // 中文信息块动画
+      .fromTo(
+        '.chinese-info .info-block',
+        { x: -60, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.2,
+          ease: 'power2.out'
+        },
+        '-=0.5'
+      )
+      // 统计数字动画
+      .fromTo('.component-stats', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.3')
+      .fromTo(
+        '.stat-number',
+        { y: 20, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.15
+        },
+        '-=0.6'
+      )
+      // 滚动指示器动画
+      .fromTo(
+        '.scroll-indicator',
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.6 },
+        '-=0.2'
+      )
+
+    // 持续动画 - 浮动光球呼吸效果
+    gsap.to('.orb-1', {
+      y: -30,
+      scale: 1.1,
+      duration: 3,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    })
+    gsap.to('.orb-2', {
+      y: 20,
+      x: 15,
+      scale: 0.95,
+      duration: 2.5,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    })
+    gsap.to('.orb-3', {
+      y: -20,
+      x: -10,
+      scale: 1.05,
+      duration: 3.5,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    })
+
+    // 标题 3D 悬浮视差效果（鼠标跟随）
+    const titleEl = document.querySelector('.page-title')
+    if (titleEl) {
+      titleEl.addEventListener('mousemove', (e) => {
+        const rect = titleEl.getBoundingClientRect()
+        const x = (e.clientX - rect.left - rect.width / 2) / rect.width
+        const y = (e.clientY - rect.top - rect.height / 2) / rect.height
+        gsap.to('.page-title .char', {
+          rotateY: (i) => x * 20 * (i % 2 === 0 ? 1 : -1),
+          rotateX: (i) => -y * 15 * (i % 2 === 0 ? 1 : -1),
+          duration: 0.5,
+          ease: 'power2.out'
+        })
+      })
+      titleEl.addEventListener('mouseleave', () => {
+        gsap.to('.page-title .char', {
+          rotateY: 0,
+          rotateX: 0,
+          duration: 0.8,
+          ease: 'elastic.out(1, 0.5)'
+        })
+      })
+    }
+
+    // 渐变色字符持续光泽动画
+    gsap.to('.page-title .char.accent', {
+      backgroundPosition: '200% 50%',
+      duration: 3,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    })
+
+    // 网格动画 - 淡入
+    gsap.fromTo('.grid-lines', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.5 })
+    gsap.fromTo('.grid-dots', { opacity: 0 }, { opacity: 1, duration: 2, delay: 0.8 })
+    
+    // 脉冲圆环动画
+    gsap.fromTo(
+      '.pulse-ring',
+      { scale: 0.5, opacity: 0 },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 1.5,
+        stagger: 0.3,
+        ease: 'power2.out'
+      }
+    )
+  })
 }
 
-// ==================== 生命周期 ====================
-onMounted(() => {
-  // 确保 visibleCards 初始化
-  if (!visibleCards.value) {
-    visibleCards.value = new Set<number>()
-  }
-  if (!pageRefs.value) {
-    pageRefs.value = new Map()
-  }
-
-  // 初始化可见性
-  if (!LAZY_MODE) {
-    filteredComponents.value.forEach((_, index) => {
-      if (index < PRELOAD_COUNT) {
-        visibleCards.value?.add(index)
-      }
-    })
-  } else {
-    // 等待 DOM 渲染后初始化 Observer
-    setTimeout(initIntersectionObserver, 100)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-  }
-
-  // 初始化 page1 GSAP 动画
-  nextTick(() => {
-    createExtraBubbles()
-    initPage1Animations()
-  })
-})
-
-onUnmounted(() => {
-  observer?.disconnect()
-  window.removeEventListener('scroll', handleScroll)
-  // 清理所有 GSAP 动画
-  gsap.killTweensOf('.page1 *')
-})
-
-// ==================== 分类切换时重置可见性 ====================
-watch(activeCategory, () => {
-  // 切换分类时清空可见卡片和 pageRefs
-  visibleCards.value.clear()
-  pageRefs.value.clear()
-  // 断开旧的 observer
-  observer?.disconnect()
-  observer = null
-
-  // 等待 DOM 更新后再重新初始化 Observer
-  nextTick(() => {
-    if (LAZY_MODE) {
-      initIntersectionObserver()
-    }
-  })
-})
 </script>
 
 <template>
