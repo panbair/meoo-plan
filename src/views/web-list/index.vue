@@ -111,6 +111,44 @@ const toggleFavorite = (dirName: string) => {
 // 检查组件是否已收藏
 const isFavorite = (dirName: string) => favorites.value.includes(dirName)
 
+// 复制组件代码
+const copyComponentCode = async (cardInfo: any) => {
+  try {
+    // 获取组件源码
+    let sourceCode = ''
+    
+    // 从已选组件中查找是否有源码
+    const selectedComp = selectedComponents.value.find(c => c.dirName === cardInfo.dirName)
+    if (selectedComp && selectedComp.sourceCode) {
+      sourceCode = selectedComp.sourceCode as string
+    } else {
+      // 如果没有源码，尝试动态加载
+      const moduleLoader = vueModules[cardInfo.path]
+      if (moduleLoader && typeof moduleLoader === 'function') {
+        try {
+          const module = await moduleLoader()
+          sourceCode = module.default || module
+        } catch (error) {
+          console.error(`Failed to load source code for ${cardInfo.path}:`, error)
+        }
+      }
+    }
+    
+    if (sourceCode) {
+      // 复制到剪贴板
+      await navigator.clipboard.writeText(sourceCode)
+      
+      // 显示成功提示
+      showCopyErrorModal('✅ 复制成功', `组件 ${cardInfo.name} 的代码已复制到剪贴板`)
+    } else {
+      showCopyErrorModal('❌ 复制失败', '无法获取组件源码')
+    }
+  } catch (err) {
+    console.error('复制失败:', err)
+    showCopyErrorModal('❌ 复制失败', '请手动复制代码')
+  }
+}
+
 // ==================== 组件选择功能（从 web-ai 迁移） ====================
 // 模块位置配置
 interface ModulePosition {
@@ -1668,6 +1706,40 @@ async function copyContent() {
   }
 }
 
+// 下载方案为文件
+function downloadPlan() {
+  if (!editablePlanContent.value) {
+    showCopyErrorModal('⚠️ 提示', '没有可下载的内容')
+    return
+  }
+
+  // 创建 Blob 对象
+  const blob = new Blob([editablePlanContent.value], { type: 'text/plain;charset=utf-8' })
+
+  // 创建下载链接
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+
+  // 生成文件名：企业名称_时间戳.txt
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
+  const companyName = enterpriseInfo.name || '企业网站'
+  const fileName = `${companyName}_${timestamp}.txt`
+
+  link.download = fileName
+
+  // 触发下载
+  document.body.appendChild(link)
+  link.click()
+
+  // 清理
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+
+  // 显示成功提示
+  showCopyErrorModal('✅ 下载成功', `文件已保存：${fileName}`)
+}
+
 // 错误弹窗
 const showErrorModal = ref(false)
 const errorModalTitle = ref('')
@@ -2450,13 +2522,13 @@ const cardComponents = computed(() => {
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
-  console.log([...listComponents].map((item) => item.dirName))
-  console.log([...timeComponents].map((item) => item.dirName))
-  console.log([...textComponents].map((item) => item.dirName))
-  console.log([...d3dComponents].map((item) => item.dirName))
-
-  console.log([...imgComponents].map((item) => item.dirName))
-  console.log([...imageComponents].map((item) => item.dirName))
+  // console.log([...listComponents].map((item) => item.dirName))
+  // console.log([...timeComponents].map((item) => item.dirName))
+  // console.log([...textComponents].map((item) => item.dirName))
+  // console.log([...d3dComponents].map((item) => item.dirName))
+  //
+  // console.log([...imgComponents].map((item) => item.dirName))
+  // console.log([...imageComponents].map((item) => item.dirName))
   // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后
   return [
     ...imageComponents,
@@ -3099,6 +3171,14 @@ watch(activeCategory, () => {
         >
           {{ isFavorite(cardInfo.dirName) ? '❤️' : '🤍' }}
         </button>
+        <!-- 复制按钮 -->
+        <button
+          class="copy-code-btn"
+          title="复制组件代码"
+          @click="copyComponentCode(cardInfo)"
+        >
+          📋
+        </button>
         <!-- 为已选组件选择模块位置 -->
         <button
           v-if="isSelected(cardInfo.dirName)"
@@ -3631,6 +3711,9 @@ watch(activeCategory, () => {
           <!-- 操作按钮 -->
           <div class="copy-modal-footer">
             <button class="btn btn-ghost" @click="closeCopyModal">取消</button>
+            <button class="btn btn-secondary download-btn" @click="downloadPlan">
+              💾 下载方案
+            </button>
             <button class="btn btn-primary copy-btn" @click="copyContent">
               {{ copySuccess ? '✅ 已复制' : '📋 复制完整信息' }}
             </button>
@@ -3811,6 +3894,27 @@ watch(activeCategory, () => {
       &.active {
         background: rgba(255, 0, 0, 0.3);
         box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+      }
+    }
+
+    .copy-code-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(67, 233, 123, 0.3);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+      &:hover {
+        transform: scale(1.15);
+        background: rgba(67, 233, 123, 0.5);
       }
     }
   }
@@ -5567,6 +5671,17 @@ watch(activeCategory, () => {
   padding: 20px 32px;
   background: rgba(0, 0, 0, 0.2);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+  .download-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+    font-weight: 600;
+
+    &:hover {
+      box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
+      transform: translateY(-2px);
+    }
+  }
 
   .copy-btn {
     background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
