@@ -155,6 +155,50 @@ const toggleFavorite = (dirName: string) => {
 // 检查组件是否已收藏
 const isFavorite = (dirName: string) => favorites.value.includes(dirName)
 
+// ==================== 兼容性复制工具函数 ====================
+/**
+ * 兼容性复制文本到剪贴板
+ * 优先使用现代 API，降级到传统方法
+ */
+const copyToClipboard = async (text: string): Promise<boolean> => {
+  // 方法1: 尝试使用现代 Clipboard API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text)
+      console.log('✅ 使用 Clipboard API 复制成功')
+      return true
+    } catch (err) {
+      console.warn('Clipboard API 失败，尝试降级方案:', err)
+    }
+  }
+  
+  // 方法2: 降级到 document.execCommand
+  try {
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    textArea.style.top = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    
+    const successful = document.execCommand('copy')
+    document.body.removeChild(textArea)
+    
+    if (successful) {
+      console.log('✅ 使用 execCommand 复制成功')
+      return true
+    } else {
+      console.error('execCommand 复制失败')
+      return false
+    }
+  } catch (err) {
+    console.error('所有复制方法都失败:', err)
+    return false
+  }
+}
+
 // 复制组件代码
 const copyComponentCode = async (cardInfo: any) => {
   try {
@@ -179,11 +223,14 @@ const copyComponentCode = async (cardInfo: any) => {
     }
     
     if (sourceCode) {
-      // 复制到剪贴板
-      await navigator.clipboard.writeText(sourceCode)
+      // 使用兼容性复制函数
+      const success = await copyToClipboard(sourceCode)
       
-      // 显示成功提示
-      showCopyErrorModal('✅ 复制成功', `组件 ${cardInfo.name} 的代码已复制到剪贴板`)
+      if (success) {
+        showCopyErrorModal('✅ 复制成功', `组件 ${cardInfo.name} 的代码已复制到剪贴板`)
+      } else {
+        showCopyErrorModal('❌ 复制失败', '浏览器不支持自动复制，请手动选择代码复制')
+      }
     } else {
       showCopyErrorModal('❌ 复制失败', '无法获取组件源码')
     }
