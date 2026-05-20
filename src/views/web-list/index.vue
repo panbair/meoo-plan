@@ -18,14 +18,14 @@ import NProgress from 'nprogress'
 gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用，按需加载）====================
-const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list}/*/*.vue', {
+const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other}/*/*.vue', {
   query: '?raw',
   import: 'default',
 })
 
 // 动态导入所有README
 const readmeModules = import.meta.glob(
-  './card-{image,img,text,3d,time,list}/*/README.md',
+  './card-{image,img,text,3d,time,list,other}/*/README.md',
   { query: '?raw', import: 'default' }
 )
 
@@ -2176,6 +2176,7 @@ const categories = [
   { key: 'card-3d', label: '3D' },
   { key: 'card-time', label: '时间' },
   { key: 'card-list', label: '基础' },
+  { key: 'card-other', label: '其他' },
   { key: 'favorite', label: '我的收藏' },
   { key: 'selected', label: '已选组件' },
 ]
@@ -2201,11 +2202,15 @@ const modulesImg = import.meta.glob('./card-img/*/[^/]*.vue')
 const modulesImage = import.meta.glob('./card-image/*/[^/]*.vue')
 // card-text 目录组件
 const modulesText = import.meta.glob('./card-text/*/[^/]*.vue')
+// card-other 目录组件
+const modulesOther = import.meta.glob('./card-other/*/*.vue')
 
 /**
  * 自动化构建组件列表
  */
 const dirNameList = [
+  'AIImagePromptBuilder', 'AchievementSystem', 'AugmentedReality', 'CodeDiffViewer', 'CommandPalette', 'CrystalRefraction', 'DragPhysicsEngine', 'DrawingCanvas', 'EmotionHeatmap', 'FluidSimulation', 'FormBuilder', 'GesturePlayground', 'HandwritingRecognition', 'KanbanBoard', 'MarkdownLiveEditor', 'MazeGenerator', 'MusicSequencer', 'PixelArtEditor', 'PortalTransition', 'RadarMorphChart', 'SankeyFlow', 'TerrainGenerator', 'TimelineRiver', 'TreemapZoom', 'VoiceVisualizer',
+  'CardImageBlackMirror', 'CardImageCherryBlossom', 'CardImageDNAHelix', 'CardImageFrostMelt', 'CardImageNebulaBirth', 'CardImageOrigamiFold', 'CardImagePortalOpen', 'CardImageVolcanoErupt',
   'CardImgCinematicMask', 'CardImgLiquidMorph', 'CardImgNegativeReveal', 'CardImgNovaBirth', 'CardImgTimeFracture',
   'CardImageAuroraWave', 'CardImageDimensionTear', 'CardImageFiberOptic', 'CardImageGravityWell', 'CardImageHoloPrism', 'CardImageInfraredShift', 'CardImageKaleidoscope', 'CardImageLightningStrike', 'CardImageMagneticField', 'CardImagePhoenixRise', 'CardImageSandstorm', 'CardImageTsunami', 'CardImageXRayScan',
   'CardImageCarbonBlade',
@@ -2669,6 +2674,35 @@ const cardComponents = computed(() => {
       }
       return !dirNameList.includes(item.dirName) && item.component !== null
     })
+
+  // 处理 card-other 目录组件
+  const otherComponents = Object.entries(modulesOther)
+    .map(([path, module]) => {
+      const match = path.match(/\/card-other\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
+
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-other'
+      }
+    })
+    .filter((item) => {
+      if (!dirNameList.includes(item.dirName) && item.component !== null) {
+        dirNameList1.push(item.dirName)
+      }
+      return !dirNameList.includes(item.dirName) && item.component !== null
+    })
   console.log([...listComponents].map((item) => item.dirName))
   console.log([...timeComponents].map((item) => item.dirName))
   console.log([...textComponents].map((item) => item.dirName))
@@ -2676,14 +2710,16 @@ const cardComponents = computed(() => {
 
   console.log([...imgComponents].map((item) => item.dirName))
   console.log([...imageComponents].map((item) => item.dirName))
-  // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后
+  console.log([...otherComponents].map((item) => item.dirName))
+  // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后，card-other 最后
   return [
     ...imageComponents,
     ...imgComponents,
     ...textComponents,
     ...d3dComponents,
     ...timeComponents,
-    ...listComponents
+    ...listComponents,
+    ...otherComponents
   ]
 })
 
