@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="debugger-section">
     <div class="debug-bg"><div class="ide-grid"></div></div>
     <div ref="headerRef" class="dbg-header">
@@ -143,41 +143,217 @@ onUnmounted(() => { cleanupFns.forEach(fn => fn()); ScrollTrigger.getAll().forEa
 </script>
 
 <style scoped lang="scss">
-.debugger-section { width: 100vw; height: 100vh; background: #1e1e1e; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.debug-bg { position: absolute; inset: 0; pointer-events: none; .ide-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(60,60,80,0.03) 1px, transparent 1px); background-size: 100% 22px; } }
-.dbg-header { position: relative; z-index: 10; text-align: center; margin-bottom: 12px;
-  .dbg-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 40px; border: 1px solid rgba(255,80,80,0.15); background: rgba(255,80,80,0.05); backdrop-filter: blur(10px); margin-bottom: 10px; font-size: 11px; letter-spacing: 5px; color: rgba(255,120,120,0.7); }
-  .dbg-title { font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px; font-family: 'Courier New', monospace; background: linear-gradient(135deg, #f87171, #fbbf24, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 6px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2)); }
-  .dbg-subtitle { font-size: 16px; color: rgba(180,180,200,0.5); letter-spacing: 6px; margin: 0; }
+.debugger-section { 
+  width: 100vw; height: 100vh; 
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(255,120,120,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #1e1e1e 0%, #252525 50%, #1e1e1e 100%);
+  position: relative; overflow: hidden; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.ide-layout { position: relative; z-index: 10; display: flex; gap: 12px; width: 90%; max-width: 850px; }
-.code-panel { flex: 1.5; border-radius: 20px; background: #252526; border: 1px solid rgba(80,80,100,0.15); overflow: hidden; }
-.vars-panel { flex: 1; border-radius: 20px; background: #252526; border: 1px solid rgba(80,80,100,0.15); overflow: hidden; }
-.panel-header { padding: 8px 12px; font-size: 10px; letter-spacing: 2px; color: rgba(180,180,200,0.5); background: rgba(30,30,40,0.8); border-bottom: 1px solid rgba(80,80,100,0.1); font-family: 'Courier New', monospace; }
-.code-lines { padding: 4px 0; }
-.code-line { display: flex; align-items: center; gap: 0; padding: 2px 8px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 22px; transition: background 0.2s;
-  &.active { background: rgba(255,200,50,0.08); }
-  &.breakpoint .line-num { color: rgba(255,80,80,0.7); }
-  .line-bp { width: 18px; text-align: center; font-size: 8px; cursor: pointer; }
-  .line-num { width: 24px; text-align: right; color: rgba(140,140,160,0.3); font-size: 11px; margin-right: 12px; }
-  .line-code { color: rgba(220,220,240,0.85); :deep(.kw) { color: #c586c0; } :deep(.var) { color: #9cdcfe; } :deep(.fn) { color: #dcdcaa; } :deep(.str) { color: #ce9178; } :deep(.num) { color: #b5cea8; } :deep(.prop) { color: #4fc1ff; } :deep(.cm) { color: rgba(100,140,80,0.6); } }
+.debug-bg { 
+  position: absolute; inset: 0; pointer-events: none;
+  .ide-grid { 
+    position: absolute; inset: 0; 
+    background-image: linear-gradient(rgba(60,60,80,0.04) 1px, transparent 1px); 
+    background-size: 100% 22px;
+  }
 }
-.var-list { padding: 8px; }
-.var-item { display: flex; gap: 8px; align-items: center; padding: 4px 8px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 11px; transition: background 0.3s;
-  &.changed { background: rgba(255,200,50,0.08); }
-  .var-name { color: #9cdcfe; min-width: 50px; } .var-type { color: rgba(140,140,160,0.4); font-size: 9px; } .var-value { color: #ce9178; margin-left: auto; }
-}
-.stack-list { padding: 8px; }
-.stack-item { display: flex; justify-content: space-between; padding: 3px 8px; font-family: 'Courier New', monospace; font-size: 10px;
-  .stack-fn { color: #dcdcaa; } .stack-loc { color: rgba(140,140,160,0.4); }
-}
-.dbg-footer { position: relative; z-index: 10; margin-top: 14px; text-align: center;
-  .debug-controls { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px;
-    .ctrl-btn { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: rgba(200,200,220,0.5); background: rgba(60,60,80,0.3); border: 1px solid rgba(80,80,100,0.15); cursor: pointer;
-      &.active { color: #fbbf24; background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.2); }
+.dbg-header { 
+  position: relative; z-index: 10; text-align: center; margin-bottom: 16px;
+  .dbg-badge { 
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(255,80,80,0.2);
+    background: linear-gradient(135deg, rgba(255,80,80,0.08), rgba(255,100,100,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(255,80,80,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 12px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(255,130,130,0.85);
+    transition: all 0.3s ease;
+    span:first-child { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 10px rgba(255,80,80,0.6));
+    }
+    &:hover {
+      border-color: rgba(255,100,100,0.35);
+      box-shadow: 0 6px 30px rgba(255,80,80,0.18);
+      transform: translateY(-2px);
     }
   }
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(180,180,200,0.3); font-family: 'Courier New', monospace; }
+  .dbg-title {
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #f87171 0%, #fbbf24 50%, #f87171 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 8px;
+    filter: drop-shadow(0 0 50px rgba(255,120,120,0.4));
+    animation: debugGlow 3s ease-in-out infinite alternate;
+  }
+  .dbg-subtitle { 
+    font-size: 16px; 
+    color: rgba(190,190,210,0.65); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(255,120,120,0.2);
+  }
+}
+.ide-layout { 
+  position: relative; z-index: 10; display: flex; gap: 14px; 
+  width: 90%; max-width: 880px;
+}
+.code-panel { 
+  flex: 1.5; 
+  border-radius: 24px; 
+  background: linear-gradient(180deg, #2a2a2c, #252526);
+  border: 1px solid rgba(80,80,100,0.2);
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.vars-panel { 
+  flex: 1; 
+  border-radius: 24px; 
+  background: linear-gradient(180deg, #2a2a2c, #252526);
+  border: 1px solid rgba(80,80,100,0.2);
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.panel-header { 
+  padding: 10px 14px; 
+  font-size: 10px; 
+  letter-spacing: 3px; 
+  color: rgba(190,190,210,0.6);
+  background: rgba(32,32,42,0.9);
+  border-bottom: 1px solid rgba(80,80,100,0.15);
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+.code-lines { padding: 6px 0; }
+.code-line { 
+  display: flex; align-items: center; gap: 0; 
+  padding: 3px 10px; 
+  font-family: 'Courier New', monospace; 
+  font-size: 12px; 
+  line-height: 22px; 
+  transition: background 0.2s;
+  &.active { 
+    background: rgba(255,200,50,0.1);
+    border-left: 3px solid rgba(255,200,50,0.6);
+  }
+  &.breakpoint .line-num { color: rgba(255,80,80,0.8); }
+  .line-bp { 
+    width: 20px; text-align: center; font-size: 9px; cursor: pointer;
+    transition: transform 0.2s;
+    &:hover { transform: scale(1.2); }
+  }
+  .line-num { 
+    width: 26px; text-align: right; 
+    color: rgba(150,150,170,0.35); 
+    font-size: 11px; 
+    margin-right: 14px;
+    font-weight: 500;
+  }
+  .line-code { 
+    color: rgba(220,220,240,0.9);
+    :deep(.kw) { color: #c586c0; }
+    :deep(.var) { color: #9cdcfe; }
+    :deep(.fn) { color: #dcdcaa; }
+    :deep(.str) { color: #ce9178; }
+    :deep(.num) { color: #b5cea8; }
+    :deep(.prop) { color: #4fc1ff; }
+    :deep(.cm) { color: rgba(100,140,80,0.65); }
+  }
+}
+.var-list { padding: 10px; }
+.var-item { 
+  display: flex; gap: 10px; align-items: center; 
+  padding: 6px 10px; 
+  border-radius: 6px; 
+  font-family: 'Courier New', monospace; 
+  font-size: 11px; 
+  transition: background 0.3s;
+  &.changed { 
+    background: rgba(255,200,50,0.1);
+    border: 1px solid rgba(255,200,50,0.15);
+  }
+  .var-name { 
+    color: #9cdcfe; 
+    min-width: 55px;
+    font-weight: 600;
+  }
+  .var-type { 
+    color: rgba(150,150,170,0.45); 
+    font-size: 9px;
+  }
+  .var-value { 
+    color: #ce9178; 
+    margin-left: auto;
+    font-weight: 500;
+  }
+}
+.stack-list { padding: 10px; }
+.stack-item { 
+  display: flex; justify-content: space-between; 
+  padding: 4px 10px; 
+  font-family: 'Courier New', monospace; 
+  font-size: 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  &:hover { background: rgba(255,255,255,0.03); }
+  .stack-fn { color: #dcdcaa; font-weight: 600; }
+  .stack-loc { color: rgba(150,150,170,0.5); }
+}
+.dbg-footer { 
+  position: relative; z-index: 10; margin-top: 16px; text-align: center;
+  .debug-controls { 
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;
+    .ctrl-btn { 
+      width: 30px; height: 30px; 
+      border-radius: 6px; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 13px; 
+      color: rgba(210,210,230,0.6);
+      background: rgba(60,60,80,0.35);
+      border: 1px solid rgba(80,80,100,0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+      &:hover {
+        background: rgba(80,80,100,0.5);
+        border-color: rgba(100,100,120,0.3);
+        transform: translateY(-2px);
+      }
+      &.active { 
+        color: #fbbf24; 
+        background: rgba(251,191,36,0.12);
+        border-color: rgba(251,191,36,0.25);
+        box-shadow: 0 0 15px rgba(251,191,36,0.2);
+      }
+    }
+  }
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(190,190,210,0.45);
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(255,120,120,0.15);
+  }
+}
+@keyframes debugGlow {
+  0% { filter: drop-shadow(0 0 40px rgba(255,120,120,0.35)); }
+  100% { filter: drop-shadow(0 0 60px rgba(255,120,120,0.5)); }
 }
 </style>
 

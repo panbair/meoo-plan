@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="pendulum-wave-section">
     <div class="wave-bg">
       <div class="bg-grid"></div>
@@ -157,7 +157,9 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .pendulum-wave-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(180deg, #060610 0%, #0c0a18 50%, #060610 100%);
+  background: 
+    radial-gradient(circle at 50% 40%, rgba(100,140,255,0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #060610 0%, #0c0a18 50%, #060610 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
@@ -165,31 +167,61 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .bg-grid {
     position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(80,100,180,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(80,100,180,0.03) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(80,100,180,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(80,100,180,0.04) 1px, transparent 1px);
     background-size: 50px 50px;
   }
   .bg-radial {
     position: absolute; top: 30%; left: 50%; width: 800px; height: 400px;
     transform: translate(-50%, -50%);
-    background: radial-gradient(ellipse, rgba(100,140,255,0.04), transparent 70%);
+    background: radial-gradient(ellipse, rgba(100,140,255,0.06), transparent 70%);
   }
 }
 .wave-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .wave-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(100,140,255,0.2);
-    background: rgba(100,140,255,0.06); backdrop-filter: blur(10px); margin-bottom: 12px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(160,190,255,0.8);
-    .badge-icon { font-size: 14px; }
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(100,140,255,0.25);
+    background: linear-gradient(135deg, rgba(100,140,255,0.08), rgba(80,120,235,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(100,140,255,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(170,200,255,0.9);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 10px rgba(100,140,255,0.5));
+    }
+    &:hover {
+      border-color: rgba(120,160,255,0.4);
+      box-shadow: 0 6px 30px rgba(100,140,255,0.2);
+      transform: translateY(-2px);
+    }
   }
   .wave-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #a080ff 50%, #60a0ff 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #b090ff 30%, #80b0ff 60%, #60a0ff 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 50px rgba(100,140,255,0.4));
+    animation: waveGlow 3s ease-in-out infinite alternate;
   }
-  .wave-subtitle { font-size: 16px; color: rgba(160,180,220,0.6); letter-spacing: 6px; margin: 0; }
+  .wave-subtitle { 
+    font-size: 16px; 
+    color: rgba(170,190,230,0.65); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(100,140,255,0.2);
+  }
 }
 .wave-device {
   position: relative; z-index: 10; width: 95%; max-width: 900px; height: 300px;
@@ -197,66 +229,120 @@ onUnmounted(() => {
 .device-frame {
   position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 95%;
   .frame-bar {
-    width: 100%; height: 4px;
-    background: linear-gradient(90deg, rgba(80,80,120,0.3), rgba(120,120,180,0.5), rgba(80,80,120,0.3));
-    border-radius: 2px;
+    width: 100%; height: 6px;
+    background: linear-gradient(90deg, rgba(80,80,120,0.4), rgba(120,120,180,0.6), rgba(80,80,120,0.4));
+    border-radius: 3px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
   }
 }
 .pendulums-row {
-  position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 2px; align-items: flex-start;
 }
 .wave-pendulum {
   width: 52px; display: flex; flex-direction: column; align-items: center;
   transform-origin: center top; will-change: transform;
   .p-string {
-    width: 1px;
-    background: linear-gradient(180deg, rgba(160,180,255,0.4), rgba(160,180,255,0.1));
+    width: 2px;
+    background: linear-gradient(180deg, rgba(160,180,255,0.5), rgba(160,180,255,0.15));
+    box-shadow: 0 0 6px rgba(160,180,255,0.2);
   }
   .p-bob {
-    width: 44px; height: 44px; border-radius: 50%; position: relative;
+    width: 46px; height: 46px; border-radius: 50%; position: relative;
     background: radial-gradient(circle at 35% 35%,
-      hsla(var(--hue), 60%, 50%, 0.9),
-      hsla(var(--hue), 50%, 25%, 0.95));
-    box-shadow: 0 4px 15px hsla(var(--hue), 50%, 40%, 0.3);
+      hsla(var(--hue), 65%, 55%, 0.95),
+      hsla(var(--hue), 55%, 28%, 0.98));
+    box-shadow: 
+      0 4px 18px hsla(var(--hue), 50%, 40%, 0.35),
+      inset 0 1px 0 rgba(255,255,255,0.1);
     display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease;
     .bob-glow {
-      position: absolute; inset: -8px; border-radius: 50%;
-      background: radial-gradient(circle, hsla(var(--hue), 60%, 50%, 0.15), transparent 70%);
+      position: absolute; inset: -10px; border-radius: 50%;
+      background: radial-gradient(circle, hsla(var(--hue), 60%, 50%, 0.2), transparent 70%);
     }
     .bob-inner {
       text-align: center; z-index: 2; position: relative;
-      .bob-num { display: block; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.9); }
-      .bob-label { display: block; font-size: 7px; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
+      .bob-num { 
+        display: block; 
+        font-size: 11px; 
+        font-weight: 800; 
+        color: rgba(255,255,255,0.95);
+        text-shadow: 0 0 10px rgba(255,255,255,0.3);
+      }
+      .bob-label { 
+        display: block; 
+        font-size: 8px; 
+        color: rgba(255,255,255,0.6);
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
     }
     .bob-trail {
       position: absolute; inset: 0; border-radius: 50%;
-      box-shadow: -3px 0 8px hsla(var(--hue), 50%, 50%, 0.15),
-        3px 0 8px hsla(var(--hue), 50%, 50%, 0.15);
-      opacity: 0.5;
+      box-shadow: -4px 0 10px hsla(var(--hue), 50%, 50%, 0.2),
+        4px 0 10px hsla(var(--hue), 50%, 50%, 0.2);
+      opacity: 0.6;
     }
+  }
+  &:hover .p-bob {
+    box-shadow: 
+      0 6px 24px hsla(var(--hue), 60%, 50%, 0.45),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+    transform: scale(1.05);
   }
 }
 .shadow-row {
   position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 2px;
   .p-shadow {
-    width: 52px; height: 6px;
-    background: radial-gradient(ellipse, rgba(100,140,255,0.1), transparent 70%);
+    width: 52px; height: 8px;
+    background: radial-gradient(ellipse, rgba(100,140,255,0.15), transparent 70%);
     border-radius: 50%;
+    box-shadow: 0 0 10px rgba(100,140,255,0.1);
   }
 }
 .wave-footer {
   position: relative; z-index: 10; margin-top: 50px; text-align: center;
   .wave-info {
-    display: flex; gap: 30px; justify-content: center; margin-bottom: 14px;
+    display: flex; gap: 35px; justify-content: center; margin-bottom: 16px;
     .info-item {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      .info-label { font-size: 14px; color: rgba(160,180,220,0.4); letter-spacing: 1px; }
-      .info-value { font-size: 18px; font-weight: 700; color: rgba(160,200,255,0.9); font-family: 'Courier New', monospace; }
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 10px 18px;
+      background: rgba(100,140,255,0.04);
+      border-radius: 10px;
+      border: 1px solid rgba(100,140,255,0.08);
+      transition: all 0.2s;
+      &:hover {
+        border-color: rgba(100,140,255,0.2);
+        background: rgba(100,140,255,0.08);
+      }
+      .info-label { 
+        font-size: 14px; 
+        color: rgba(170,190,230,0.5);
+        letter-spacing: 2px;
+        font-weight: 500;
+      }
+      .info-value { 
+        font-size: 20px; 
+        font-weight: 800; 
+        color: rgba(170,210,255,0.95);
+        font-family: 'Courier New', monospace;
+        text-shadow: 0 0 15px rgba(100,140,255,0.3);
+      }
     }
   }
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(160,180,220,0.35); }
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(170,190,230,0.45);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(100,140,255,0.15);
+  }
+}
+@keyframes waveGlow {
+  0% { filter: drop-shadow(0 0 40px rgba(100,140,255,0.35)); }
+  100% { filter: drop-shadow(0 0 60px rgba(100,140,255,0.5)); }
 }
 </style>
 

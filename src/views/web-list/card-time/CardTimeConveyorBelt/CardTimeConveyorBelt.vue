@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="conveyor-section">
     <div class="conveyor-bg">
       <div class="factory-grid"></div>
@@ -155,7 +155,10 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .conveyor-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(180deg, #0c0a08 0%, #161410 50%, #0c0a08 100%);
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(200,160,40,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(180,140,30,0.04) 0%, transparent 40%),
+    linear-gradient(180deg, #0c0a08 0%, #161410 50%, #0c0a08 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
@@ -163,25 +166,58 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .factory-grid {
     position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(200,160,40,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(200,160,40,0.02) 1px, transparent 1px);
+    background-image: 
+      linear-gradient(rgba(200,160,40,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,160,40,0.03) 1px, transparent 1px);
     background-size: 50px 50px;
+    filter: blur(0.5px);
   }
 }
 .conv-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .conv-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(220,180,40,0.15);
-    background: rgba(220,180,40,0.05); backdrop-filter: blur(10px); margin-bottom: 12px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(220,200,100,0.7);
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(220,180,40,0.2);
+    background: linear-gradient(135deg, rgba(220,180,40,0.08), rgba(200,160,30,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(200,160,40,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(230,210,120,0.85);
+    transition: all 0.3s ease;
+    span:first-child { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 8px rgba(220,180,40,0.5));
+    }
+    &:hover {
+      border-color: rgba(230,190,50,0.35);
+      box-shadow: 0 6px 30px rgba(200,160,40,0.18);
+      transform: translateY(-2px);
+    }
   }
   .conv-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(135deg, #c0a020, #e0c840, #c0a020);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(135deg, #d4b030 0%, #f0d850 30%, #c8a828 60%, #a08820 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 40px rgba(200,160,40,0.35));
+    animation: metalGlow 3s ease-in-out infinite alternate;
   }
-  .conv-subtitle { font-size: 16px; color: rgba(220,200,120,0.5); letter-spacing: 6px; margin: 0; }
+  .conv-subtitle { 
+    font-size: 16px; 
+    color: rgba(220,200,130,0.65); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(200,160,40,0.25);
+  }
 }
 .belt-area {
   position: relative; z-index: 10; width: 95%; max-width: 900px;
@@ -216,34 +252,76 @@ onUnmounted(() => {
   display: flex; gap: 14px; margin-top: 50px; justify-content: center;
 }
 .belt-card {
-  width: 150px; will-change: transform;
+  width: 155px; will-change: transform;
+  transition: transform 0.3s ease;
   .card-box {
-    border-radius: 24px; overflow: hidden;
-    border: 1px solid hsla(var(--item-hue), 30%, 30%, 0.15);
+    border-radius: 28px; overflow: hidden;
+    border: 1px solid hsla(var(--item-hue), 35%, 35%, 0.18);
+    box-shadow: 
+      0 8px 32px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
     .box-top {
-      height: 4px;
-      background: linear-gradient(90deg, hsla(var(--item-hue), 50%, 40%, 0.3), hsla(var(--item-hue), 50%, 50%, 0.5), hsla(var(--item-hue), 50%, 40%, 0.3));
+      height: 5px;
+      background: linear-gradient(90deg, 
+        hsla(var(--item-hue), 55%, 45%, 0.35) 0%, 
+        hsla(var(--item-hue), 55%, 55%, 0.55) 50%, 
+        hsla(var(--item-hue), 55%, 45%, 0.35) 100%);
+      box-shadow: 0 0 10px hsla(var(--item-hue), 50%, 50%, 0.3);
     }
     .box-inner {
-      padding: 24px 20px;
-      background: linear-gradient(145deg, rgba(25,22,18,0.95), rgba(20,18,14,0.98));
-      .card-index { font-size: 8px; color: rgba(200,180,120,0.3); letter-spacing: 2px; }
-      .card-title { font-size: 20px; font-weight: 700; color: #fff; margin: 4px 0; }
-      .card-desc { font-size: 10px; color: rgba(200,180,140,0.5); margin: 0 0 8px; }
+      padding: 26px 22px;
+      background: 
+        linear-gradient(145deg, rgba(28,25,20,0.95), rgba(22,20,16,0.98));
+      .card-index { 
+        font-size: 9px; 
+        color: rgba(210,190,130,0.35); 
+        letter-spacing: 3px;
+        font-weight: 600;
+      }
+      .card-title { 
+        font-size: 21px; 
+        font-weight: 800; 
+        color: #ffffff;
+        margin: 6px 0;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      }
+      .card-desc { 
+        font-size: 11px; 
+        color: rgba(210,190,150,0.6);
+        margin: 0 0 10px;
+        line-height: 1.4;
+      }
       .quality-badge {
-        display: inline-block; font-size: 8px; letter-spacing: 2px; padding: 2px 8px; border-radius: 4px;
-        &.PASS { background: rgba(40,180,80,0.12); color: rgba(80,220,120,0.7); border: 1px solid rgba(40,180,80,0.12); }
+        display: inline-block; 
+        font-size: 8px; 
+        letter-spacing: 3px; 
+        padding: 3px 10px; 
+        border-radius: 6px;
+        font-weight: 700;
+        &.PASS { 
+          background: linear-gradient(135deg, rgba(40,190,90,0.15), rgba(30,170,80,0.1));
+          color: rgba(90,230,130,0.8);
+          border: 1px solid rgba(40,190,90,0.18);
+          box-shadow: 0 2px 8px rgba(40,190,90,0.15);
+        }
       }
     }
   }
   .card-shadow-belt {
-    height: 6px; margin: 0 10%;
-    background: radial-gradient(ellipse, rgba(0,0,0,0.2), transparent 70%);
+    height: 8px; margin: 0 8%;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.25), transparent 70%);
     border-radius: 50%;
   }
-  &:hover .card-box {
-    border-color: hsla(var(--item-hue), 40%, 40%, 0.3);
-    box-shadow: 0 0 15px hsla(var(--item-hue), 40%, 40%, 0.08);
+  &:hover {
+    transform: translateY(-5px);
+    .card-box {
+      border-color: hsla(var(--item-hue), 45%, 45%, 0.35);
+      box-shadow: 
+        0 12px 40px hsla(var(--item-hue), 40%, 40%, 0.15),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
   }
 }
 .inspection-station {
@@ -266,14 +344,39 @@ onUnmounted(() => {
 .conv-footer {
   position: relative; z-index: 10; margin-top: 50px; text-align: center;
   .production-stats {
-    display: flex; gap: 24px; justify-content: center; margin-bottom: 10px;
+    display: flex; gap: 28px; justify-content: center; margin-bottom: 12px;
     .stat {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      .stat-label { font-size: 9px; color: rgba(200,180,120,0.4); }
-      .stat-value { font-size: 16px; font-weight: 700; color: rgba(220,200,120,0.8); font-family: 'Courier New', monospace; }
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 8px 16px;
+      background: rgba(200,180,120,0.04);
+      border-radius: 8px;
+      border: 1px solid rgba(200,180,120,0.08);
+      .stat-label { 
+        font-size: 9px; 
+        color: rgba(210,190,130,0.5);
+        font-weight: 500;
+        letter-spacing: 1px;
+      }
+      .stat-value { 
+        font-size: 18px; 
+        font-weight: 800; 
+        color: rgba(230,210,130,0.9);
+        font-family: 'Courier New', monospace;
+        text-shadow: 0 0 10px rgba(200,160,40,0.3);
+      }
     }
   }
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(220,200,120,0.3); }
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(220,200,130,0.45);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(200,160,40,0.2);
+  }
+}
+@keyframes metalGlow {
+  0% { filter: drop-shadow(0 0 30px rgba(200,160,40,0.3)); }
+  100% { filter: drop-shadow(0 0 50px rgba(200,160,40,0.45)); }
 }
 </style>
 

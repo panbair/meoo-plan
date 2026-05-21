@@ -475,8 +475,7 @@ const onCharLeave = (wIndex, cIndex) => {
 
   gsap.to(char, {
     scale: 1,
-    color: '',
-    textShadow: '',
+    clearProps: 'color,textShadow',
     duration: 0.3,
     ease: 'power2.out'
   })
@@ -707,7 +706,7 @@ onUnmounted(() => {
     border-color: rgba(168, 85, 247, 0.6);
     color: #a855f7;
     box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
-  
+
   opacity: 1 !important;}
 
   &:hover {
@@ -726,7 +725,7 @@ onUnmounted(() => {
   &:hover {
     background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
     box-shadow: 0 8px 30px rgba(236, 72, 153, 0.4);
-  
+
   opacity: 1 !important;}
 }
 
@@ -788,7 +787,7 @@ onUnmounted(() => {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(168, 85, 247, 0.3);
     transform: translateY(-3px);
-  
+
   opacity: 1 !important;}
 }
 
@@ -858,7 +857,7 @@ onUnmounted(() => {
 
     &:hover {
       transform: scale(1.2);
-    
+
   opacity: 1 !important;}
   }
 }
@@ -919,12 +918,12 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .twm-title-219 {
     font-size: 2rem;
-  
+
   opacity: 1 !important;}
 
   .twm-subtitle-219 {
     font-size: 0.9rem;
-  
+
   opacity: 1 !important;}
 
   .twm-controls-219 {
@@ -934,12 +933,12 @@ onUnmounted(() => {
   .twm-btn-219 {
     padding: 10px 16px;
     font-size: 0.75rem;
-  
+
   opacity: 1 !important;}
 
   .twm-char-219 {
     font-size: clamp(2rem, 8vw, 4rem);
-  
+
   opacity: 1 !important;}
 
   .twm-info-219 {
@@ -949,12 +948,12 @@ onUnmounted(() => {
   .twm-info-item-219 {
     padding: 14px 20px;
     min-width: 90px;
-  
+
   opacity: 1 !important;}
 
   .twm-info-value-219 {
     font-size: 1.4rem;
-  
+
   opacity: 1 !important;}
 
   .twm-sliders-219 {
@@ -963,7 +962,7 @@ onUnmounted(() => {
 
   .twm-slider-group-219 {
     min-width: 140px;
-  
+
   opacity: 1 !important;}
 }
 </style>

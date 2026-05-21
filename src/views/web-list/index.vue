@@ -63,22 +63,47 @@ let gsapContext: gsap.Context | null = null
  */
 const cleanupAllAnimations = () => {
   try {
-    // 1. 清理 gsap.context（如果存在）
+    // 1. 先杀死所有 ScrollTrigger 实例（必须在清理 context 之前）
+    const allTriggers = ScrollTrigger.getAll()
+    allTriggers.forEach(trigger => {
+      try {
+        trigger.kill(false) // false 表示不刷新，避免触发额外的动画
+      } catch (e) {
+        console.warn('清理 ScrollTrigger 时出错:', e)
+      }
+    })
+    ScrollTrigger.clearScrollMemory() // 清除滚动记忆
+
+    // 2. 清理 gsap.context（如果存在）
     if (gsapContext) {
-      gsapContext.revert()
+      try {
+        gsapContext.revert()
+      } catch (e) {
+        console.warn('清理 gsapContext 时出错:', e)
+      }
       gsapContext = null
     }
 
-    // 2. 杀死所有正在运行的 tweens
-    gsap.globalTimeline.clear()
+    // 3. 杀死所有正在运行的 tweens 和 timelines
+    try {
+      gsap.globalTimeline.clear(true) // true 表示包括子时间线
+    } catch (e) {
+      console.warn('清理 globalTimeline 时出错:', e)
+    }
 
-    // 3. 杀死所有 ScrollTrigger 实例
-    ScrollTrigger.getAll().forEach(trigger => {
-      trigger.kill()
-    })
+    // 4. 杀死所有延迟调用
+    try {
+      gsap.delayedCall(0, () => {}).kill()
+    } catch (e) {
+      console.warn('清理 delayedCall 时出错:', e)
+    }
 
-    // 4. 清除所有延迟调用
-    gsap.delayedCall(0, () => {}).kill()
+    // 5. 强制刷新 ScrollTrigger，确保所有引用都被清除
+    try {
+      ScrollTrigger.refresh()
+    } catch (e) {
+      console.warn('刷新 ScrollTrigger 时出错:', e)
+    }
 
     console.log('✅ 已清理所有 GSAP 动画和 ScrollTrigger')
   } catch (error) {
@@ -1907,6 +1932,19 @@ onMounted(async () => {
 
 // 组件卸载时清理所有动画和资源
 onUnmounted(() => {
+  // 清理页面1的鼠标事件监听器
+  const titleEl = document.querySelector('.page-title')
+  if (titleEl) {
+    if (page1MouseHandler) {
+      titleEl.removeEventListener('mousemove', page1MouseHandler)
+      page1MouseHandler = null
+    }
+    if (page1MouseLeaveHandler) {
+      titleEl.removeEventListener('mouseleave', page1MouseLeaveHandler)
+      page1MouseLeaveHandler = null
+    }
+  }
+
   // 清理所有 GSAP 动画
   cleanupAllAnimations()
 
@@ -2876,10 +2914,23 @@ const createExtraBubbles = () => {
 }
 
 // ==================== GSAP 动画 ====================
+// 存储页面1的鼠标事件处理器，用于清理
+let page1MouseHandler: ((e: MouseEvent) => void) | null = null
+let page1MouseLeaveHandler: (() => void) | null = null
+
 const initPage1Animations = () => {
   // 先清理之前的动画上下文
   if (gsapContext) {
     gsapContext.revert()
+  }
+
+  // 清除之前的事件监听器
+  const titleEl = document.querySelector('.page-title')
+  if (titleEl && page1MouseHandler) {
+    titleEl.removeEventListener('mousemove', page1MouseHandler)
+    titleEl.removeEventListener('mouseleave', page1MouseLeaveHandler!)
+    page1MouseHandler = null
+    page1MouseLeaveHandler = null
   }
 
   // 创建新的动画上下文
@@ -3044,7 +3095,8 @@ const initPage1Animations = () => {
     // 标题 3D 悬浮视差效果（鼠标跟随）
     const titleEl = document.querySelector('.page-title')
     if (titleEl) {
-      titleEl.addEventListener('mousemove', (e) => {
+      // 创建鼠标移动处理器
+      page1MouseHandler = (e: MouseEvent) => {
         const rect = titleEl.getBoundingClientRect()
         const x = (e.clientX - rect.left - rect.width / 2) / rect.width
         const y = (e.clientY - rect.top - rect.height / 2) / rect.height
@@ -3054,15 +3106,20 @@ const initPage1Animations = () => {
           duration: 0.5,
           ease: 'power2.out'
         })
-      })
-      titleEl.addEventListener('mouseleave', () => {
+      }
+
+      // 创建鼠标离开处理器
+      page1MouseLeaveHandler = () => {
         gsap.to('.page-title .char', {
           rotateY: 0,
           rotateX: 0,
           duration: 0.8,
           ease: 'elastic.out(1, 0.5)'
         })
-      })
+      }
+
+      titleEl.addEventListener('mousemove', page1MouseHandler)
+      titleEl.addEventListener('mouseleave', page1MouseLeaveHandler)
     }
 
     // 渐变色字符持续光泽动画

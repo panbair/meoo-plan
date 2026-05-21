@@ -184,7 +184,7 @@ onMounted(() => {
   cfTl.to(allLeft, { opacity: 0.3, scale: 0.85, duration: 0.5 }, 0)
   cfTl.to(allRight, { scale: 1.05, duration: 0.5 }, 0)
   // Left disc slows, right disc speeds
-  cfTl.to(leftDiscRef.value, { timeScale: 0.3, duration: 0.5 }, 0)
+  cfTl.to(leftSpin, { timeScale: 0.3, duration: 0.5 }, 0)
   // VU meters
   cfTl.fromTo(leftVuRef.value, { scaleY: 0.8 }, { scaleY: 0.2, duration: 1 }, 0)
   cfTl.fromTo(rightVuRef.value, { scaleY: 0.3 }, { scaleY: 0.9, duration: 1 }, 0)
@@ -202,8 +202,9 @@ onUnmounted(() => {
   width: 100vw;
   height: 100vh;
   background:
-    radial-gradient(circle at 25% 50%, rgba(147, 51, 234, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 75% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 25% 50%, rgba(147, 51, 234, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 75% 50%, rgba(236, 72, 153, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
     linear-gradient(180deg, #08050f 0%, #0f0a1a 50%, #08050f 100%);
   position: relative;
   overflow: hidden;
@@ -219,13 +220,13 @@ onUnmounted(() => {
 
   .neon-glow {
     position: absolute;
-    width: 300px;
-    height: 300px;
+    width: 350px;
+    height: 350px;
     border-radius: 50%;
-    filter: blur(80px);
+    filter: blur(100px);
     animation: neonPulse 4s ease-in-out infinite;
-    &.left-glow { top: 30%; left: 10%; background: rgba(147, 51, 234, 0.15); }
-    &.right-glow { top: 30%; right: 10%; background: rgba(236, 72, 153, 0.15); animation-delay: 2s; }
+    &.left-glow { top: 25%; left: 8%; background: rgba(147, 51, 234, 0.18); }
+    &.right-glow { top: 25%; right: 8%; background: rgba(236, 72, 153, 0.18); animation-delay: 2s; }
   }
 
   .grid-floor {
@@ -233,17 +234,18 @@ onUnmounted(() => {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 40%;
+    height: 45%;
     background:
-      linear-gradient(180deg, transparent, rgba(147, 51, 234, 0.03)),
-      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0px, transparent 1px, transparent 60px),
-      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0px, transparent 1px, transparent 60px);
+      linear-gradient(180deg, transparent, rgba(147, 51, 234, 0.04)),
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0px, transparent 1px, transparent 60px),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0px, transparent 1px, transparent 60px);
+    filter: blur(0.5px);
   }
 }
 
 @keyframes neonPulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.15); }
 }
 
 .dj-content {
@@ -262,34 +264,50 @@ onUnmounted(() => {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 28px;
-    border-radius: 40px;
-    border: 1px solid rgba(147, 51, 234, 0.3);
-    background: rgba(147, 51, 234, 0.08);
-    backdrop-filter: blur(10px);
+    padding: 12px 32px;
+    border-radius: 50px;
+    border: 1px solid rgba(147, 51, 234, 0.35);
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.06));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(147, 51, 234, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
     margin-bottom: 24px;
     font-size: 11px;
-    letter-spacing: 5px;
-    color: rgba(200, 160, 255, 0.9);
-    .badge-icon { font-size: 16px; }
+    letter-spacing: 6px;
+    color: rgba(210, 170, 255, 0.9);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 18px;
+      filter: drop-shadow(0 0 10px rgba(147, 51, 234, 0.6));
+    }
+    &:hover {
+      border-color: rgba(167, 71, 254, 0.5);
+      box-shadow: 0 6px 30px rgba(147, 51, 234, 0.25);
+      transform: translateY(-2px);
+    }
   }
 
   .dj-title {
-    font-size: clamp(48px, 7vw, 80px);
-    font-weight: 800;
-    letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #c084fc 50%, #9333ea 100%);
+    font-size: clamp(52px, 7.5vw, 88px);
+    font-weight: 900;
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #d0a0ff 30%, #a855f7 60%, #7c3aed 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0 0 16px;
-    filter: drop-shadow(0 0 40px rgba(147, 51, 234, 0.5));
+    filter: drop-shadow(0 0 50px rgba(147, 51, 234, 0.5));
+    animation: djGlow 3s ease-in-out infinite alternate;
   }
 
   .dj-subtitle {
     font-size: 16px;
-    color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 6px;
+    color: rgba(200, 180, 255, 0.65);
+    letter-spacing: 8px;
+    font-weight: 300;
     margin: 0;
+    text-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
   }
 }
 
@@ -410,35 +428,71 @@ onUnmounted(() => {
 }
 
 .deck-card {
+  position: relative;
   .card-inner {
-    padding: 16px 18px;
-    border-radius: 20px;
-    background: linear-gradient(180deg, rgba(20, 15, 30, 0.9) 0%, rgba(12, 10, 22, 0.95) 100%);
-    border: 1px solid rgba(147, 51, 234, 0.1);
+    position: relative;
+    padding: 18px 20px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(22, 17, 35, 0.92) 0%, rgba(14, 12, 25, 0.96) 100%);
+    border: 1px solid rgba(147, 51, 234, 0.15);
     backdrop-filter: blur(10px);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
     text-align: left;
+    transition: all 0.3s ease;
 
     &::before {
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
       pointer-events: none;
     }
 
-    .card-index { font-size: 10px; color: rgba(255, 255, 255, 0.25); letter-spacing: 3px; }
-    .card-title { font-size: 18px; font-weight: 700; color: #fff; margin: 6px 0; letter-spacing: 2px; }
-    .card-desc { font-size: 13px; color: rgba(255, 255, 255, 0.5); line-height: 1.5; margin: 0 0 8px; }
+    .card-index { 
+      font-size: 10px; 
+      color: rgba(200, 180, 255, 0.3); 
+      letter-spacing: 3px;
+      font-weight: 600;
+    }
+    .card-title { 
+      font-size: 19px; 
+      font-weight: 800; 
+      color: #fff; 
+      margin: 6px 0; 
+      letter-spacing: 2px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    .card-desc { 
+      font-size: 13px; 
+      color: rgba(200, 180, 255, 0.55); 
+      line-height: 1.5; 
+      margin: 0 0 8px;
+    }
     .card-bpm {
-      font-size: 11px; font-family: 'Courier New', monospace;
-      color: rgba(192, 132, 252, 0.7); letter-spacing: 2px;
+      display: inline-block;
+      padding: 3px 8px;
+      background: rgba(147, 51, 234, 0.08);
+      border-radius: 6px;
+      border: 1px solid rgba(147, 51, 234, 0.12);
+      font-size: 11px; 
+      font-family: 'Courier New', monospace;
+      color: rgba(192, 132, 252, 0.8);
+      letter-spacing: 2px;
+      font-weight: 600;
     }
   }
 
-  &:hover .card-inner {
-    border-color: rgba(147, 51, 234, 0.3);
-    box-shadow: 0 0 30px rgba(147, 51, 234, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.02);
+  &:hover {
+    transform: translateY(-3px);
+    .card-inner {
+      border-color: rgba(147, 51, 234, 0.35);
+      box-shadow: 
+        0 12px 40px rgba(147, 51, 234, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
   }
 }
 
@@ -447,11 +501,15 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  padding: 20px 16px;
-  background: linear-gradient(180deg, rgba(15, 12, 25, 0.8), rgba(10, 8, 18, 0.9));
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  min-width: 100px;
+  padding: 24px 18px;
+  background: linear-gradient(180deg, rgba(18, 14, 30, 0.85), rgba(12, 10, 22, 0.92));
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  min-width: 110px;
+  backdrop-filter: blur(10px);
 }
 
 .eq-section {
@@ -551,23 +609,34 @@ onUnmounted(() => {
     align-items: center;
     gap: 8px;
     margin-bottom: 12px;
+    padding: 6px 14px;
+    background: rgba(34, 197, 94, 0.06);
+    border-radius: 20px;
+    border: 1px solid rgba(34, 197, 94, 0.12);
 
     .np-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #22c55e;
-      box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
       animation: npBlink 1.5s ease-in-out infinite;
     }
-    .np-text { font-size: 11px; color: rgba(34, 197, 94, 0.7); letter-spacing: 3px; }
+    .np-text { 
+      font-size: 11px; 
+      color: rgba(34, 197, 94, 0.8); 
+      letter-spacing: 3px;
+      font-weight: 600;
+    }
   }
 
   .footer-text {
     font-size: 14px;
-    letter-spacing: 3px;
-    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 4px;
+    color: rgba(200, 180, 255, 0.45);
     margin: 0;
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(147, 51, 234, 0.2);
   }
 }
 
@@ -575,5 +644,10 @@ onUnmounted(() => {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+@keyframes djGlow {
+  0% { filter: drop-shadow(0 0 40px rgba(147, 51, 234, 0.45)); }
+  100% { filter: drop-shadow(0 0 60px rgba(147, 51, 234, 0.6)); }
+}
 </style>
+
 

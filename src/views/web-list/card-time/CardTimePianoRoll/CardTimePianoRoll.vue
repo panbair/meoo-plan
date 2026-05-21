@@ -126,7 +126,7 @@ onMounted(() => {
     // Key highlight
     if (keyRefs.value[n.row]) {
       phTl.to(keyRefs.value[n.row], { background: 'rgba(147,51,234,0.3)', duration: 0.05 }, startPct)
-      phTl.to(keyRefs.value[n.row], { background: '', duration: 0.1 }, startPct + 0.05)
+      phTl.to(keyRefs.value[n.row], { background: 'rgba(147,51,234,0)', duration: 0.1 }, startPct + 0.05)
     }
   })
 
@@ -144,7 +144,7 @@ onUnmounted(() => {
   width: 100vw;
   height: 100vh;
   background:
-    radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
     linear-gradient(180deg, #0a0a14 0%, #0f0e1a 50%, #0a0a14 100%);
   position: relative;
   overflow: hidden;
@@ -157,8 +157,8 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .studio-ambient {
     position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(99, 102, 241, 0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(99, 102, 241, 0.015) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
     background-size: 60px 40px;
   }
 }
@@ -173,84 +173,124 @@ onUnmounted(() => {
   margin-bottom: 40px;
 
   .piano-badge {
-    display: inline-flex; align-items: center; gap: 10px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(99, 102, 241, 0.3);
-    background: rgba(99, 102, 241, 0.08); backdrop-filter: blur(10px);
-    margin-bottom: 24px; font-size: 11px; letter-spacing: 5px;
-    color: rgba(165, 180, 252, 0.9);
-    .badge-icon { font-size: 16px; }
+    display: inline-flex; align-items: center; gap: 10px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 82, 221, 0.05));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(99, 102, 241, 0.15),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 24px; font-size: 11px; letter-spacing: 6px;
+    color: rgba(175, 190, 252, 0.95);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 18px;
+      filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.6));
+    }
+    &:hover {
+      border-color: rgba(129, 132, 251, 0.5);
+      box-shadow: 0 6px 30px rgba(99, 102, 241, 0.25);
+      transform: translateY(-2px);
+    }
   }
 
   .piano-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #a5b4fc 50%, #6366f1 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin: 0 0 16px; filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.4));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #b5c5fc 30%, #8590f1 60%, #6366f1 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 16px; 
+    filter: drop-shadow(0 0 60px rgba(99, 102, 241, 0.5));
+    animation: pianoGlow 3s ease-in-out infinite alternate;
   }
 
   .piano-subtitle {
-    font-size: 16px; color: rgba(255, 255, 255, 0.5); letter-spacing: 6px; margin: 0;
+    font-size: 16px; 
+    color: rgba(200, 210, 255, 0.6);
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
   }
 }
 
 .roll-container {
   position: relative;
-  background: rgba(12, 10, 20, 0.8);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(12, 10, 20, 0.85);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0;
   overflow: hidden;
   min-height: 340px;
   display: flex;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .timeline-ruler {
-  position: absolute; top: 0; left: 60px; right: 0; height: 24px;
-  display: flex; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(20, 18, 32, 0.8);
+  position: absolute; top: 0; left: 60px; right: 0; height: 28px;
+  display: flex; border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(20, 18, 32, 0.9);
   .tick {
-    flex: 1; font-size: 9px; color: rgba(255, 255, 255, 0.2);
+    flex: 1; font-size: 10px; color: rgba(255, 255, 255, 0.25);
     display: flex; align-items: center; justify-content: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.03);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    font-weight: 500;
   }
 }
 
 .playhead {
-  position: absolute; top: 0; bottom: 0; width: 2px;
-  background: linear-gradient(180deg, #ef4444, rgba(239, 68, 68, 0.3));
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+  position: absolute; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, #ef4444, rgba(239, 68, 68, 0.4));
+  box-shadow: 
+    0 0 15px rgba(239, 68, 68, 0.5),
+    0 0 30px rgba(239, 68, 68, 0.3);
   z-index: 20; left: 60px;
 }
 
 .keyboard {
   width: 60px; flex-shrink: 0; display: flex; flex-direction: column;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  margin-top: 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 28px;
 
   .piano-key {
     flex: 1; min-height: 44px;
     display: flex; align-items: center; justify-content: flex-end;
-    padding-right: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    background: rgba(240, 240, 255, 0.04);
-    transition: background 0.15s;
+    padding-right: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(240, 240, 255, 0.05);
+    transition: all 0.2s ease;
 
     &.black {
-      background: rgba(20, 18, 32, 0.9);
-      .key-label { color: rgba(255, 255, 255, 0.3); }
+      background: rgba(20, 18, 32, 0.95);
+      .key-label { color: rgba(255, 255, 255, 0.35); }
     }
 
-    .key-label { font-size: 9px; color: rgba(255, 255, 255, 0.2); font-family: 'Courier New', monospace; }
+    .key-label { 
+      font-size: 10px; 
+      color: rgba(255, 255, 255, 0.25); 
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+    }
+    
+    &:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
   }
 }
 
 .note-grid {
-  flex: 1; position: relative; margin-top: 24px;
+  flex: 1; position: relative; margin-top: 28px;
 
   .grid-lines {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
     .grid-row {
-      flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
   }
 }
@@ -264,25 +304,38 @@ onUnmounted(() => {
   padding: 2px;
 
   .note-inner {
-    width: 100%; height: 100%; border-radius: 8px;
+    width: 100%; height: 100%; border-radius: 10px;
     background: linear-gradient(135deg,
-      hsla(var(--note-hue), 60%, 50%, 0.7),
-      hsla(var(--note-hue), 50%, 35%, 0.8));
-    border: 1px solid hsla(var(--note-hue), 60%, 60%, 0.3);
+      hsla(var(--note-hue), 65%, 55%, 0.75),
+      hsla(var(--note-hue), 55%, 40%, 0.85));
+    border: 1px solid hsla(var(--note-hue), 65%, 65%, 0.35);
     display: flex; flex-direction: column;
-    justify-content: center; padding: 4px 10px;
+    justify-content: center; padding: 6px 12px;
     overflow: hidden; cursor: pointer;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 
+      0 2px 12px hsla(var(--note-hue), 60%, 50%, 0.2),
+      inset 0 1px 0 rgba(255,255,255,0.1);
 
     .note-label {
-      font-size: 11px; font-weight: 700; color: rgba(255, 255, 255, 0.95);
+      font-size: 12px; 
+      font-weight: 800; 
+      color: rgba(255, 255, 255, 0.98);
       letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.2);
     }
-    .note-sub { font-size: 9px; color: rgba(255, 255, 255, 0.5); }
+    .note-sub { 
+      font-size: 10px; 
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
 
     &:hover {
-      border-color: hsla(var(--note-hue), 70%, 70%, 0.6);
-      box-shadow: 0 0 20px hsla(var(--note-hue), 60%, 50%, 0.3);
+      border-color: hsla(var(--note-hue), 75%, 75%, 0.6);
+      box-shadow: 
+        0 4px 20px hsla(var(--note-hue), 60%, 50%, 0.4),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+      transform: scale(1.02);
     }
   }
 }
@@ -291,27 +344,42 @@ onUnmounted(() => {
   margin-top: 40px;
 
   .transport-controls {
-    display: flex; gap: 10px; justify-content: center; margin-bottom: 16px;
+    display: flex; gap: 12px; justify-content: center; margin-bottom: 18px;
     .ctrl {
-      width: 36px; height: 36px; border-radius: 50%;
+      width: 40px; height: 40px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: rgba(255, 255, 255, 0.4);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      cursor: pointer; transition: all 0.2s;
+      font-size: 16px; color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer; transition: all 0.2s ease;
 
       &.play {
-        color: rgba(99, 102, 241, 0.9);
-        background: rgba(99, 102, 241, 0.1);
-        border-color: rgba(99, 102, 241, 0.3);
+        color: rgba(99, 102, 241, 0.95);
+        background: rgba(99, 102, 241, 0.12);
+        border-color: rgba(99, 102, 241, 0.35);
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
       }
-      &:hover { transform: scale(1.1); }
+      &:hover { 
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(255,255,255,0.1);
+      }
     }
   }
 
   .footer-text {
-    font-size: 14px; letter-spacing: 3px; color: rgba(255, 255, 255, 0.4); margin: 0;
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(200, 210, 255, 0.5);
+    font-weight: 500;
+    margin: 0;
+    text-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
   }
 }
+
+@keyframes pianoGlow {
+  0% { filter: drop-shadow(0 0 50px rgba(99, 102, 241, 0.45)); }
+  100% { filter: drop-shadow(0 0 70px rgba(99, 102, 241, 0.6)); }
+}
 </style>
+
 

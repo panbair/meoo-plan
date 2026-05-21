@@ -7,15 +7,15 @@
   >
     <!-- 数据流背景 -->
     <canvas ref="dataStreamCanvasRef" class="cyber-canvas-112"></canvas>
-    
+
     <!-- 扫描线 -->
     <div class="cyber-scanline-112" ref="scanlineRef">
       <div class="cyber-scan-beam-112"></div>
     </div>
-    
+
     <!-- 棚格背景 -->
     <div class="cyber-grid-112"></div>
-    
+
     <!-- 内容层 -->
     <div class="cyber-content-112" ref="contentRef">
       <!-- 副标题 -->
@@ -26,7 +26,7 @@
       >
         {{ subtitle }}
       </p>
-      
+
       <!-- 主标题 -->
       <h1 class="cyber-title-112" ref="titleRef">
         <span
@@ -40,7 +40,7 @@
           <span class="cyber-char-glow-112">{{ item.char }}</span>
         </span>
       </h1>
-      
+
       <!-- 段落 -->
       <div class="cyber-paragraphs-112" ref="paragraphsRef">
         <p
@@ -55,19 +55,19 @@
         </p>
       </div>
     </div>
-    
+
     <!-- 进度条 -->
     <div
       class="cyber-progress-112"
       :style="{ width: progress + '%' }"
     ></div>
-    
+
     <!-- 终端信息 -->
     <div class="cyber-terminal-112">
       <span class="cyber-terminal-prompt-112">></span>
       <span class="cyber-terminal-text-112">DATA STREAM {{ currentTime }}</span>
     </div>
-    
+
     <!-- 滚动提示 -->
     <div class="cyber-scroll-hint-112" :class="{ hidden: scrollHintHidden }">
       <span>SCROLL TO DECRYPT</span>
@@ -77,7 +77,7 @@
         <span></span>
       </div>
     </div>
-    
+
     <!-- CRT 干扰效果 -->
     <div class="cyber-crt-112" ref="crtRef"></div>
   </div>
@@ -182,15 +182,15 @@ const setParaRef = (el: HTMLElement | null, index: number) => {
 // 初始化数据流
 const initDataStream = () => {
   if (!dataStreamCanvasRef.value) return
-  
+
   const canvas = dataStreamCanvasRef.value
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
-  
+
   dataStreamColumns = []
   const columnWidth = 20
   const columnsCount = Math.ceil(canvas.width / columnWidth)
-  
+
   for (let i = 0; i < columnsCount; i++) {
     dataStreamColumns.push({
       x: i * columnWidth,
@@ -207,20 +207,20 @@ const initDataStream = () => {
 // 动画数据流
 const animateDataStream = () => {
   if (!dataStreamCanvasRef.value) return
-  
+
   const canvas = dataStreamCanvasRef.value
   const ctx2d = canvas.getContext('2d')
   if (!ctx2d) return
-  
+
   ctx2d.fillStyle = 'rgba(0, 0, 0, 0.1)'
   ctx2d.fillRect(0, 0, canvas.width, canvas.height)
-  
+
   ctx2d.font = '14px monospace'
-  
+
   dataStreamColumns.forEach(column => {
     // 更新位置
     column.y += column.speed
-    
+
     // 重置到顶部
     if (column.y > canvas.height + 200) {
       column.y = -200
@@ -229,26 +229,26 @@ const animateDataStream = () => {
         glitchChars[Math.floor(Math.random() * glitchChars.length)]
       )
     }
-    
+
     // 绘制字符
     for (let i = 0; i < column.chars.length; i++) {
       const charY = column.y - i * 20
-      
+
       if (charY > 0 && charY < canvas.height) {
         // 头部更亮
         const brightness = i === 0 ? 255 : 100 - i * 5
         ctx2d.fillStyle = `rgba(0, 255, 136, ${brightness / 255})`
-        
+
         // 随机更新字符
         if (Math.random() < 0.05) {
           column.chars[i] = glitchChars[Math.floor(Math.random() * glitchChars.length)]
         }
-        
+
         ctx2d.fillText(column.chars[i], column.x, charY)
       }
     }
   })
-  
+
   animationFrameId = requestAnimationFrame(animateDataStream)
 }
 
@@ -256,14 +256,14 @@ const animateDataStream = () => {
 const decryptChar = (el: HTMLElement, targetChar: string, duration: number = 0.1) => {
   const displayEl = el.querySelector('.cyber-char-display-112') as HTMLElement
   const glowEl = el.querySelector('.cyber-char-glow-112') as HTMLElement
-  
+
   if (!displayEl || !glowEl) return
-  
+
   const startTime = Date.now()
-  
+
   const intervalId = setInterval(() => {
     const elapsed = (Date.now() - startTime) / 1000
-    
+
     if (elapsed < duration) {
       // 随机显示乱码
       displayEl.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)]
@@ -271,7 +271,7 @@ const decryptChar = (el: HTMLElement, targetChar: string, duration: number = 0.1
       clearInterval(intervalId)
       displayEl.textContent = targetChar
       glowEl.style.opacity = '1'
-      
+
       // 辉光脉冲
       gsap.fromTo(el,
         { textShadow: `0 0 20px ${props.glowColor}, 0 0 40px ${props.glowColor}` },
@@ -284,20 +284,20 @@ const decryptChar = (el: HTMLElement, targetChar: string, duration: number = 0.1
 // 解密段落
 const decryptPara = (el: HTMLElement, targetText: string, duration: number = 0.8) => {
   const displayEl = el.querySelector('.cyber-text-display-112') as HTMLElement
-  
+
   if (!displayEl) return
-  
+
   const words = targetText.split('')
   const startTime = Date.now()
-  
+
   const intervalId = setInterval(() => {
     const elapsed = (Date.now() - startTime) / 1000
-    
+
     if (elapsed < duration) {
       // 部分解密
       const progress = elapsed / duration
       const visibleCount = Math.floor(words.length * progress)
-      
+
       let result = ''
       for (let i = 0; i < words.length; i++) {
         if (i < visibleCount) {
@@ -318,28 +318,28 @@ const decryptPara = (el: HTMLElement, targetText: string, duration: number = 0.8
 // 扫描线动画
 const updateScanline = (progressVal: number) => {
   if (!scanlineRef.value || !sectionRef.value) return
-  
+
   const sectionHeight = sectionRef.value.offsetHeight
   scanlineTop.value = progressVal * sectionHeight
-  
+
   gsap.set(scanlineRef.value, { top: `${scanlineTop.value}px` })
 }
 
 // 鼠标干扰效果
 const handleMouseMove = (e: MouseEvent) => {
   if (!sectionRef.value || !crtRef.value) return
-  
+
   const rect = sectionRef.value.getBoundingClientRect()
   const mouseX = e.clientX - rect.left
   const mouseY = e.clientY - rect.top
-  
+
   // CRT 干扰效果
   const skewX = (mouseX / rect.width - 0.5) * 2
   const hueRotate = Math.abs(skewX) * 30
-  
+
   gsap.to(crtRef.value, {
-    background: `radial-gradient(circle at ${mouseX}px ${mouseY}px, 
-                 rgba(0, 255, 136, 0.1) 0%, 
+    background: `radial-gradient(circle at ${mouseX}px ${mouseY}px,
+                 rgba(0, 255, 136, 0.1) 0%,
                  transparent 50%),
                  repeating-linear-gradient(
                    0deg,
@@ -350,7 +350,7 @@ const handleMouseMove = (e: MouseEvent) => {
                  )`,
     duration: 0.1
   })
-  
+
   // 标题字符干扰
   charRefs.value.forEach((el, index) => {
     const dist = Math.abs(mouseX - (index * 50 + 100))
@@ -367,12 +367,12 @@ const handleMouseMove = (e: MouseEvent) => {
 
 const handleMouseLeave = () => {
   if (!crtRef.value) return
-  
+
   gsap.to(crtRef.value, {
     background: 'transparent',
     duration: 0.3
   })
-  
+
   charRefs.value.forEach(el => {
     gsap.to(el, {
       skewX: 0,
@@ -392,56 +392,56 @@ const updateTime = () => {
 const mainLoop = (time: number) => {
   const deltaTime = lastTime ? (time - lastTime) / 1000 : 0
   lastTime = time
-  
+
   animateDataStream()
-  
+
   animationFrameId = requestAnimationFrame(mainLoop)
 }
 
 onMounted(() => {
   const rootEl = sectionRef.value
   if (!rootEl) return
-  
+
   // 初始化
   initDataStream()
   updateTime()
-  
+
   // 定时更新
   const timeIntervalId = setInterval(updateTime, 1000)
   cleanupFns.push(() => clearInterval(timeIntervalId))
-  
+
   // 等待 DOM 渲染
   nextTick(() => {
     setTimeout(() => {
       // 获取元素
       const charElements = Array.from(charRefs.value.values()).filter(el => el !== null)
       const paraElements = Array.from(paraRefs.value.values()).filter(el => el !== null)
-      
+
       // 确保元素已渲染
       if (charElements.length === 0) {
         console.warn('CardTextCyber: char elements not ready, retrying...')
         setTimeout(() => onMounted(), 100)
         return
       }
-      
+
       ctx = gsap.context(() => {
         // 初始状态
         charElements.forEach(el => {
           const glowEl = el.querySelector('.cyber-char-glow-112') as HTMLElement
           if (glowEl) glowEl.style.opacity = '0'
-          
+
           // 随机初始字符
           const displayEl = el.querySelector('.cyber-char-display-112') as HTMLElement
           if (displayEl) {
             displayEl.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)]
           }
         })
-        
+
         // 副标题初始状态
         if (subtitleRef.value) {
           gsap.set(subtitleRef.value, { opacity: 0 })
         }
-        
+
         // 段落初始状态
         paraElements.forEach(el => {
           el.classList.remove('decrypted')
@@ -452,7 +452,7 @@ onMounted(() => {
             ).join('')
           }
         })
-        
+
         // ScrollTrigger
         scrollTriggerInstance = ScrollTrigger.create({
           trigger: rootEl,
@@ -462,14 +462,14 @@ onMounted(() => {
           onUpdate: (self) => {
             progress.value = self.progress * 100
             emit('scroll-progress', self.progress)
-            
+
             if (self.progress > 0.05) {
               scrollHintHidden.value = true
             }
-            
+
             // 更新扫描线
             updateScanline(self.progress)
-            
+
             // 解密标题
             charElements.forEach((el, index) => {
               const charProgress = (self.progress - index * 0.05) * 5
@@ -481,12 +481,12 @@ onMounted(() => {
                 }
               }
             })
-            
+
             // 解密副标题
             if (self.progress > 0.4 && subtitleRef.value) {
               gsap.to(subtitleRef.value, { opacity: 1, duration: 0.3 })
             }
-            
+
             // 解密段落
             paraElements.forEach((el, index) => {
               const paraProgress = (self.progress - 0.5 - index * 0.1) * 3
@@ -495,7 +495,7 @@ onMounted(() => {
                 decryptPara(el, targetText, 0.6)
               }
             })
-            
+
             // 完成
             if (self.progress >= 0.98) {
               emit('animation-complete')
@@ -510,24 +510,24 @@ onMounted(() => {
             // 重新获取最新元素
             const currentCharElements = Array.from(charRefs.value.values()).filter(el => el !== null)
             const currentParaElements = Array.from(paraRefs.value.values()).filter(el => el !== null)
-            
+
             // 重置
             currentCharElements.forEach(el => {
               const glowEl = el.querySelector('.cyber-char-glow-112') as HTMLElement
               if (glowEl) glowEl.style.opacity = '0'
-              
+
               const displayEl = el.querySelector('.cyber-char-display-112') as HTMLElement
               if (displayEl) {
                 displayEl.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)]
               }
-              
-              gsap.set(el, { textShadow: 'none', skewX: 0, filter: 'none' })
+
+              gsap.set(el, { textShadow: '0 0 0px rgba(0,0,0,0)', skewX: 0, filter: 'none' })
             })
-            
+
             if (subtitleRef.value) {
               gsap.set(subtitleRef.value, { opacity: 0 })
             }
-            
+
             currentParaElements.forEach(el => {
               el.classList.remove('decrypted')
               const displayEl = el.querySelector('.cyber-text-display-112') as HTMLElement
@@ -537,26 +537,26 @@ onMounted(() => {
                 ).join('')
               }
             })
-            
+
             if (scanlineRef.value) {
               gsap.set(scanlineRef.value, { top: 0 })
             }
           }
         })
-        
+
         cleanupFns.push(() => scrollTriggerInstance?.kill())
       }, rootEl)
-      
+
       // 启动数据流动画
       animationFrameId = requestAnimationFrame(mainLoop)
     }, 200)
   })
-  
+
   // 窗口大小变化
   const handleResize = () => {
     initDataStream()
   }
-  
+
   window.addEventListener('resize', handleResize)
   cleanupFns.push(() => window.removeEventListener('resize', handleResize))
 })
@@ -564,23 +564,23 @@ onMounted(() => {
 onUnmounted(() => {
   cleanupFns.forEach(fn => fn())
   cleanupFns.length = 0
-  
+
   ctx?.revert()
   ctx = null
-  
+
   if (animationFrameId !== null) {
     cancelAnimationFrame(animationFrameId)
     animationFrameId = null
   }
-  
+
   if (tickerIntervalId !== null) {
     clearInterval(tickerIntervalId)
     tickerIntervalId = null
   }
-  
+
   scrollTriggerInstance?.kill()
   ScrollTrigger.getAll().forEach(st => st.kill())
-  
+
   charRefs.value.clear()
   paraRefs.value.clear()
   dataStreamColumns = []
@@ -634,11 +634,11 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(0, 255, 136, 0.8), 
-    rgba(0, 255, 136, 1), 
-    rgba(0, 255, 136, 0.8), 
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(0, 255, 136, 0.8),
+    rgba(0, 255, 136, 1),
+    rgba(0, 255, 136, 0.8),
     transparent
   );
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
@@ -651,7 +651,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;

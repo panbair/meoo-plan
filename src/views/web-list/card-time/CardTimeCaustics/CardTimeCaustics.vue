@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="caustics-section">
     <canvas ref="canvasRef" class="caustics-canvas"></canvas>
     <div class="caustics-overlay"></div>
@@ -167,33 +167,71 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .caustics-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(180deg, #020810 0%, #051520 40%, #03101a 100%);
+  background: 
+    radial-gradient(circle at 50% 0%, rgba(0,180,255,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 30% 70%, rgba(0,150,200,0.06) 0%, transparent 40%),
+    linear-gradient(180deg, #020810 0%, #051520 40%, #03101a 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .caustics-canvas {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  pointer-events: none; mix-blend-mode: screen; opacity: 0.7;
+  pointer-events: none; 
+  mix-blend-mode: screen; 
+  opacity: 0.75;
+  filter: blur(6px);
 }
 .caustics-overlay {
   position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 50% 30%, transparent 40%, rgba(2,8,16,0.6) 100%);
+  background: 
+    radial-gradient(ellipse at 50% 30%, transparent 40%, rgba(2,8,16,0.7) 100%),
+    linear-gradient(180deg, rgba(0,100,150,0.03) 0%, transparent 50%);
 }
 .caustics-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .caustics-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(0,180,220,0.2);
-    background: rgba(0,180,220,0.05); backdrop-filter: blur(10px); margin-bottom: 12px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(100,220,255,0.7);
-    .badge-icon { font-size: 14px; }
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(0,200,240,0.25);
+    background: linear-gradient(135deg, rgba(0,200,240,0.08), rgba(0,180,220,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(0,180,220,0.15),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(120,230,255,0.85);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 10px rgba(0,200,255,0.6));
+    }
+    &:hover {
+      border-color: rgba(0,220,255,0.4);
+      box-shadow: 0 6px 30px rgba(0,200,240,0.2);
+      transform: translateY(-2px);
+    }
   }
   .caustics-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(135deg, #00b8d4, #40e0ff, #0090a0);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(135deg, #00d4ff 0%, #40e8ff 30%, #00b8d4 60%, #0090a8 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 40px rgba(0,200,255,0.35));
+    animation: waterGlow 3s ease-in-out infinite alternate;
   }
-  .caustics-subtitle { font-size: 16px; color: rgba(100,200,220,0.5); letter-spacing: 6px; margin: 0; }
+  .caustics-subtitle { 
+    font-size: 16px; 
+    color: rgba(120,210,230,0.65); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(0,200,255,0.25);
+  }
 }
 .cards-area {
   position: relative; z-index: 10;
@@ -201,60 +239,124 @@ onUnmounted(() => {
   gap: 16px; max-width: 700px; width: 90%;
 }
 .caustic-card {
-  position: relative; border-radius: 24px; overflow: hidden;
+  position: relative; border-radius: 28px; overflow: hidden;
+  transition: transform 0.3s ease;
   .card-water-overlay {
     position: absolute; inset: 0; z-index: 3; pointer-events: none;
     background: linear-gradient(180deg,
-      rgba(0,180,255,0.03) 0%,
-      rgba(0,200,255,0.06) 30%,
-      rgba(0,180,255,0.03) 60%,
+      rgba(0,200,255,0.04) 0%,
+      rgba(0,220,255,0.08) 30%,
+      rgba(0,200,255,0.04) 60%,
       transparent 100%);
     animation: waterShimmer 4s ease-in-out infinite;
+    filter: blur(1px);
   }
   .card-inner {
-    position: relative; z-index: 2; padding: 24px 20px; border-radius: 24px;
-    background: linear-gradient(145deg, rgba(5,20,30,0.9), rgba(3,15,25,0.95));
-    border: 1px solid rgba(0,180,220,0.1);
-    .card-icon { font-size: 24px; margin-bottom: 8px; }
-    .card-index { font-size: 8px; color: rgba(100,200,220,0.3); letter-spacing: 2px; }
-    .card-title { font-size: 20px; font-weight: 700; color: #fff; margin: 4px 0; }
-    .card-desc { font-size: 10px; color: rgba(120,200,220,0.5); margin: 0 0 8px; }
+    position: relative; z-index: 2; padding: 28px 24px; border-radius: 28px;
+    background: 
+      linear-gradient(145deg, rgba(8,25,35,0.92), rgba(5,18,28,0.96));
+    border: 1px solid rgba(0,200,240,0.15);
+    box-shadow: 
+      0 8px 32px rgba(0,0,0,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    .card-icon { 
+      font-size: 28px; 
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 8px rgba(0,200,255,0.4));
+    }
+    .card-index { 
+      font-size: 9px; 
+      color: rgba(120,210,230,0.35); 
+      letter-spacing: 3px;
+      font-weight: 600;
+    }
+    .card-title { 
+      font-size: 22px; 
+      font-weight: 800; 
+      color: #ffffff;
+      margin: 6px 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .card-desc { 
+      font-size: 11px; 
+      color: rgba(140,210,230,0.6);
+      margin: 0 0 10px;
+      line-height: 1.4;
+    }
     .card-depth {
-      display: flex; gap: 6px; align-items: center;
-      .depth-label { font-size: 9px; color: rgba(100,180,200,0.4); }
-      .depth-value { font-size: 12px; font-weight: 700; color: rgba(0,200,220,0.7); font-family: 'Courier New', monospace; }
+      display: flex; gap: 8px; align-items: center;
+      padding: 6px 10px;
+      background: rgba(0,180,220,0.06);
+      border-radius: 8px;
+      border: 1px solid rgba(0,200,240,0.1);
+      .depth-label { 
+        font-size: 9px; 
+        color: rgba(120,190,210,0.5);
+        font-weight: 500;
+      }
+      .depth-value { 
+        font-size: 13px; 
+        font-weight: 700; 
+        color: rgba(0,220,240,0.8);
+        font-family: 'Courier New', monospace;
+        text-shadow: 0 0 8px rgba(0,200,255,0.3);
+      }
     }
   }
   .card-ripple {
-    position: absolute; inset: -10px; border-radius: 20px;
-    border: 1px solid rgba(0,200,255,0.05);
+    position: absolute; inset: -10px; border-radius: 24px;
+    border: 1px solid rgba(0,220,255,0.06);
     animation: rippleExpand 3s ease-out infinite;
+    opacity: 0.5;
   }
-  &:hover .card-inner {
-    border-color: rgba(0,200,220,0.25);
-    box-shadow: 0 0 25px rgba(0,200,220,0.1);
+  &:hover {
+    transform: translateY(-5px);
+    .card-inner {
+      border-color: rgba(0,220,255,0.3);
+      box-shadow: 
+        0 12px 40px rgba(0,200,255,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    }
   }
 }
 @keyframes waterShimmer {
-  0%, 100% { opacity: 0.5; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-3px); }
+  0%, 100% { opacity: 0.6; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-4px); }
 }
 @keyframes rippleExpand {
-  0% { transform: scale(0.95); opacity: 0.3; }
-  100% { transform: scale(1.05); opacity: 0; }
+  0% { transform: scale(0.95); opacity: 0.4; }
+  100% { transform: scale(1.08); opacity: 0; }
+}
+@keyframes waterGlow {
+  0% { filter: drop-shadow(0 0 30px rgba(0,200,255,0.3)); }
+  100% { filter: drop-shadow(0 0 50px rgba(0,200,255,0.45)); }
 }
 .caustics-footer {
   position: relative; z-index: 10; margin-top: 50px; text-align: center;
   .water-level {
-    width: 150px; height: 3px; margin: 0 auto 10px; border-radius: 2px;
-    background: rgba(0,180,220,0.1); overflow: hidden;
+    width: 160px; height: 4px; margin: 0 auto 12px; border-radius: 3px;
+    background: rgba(0,200,240,0.12);
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,200,255,0.1);
     .water-fill {
-      width: 60%; height: 100%; border-radius: 2px;
-      background: linear-gradient(90deg, rgba(0,180,220,0.3), rgba(0,220,255,0.6));
+      width: 60%; height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, 
+        rgba(0,200,240,0.4) 0%, 
+        rgba(0,230,255,0.7) 50%,
+        rgba(0,200,240,0.4) 100%);
+      box-shadow: 0 0 15px rgba(0,220,255,0.5);
       animation: waterFill 3s ease-in-out infinite alternate;
     }
   }
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(100,200,220,0.3); }
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(120,210,230,0.45);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(0,200,255,0.2);
+  }
 }
 @keyframes waterFill {
   0% { width: 40%; } 100% { width: 80%; }

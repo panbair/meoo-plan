@@ -7,9 +7,9 @@
       <div class="cb-container-200" ref="containerRef">
         <h2 class="cb-title-200">BORDER GROWTH</h2>
         <p class="cb-subtitle-200">Corner-to-corner border animation</p>
-        
+
         <div class="cb-cards-grid-200">
-          <div 
+          <div
             v-for="(card, index) in cards"
             :key="card.id"
             class="cb-card-200"
@@ -22,7 +22,7 @@
                 <div class="cb-card-title-200">{{ card.title }}</div>
                 <div class="cb-card-desc-200">{{ card.desc }}</div>
               </div>
-              
+
               <!-- 边框角 -->
               <div class="cb-corner-200 cb-corner-tl-200">
                 <div class="cb-corner-line-200 cb-corner-h-200"></div>
@@ -187,7 +187,7 @@ const initAnimations = () => {
     card.addEventListener('mouseleave', () => {
       gsap.to(hLines, { width: '60px', duration: 0.3 })
       gsap.to(vLines, { height: '60px', duration: 0.3 })
-      gsap.to(corners, { boxShadow: 'none', duration: 0.3 })
+      gsap.to(corners, { boxShadow: '0 0 0px rgba(100, 200, 255, 0)', duration: 0.3 })
     })
   })
 }
@@ -398,7 +398,7 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .cb-title-200 {
     font-size: 2rem;
-  
+
   opacity: 1 !important;}
 
   .cb-cards-grid-200 {
@@ -408,7 +408,7 @@ onUnmounted(() => {
 
   .cb-card-inner-200 {
     padding: 30px 20px;
-  
+
   opacity: 1 !important;}
 }
 </style>

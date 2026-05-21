@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="shadow-theater-section"
     @mousemove="onMouseMove" @touchmove.prevent="onTouchMove">
     <div class="theater-bg">
@@ -166,7 +166,9 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .shadow-theater-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(180deg, #0a0806 0%, #12100a 50%, #0a0806 100%);
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(200,160,80,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0806 0%, #12100a 50%, #0a0806 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: none;
@@ -175,97 +177,189 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .curtain {
     position: absolute; top: 0; width: 15%; height: 100%;
-    &.left-curtain { left: 0; background: linear-gradient(90deg, rgba(100,20,20,0.15), transparent); }
-    &.right-curtain { right: 0; background: linear-gradient(-90deg, rgba(100,20,20,0.15), transparent); }
+    &.left-curtain { 
+      left: 0; 
+      background: linear-gradient(90deg, rgba(100,20,20,0.18), transparent);
+      box-shadow: 5px 0 20px rgba(100,20,20,0.1);
+    }
+    &.right-curtain { 
+      right: 0; 
+      background: linear-gradient(-90deg, rgba(100,20,20,0.18), transparent);
+      box-shadow: -5px 0 20px rgba(100,20,20,0.1);
+    }
   }
   .stage-floor {
     position: absolute; bottom: 0; left: 0; right: 0; height: 30%;
-    background: linear-gradient(180deg, transparent, rgba(40,30,20,0.2));
+    background: linear-gradient(180deg, transparent, rgba(40,30,20,0.25));
   }
 }
 .spotlight {
   position: fixed; z-index: 100; pointer-events: none;
   transform: translate(-50%, -50%);
   .spot-cone {
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(255,240,200,0.08), rgba(255,240,200,0.02) 40%, transparent 70%);
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(255,240,200,0.1), rgba(255,240,200,0.03) 40%, transparent 70%);
     border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    box-shadow: 0 0 40px rgba(255,240,200,0.08);
   }
   .spot-core {
-    width: 12px; height: 12px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,240,200,0.6), rgba(255,200,100,0.3));
-    box-shadow: 0 0 20px rgba(255,240,200,0.4);
+    width: 14px; height: 14px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,240,200,0.7), rgba(255,200,100,0.4));
+    box-shadow: 
+      0 0 20px rgba(255,240,200,0.5),
+      0 0 40px rgba(255,200,100,0.3);
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   }
 }
 .theater-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .theater-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(200,160,80,0.2);
-    background: rgba(200,160,80,0.05); backdrop-filter: blur(10px); margin-bottom: 12px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(220,190,120,0.7);
-    .badge-icon { font-size: 14px; }
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(200,160,80,0.25);
+    background: linear-gradient(135deg, rgba(200,160,80,0.08), rgba(180,140,60,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(200,160,80,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(230,200,130,0.8);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 10px rgba(200,160,80,0.5));
+    }
+    &:hover {
+      border-color: rgba(220,180,100,0.4);
+      box-shadow: 0 6px 30px rgba(200,160,80,0.2);
+      transform: translateY(-2px);
+    }
   }
   .theater-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #d0b060 50%, #a08040 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px;
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #e0c070 30%, #d0b060 60%, #a08040 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 60px rgba(200,160,80,0.4));
+    animation: theaterGlow 3s ease-in-out infinite alternate;
   }
-  .theater-subtitle { font-size: 16px; color: rgba(200,180,140,0.5); letter-spacing: 6px; margin: 0; }
+  .theater-subtitle { 
+    font-size: 16px; 
+    color: rgba(210,190,150,0.6);
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(200,160,80,0.2);
+  }
 }
 .stage-area {
   position: relative; z-index: 10;
-  display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+  display: flex; gap: 22px; flex-wrap: wrap; justify-content: center;
   max-width: 900px; width: 90%;
 }
 .shadow-card {
   position: relative; width: 150px;
   .card-silhouette {
-    position: relative; z-index: 2; padding: 24px 20px; border-radius: 24px;
-    background: rgba(8,6,4,0.95);
-    border: 1px solid rgba(200,160,80,0.08);
+    position: relative; z-index: 2; padding: 26px 22px; border-radius: 28px;
+    background: rgba(10,8,6,0.96);
+    border: 1px solid rgba(200,160,80,0.1);
     filter: drop-shadow(var(--shadow-x) var(--shadow-y) var(--shadow-blur) rgba(0,0,0,var(--shadow-opacity)));
-    transition: filter 0.1s ease-out;
+    transition: all 0.1s ease-out;
     opacity: calc(1 - var(--lit) * 0.8);
-    .silhouette-icon { font-size: 28px; margin-bottom: 8px; filter: brightness(0.3); }
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    .silhouette-icon { 
+      font-size: 32px; 
+      margin-bottom: 10px; 
+      filter: brightness(0.3);
+    }
     .silhouette-body {
-      .s-index { font-size: 8px; color: rgba(255,255,255,0.15); letter-spacing: 2px; }
-      .s-title { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.2); margin: 4px 0; }
-      .s-desc { font-size: 10px; color: rgba(255,255,255,0.1); margin: 0; }
+      .s-index { 
+        font-size: 9px; 
+        color: rgba(255,255,255,0.18); 
+        letter-spacing: 2px;
+        font-weight: 600;
+      }
+      .s-title { 
+        font-size: 15px; 
+        font-weight: 700; 
+        color: rgba(255,255,255,0.25); 
+        margin: 5px 0;
+      }
+      .s-desc { 
+        font-size: 11px; 
+        color: rgba(255,255,255,0.15); 
+        margin: 0;
+      }
     }
   }
   .card-shadow-cast {
-    position: absolute; bottom: -8px; left: 10%; right: 10%; height: 10px;
-    background: radial-gradient(ellipse, rgba(0,0,0,0.3), transparent 70%);
+    position: absolute; bottom: -10px; left: 10%; right: 10%; height: 12px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.35), transparent 70%);
     border-radius: 50%;
   }
   .card-lit-reveal {
-    position: absolute; inset: 0; z-index: 3; padding: 24px 20px; border-radius: 24px;
-    background: linear-gradient(145deg, rgba(30,25,15,0.95), rgba(20,16,10,0.98));
-    border: 1px solid rgba(200,160,80,0.2);
+    position: absolute; inset: 0; z-index: 3; padding: 26px 22px; border-radius: 28px;
+    background: linear-gradient(145deg, rgba(32,27,17,0.96), rgba(22,18,12,0.98));
+    border: 1px solid rgba(200,160,80,0.25);
     opacity: var(--lit);
     transition: opacity 0.3s ease;
-    box-shadow: 0 0 30px rgba(255,200,100,0.1);
-    .lit-icon { font-size: 28px; margin-bottom: 8px; }
+    box-shadow: 
+      0 0 30px rgba(255,200,100,0.15),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    .lit-icon { 
+      font-size: 32px; 
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 10px rgba(255,200,100,0.3));
+    }
     .lit-body {
-      .l-index { font-size: 8px; color: rgba(220,190,120,0.4); letter-spacing: 2px; }
-      .l-title { font-size: 14px; font-weight: 700; color: rgba(255,240,200,0.95); margin: 4px 0; }
-      .l-desc { font-size: 10px; color: rgba(220,200,160,0.5); margin: 0 0 6px; }
+      .l-index { 
+        font-size: 9px; 
+        color: rgba(230,200,130,0.5); 
+        letter-spacing: 2px;
+        font-weight: 600;
+      }
+      .l-title { 
+        font-size: 15px; 
+        font-weight: 800; 
+        color: rgba(255,245,210,0.98); 
+        margin: 5px 0;
+        text-shadow: 0 0 10px rgba(255,200,100,0.2);
+      }
+      .l-desc { 
+        font-size: 11px; 
+        color: rgba(230,210,170,0.6);
+        margin: 0 0 8px;
+      }
       .l-tag {
-        font-size: 7px; letter-spacing: 2px; padding: 2px 8px; border-radius: 8px;
-        background: rgba(200,160,80,0.1); color: rgba(220,190,120,0.6);
-        border: 1px solid rgba(200,160,80,0.12);
+        font-size: 8px; letter-spacing: 3px; padding: 3px 10px; border-radius: 10px;
+        background: rgba(210,170,90,0.12); color: rgba(230,200,130,0.7);
+        border: 1px solid rgba(210,170,90,0.15);
+        font-weight: 600;
       }
     }
   }
   &:hover .card-silhouette {
-    border-color: rgba(200,160,80,0.15);
+    border-color: rgba(200,160,80,0.2);
   }
 }
 .theater-footer {
-  position: relative; z-index: 10; margin-top: 28px; text-align: center;
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(200,180,140,0.3); }
+  position: relative; z-index: 10; margin-top: 30px; text-align: center;
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(210,190,150,0.4);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(200,160,80,0.15);
+  }
+}
+@keyframes theaterGlow {
+  0% { filter: drop-shadow(0 0 50px rgba(200,160,80,0.35)); }
+  100% { filter: drop-shadow(0 0 70px rgba(200,160,80,0.5)); }
 }
 </style>
 

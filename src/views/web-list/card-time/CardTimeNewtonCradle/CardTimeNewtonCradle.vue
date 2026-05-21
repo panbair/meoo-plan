@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="newton-cradle-section">
     <div class="cradle-bg">
       <div class="bg-grid"></div>
@@ -159,7 +159,9 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .newton-cradle-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(180deg, #08060e 0%, #0e0a1a 50%, #08060e 100%);
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(140,100,255,0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #08060e 0%, #0e0a1a 50%, #08060e 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
@@ -167,94 +169,191 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .bg-grid {
     position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(100,80,160,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(100,80,160,0.03) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(100,80,160,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100,80,160,0.04) 1px, transparent 1px);
     background-size: 60px 60px;
   }
   .bg-glow {
     position: absolute; top: 50%; left: 50%; width: 600px; height: 600px;
     transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(140,100,255,0.06), transparent 70%);
+    background: radial-gradient(circle, rgba(140,100,255,0.08), transparent 70%);
   }
 }
 .cradle-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .cradle-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(180,160,220,0.2);
-    background: rgba(140,100,255,0.06); backdrop-filter: blur(10px); margin-bottom: 14px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(200,180,240,0.8);
-    .badge-icon { font-size: 14px; }
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(180,160,220,0.25);
+    background: linear-gradient(135deg, rgba(140,100,255,0.08), rgba(120,80,235,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(140,100,255,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(210,190,250,0.9);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 10px rgba(140,100,255,0.5));
+    }
+    &:hover {
+      border-color: rgba(200,180,240,0.4);
+      box-shadow: 0 6px 30px rgba(140,100,255,0.2);
+      transform: translateY(-2px);
+    }
   }
   .cradle-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #c0c0c0 50%, #808080 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 10px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #d0d0d0 30%, #a0a0a0 60%, #808080 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 50px rgba(200,200,200,0.4));
+    animation: cradleGlow 3s ease-in-out infinite alternate;
   }
-  .cradle-subtitle { font-size: 13px; color: rgba(180,160,220,0.6); letter-spacing: 6px; margin: 0; }
+  .cradle-subtitle { 
+    font-size: 14px; 
+    color: rgba(190,170,230,0.65); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(140,100,255,0.2);
+  }
 }
 .cradle-device { position: relative; z-index: 10; width: 90%; max-width: 800px; height: 340px; }
 .cradle-frame {
   position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 560px;
   .frame-top {
-    width: 100%; height: 6px; background: linear-gradient(90deg, #444, #888, #444);
-    border-radius: 3px; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    width: 100%; height: 8px; 
+    background: linear-gradient(90deg, #555, #999, #555);
+    border-radius: 4px; 
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
   }
   .frame-leg {
-    position: absolute; top: 0; width: 4px; height: 30px;
-    background: linear-gradient(180deg, #888, #444);
+    position: absolute; top: 0; width: 5px; height: 32px;
+    background: linear-gradient(180deg, #999, #555);
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
     &.left { left: 20px; } &.right { right: 20px; }
   }
 }
 .pendulums-container {
-  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 0; align-items: flex-start;
 }
 .pendulum {
   width: 100px; display: flex; flex-direction: column; align-items: center;
   transform-origin: center top; will-change: transform;
   .pendulum-string {
-    width: 1px; height: 90px;
-    background: linear-gradient(180deg, rgba(200,200,200,0.6), rgba(200,200,200,0.2));
+    width: 2px; height: 90px;
+    background: linear-gradient(180deg, rgba(220,220,220,0.7), rgba(200,200,200,0.25));
+    box-shadow: 0 0 6px rgba(200,200,200,0.2);
   }
   .pendulum-bob {
-    width: 88px; border-radius: 24px;
-    background: linear-gradient(145deg, rgba(30,25,50,0.95), rgba(20,15,35,0.98));
-    border: 1px solid rgba(160,140,220,0.15); padding: 24px 20px;
-    position: relative; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    width: 90px; border-radius: 26px;
+    background: linear-gradient(145deg, rgba(32,27,52,0.96), rgba(22,17,37,0.98));
+    border: 1px solid rgba(160,140,220,0.2);
+    padding: 26px 22px;
+    position: relative; overflow: hidden; 
+    box-shadow: 
+      0 8px 32px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    transition: all 0.3s ease;
     .bob-shine {
       position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.04), transparent 50%);
+      background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.05), transparent 50%);
     }
     .bob-content {
       position: relative; z-index: 2; text-align: center;
-      .bob-index { font-size: 9px; color: rgba(140,120,200,0.4); letter-spacing: 2px; }
-      .bob-title { font-size: 20px; font-weight: 700; color: #fff; margin: 4px 0; }
-      .bob-desc { font-size: 10px; color: rgba(180,160,220,0.5); margin: 0 0 6px; }
+      .bob-index { 
+        font-size: 10px; 
+        color: rgba(150,130,210,0.45); 
+        letter-spacing: 2px;
+        font-weight: 600;
+      }
+      .bob-title { 
+        font-size: 21px; 
+        font-weight: 800; 
+        color: #fff; 
+        margin: 5px 0;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      }
+      .bob-desc { 
+        font-size: 11px; 
+        color: rgba(190,170,230,0.6);
+        margin: 0 0 8px;
+      }
       .bob-tag {
-        font-size: 8px; letter-spacing: 2px; padding: 2px 8px; border-radius: 8px;
-        background: rgba(140,100,255,0.1); color: rgba(180,160,255,0.6);
-        border: 1px solid rgba(140,100,255,0.12);
+        font-size: 9px; letter-spacing: 3px; padding: 3px 10px; border-radius: 10px;
+        background: linear-gradient(135deg, rgba(140,100,255,0.12), rgba(120,80,235,0.06));
+        color: rgba(190,170,255,0.7);
+        border: 1px solid rgba(140,100,255,0.15);
+        font-weight: 600;
       }
     }
     .impact-flash {
-      position: absolute; inset: -5px; border-radius: 18px;
-      background: radial-gradient(circle, rgba(255,220,100,0.4), transparent 70%);
+      position: absolute; inset: -5px; border-radius: 20px;
+      background: radial-gradient(circle, rgba(255,220,100,0.5), transparent 70%);
       opacity: 0; pointer-events: none;
+      box-shadow: 0 0 20px rgba(255,220,100,0.3);
     }
+  }
+  &:hover .pendulum-bob {
+    border-color: rgba(180,160,240,0.35);
+    box-shadow: 
+      0 10px 40px rgba(140,100,255,0.15),
+      inset 0 1px 0 rgba(255,255,255,0.1);
   }
 }
 .cradle-footer {
   position: relative; z-index: 10; margin-top: 50px; text-align: center;
   .physics-params {
-    display: flex; gap: 30px; justify-content: center; margin-bottom: 16px;
+    display: flex; gap: 35px; justify-content: center; margin-bottom: 18px;
     .param {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      .param-label { font-size: 14px; color: rgba(180,160,220,0.5); letter-spacing: 1px; }
-      .param-value { font-size: 20px; font-weight: 700; color: #fff; font-family: 'Courier New', monospace; }
-      .param-unit { font-size: 9px; color: rgba(140,120,200,0.4); }
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 10px 16px;
+      background: rgba(140,100,255,0.04);
+      border-radius: 10px;
+      border: 1px solid rgba(140,100,255,0.08);
+      transition: all 0.2s;
+      &:hover {
+        border-color: rgba(140,100,255,0.2);
+        background: rgba(140,100,255,0.08);
+      }
+      .param-label { 
+        font-size: 14px; 
+        color: rgba(190,170,230,0.6); 
+        letter-spacing: 2px;
+        font-weight: 500;
+      }
+      .param-value { 
+        font-size: 22px; 
+        font-weight: 800; 
+        color: #fff; 
+        font-family: 'Courier New', monospace;
+        text-shadow: 0 0 15px rgba(140,100,255,0.3);
+      }
+      .param-unit { 
+        font-size: 10px; 
+        color: rgba(150,130,210,0.5);
+        font-weight: 500;
+      }
     }
   }
-  .footer-text { font-size: 11px; letter-spacing: 3px; color: rgba(180,160,220,0.4); }
+  .footer-text { 
+    font-size: 12px; 
+    letter-spacing: 4px; 
+    color: rgba(190,170,230,0.5);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(140,100,255,0.15);
+  }
+}
+@keyframes cradleGlow {
+  0% { filter: drop-shadow(0 0 40px rgba(200,200,200,0.35)); }
+  100% { filter: drop-shadow(0 0 60px rgba(200,200,200,0.5)); }
 }
 </style>

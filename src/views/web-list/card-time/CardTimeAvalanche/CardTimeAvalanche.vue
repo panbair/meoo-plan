@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="avalanche-section">
     <div class="avalanche-bg">
       <div class="snow-field"></div>
@@ -203,7 +203,10 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .avalanche-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(180deg, #0a0e18 0%, #151c2a 40%, #1a2235 100%);
+  background: 
+    radial-gradient(circle at 30% 20%, rgba(100, 150, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(150, 200, 255, 0.06) 0%, transparent 40%),
+    linear-gradient(180deg, #0a0e18 0%, #151c2a 40%, #1a2235 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
@@ -211,15 +214,20 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .snow-field {
     position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 80%, rgba(200,220,255,0.03), transparent 60%);
+    background: 
+      radial-gradient(ellipse at 50% 80%, rgba(200,220,255,0.05), transparent 60%),
+      radial-gradient(ellipse at 20% 30%, rgba(150,180,255,0.03), transparent 50%);
   }
   .mountain-silhouette {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
-    background: linear-gradient(180deg, transparent, rgba(20,30,50,0.3));
+    position: absolute; bottom: 0; left: 0; right: 0; height: 45%;
+    background: linear-gradient(180deg, transparent, rgba(20,30,50,0.4));
     clip-path: polygon(0% 100%, 15% 40%, 30% 70%, 50% 20%, 70% 60%, 85% 35%, 100% 100%);
+    filter: blur(1px);
   }
   .snow-flake {
-    position: absolute; border-radius: 50%; background: rgba(200,220,255,0.5);
+    position: absolute; border-radius: 50%; 
+    background: radial-gradient(circle, rgba(220,235,255,0.8), rgba(200,220,255,0.3));
+    box-shadow: 0 0 4px rgba(200,220,255,0.4);
     animation: snowFall 8s linear infinite;
   }
 }
@@ -232,18 +240,48 @@ onUnmounted(() => {
 .avalanche-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .avalanche-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(180,200,240,0.15);
-    background: rgba(180,200,240,0.05); backdrop-filter: blur(10px); margin-bottom: 12px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(180,200,240,0.7);
-    .badge-icon { font-size: 14px; }
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(180,200,240,0.2);
+    background: linear-gradient(135deg, rgba(180,200,240,0.08), rgba(150,180,240,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(100,150,255,0.1),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(200,220,255,0.8);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 8px rgba(200,220,255,0.5));
+    }
+    &:hover {
+      border-color: rgba(180,200,240,0.3);
+      box-shadow: 0 6px 30px rgba(100,150,255,0.15);
+      transform: translateY(-2px);
+    }
   }
   .avalanche-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #b0c4de 50%, #87ceeb 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #d0e0ff 30%, #a0c0f0 60%, #7090d0 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 40px rgba(150,200,255,0.3));
+    animation: titleGlow 3s ease-in-out infinite alternate;
   }
-  .avalanche-subtitle { font-size: 16px; color: rgba(180,200,230,0.5); letter-spacing: 6px; margin: 0; }
+  .avalanche-subtitle { 
+    font-size: 16px; 
+    color: rgba(180,200,230,0.6); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(150,200,255,0.2);
+  }
 }
 .pyramid-container {
   position: relative; z-index: 10;
@@ -253,49 +291,108 @@ onUnmounted(() => {
   display: flex; gap: 14px; justify-content: center;
 }
 .avalanche-card {
-  position: relative; width: 160px; will-change: transform;
+  position: relative; width: 170px; will-change: transform;
+  transition: transform 0.3s ease;
   .card-crack {
-    position: absolute; inset: 0; border-radius: 24px; pointer-events: none; z-index: 3;
-    background: linear-gradient(135deg, transparent 48%, rgba(200,220,255,0.08) 49%, rgba(200,220,255,0.08) 51%, transparent 52%);
+    position: absolute; inset: 0; border-radius: 28px; pointer-events: none; z-index: 3;
+    background: linear-gradient(135deg, transparent 48%, rgba(200,220,255,0.06) 49%, rgba(200,220,255,0.06) 51%, transparent 52%);
+    opacity: 0.6;
   }
   .card-inner {
-    position: relative; z-index: 2; padding: 24px 20px; border-radius: 24px;
-    background: linear-gradient(145deg, rgba(20,28,45,0.95), rgba(15,22,38,0.98));
-    border: 1px solid rgba(180,200,240,0.1);
+    position: relative; z-index: 2; padding: 28px 24px; border-radius: 28px;
+    background: 
+      linear-gradient(145deg, rgba(25,35,55,0.95), rgba(18,25,42,0.98));
+    border: 1px solid rgba(180,200,240,0.12);
+    box-shadow: 
+      0 8px 32px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
     .card-snow-cap {
-      position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0;
-      background: linear-gradient(90deg, rgba(200,220,255,0.2), rgba(255,255,255,0.3), rgba(200,220,255,0.2));
+      position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 14px 14px 0 0;
+      background: linear-gradient(90deg, 
+        rgba(200,220,255,0.15) 0%, 
+        rgba(255,255,255,0.35) 50%, 
+        rgba(200,220,255,0.15) 100%);
+      box-shadow: 0 0 10px rgba(200,220,255,0.3);
     }
-    .card-index { font-size: 8px; color: rgba(180,200,240,0.3); letter-spacing: 2px; }
-    .card-title { font-size: 20px; font-weight: 700; color: #fff; margin: 4px 0; }
-    .card-desc { font-size: 10px; color: rgba(180,200,230,0.5); margin: 0 0 8px; }
+    .card-index { 
+      font-size: 9px; 
+      color: rgba(180,200,240,0.35); 
+      letter-spacing: 3px;
+      font-weight: 600;
+    }
+    .card-title { 
+      font-size: 22px; 
+      font-weight: 800; 
+      color: #ffffff;
+      margin: 6px 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .card-desc { 
+      font-size: 11px; 
+      color: rgba(180,200,230,0.55);
+      margin: 0 0 10px;
+      line-height: 1.4;
+    }
     .card-tag {
-      font-size: 7px; letter-spacing: 2px; padding: 2px 8px; border-radius: 8px;
-      background: rgba(100,140,200,0.1); color: rgba(160,190,240,0.6);
-      border: 1px solid rgba(100,140,200,0.1);
+      font-size: 8px; 
+      letter-spacing: 3px; 
+      padding: 3px 10px; 
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(100,140,200,0.12), rgba(80,120,180,0.08));
+      color: rgba(170,200,250,0.7);
+      border: 1px solid rgba(100,140,200,0.15);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(100,140,200,0.1);
     }
   }
   .debris-particles {
     position: absolute; inset: 0; pointer-events: none; z-index: 4;
     .debris {
-      position: absolute; border-radius: 2px; opacity: 0;
-      background: rgba(200,220,255,0.5);
+      position: absolute; border-radius: 3px; opacity: 0;
+      background: radial-gradient(circle, rgba(220,235,255,0.7), rgba(200,220,255,0.4));
+      box-shadow: 0 0 6px rgba(200,220,255,0.5);
     }
   }
-  &:hover .card-inner {
-    border-color: rgba(180,200,240,0.25);
-    box-shadow: 0 0 20px rgba(180,200,240,0.08);
+  &:hover {
+    transform: translateY(-5px);
+    .card-inner {
+      border-color: rgba(180,200,240,0.25);
+      box-shadow: 
+        0 12px 40px rgba(100,150,255,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
   }
 }
 .avalanche-footer {
   position: relative; z-index: 10; margin-top: 50px; text-align: center;
   .seismograph {
-    width: 200px; height: 40px; margin: 0 auto 10px;
-    border: 1px solid rgba(180,200,240,0.08); border-radius: 6px;
-    background: rgba(10,15,25,0.5);
-    .seismo-wave { width: 100%; height: 100%; }
+    width: 220px; height: 45px; margin: 0 auto 12px;
+    border: 1px solid rgba(180,200,240,0.1);
+    border-radius: 8px;
+    background: 
+      linear-gradient(180deg, rgba(10,15,25,0.6), rgba(8,12,20,0.7));
+    box-shadow: 
+      0 4px 20px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.03);
+    .seismo-wave { 
+      width: 100%; 
+      height: 100%;
+      filter: drop-shadow(0 0 4px rgba(180,200,240,0.3));
+    }
   }
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(180,200,230,0.3); }
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(180,200,230,0.4);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(150,200,255,0.15);
+  }
+}
+@keyframes titleGlow {
+  0% { filter: drop-shadow(0 0 30px rgba(150,200,255,0.25)); }
+  100% { filter: drop-shadow(0 0 50px rgba(150,200,255,0.4)); }
 }
 </style>
 

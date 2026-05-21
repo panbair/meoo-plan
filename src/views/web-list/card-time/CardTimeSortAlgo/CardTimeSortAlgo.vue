@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="sort-section">
     <div class="sort-bg"><div class="algo-grid"></div></div>
     <div ref="headerRef" class="sort-header">
@@ -97,26 +97,153 @@ onUnmounted(() => { cleanupFns.forEach(fn => fn()); ScrollTrigger.getAll().forEa
 </script>
 
 <style scoped lang="scss">
-.sort-section { width: 100vw; height: 100vh; background: linear-gradient(180deg, #0c0e14 0%, #141820 50%, #0c0e14 100%); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.sort-bg { position: absolute; inset: 0; pointer-events: none; .algo-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(80,120,200,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(80,120,200,0.02) 1px, transparent 1px); background-size: 40px 40px; } }
-.sort-header { position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
-  .sort-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 40px; border: 1px solid rgba(100,180,255,0.15); background: rgba(100,180,255,0.05); backdrop-filter: blur(10px); margin-bottom: 12px; font-size: 11px; letter-spacing: 5px; color: rgba(140,200,255,0.7); }
-  .sort-title { font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px; font-family: 'Courier New', monospace; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2)); }
-  .sort-subtitle { font-size: 16px; color: rgba(140,170,220,0.5); letter-spacing: 6px; margin: 0; }
+.sort-section { 
+  width: 100vw; height: 100vh; 
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(100,180,255,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #0c0e14 0%, #141820 50%, #0c0e14 100%); 
+  position: relative; overflow: hidden; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.bars-container { position: relative; z-index: 10; display: flex; gap: 10px; align-items: flex-end; height: 320px; }
-.sort-bar { width: 70px; border-radius: 8px 8px 0 0; transition: height 0.3s; position: relative;
-  .bar-inner { width: 100%; height: 100%; border-radius: 8px 8px 0 0; background: linear-gradient(180deg, hsla(var(--bar-hue),60%,55%,0.9), hsla(var(--bar-hue),50%,35%,0.95)); border: 1px solid hsla(var(--bar-hue),50%,50%,0.15); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px;
-    .bar-value { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); font-family: 'Courier New', monospace; }
-  }
-  .bar-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 9px; color: rgba(140,170,220,0.4); }
-  &.comparing .bar-inner { border-color: rgba(255,200,50,0.5); box-shadow: 0 0 15px rgba(255,200,50,0.15); }
-  &.sorted .bar-inner { border-color: rgba(74,222,128,0.3); box-shadow: 0 0 10px rgba(74,222,128,0.1); }
-}
-.sort-info { position: relative; z-index: 10; display: flex; gap: 24px; margin-top: 30px;
-  .info-item { display: flex; flex-direction: column; align-items: center; gap: 2px;
-    .i-label { font-size: 9px; color: rgba(140,170,220,0.4); } .i-value { font-size: 16px; font-weight: 700; color: rgba(160,200,255,0.8); font-family: 'Courier New', monospace; }
+.sort-bg { 
+  position: absolute; inset: 0; pointer-events: none; 
+  .algo-grid { 
+    position: absolute; inset: 0; 
+    background-image: linear-gradient(rgba(80,120,200,0.03) 1px, transparent 1px), 
+      linear-gradient(90deg, rgba(80,120,200,0.03) 1px, transparent 1px); 
+    background-size: 40px 40px;
   }
 }
-.sort-footer { position: relative; z-index: 10; margin-top: 50px; font-size: 14px; letter-spacing: 3px; color: rgba(140,170,220,0.3); font-family: 'Courier New', monospace; }
+.sort-header { 
+  position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
+  .sort-badge { 
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(100,180,255,0.2);
+    background: linear-gradient(135deg, rgba(100,180,255,0.08), rgba(80,160,235,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(100,180,255,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 16px; font-size: 11px; letter-spacing: 6px; 
+    color: rgba(150,210,255,0.8);
+    transition: all 0.3s ease;
+    &:hover {
+      border-color: rgba(120,200,255,0.35);
+      box-shadow: 0 6px 30px rgba(100,180,255,0.2);
+      transform: translateY(-2px);
+    }
+  }
+  .sort-title { 
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #70b5fa, #b79bfa);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 60px rgba(100,180,255,0.4));
+    animation: sortGlow 3s ease-in-out infinite alternate;
+  }
+  .sort-subtitle { 
+    font-size: 16px; 
+    color: rgba(150,180,230,0.6);
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(100,180,255,0.2);
+  }
+}
+.bars-container { 
+  position: relative; z-index: 10; 
+  display: flex; gap: 12px; align-items: flex-end; 
+  height: 320px;
+  padding: 0 20px;
+}
+.sort-bar { 
+  width: 70px; 
+  border-radius: 10px 10px 0 0; 
+  transition: all 0.3s ease;
+  position: relative;
+  .bar-inner { 
+    width: 100%; height: 100%; 
+    border-radius: 10px 10px 0 0; 
+    background: linear-gradient(180deg, hsla(var(--bar-hue),65%,60%,0.92), hsla(var(--bar-hue),55%,40%,0.96));
+    border: 1px solid hsla(var(--bar-hue),55%,55%,0.18);
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 10px;
+    box-shadow: 
+      0 2px 10px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    .bar-value { 
+      font-size: 15px; 
+      font-weight: 800; 
+      color: rgba(255,255,255,0.95); 
+      font-family: 'Courier New', monospace;
+      text-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+  }
+  .bar-label { 
+    position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; 
+    color: rgba(150,180,230,0.5);
+    font-weight: 600;
+  }
+  &.comparing .bar-inner { 
+    border-color: rgba(255,210,60,0.6);
+    box-shadow: 
+      0 0 20px rgba(255,210,60,0.25),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  &.sorted .bar-inner { 
+    border-color: rgba(74,222,128,0.4);
+    box-shadow: 
+      0 0 15px rgba(74,222,128,0.2),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+}
+.sort-info { 
+  position: relative; z-index: 10; 
+  display: flex; gap: 30px; margin-top: 35px;
+  .info-item { 
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 18px;
+    background: rgba(100,180,255,0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(100,180,255,0.08);
+    transition: all 0.2s;
+    &:hover {
+      border-color: rgba(100,180,255,0.2);
+      background: rgba(100,180,255,0.08);
+    }
+    .i-label { 
+      font-size: 10px; 
+      color: rgba(150,180,230,0.5);
+      letter-spacing: 2px;
+      font-weight: 600;
+    } 
+    .i-value { 
+      font-size: 18px; 
+      font-weight: 800; 
+      color: rgba(170,210,255,0.9); 
+      font-family: 'Courier New', monospace;
+      text-shadow: 0 0 12px rgba(100,180,255,0.3);
+    }
+  }
+}
+.sort-footer { 
+  position: relative; z-index: 10; 
+  margin-top: 50px; 
+  font-size: 14px; 
+  letter-spacing: 4px; 
+  color: rgba(150,180,230,0.4);
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+  text-shadow: 0 0 15px rgba(100,180,255,0.15);
+}
+@keyframes sortGlow {
+  0% { filter: drop-shadow(0 0 50px rgba(100,180,255,0.35)); }
+  100% { filter: drop-shadow(0 0 70px rgba(100,180,255,0.5)); }
+}
 </style>

@@ -394,7 +394,7 @@ const initAnimations = () => {
     link.addEventListener('mouseleave', () => {
       gsap.to(link, {
         y: 0,
-        color: '',
+        clearProps: 'color',
         duration: 0.3,
         ease: 'power2.out'
       })
@@ -994,12 +994,12 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .section-title-225 {
     font-size: 2rem;
-  
+
   opacity: 1 !important;}
 
   .nav-demo-225 {
     padding: 24px;
-  
+
   opacity: 1 !important;}
 
   .top-nav-225 .floating-nav-225 {
@@ -1011,7 +1011,7 @@ onUnmounted(() => {
     order: 3;
     width: 100%;
     justify-content: center;
-  
+
   opacity: 1 !important;}
 
   .nav-actions-225 {
@@ -1024,7 +1024,7 @@ onUnmounted(() => {
 
   .nav-sidebar-225 {
     width: 100%;
-  
+
   opacity: 1 !important;}
 
   .nav-container-fab-225 {
@@ -1038,18 +1038,18 @@ onUnmounted(() => {
   .nav-card-item-225 {
     min-width: 80px;
     padding: 16px 20px;
-  
+
   opacity: 1 !important;}
 
   .bottom-nav-item-225 {
     min-width: 60px;
     padding: 6px 12px;
-  
+
   opacity: 1 !important;}
 
   .bottom-label-225 {
     font-size: 0.7rem;
-  
+
   opacity: 1 !important;}
 }
 </style>

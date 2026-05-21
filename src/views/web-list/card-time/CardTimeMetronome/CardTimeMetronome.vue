@@ -144,8 +144,9 @@ onUnmounted(() => {
   width: 100vw;
   height: 100vh;
   background:
-    radial-gradient(circle at 50% 40%, rgba(234, 179, 8, 0.06) 0%, transparent 40%),
-    radial-gradient(circle at 50% 80%, rgba(234, 88, 12, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 50% 40%, rgba(234, 179, 8, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(234, 88, 12, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 30% 60%, rgba(253, 224, 71, 0.04) 0%, transparent 50%),
     linear-gradient(180deg, #0c0a06 0%, #141008 50%, #0c0a06 100%);
   position: relative;
   overflow: hidden;
@@ -158,9 +159,10 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .beat-pulse {
     position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
-    width: 200px; height: 200px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234, 179, 8, 0.1), transparent 70%);
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(234, 179, 8, 0.15), transparent 70%);
     opacity: 0;
+    box-shadow: 0 0 40px rgba(234, 179, 8, 0.2);
   }
 }
 
@@ -173,23 +175,48 @@ onUnmounted(() => {
   margin-bottom: 40px;
 
   .metro-badge {
-    display: inline-flex; align-items: center; gap: 10px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(234, 179, 8, 0.3);
-    background: rgba(234, 179, 8, 0.08); backdrop-filter: blur(10px);
-    margin-bottom: 24px; font-size: 11px; letter-spacing: 5px;
-    color: rgba(253, 224, 71, 0.9);
-    .badge-icon { font-size: 16px; }
+    display: inline-flex; align-items: center; gap: 10px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 88, 12, 0.06));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(234, 179, 8, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    margin-bottom: 24px; font-size: 11px; letter-spacing: 6px;
+    color: rgba(253, 224, 71, 0.95);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 18px;
+      filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.6));
+    }
+    &:hover {
+      border-color: rgba(253, 224, 71, 0.5);
+      box-shadow: 0 6px 30px rgba(234, 179, 8, 0.25);
+      transform: translateY(-2px);
+    }
   }
 
   .metro-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #fde047 50%, #eab308 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin: 0 0 16px; filter: drop-shadow(0 0 40px rgba(234, 179, 8, 0.4));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #fde047 30%, #eab308 60%, #ca8a04 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 16px; 
+    filter: drop-shadow(0 0 50px rgba(234, 179, 8, 0.5));
+    animation: metroGlow 3s ease-in-out infinite alternate;
   }
 
   .metro-subtitle {
-    font-size: 16px; color: rgba(255, 255, 255, 0.5); letter-spacing: 6px; margin: 0;
+    font-size: 16px; 
+    color: rgba(253, 224, 71, 0.65); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(234, 179, 8, 0.25);
   }
 }
 
@@ -203,16 +230,19 @@ onUnmounted(() => {
 
   .metro-base {
     position: absolute; bottom: 0; width: 80px; height: 30px;
-    background: linear-gradient(180deg, rgba(60, 50, 30, 0.6), rgba(40, 35, 20, 0.8));
+    background: linear-gradient(180deg, rgba(65, 55, 35, 0.65), rgba(45, 38, 22, 0.85));
     border-radius: 8px; clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
 
   .metro-scale {
     position: absolute; top: 30px; width: 120px; height: 120px;
     .scale-mark {
-      position: absolute; top: 0; left: 50%; width: 1px; height: 15px;
-      background: rgba(234, 179, 8, 0.2); transform-origin: bottom center;
-      margin-left: -0.5px;
+      position: absolute; top: 0; left: 50%; width: 2px; height: 16px;
+      background: linear-gradient(180deg, rgba(234, 179, 8, 0.3), rgba(234, 179, 8, 0.1));
+      transform-origin: bottom center;
+      margin-left: -1px;
+      box-shadow: 0 0 6px rgba(234, 179, 8, 0.2);
     }
   }
 
@@ -221,87 +251,131 @@ onUnmounted(() => {
     transform-origin: bottom center;
 
     .pendulum-rod {
-      width: 2px; height: 120px; margin-left: -1px;
-      background: linear-gradient(180deg, rgba(234, 179, 8, 0.6), rgba(234, 179, 8, 0.2));
+      width: 3px; height: 120px; margin-left: -1.5px;
+      background: linear-gradient(180deg, rgba(234, 179, 8, 0.7), rgba(234, 179, 8, 0.25));
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
     }
     .pendulum-weight {
-      width: 16px; height: 10px; margin-left: -8px; margin-top: -30px;
-      background: linear-gradient(180deg, rgba(234, 179, 8, 0.8), rgba(200, 150, 0, 0.6));
+      width: 18px; height: 12px; margin-left: -9px; margin-top: -30px;
+      background: linear-gradient(180deg, rgba(234, 179, 8, 0.9), rgba(200, 150, 0, 0.7));
       border-radius: 4px;
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
     }
     .pendulum-tip {
-      width: 6px; height: 6px; margin-left: -3px; margin-top: -2px;
-      background: rgba(234, 179, 8, 0.9); border-radius: 50%;
-      box-shadow: 0 0 12px rgba(234, 179, 8, 0.5);
+      width: 8px; height: 8px; margin-left: -4px; margin-top: -2px;
+      background: rgba(253, 224, 71, 0.95); border-radius: 50%;
+      box-shadow: 0 0 18px rgba(234, 179, 8, 0.6);
     }
   }
 }
 
 .bpm-display {
-  display: flex; align-items: baseline; gap: 6px;
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 10px 20px;
+  background: rgba(234, 179, 8, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(234, 179, 8, 0.12);
   .bpm-value {
-    font-size: 36px; font-weight: 800; color: rgba(253, 224, 71, 0.9);
+    font-size: 40px; font-weight: 900; color: rgba(253, 224, 71, 0.95);
     font-family: 'Courier New', monospace;
-    text-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+    text-shadow: 0 0 25px rgba(234, 179, 8, 0.4);
+    letter-spacing: 2px;
   }
-  .bpm-label { font-size: 12px; color: rgba(253, 224, 71, 0.4); letter-spacing: 3px; }
+  .bpm-label { 
+    font-size: 12px; 
+    color: rgba(253, 224, 71, 0.5); 
+    letter-spacing: 4px;
+    font-weight: 600;
+  }
 }
 
 .beat-cards {
   display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 20px; max-width: 800px; width: 100%;
+  gap: 24px; max-width: 820px; width: 100%;
 }
 
 .beat-card {
   position: relative;
+  transition: transform 0.3s ease;
 
   .card-beat-indicator {
-    position: absolute; top: -12px; left: 20px; z-index: 5;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: linear-gradient(135deg, rgba(234, 179, 8, 0.3), rgba(234, 88, 12, 0.2));
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    position: absolute; top: -14px; left: 20px; z-index: 5;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.35), rgba(234, 88, 12, 0.25));
+    border: 1px solid rgba(234, 179, 8, 0.35);
     display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
 
     .beat-num {
-      font-size: 11px; font-weight: 700;
-      color: rgba(253, 224, 71, 0.9);
+      font-size: 12px; font-weight: 800;
+      color: rgba(253, 224, 71, 0.95);
+      text-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
     }
   }
 
   .card-inner {
-    padding: 24px 20px; padding-top: 20px;
-    border-radius: 24px;
-    background: linear-gradient(180deg, rgba(20, 18, 10, 0.9) 0%, rgba(14, 12, 8, 0.95) 100%);
-    border: 1px solid rgba(234, 179, 8, 0.08);
+    padding: 26px 22px; padding-top: 22px;
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(22, 20, 12, 0.92) 0%, rgba(16, 14, 10, 0.96) 100%);
+    border: 1px solid rgba(234, 179, 8, 0.12);
     backdrop-filter: blur(10px);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
     text-align: left;
+    transition: all 0.3s ease;
 
     &::before {
-      content: ''; position: absolute; inset: 0; border-radius: 24px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 50%);
+      content: ''; position: absolute; inset: 0; border-radius: 28px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 50%);
       pointer-events: none;
     }
 
-    .card-index { font-size: 10px; color: rgba(255, 255, 255, 0.25); letter-spacing: 3px; }
-    .card-title { font-size: 20px; font-weight: 700; color: #fff; margin: 8px 0; letter-spacing: 2px; }
-    .card-desc { font-size: 13px; color: rgba(255, 255, 255, 0.5); line-height: 1.6; margin: 0 0 12px; }
+    .card-index { 
+      font-size: 10px; 
+      color: rgba(253, 224, 71, 0.3); 
+      letter-spacing: 3px;
+      font-weight: 600;
+    }
+    .card-title { 
+      font-size: 21px; 
+      font-weight: 800; 
+      color: #fff; 
+      margin: 10px 0; 
+      letter-spacing: 2px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    .card-desc { 
+      font-size: 13px; 
+      color: rgba(253, 224, 71, 0.55); 
+      line-height: 1.6; 
+      margin: 0 0 14px;
+    }
     .card-footer {
       display: flex; justify-content: space-between; align-items: center;
       .card-tag {
         font-size: 10px; letter-spacing: 3px; padding: 5px 14px; border-radius: 20px;
-        background: rgba(234, 179, 8, 0.08); color: rgba(253, 224, 71, 0.7);
-        border: 1px solid rgba(234, 179, 8, 0.12);
+        background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 88, 12, 0.06));
+        color: rgba(253, 224, 71, 0.8);
+        border: 1px solid rgba(234, 179, 8, 0.15);
+        font-weight: 600;
       }
       .card-beat-type {
-        font-size: 18px; font-weight: 800; color: rgba(234, 179, 8, 0.4);
+        font-size: 20px; font-weight: 900; color: rgba(234, 179, 8, 0.5);
         font-family: 'Courier New', monospace;
+        text-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
       }
     }
   }
 
-  &:hover .card-inner {
-    border-color: rgba(234, 179, 8, 0.25);
-    box-shadow: 0 0 35px rgba(234, 179, 8, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.02);
+  &:hover {
+    transform: translateY(-5px);
+    .card-inner {
+      border-color: rgba(234, 179, 8, 0.3);
+      box-shadow: 
+        0 12px 40px rgba(234, 179, 8, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
   }
 }
 
@@ -309,21 +383,32 @@ onUnmounted(() => {
   margin-top: 50px;
 
   .beat-dots {
-    display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;
+    display: flex; gap: 14px; justify-content: center; margin-bottom: 18px;
     .beat-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: rgba(234, 179, 8, 0.15);
+      width: 12px; height: 12px; border-radius: 50%;
+      background: rgba(234, 179, 8, 0.2);
       transition: all 0.3s;
+      box-shadow: 0 0 8px rgba(234, 179, 8, 0.1);
       &.active {
-        background: rgba(234, 179, 8, 0.8);
-        box-shadow: 0 0 15px rgba(234, 179, 8, 0.5);
+        background: rgba(253, 224, 71, 0.9);
+        box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
+        transform: scale(1.2);
       }
     }
   }
 
   .footer-text {
-    font-size: 14px; letter-spacing: 3px; color: rgba(255, 255, 255, 0.4); margin: 0;
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(253, 224, 71, 0.5);
+    margin: 0;
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
   }
+}
+@keyframes metroGlow {
+  0% { filter: drop-shadow(0 0 40px rgba(234, 179, 8, 0.45)); }
+  100% { filter: drop-shadow(0 0 60px rgba(234, 179, 8, 0.6)); }
 }
 </style>
 

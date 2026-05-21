@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="elevator-section">
     <div class="elevator-bg">
       <div class="shaft-lines"></div>
@@ -145,7 +145,9 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .elevator-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(180deg, #08080c 0%, #10101a 50%, #08080c 100%);
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(100,120,200,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #08080c 0%, #10101a 50%, #08080c 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
@@ -153,94 +155,206 @@ onUnmounted(() => {
   position: absolute; inset: 0; pointer-events: none;
   .shaft-lines {
     position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(100,120,160,0.03) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(100,120,160,0.04) 1px, transparent 1px);
     background-size: 100% 80px;
   }
 }
 .elev-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .elev-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(120,140,200,0.15);
-    background: rgba(120,140,200,0.05); backdrop-filter: blur(10px); margin-bottom: 12px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(160,180,220,0.7);
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(120,140,200,0.2);
+    background: linear-gradient(135deg, rgba(120,140,200,0.08), rgba(100,120,180,0.04));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(120,140,200,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(170,190,230,0.85);
+    transition: all 0.3s ease;
+    span:first-child { 
+      font-size: 18px;
+      filter: drop-shadow(0 0 10px rgba(120,140,200,0.5));
+    }
+    &:hover {
+      border-color: rgba(140,160,220,0.35);
+      box-shadow: 0 6px 30px rgba(120,140,200,0.18);
+      transform: translateY(-2px);
+    }
   }
   .elev-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
-    background: linear-gradient(180deg, #fff 0%, #b0c0e0 50%, #8090b0 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #c0d0f0 30%, #a0b0d0 60%, #8090b0 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 50px rgba(120,140,200,0.4));
+    animation: elevGlow 3s ease-in-out infinite alternate;
   }
-  .elev-subtitle { font-size: 16px; color: rgba(160,180,220,0.5); letter-spacing: 6px; margin: 0; }
+  .elev-subtitle { 
+    font-size: 16px; 
+    color: rgba(170,190,230,0.65); 
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(120,140,200,0.2);
+  }
 }
 .elevator-shaft {
-  position: relative; z-index: 10; width: 90%; max-width: 600px;
-  display: flex; gap: 20px;
+  position: relative; z-index: 10; width: 90%; max-width: 620px;
+  display: flex; gap: 24px;
 }
 .floor-indicators {
-  display: flex; flex-direction: column; gap: 12px; padding: 10px 0;
+  display: flex; flex-direction: column; gap: 14px; padding: 10px 0;
   .floor-ind {
-    display: flex; align-items: center; gap: 6px;
-    .floor-num { font-size: 11px; color: rgba(160,180,220,0.3); font-family: 'Courier New', monospace; width: 24px; }
-    .floor-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(100,120,160,0.15); transition: all 0.3s; }
+    display: flex; align-items: center; gap: 8px;
+    .floor-num { 
+      font-size: 12px; 
+      color: rgba(170,190,230,0.35); 
+      font-family: 'Courier New', monospace; 
+      width: 28px;
+      font-weight: 600;
+    }
+    .floor-dot { 
+      width: 8px; height: 8px; 
+      border-radius: 50%; 
+      background: rgba(100,120,160,0.2); 
+      transition: all 0.3s;
+    }
     &.active {
-      .floor-num { color: rgba(100,200,255,0.8); }
-      .floor-dot { background: rgba(100,200,255,0.6); box-shadow: 0 0 8px rgba(100,200,255,0.3); }
+      .floor-num { 
+        color: rgba(100,200,255,0.9);
+        text-shadow: 0 0 10px rgba(100,200,255,0.4);
+      }
+      .floor-dot { 
+        background: rgba(100,200,255,0.7); 
+        box-shadow: 0 0 12px rgba(100,200,255,0.5);
+        transform: scale(1.2);
+      }
     }
   }
 }
 .shaft-container {
-  flex: 1; position: relative; min-height: 400px;
-  border: 1px solid rgba(100,120,160,0.08); border-radius: 20px;
-  background: rgba(15,15,25,0.5); overflow: hidden;
+  flex: 1; position: relative; min-height: 420px;
+  border: 1px solid rgba(100,120,160,0.12);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(18,18,28,0.6), rgba(12,12,22,0.7));
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
 }
 .elevator-car {
-  position: absolute; left: 10px; right: 10px; height: 70px;
-  bottom: 10px; border-radius: 20px; overflow: hidden;
+  position: absolute; left: 12px; right: 12px; height: 72px;
+  bottom: 12px; border-radius: 20px; overflow: hidden;
+  transition: transform 0.3s ease;
   .door-left, .door-right {
     position: absolute; top: 0; width: 50%; height: 100%; z-index: 5;
-    background: linear-gradient(90deg, rgba(60,65,80,0.95), rgba(70,75,90,0.9));
-    border: 1px solid rgba(120,140,180,0.1);
+    background: linear-gradient(90deg, rgba(65,70,85,0.96), rgba(75,80,95,0.92));
+    border: 1px solid rgba(120,140,180,0.15);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
   }
   .door-left { left: 0; border-radius: 8px 0 0 8px; }
   .door-right { right: 0; border-radius: 0 8px 8px 0; }
   .car-content {
-    position: relative; z-index: 2; padding: 20px 18px; height: 100%;
-    display: flex; align-items: center; gap: 10px;
-    background: linear-gradient(145deg, rgba(20,20,35,0.95), rgba(15,15,28,0.98));
+    position: relative; z-index: 2; padding: 22px 20px; height: 100%;
+    display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(145deg, rgba(22,22,38,0.96), rgba(16,16,30,0.98));
     border-radius: 20px;
+    border: 1px solid rgba(100,120,160,0.1);
+    box-shadow: 
+      0 4px 16px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.05);
     .floor-display {
-      font-size: 18px; font-weight: 800; color: rgba(100,200,255,0.7);
-      font-family: 'Courier New', monospace; min-width: 32px;
+      font-size: 20px; font-weight: 900; color: rgba(100,200,255,0.8);
+      font-family: 'Courier New', monospace; min-width: 36px;
+      text-shadow: 0 0 15px rgba(100,200,255,0.4);
     }
-    .car-index { font-size: 8px; color: rgba(120,140,180,0.3); }
-    .car-title { font-size: 20px; font-weight: 700; color: #fff; margin: 0; }
-    .car-desc { font-size: 13px; color: rgba(160,180,220,0.5); margin: 0; }
+    .car-index { 
+      font-size: 9px; 
+      color: rgba(130,150,190,0.35);
+      font-weight: 600;
+    }
+    .car-title { 
+      font-size: 21px; 
+      font-weight: 800; 
+      color: #fff; 
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .car-desc { 
+      font-size: 13px; 
+      color: rgba(170,190,230,0.6);
+      margin: 0;
+    }
     .car-footer {
-      margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+      margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
       .car-tag {
-        font-size: 7px; letter-spacing: 3px; padding: 2px 6px; border-radius: 4px;
-        background: rgba(100,120,200,0.08); color: rgba(160,180,220,0.5);
+        font-size: 8px; letter-spacing: 3px; padding: 3px 8px; border-radius: 6px;
+        background: linear-gradient(135deg, rgba(100,120,200,0.1), rgba(80,100,180,0.06));
+        color: rgba(170,190,230,0.65);
+        border: 1px solid rgba(100,120,200,0.12);
+        font-weight: 600;
       }
-      .car-direction { font-size: 14px; color: rgba(100,200,255,0.5); }
+      .car-direction { 
+        font-size: 16px; 
+        color: rgba(100,200,255,0.6);
+        text-shadow: 0 0 10px rgba(100,200,255,0.3);
+      }
+    }
+  }
+  &:hover {
+    transform: scale(1.02);
+    .car-content {
+      border-color: rgba(120,140,200,0.2);
+      box-shadow: 
+        0 6px 24px rgba(100,120,200,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.08);
     }
   }
 }
 .cable-line {
-  position: absolute; top: 0; right: 30px; width: 1px; height: 100%;
-  background: linear-gradient(180deg, rgba(120,140,180,0.2), rgba(120,140,180,0.05));
+  position: absolute; top: 0; right: 30px; width: 2px; height: 100%;
+  background: linear-gradient(180deg, rgba(120,140,180,0.25), rgba(120,140,180,0.08));
+  box-shadow: 0 0 8px rgba(120,140,180,0.2);
 }
 .elev-footer {
   position: relative; z-index: 10; margin-top: 50px; text-align: center;
   .elev-buttons {
-    display: flex; gap: 8px; justify-content: center; margin-bottom: 8px;
+    display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;
     span {
-      width: 28px; height: 28px; border-radius: 50%;
+      width: 32px; height: 32px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; color: rgba(160,180,220,0.5);
-      border: 1px solid rgba(120,140,200,0.12); background: rgba(120,140,200,0.04);
+      font-size: 15px; color: rgba(170,190,230,0.6);
+      border: 1px solid rgba(120,140,200,0.18);
+      background: linear-gradient(135deg, rgba(120,140,200,0.06), rgba(100,120,180,0.04));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+      cursor: pointer;
+      &:hover {
+        border-color: rgba(140,160,220,0.35);
+        background: rgba(120,140,200,0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(120,140,200,0.15);
+      }
     }
   }
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(160,180,220,0.3); }
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(170,190,230,0.45);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(120,140,200,0.15);
+  }
+}
+@keyframes elevGlow {
+  0% { filter: drop-shadow(0 0 40px rgba(120,140,200,0.35)); }
+  100% { filter: drop-shadow(0 0 60px rgba(120,140,200,0.5)); }
 }
 </style>
 

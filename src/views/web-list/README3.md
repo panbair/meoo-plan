@@ -7349,3 +7349,6 @@ CardTimeGitCommit — 极客风格独一无二，程序员最爱
 CardTimeNewtonCradle — 物理动量传递最优雅
 CardTimeTectonicShift — 大陆漂移气势磅礴
 
+待优化（7个组件）：
+CardTimeSoundWave, CardTimeSpringMesh, CardTimeTectonicShift
+CardTimeTerminal, CardTimeTetris, CardTimeTypewheel, CardTimeZoetrope

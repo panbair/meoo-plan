@@ -87,18 +87,9 @@ module.exports = {
     // 格式化
     'array-bracket-spacing': ['error', 'never'],
     'object-curly-spacing': ['error', 'always'],
-    'object-curly-newline': ['error', {
-      ObjectExpression: { minProperties: 4 },
-      ObjectPattern: { minProperties: 4 }
-    }],
+    'object-curly-newline': 'off',
     'operator-linebreak': ['error', 'after'],
-    'comma-dangle': ['error', {
-      arrays: 'always-multiline',
-      objects: 'always-multiline',
-      imports: 'always-multiline',
-      exports: 'always-multiline',
-      functions: 'always-multiline'
-    }]
+    'comma-dangle': 'off'
   },
   globals: {
     defineProps: 'readonly',

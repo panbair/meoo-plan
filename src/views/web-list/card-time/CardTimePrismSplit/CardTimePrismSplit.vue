@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section ref="containerRef" class="prism-split-section">
     <div class="prism-bg">
       <div class="bg-dark"></div>
@@ -174,7 +174,9 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .prism-split-section {
   width: 100vw; height: 100vh;
-  background: linear-gradient(135deg, #050508 0%, #08060f 50%, #050508 100%);
+  background: 
+    radial-gradient(circle at 30% 50%, rgba(40,30,60,0.35) 0%, transparent 60%),
+    linear-gradient(135deg, #050508 0%, #08060f 50%, #050508 100%);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
@@ -186,99 +188,172 @@ onUnmounted(() => {
   }
   .rainbow-ambient {
     position: absolute; top: 40%; right: 10%; width: 400px; height: 400px;
-    background: conic-gradient(from 0deg, rgba(255,0,0,0.03), rgba(255,165,0,0.03),
-      rgba(255,255,0,0.03), rgba(0,200,0,0.03), rgba(0,100,255,0.03),
-      rgba(75,0,130,0.03), rgba(140,0,255,0.03), rgba(255,0,0,0.03));
+    background: conic-gradient(from 0deg, rgba(255,0,0,0.04), rgba(255,165,0,0.04),
+      rgba(255,255,0,0.04), rgba(0,200,0,0.04), rgba(0,100,255,0.04),
+      rgba(75,0,130,0.04), rgba(140,0,255,0.04), rgba(255,0,0,0.04));
     border-radius: 50%; filter: blur(60px);
   }
 }
 .prism-header {
   position: relative; z-index: 10; text-align: center; margin-bottom: 50px;
   .prism-badge {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
-    border-radius: 40px; border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.04); backdrop-filter: blur(10px); margin-bottom: 12px;
-    font-size: 11px; letter-spacing: 5px; color: rgba(255,255,255,0.6);
-    .badge-icon { font-size: 14px; }
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;
+    border-radius: 50px; 
+    border: 1px solid rgba(255,255,255,0.15);
+    background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(235,235,255,0.03));
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 4px 20px rgba(255,255,255,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+    margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 6px; 
+    color: rgba(255,255,255,0.7);
+    transition: all 0.3s ease;
+    .badge-icon { 
+      font-size: 16px;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.4));
+    }
+    &:hover {
+      border-color: rgba(255,255,255,0.25);
+      box-shadow: 0 6px 30px rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
   }
   .prism-title {
-    font-size: clamp(48px, 7vw, 80px); font-weight: 800; letter-spacing: 8px;
+    font-size: clamp(52px, 7.5vw, 88px); 
+    font-weight: 900; 
+    letter-spacing: 10px;
     background: linear-gradient(90deg, #ff2020, #ff8c00, #ffd700, #00cc44, #0088ff, #4400cc, #8800ff);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px; filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 12px;
+    filter: drop-shadow(0 0 60px rgba(255,255,255,0.3));
+    animation: prismGlow 3s ease-in-out infinite alternate;
   }
-  .prism-subtitle { font-size: 16px; color: rgba(255,255,255,0.4); letter-spacing: 6px; margin: 0; }
+  .prism-subtitle { 
+    font-size: 16px; 
+    color: rgba(230,220,240,0.5);
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin: 0;
+    text-shadow: 0 0 20px rgba(255,255,255,0.15);
+  }
 }
 .prism-stage {
   position: relative; z-index: 10; width: 95%; max-width: 1100px; height: 420px;
 }
 .white-beam {
   position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-  width: 35%; height: 4px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), rgba(255,255,255,0.9));
-  box-shadow: 0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(255,255,255,0.1);
-  border-radius: 2px;
+  width: 35%; height: 5px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), rgba(255,255,255,0.95));
+  box-shadow: 
+    0 0 20px rgba(255,255,255,0.4),
+    0 0 40px rgba(255,255,255,0.15),
+    0 0 60px rgba(255,255,255,0.08);
+  border-radius: 3px;
 }
 .prism-body {
   position: absolute; left: 33%; top: 50%; transform: translate(-50%, -50%);
   width: 100px; height: 120px;
   .prism-svg { width: 100%; height: 100%; }
   .prism-shine {
-    position: absolute; top: 20%; left: 30%; width: 30px; height: 30px;
-    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+    position: absolute; top: 20%; left: 30%; width: 35px; height: 35px;
+    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%);
     border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255,255,255,0.15);
   }
 }
 .spectrum-beams {
   position: absolute; left: 38%; top: 50%; width: 25%;
   .spectrum-beam {
-    position: absolute; left: 0; height: 3px; width: 100%;
+    position: absolute; left: 0; height: 4px; width: 100%;
     background: linear-gradient(90deg, var(--beam-color), transparent);
     transform: rotate(var(--beam-angle)); transform-origin: left center;
-    box-shadow: 0 0 8px var(--beam-color);
-    opacity: 0.6;
+    box-shadow: 
+      0 0 10px var(--beam-color),
+      0 0 20px var(--beam-color);
+    opacity: 0.7;
   }
 }
 .spectrum-cards {
   position: absolute; right: 2%; top: 50%; transform: translateY(-50%);
-  display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
 }
 .spectrum-card {
   position: relative; width: 150px;
   .card-glow {
-    position: absolute; inset: -6px; border-radius: 24px;
-    background: radial-gradient(ellipse, color-mix(in srgb, var(--card-color) 15%, transparent), transparent 70%);
-    opacity: 0.5;
+    position: absolute; inset: -8px; border-radius: 26px;
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--card-color) 18%, transparent), transparent 70%);
+    opacity: 0.6;
   }
   .card-inner {
-    position: relative; z-index: 2; padding: 20px 18px; border-radius: 24px;
-    background: linear-gradient(145deg, rgba(15,12,25,0.95), rgba(20,16,30,0.9));
-    border: 1px solid color-mix(in srgb, var(--card-color) 20%, transparent);
-    display: flex; flex-direction: column; gap: 2px;
+    position: relative; z-index: 2; padding: 22px 20px; border-radius: 28px;
+    background: linear-gradient(145deg, rgba(18,14,28,0.96), rgba(22,18,32,0.92));
+    border: 1px solid color-mix(in srgb, var(--card-color) 25%, transparent);
+    display: flex; flex-direction: column; gap: 3px;
+    box-shadow: 
+      0 4px 20px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    transition: all 0.3s ease;
     .color-swatch {
-      width: 100%; height: 3px; border-radius: 2px; margin-bottom: 4px;
+      width: 100%; height: 4px; border-radius: 2px; margin-bottom: 5px;
+      box-shadow: 0 0 10px var(--card-color);
     }
-    .card-index { font-size: 8px; color: rgba(255,255,255,0.3); letter-spacing: 2px; }
-    .card-title { font-size: 20px; font-weight: 700; color: var(--card-color); margin: 0; }
-    .card-wavelength { font-size: 10px; color: rgba(255,255,255,0.4); margin: 0; font-family: 'Courier New', monospace; }
+    .card-index { 
+      font-size: 9px; 
+      color: rgba(255,255,255,0.35); 
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+    .card-title { 
+      font-size: 21px; 
+      font-weight: 800; 
+      color: var(--card-color); 
+      margin: 0;
+      text-shadow: 0 0 15px color-mix(in srgb, var(--card-color) 40%, transparent);
+    }
+    .card-wavelength { 
+      font-size: 11px; 
+      color: rgba(230,220,240,0.5);
+      margin: 0; 
+      font-family: 'Courier New', monospace;
+      font-weight: 500;
+    }
     .card-tag {
-      font-size: 7px; letter-spacing: 2px; padding: 1px 6px; border-radius: 6px; align-self: flex-start;
-      background: color-mix(in srgb, var(--card-color) 10%, transparent);
-      color: color-mix(in srgb, var(--card-color) 60%, white);
-      border: 1px solid color-mix(in srgb, var(--card-color) 15%, transparent);
+      font-size: 8px; letter-spacing: 3px; padding: 2px 8px; border-radius: 8px; align-self: flex-start;
+      background: color-mix(in srgb, var(--card-color) 12%, transparent);
+      color: color-mix(in srgb, var(--card-color) 65%, white);
+      border: 1px solid color-mix(in srgb, var(--card-color) 18%, transparent);
+      font-weight: 600;
     }
   }
   &:hover .card-inner {
-    border-color: color-mix(in srgb, var(--card-color) 40%, transparent);
-    box-shadow: 0 0 20px color-mix(in srgb, var(--card-color) 15%, transparent);
+    border-color: color-mix(in srgb, var(--card-color) 45%, transparent);
+    box-shadow: 
+      0 6px 30px color-mix(in srgb, var(--card-color) 20%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+    transform: scale(1.02);
   }
 }
 .prism-footer {
   position: relative; z-index: 10; margin-top: 50px; text-align: center;
   .spectrum-bar {
-    display: flex; width: 200px; height: 4px; margin: 0 auto 10px; border-radius: 2px; overflow: hidden;
+    display: flex; width: 220px; height: 5px; margin: 0 auto 12px; border-radius: 3px; overflow: hidden;
+    box-shadow: 0 0 15px rgba(255,255,255,0.1);
     .bar-segment { flex: 1; }
   }
-  .footer-text { font-size: 14px; letter-spacing: 3px; color: rgba(255,255,255,0.3); }
+  .footer-text { 
+    font-size: 14px; 
+    letter-spacing: 4px; 
+    color: rgba(230,220,240,0.4);
+    font-weight: 500;
+    text-shadow: 0 0 15px rgba(255,255,255,0.1);
+  }
+}
+@keyframes prismGlow {
+  0% { filter: drop-shadow(0 0 50px rgba(255,255,255,0.25)); }
+  100% { filter: drop-shadow(0 0 70px rgba(255,255,255,0.4)); }
 }
 </style>
 
