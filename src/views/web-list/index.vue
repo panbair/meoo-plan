@@ -2297,6 +2297,10 @@ const modulesOther = import.meta.glob('./card-other/*/*.vue')
  * 自动化构建组件列表
  */
 let dirNameList = [
+  'CardImageCMYKHalftone', 'CardImageCathedralGlass', 'CardImageChromeMelt', 'CardImageShadowPuppet', 'CardImageSilkscreenPrint', 'CardImageTopoContour', 'CardImageWetPlate',
+  'CardImageGlassShatter', 'CardImageInkBleed', 'CardImageOilSlick', 'CardImagePolaroidDevelop', 'CardImageVoxelBuild',
+  'CardImageCoralParadise', 'CardImageLightTrails', 'CardImageMagneticInk', 'CardImageParticleSculpture', 'CardImageWormholePortal',
+  'CardTimeAvalanche', 'CardTimeCaustics', 'CardTimeConveyorBelt', 'CardTimeCrystallize', 'CardTimeDJMixer', 'CardTimeDebugger', 'CardTimeElevator', 'CardTimeGitCommit', 'CardTimeMagneticPoles', 'CardTimeMetronome', 'CardTimeMirrorHall', 'CardTimeNewtonCradle', 'CardTimePendulumWave', 'CardTimePianoRoll', 'CardTimePinball', 'CardTimePrismSplit', 'CardTimeRubiksCube', 'CardTimeSandDune', 'CardTimeShadowTheater', 'CardTimeSlotMachine', 'CardTimeSortAlgo', 'CardTimeSoundWave', 'CardTimeSpringMesh', 'CardTimeTectonicShift', 'CardTimeTerminal', 'CardTimeTetris', 'CardTimeTypewheel', 'CardTimeZoetrope',
   'AIImagePromptBuilder', 'AchievementSystem', 'AugmentedReality', 'CodeDiffViewer', 'CommandPalette', 'CrystalRefraction', 'DragPhysicsEngine', 'DrawingCanvas', 'EmotionHeatmap', 'FluidSimulation', 'FormBuilder', 'GesturePlayground', 'HandwritingRecognition', 'KanbanBoard', 'MarkdownLiveEditor', 'MazeGenerator', 'MusicSequencer', 'PixelArtEditor', 'PortalTransition', 'RadarMorphChart', 'SankeyFlow', 'TerrainGenerator', 'TimelineRiver', 'TreemapZoom', 'VoiceVisualizer',
   'CardImageBlackMirror', 'CardImageCherryBlossom', 'CardImageDNAHelix', 'CardImageFrostMelt', 'CardImageNebulaBirth', 'CardImageOrigamiFold', 'CardImagePortalOpen', 'CardImageVolcanoErupt',
   'CardImgCinematicMask', 'CardImgLiquidMorph', 'CardImgNegativeReveal', 'CardImgNovaBirth', 'CardImgTimeFracture',
@@ -2578,7 +2582,7 @@ let dirNameList = [
   'CardVortex',
   'CardWave'
 ]
- dirNameList = []
+ // dirNameList = []
 
 const cardComponents = computed(() => {
   // 处理 card-list 目录组件
@@ -2753,6 +2757,14 @@ const cardComponents = computed(() => {
       })
       .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
+
+  console.log(imageComponents.map(item => item.dirName));
+  console.log(imgComponents.map(item => item.dirName));
+  console.log(textComponents.map(item => item.dirName));
+  console.log(d3dComponents.map(item => item.dirName));
+  console.log(timeComponents.map(item => item.dirName));
+  console.log(listComponents.map(item => item.dirName));
+  console.log(otherComponents.map(item => item.dirName));
   // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后，card-other 最后
   return [
     ...imageComponents,

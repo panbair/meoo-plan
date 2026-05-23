@@ -1,169 +1,90 @@
-<think>
-用户想要我详细分析当前项目中的卡片动画，并提出更好的方案建议。我需要先查看项目中已有的所有卡片组件，了解它们的特点和实现方式，然后给出专业的分析和建议。
 
-让我先列出项目中所有的卡片组件。
-</think>
+# 你是世界上最厉害的前端开发工程师，精通vue3全家桶开发，vue3组件开发，gsap动画开发，
 
+#  深入分析需求，发挥你的创造力和想象力，开发出酷炫的图片组件，震撼图片组件，具有强烈视觉冲击力的图片组件。
 
+# 在这个文件（meoo-plan/src/views/web-list/card-image）里面开发图片组件，酷炫的图片组件，震撼图片组件
 
+# 开发前，重点检查这个文件（meoo-plan/src/views/web-list/card-image）里面的组件，不要创建重复了，不能覆盖已经有的组件。
 
-项目中有21个卡片组件。让我查看几个关键组件的实现，了解项目的整体风格和技术实现方式。项目中有21个卡片组件。让我查看几个关键组件的实现，了解项目的整体风格和技术实现方式。
-<think>
-让我继续分析更多组件，以便给出全面的建议。
-</think>
+## 代码严格符合vue3组件开源规范
 
-
-
-<think>
-现在我对项目有了比较全面的了解。让我继续查看几个组件来获取更多信息，然后给出一个详细的分析报告和改进建议。
-</think>
+# 注意获取元素要用vue3的方式 ref获取dom
+# gsap获取元素要用vue3的方式，如果直接用classname,有重复classname可能会造成冲突， 比如：tl.fromTo('.header-badge'）,tl.to('.header-badge'）等，都是不行的
 
 
+#  图片地址到这里取：https://images.unsplash.com
+## 比如：https://images.unsplash.com/photo-1498579150354-977475b7ea0b?w=1920&q=80
 
-<think>
-现在我对项目有了比较全面的了解。让我给出一个详细的分析报告，并提出更好的改进方案。
+## 组件宽高都是:
+height: 100vh;
+width: 100vw;
 
-项目分析：
-1. 已有21个卡片组件
-2. 技术栈：Vue3 + TypeScript + GSAP + ScrollTrigger + SCSS
-3. 常见主题：宇宙、粒子、视差、翻转、涟漪等
+## 组件ui设计风格：不要灰色，阴沉。
 
-我可以提出的改进方案：
-1. **性能优化**：减少不必要的 DOM 操作，使用 CSS 动画替代 GSAP
-2. **交互创新**：添加手势交互、3D模型、WebGL着色器
-3. **可访问性**：添加键盘导航、ARIA 支持
-4. **组件复用**：创建通用动画 Hooks
-5. **新的动画效果**：流体模拟、生成艺术、粒子物理等
-   </think>
 
-## 项目分析报告
+## 内容要根据组件宽高设计
 
-### 当前项目概况
+### 技术栈
 
-| 统计项 | 数值 |
-|--------|------|
-| 组件数量 | 21 个 |
-| 技术栈 | Vue3 + TypeScript + GSAP + ScrollTrigger + SCSS |
-| 平均代码量 | ~18-22KB/组件 |
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Vue 3 | ^3.3 | 核心框架 |
+| TypeScript | ^5.0 | 类型系统 |
+| GSAP | ^3.12 | 动画引擎 |
+| ScrollTrigger | ^3.12 | 滚动动画插件 |
+| SCSS | ^1.6 | 样式预处理 |
 
-### 现有组件分类
-
-| 类别 | 组件 | 核心技术 |
-|------|------|----------|
-| **宇宙主题** | Lens, SolarFlare, Singularity, Aether | 引力透镜、耀斑、黑洞 |
-| **视差效果** | DepthParallax, Theatre | 多层位移、滚动跟随 |
-| **交互反馈** | Ripple, Mirage, Beat | 水波、鼠标追踪、脉冲 |
-| **形态变换** | MagicFlip, Shatter, Cascade | 翻转、碎片重组、瀑布流 |
-| **数据展示** | Trust, Blueprint, Equalizer | 数字滚动、SVG绘制、频谱 |
-| **团队展示** | Team, Book, MaterialAwakening | 视差悬浮、翻书、材质感 |
-
----
-
-## 更进一步的方案建议
-
-### 1. **物理引擎动画** (Physics-Based)
+### 文件结构
 
 ```
-CardTimePhysics/
-├── 粒子碰撞模拟
-├── 弹簧悬挂效果 (Spring Physics)
-├── 磁性吸附动画 (Magnetic Snap)
-└── 布料模拟 (Cloth Simulation)
+card-image/
+└── CardImageXxxx/
+    └── CardImageXxxx.vue          # 组件源码
+    └── README.md            # 本文档
 ```
 
-**优势**：真实物理反馈，用户无法抗拒的交互体验
 
-### 2. **生成艺术** (Generative Art)
+### 有入场动画、
 
-```
-CardTimeGenerative/
-├── Shader 着色器动画 (GLSL)
-├── 分形图案生成
-├── 程序化粒子系统
-└── 噪声驱动动画 (Perlin/Simplex Noise)
-```
-
-**优势**：每帧都是独一无二的视觉效果
-
-### 3. **手势驱动交互** (Gesture Control)
-
-```
-CardTimeGesture/
-├── 拖拽排序 (Drag & Drop)
-├── 捏合缩放 (Pinch Zoom)
-├── 滑动手势 (Swipe)
-└── 长按预览 (Long Press Preview)
-```
-
-**优势**：移动端原生体验，增加用户参与度
-
-### 4. **3D沉浸式卡片** (3D Immersive)
-
-```
-CardTimeSpace3D/
-├── Three.js 3D 场景
-├── 鼠标跟随视角
-├── WebGL 渲染器
-└── 3D 卡片悬浮效果
-```
-
-**优势**：突破 2D 平面的视觉冲击
-
-### 5. **可访问性增强** (Accessibility)
-
-```typescript
-// 添加键盘导航支持
-interface A11yConfig {
-  keyboardNav: boolean      // 键盘 Tab 导航
-  screenReader: boolean    // ARIA 标签
-  reducedMotion: boolean   // 尊重系统动画设置
-  highContrast: boolean    // 高对比度模式
-}
-```
-
-### 6. **AI 驱动的智能动画** (AI-Powered)
-
-```
-CardTimeAI/
-├── 手势识别动画
-├── 眼动追踪效果
-├── 情感识别响应
-└── 用户行为预测
-```
-
-### 7. **组件化 Hooks** (Composable Hooks)
-
-```typescript
-// 创建可复用的动画 Hooks
-useParallax(scrollSpeed, direction)
-useMagneticEffect(strength, distance)
-useSpringAnimation(config)
-useMouseTracker(sensitivity)
-useScrollProgress(threshold)
-useReducedMotion()  // 检测系统偏好
-```
-
----
-
-## 推荐优先实现
-
-| 优先级 | 方案 | 理由 |
-|--------|------|------|
-| ⭐⭐⭐ | **物理弹簧动画** | 性能好、体验佳、实现相对简单 |
-| ⭐⭐⭐ | **手势拖拽排序** | 移动端必备、交互感强 |
-| ⭐⭐ | **GLSL 着色器背景** | 视觉效果震撼、代码量小 |
-| ⭐⭐ | **可访问性增强** | 提升产品品质、符合规范 |
-| ⭐ | **Composable Hooks** | 提高代码复用、便于维护 |
-
----
-
-是否需要我实现其中某个方案？
+### 每张卡片滚动控制动画ScrollTrigger一定要用
 
 
-{
-trigger: '.hero-section',
-start: 'top top',
-end: 'bottom center',
-scrub: 1,
-// 标题从下方滑入，透明度0→1
-}
+### ScrollTrigger的start，end参数根据实际情况来定义。
+黄金法则：
+重要内容：start: 'top 75%' （提前展示）
+一般内容：start: 'top 80-85%' （标准触发）
+补充内容：start: 'top 90%' （接近才触发）
+scrub值：1-2秒 平衡流畅度和响应性
+
+
+### 动画清理
+let cleanupFns: TweenCleanup[] = []
+
+1 保存清理函数
+
+2 组件卸载时清理动画,这个组件所有gsap动画全部清理掉.
+
+3 检查一下组件的 onUnmounted 清理逻辑，看看是否正确清理了 ScrollTrigger 和其他动画。有的就处理。
+
+
+# 开发下面内容
+
+1. ScrollGlassShatter — 玻璃碎裂重组
+   从未有过的组合：碎片几何切割 × 3D 空间旋转 × clip-path 折射 × 重组动画
+
+概念：整个画面像钢化玻璃般瞬间碎成 40+ 块不规则碎片，每块在 3D 空间中缓缓旋转漂浮，滚动时碎片从四面八方飞回原位重新聚合。
+
+核心技术：
+
+Voronoi 图碎块划分：使用 Canvas 生成不规则碎片几何形状
+clip-path 多边形裁剪：每块碎片绑定独立 polygon(x% y%, ...)
+3D transform 旋转：rotateX/Y/Z + translateZ 模拟碎片在空间的悬浮感
+重组时间线：GSAP timeline 逐块飞回，stagger 0.03s，带弹性缓出
+视觉亮点：
+
+code
+❌ 非简单的碎片散开（已有 ShatterRebuild、Shatter）
+✅ 碎片悬浮旋转 + 高光折射 + 不完全碎片化（保留主体可读性）
+色系：暗色背景 + 碎片的冰蓝/紫玻璃高光
+
