@@ -3,7 +3,7 @@
  * @description 静态路由配置，包含基础布局路由和登录相关路由
  */
 
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import type { App } from 'vue'
 
 // 静态路由 - 不需要权限验证的路由
@@ -95,7 +95,7 @@ const rootRoute: RouteRecordRaw = {
 }
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.VITE_BASE_PATH),
+  history: createWebHashHistory(import.meta.env.VITE_BASE_PATH),
   strict: true,
   routes: [...staticRoutes, rootRoute],
   scrollBehavior: (_to, _from, savedPosition) => {

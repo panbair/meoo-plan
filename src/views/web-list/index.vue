@@ -2752,7 +2752,12 @@ onUnmounted(() => {
 
 // ==================== 分类切换时重置可见性 ====================
 watch(activeCategory, () => {
-  // 切换分类时清空可见卡片和 pageRefs
+  // 切换分类时滚动到顶部（尝试多种方法确保生效）
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  
+  // 清空可见卡片和 pageRefs
   visibleCards.value.clear()
   pageRefs.value.clear()
   // 断开旧的 observer
