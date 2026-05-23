@@ -4,12 +4,12 @@ import {
   ref,
   onMounted,
   onUnmounted,
-  shallowRef,
   defineAsyncComponent,
   watch,
   nextTick,
   reactive,
 } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import { useRouter } from 'vue-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -58,92 +58,142 @@ const activeCategory = ref('all')
 let gsapContext: gsap.Context | null = null
 
 /**
- * 清理所有 GSAP 动画和 ScrollTrigger 实例
- * 在切换分类或组件卸载时调用，防止内存泄漏和性能问题
+ * 清理所有组件内 GSAP 动画和 ScrollTrigger 实例（不影响 page1 装饰动画）
+ * 在切换分类时调用，防止内存泄漏和性能问题
  */
 const cleanupAllAnimations = () => {
   try {
-    // 1. 先杀死所有 ScrollTrigger 实例（必须在清理 context 之前）
+    // 1. 杀死所有 ScrollTrigger 实例（每个子组件的 ScrollTrigger）
     const allTriggers = ScrollTrigger.getAll()
-    allTriggers.forEach(trigger => {
+    allTriggers.forEach((trigger) => {
       try {
-        trigger.kill(false) // false 表示不刷新，避免触发额外的动画
+        trigger.kill(false) // false 表示不刷新，避免触发额外动画
       } catch (e) {
-        console.warn('清理 ScrollTrigger 时出错:', e)
+        /* 忽略单个 trigger 清理异常 */
       }
     })
-    ScrollTrigger.clearScrollMemory() // 清除滚动记忆
+    ScrollTrigger.clearScrollMemory()
 
-    // 2. 清理 gsap.context（如果存在）
-    if (gsapContext) {
-      try {
-        gsapContext.revert()
-      } catch (e) {
-        console.warn('清理 gsapContext 时出错:', e)
-      }
-      gsapContext = null
-    }
-
-    // 3. 杀死所有正在运行的 tweens 和 timelines
+    // 2. 杀死所有针对 .page 卡片内元素的 tweens（不影响 page1 装饰）
     try {
-      gsap.globalTimeline.clear(true) // true 表示包括子时间线
+      const cardEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
+      cardEls.forEach((el) => {
+        gsap.killTweensOf(el) // 杀死该元素上的所有 tween
+        // 递归清理子元素上的 tween
+        const children = el.querySelectorAll('*')
+        children.forEach((child) => {
+          gsap.killTweensOf(child)
+        })
+      })
     } catch (e) {
-      console.warn('清理 globalTimeline 时出错:', e)
+      /* 忽略元素查找异常 */
     }
 
-    // 4. 杀死所有延迟调用
+    // 3. 清理卡片内 Canvas 上下文（释放 GPU 内存）
     try {
-      gsap.delayedCall(0, () => {}).kill()
+      const cardCanvases = document.querySelectorAll('.page:not(.page1):not(.page-footer) canvas')
+      cardCanvases.forEach((canvas) => {
+        const ctx = (canvas as HTMLCanvasElement).getContext('2d')
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+        }
+        // 强制缩小 canvas 尺寸以释放显存
+        const c = canvas as HTMLCanvasElement
+        c.width = 0
+        c.height = 0
+      })
     } catch (e) {
-      console.warn('清理 delayedCall 时出错:', e)
+      /* 忽略 Canvas 清理异常 */
     }
 
-    // 5. 强制刷新 ScrollTrigger，确保所有引用都被清除
+    // 4. 强制刷新 ScrollTrigger，清除所有对已移除 DOM 的引用
     try {
       ScrollTrigger.refresh()
     } catch (e) {
-      console.warn('刷新 ScrollTrigger 时出错:', e)
+      /* 忽略刷新异常 */
     }
-
-    console.log('✅ 已清理所有 GSAP 动画和 ScrollTrigger')
   } catch (error) {
     console.error('清理 GSAP 动画时出错:', error)
   }
 }
 
+// ==================== 分类切换控制 ====================
+let isCategorySwitching = false // 防止重复切换
+let categorySwitchTimer: ReturnType<typeof setTimeout> | null = null
+
 // 监听分类变化，滚动到顶部并清理动画
 watch(activeCategory, () => {
-  // 先清理所有动画，避免内存泄漏
+  // 防止重复切换
+  if (isCategorySwitching) {
+    return
+  }
+  isCategorySwitching = true
+
+  // 先清理所有组件动画，避免内存泄漏
   cleanupAllAnimations()
 
-  // 清空可见卡片集合，触发重新加载
+  // 清空可见卡片集合，触发旧组件 v-if 卸载
   visibleCards.value.clear()
 
-  // 使用 nextTick 确保 DOM 更新后再滚动
+  // 清空页面引用
+  pageRefs.value.clear()
+
+  // 断开旧的 observer
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+
+  // 临时移除滚动监听，避免切换过程中触发多余计算
+  window.removeEventListener('scroll', handleScroll)
+
+  // 立即强制滚动到顶部（同步方式，兼容性最好）
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+  window.scrollTo(0, 0)
+
+  // 使用 nextTick 确保旧组件 DOM 清理完成
   nextTick(() => {
-    let top = 0
-    // 尝试多种滚动方式
-    window.scrollTo({
-      top: top,
-      behavior: 'smooth'
-    })
+    // 再次滚动到顶部，防止新 DOM 渲染后位置偏移
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
 
-    // 同时滚动 documentElement（兼容不同浏览器）
-    document.documentElement.scrollTo({
-      top: top,
-      behavior: 'smooth'
-    })
-
-    // 也滚动 body
-    document.body.scrollTo({
-      top: top,
-      behavior: 'smooth'
-    })
-
-    // 重新初始化 Intersection Observer
+    // 延迟初始化，给浏览器时间完成 GC 和重排
     setTimeout(() => {
+      // 重新初始化 Intersection Observer
       initIntersectionObserver()
-    }, 100)
+
+      // 分批预加载首屏组件，避免一次性挂载过多导致卡顿
+      const batchLoad = (startIndex: number, count: number) => {
+        for (let i = startIndex; i < Math.min(startIndex + count, filteredComponents.value.length); i++) {
+          visibleCards.value.add(i)
+        }
+        // 每批加载后重新强制滚回顶部，防止新组件挂载导致页面下移
+        requestAnimationFrame(() => {
+          document.documentElement.scrollTop = 0
+          document.body.scrollTop = 0
+        })
+        // 下一批
+        const nextIndex = startIndex + count
+        if (nextIndex < filteredComponents.value.length && nextIndex < 8) {
+          categorySwitchTimer = setTimeout(() => batchLoad(nextIndex, count), 150)
+        }
+      }
+
+      // 首屏先加载 2 个，然后每 150ms 加载 2 个，共预加载 8 个
+      setTimeout(() => {
+        batchLoad(0, 2)
+      }, 50)
+
+      // 恢复滚动监听
+      window.addEventListener('scroll', handleScroll, { passive: true })
+
+      // 解除切换锁
+      setTimeout(() => {
+        isCategorySwitching = false
+      }, 800)
+    }, 150)
   })
 })
 
@@ -1902,9 +1952,14 @@ function OpenMeoo() {
   window.open('https://meoo.com/', '_blank')
 }
 
-// 初始化已选组件
+// ==================== 统一生命周期初始化 ====================
 onMounted(async () => {
+  // 加载已选组件
   selectedComponents.value = loadSelectedComponents()
+
+  // 加载企业信息
+  const savedInfo = loadEnterpriseInfo()
+  Object.assign(enterpriseInfo, savedInfo)
 
   // 初始化 GSAP 动画
   initPage1Animations()
@@ -1932,6 +1987,9 @@ onMounted(async () => {
 
 // 组件卸载时清理所有动画和资源
 onUnmounted(() => {
+  // 标记正在切换中，阻止滚动回调和 Observer 继续触发
+  isCategorySwitching = true
+
   // 清理页面1的鼠标事件监听器
   const titleEl = document.querySelector('.page-title')
   if (titleEl) {
@@ -1948,8 +2006,26 @@ onUnmounted(() => {
   // 清理所有 GSAP 动画
   cleanupAllAnimations()
 
+  // 清除 gsapContext
+  if (gsapContext) {
+    gsapContext.revert()
+    gsapContext = null
+  }
+
   // 移除滚动监听
   window.removeEventListener('scroll', handleScroll)
+
+  // 取消 rAF
+  if (handleScrollRafId !== null) {
+    cancelAnimationFrame(handleScrollRafId)
+    handleScrollRafId = null
+  }
+
+  // 清除分类切换定时器
+  if (categorySwitchTimer !== null) {
+    clearTimeout(categorySwitchTimer)
+    categorySwitchTimer = null
+  }
 
   // 清理 Intersection Observer
   if (observer) {
@@ -2155,11 +2231,6 @@ const applyGradient = () => {
   colorMode.value = 'gradient'
 }
 
-// 判断是否为渐变色
-const isGradientColor = (color: string) => {
-  return color.includes('gradient') || color.includes('linear-gradient')
-}
-
 // 企业信息弹窗状态
 const showEnterpriseModal = ref(false)
 
@@ -2181,29 +2252,8 @@ const hasEnterpriseInfo = computed(() => {
   return enterpriseInfo.name.trim().length > 0
 })
 
-// 获取企业信息摘要
-const enterpriseInfoSummary = computed(() => {
-  const parts: string[] = []
-  if (enterpriseInfo.name) {
-    parts.push(enterpriseInfo.name)
-  }
-  if (enterpriseInfo.industry) {
-    parts.push(enterpriseInfo.industry)
-  }
-  if (enterpriseInfo.mainColors) {
-    parts.push('已设置品牌色')
-  }
-  return parts.length > 0 ? parts.join(' · ') : '未填写'
-})
-
 // 参考示例展开状态
 const showReferenceExample = ref(false)
-
-// 初始化企业信息
-onMounted(() => {
-  const saved = loadEnterpriseInfo()
-  Object.assign(enterpriseInfo, saved)
-})
 
 // 添加收藏和已选分类
 const categories = [
@@ -2246,7 +2296,7 @@ const modulesOther = import.meta.glob('./card-other/*/*.vue')
 /**
  * 自动化构建组件列表
  */
-const dirNameList = [
+let dirNameList = [
   'AIImagePromptBuilder', 'AchievementSystem', 'AugmentedReality', 'CodeDiffViewer', 'CommandPalette', 'CrystalRefraction', 'DragPhysicsEngine', 'DrawingCanvas', 'EmotionHeatmap', 'FluidSimulation', 'FormBuilder', 'GesturePlayground', 'HandwritingRecognition', 'KanbanBoard', 'MarkdownLiveEditor', 'MazeGenerator', 'MusicSequencer', 'PixelArtEditor', 'PortalTransition', 'RadarMorphChart', 'SankeyFlow', 'TerrainGenerator', 'TimelineRiver', 'TreemapZoom', 'VoiceVisualizer',
   'CardImageBlackMirror', 'CardImageCherryBlossom', 'CardImageDNAHelix', 'CardImageFrostMelt', 'CardImageNebulaBirth', 'CardImageOrigamiFold', 'CardImagePortalOpen', 'CardImageVolcanoErupt',
   'CardImgCinematicMask', 'CardImgLiquidMorph', 'CardImgNegativeReveal', 'CardImgNovaBirth', 'CardImgTimeFracture',
@@ -2528,8 +2578,7 @@ const dirNameList = [
   'CardVortex',
   'CardWave'
 ]
-// const dirNameList = []
-const dirNameList1 = []
+ dirNameList = []
 
 const cardComponents = computed(() => {
   // 处理 card-list 目录组件
@@ -2554,14 +2603,7 @@ const cardComponents = computed(() => {
           type: 'card-list'
         }
       })
-      .filter((item) => {
-        if (!dirNameList.includes(item.dirName) && item.component !== null) {
-          dirNameList1.push(item.dirName)
-          // console.log(dirNameList1)
-        }
-
-        return !dirNameList.includes(item.dirName) && item.component !== null
-      })
+      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-time 目录组件
   const timeComponents = Object.entries(modulesTime)
@@ -2586,13 +2628,7 @@ const cardComponents = computed(() => {
           type: 'card-time'
         }
       })
-      .filter((item) => {
-        if (!dirNameList.includes(item.dirName) && item.component !== null) {
-          dirNameList1.push(item.dirName)
-          // console.log(dirNameList1)
-        }
-        return !dirNameList.includes(item.dirName) && item.component !== null
-      })
+      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-text 目录组件
   const textComponents = Object.entries(modulesText)
@@ -2616,12 +2652,7 @@ const cardComponents = computed(() => {
           type: 'card-text'
         }
       })
-      .filter((item) => {
-        if (!dirNameList.includes(item.dirName) && item.component !== null) {
-          dirNameList1.push(item.dirName)
-        }
-        return !dirNameList.includes(item.dirName) && item.component !== null
-      })
+      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-3d 目录组件
   const d3dComponents = Object.entries(modules3d)
@@ -2646,12 +2677,7 @@ const cardComponents = computed(() => {
           type: 'card-3d'
         }
       })
-      .filter((item) => {
-        if (!dirNameList.includes(item.dirName) && item.component !== null) {
-          dirNameList1.push(item.dirName)
-        }
-        return !dirNameList.includes(item.dirName) && item.component !== null
-      })
+      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-img 目录组件
   const imgComponents = Object.entries(modulesImg)
@@ -2676,12 +2702,7 @@ const cardComponents = computed(() => {
           type: 'card-img'
         }
       })
-      .filter((item) => {
-        if (!dirNameList.includes(item.dirName) && item.component !== null) {
-          dirNameList1.push(item.dirName)
-        }
-        return !dirNameList.includes(item.dirName) && item.component !== null
-      })
+      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-image 目录组件
   const imageComponents = Object.entries(modulesImage)
@@ -2706,12 +2727,7 @@ const cardComponents = computed(() => {
           type: 'card-image'
         }
       })
-      .filter((item) => {
-        if (!dirNameList.includes(item.dirName) && item.component !== null) {
-          dirNameList1.push(item.dirName)
-        }
-        return !dirNameList.includes(item.dirName) && item.component !== null
-      })
+      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-other 目录组件
   const otherComponents = Object.entries(modulesOther)
@@ -2735,20 +2751,8 @@ const cardComponents = computed(() => {
           type: 'card-other'
         }
       })
-      .filter((item) => {
-        if (!dirNameList.includes(item.dirName) && item.component !== null) {
-          dirNameList1.push(item.dirName)
-        }
-        return !dirNameList.includes(item.dirName) && item.component !== null
-      })
-  console.log([...listComponents].map((item) => item.dirName))
-  console.log([...timeComponents].map((item) => item.dirName))
-  console.log([...textComponents].map((item) => item.dirName))
-  console.log([...d3dComponents].map((item) => item.dirName))
+      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
-  console.log([...imgComponents].map((item) => item.dirName))
-  console.log([...imageComponents].map((item) => item.dirName))
-  console.log([...otherComponents].map((item) => item.dirName))
   // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后，card-other 最后
   return [
     ...imageComponents,
@@ -2799,35 +2803,27 @@ const initIntersectionObserver = () => {
     return
   }
 
-  // 等待一小段时间确保 DOM 已更新
-  setTimeout(() => {
-    // 重新从 DOM 中获取所有页面元素
-    const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
-    pageEls.forEach((el, index) => {
-      el.setAttribute('data-index', String(index))
-      observer?.observe(el)
-    })
+  // 节流控制：避免 Observer 回调一次性触发过多组件挂载
+  let observerPendingIndices = new Set<number>()
+  let observerRafId: number | null = null
 
-    // 触发初始可见性检查
-    handleScroll()
-  }, 50)
-
+  // 先创建 observer 实例（避免 setTimeout 中 observer 为 null）
   observer = new IntersectionObserver(
       (entries) => {
-        if (!visibleCards.value) {
+        if (!visibleCards.value || isCategorySwitching) {
           return
-        } // HMR 保护
+        }
+
         entries.forEach((entry) => {
           const index = parseInt((entry.target as HTMLElement).dataset.index || '0')
 
           if (entry.isIntersecting) {
-            // 进入视口：加载组件
-            visibleCards.value?.add(index)
-            // 预加载下一个
+            // 收集需要加载的索引
+            observerPendingIndices.add(index)
             for (let i = 1; i <= VISIBLE_BUFFER; i++) {
               const nextIndex = index + i
               if (nextIndex < filteredComponents.value.length) {
-                visibleCards.value?.add(nextIndex)
+                observerPendingIndices.add(nextIndex)
               }
             }
           } else {
@@ -2839,36 +2835,78 @@ const initIntersectionObserver = () => {
             }
           }
         })
+
+        // 使用 rAF 批量写入，避免短时间内大量组件挂载
+        if (observerRafId === null && observerPendingIndices.size > 0) {
+          observerRafId = requestAnimationFrame(() => {
+            observerPendingIndices.forEach((idx) => {
+              visibleCards.value?.add(idx)
+            })
+            observerPendingIndices.clear()
+            observerRafId = null
+          })
+        }
       },
       {root: null,
         rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
         threshold: 0
       },
   )
+
+  // 等待 DOM 渲染后再 observe 元素
+  setTimeout(() => {
+    // 重新从 DOM 中获取所有页面元素
+    const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
+    pageEls.forEach((el, index) => {
+      el.setAttribute('data-index', String(index))
+      if (observer) {
+        observer.observe(el)
+      }
+    })
+
+    // 触发初始可见性检查
+    handleScroll()
+  }, 50)
 }
 
-// ==================== 滚动监听（备用） ====================
+// ==================== 滚动监听（备用 + 节流） ====================
+let handleScrollRafId: number | null = null
+
 const handleScroll = () => {
+  // 如果正在分类切换中，跳过
+  if (isCategorySwitching) {
+    return
+  }
+
   if (!LAZY_MODE) {
     return
   }
 
-  const viewportHeight = window.innerHeight
-  const scrollTop = window.scrollY
+  // 使用 rAF 节流，避免每帧触发多次 querySelectorAll
+  if (handleScrollRafId !== null) {
+    return
+  }
 
-  // 直接从 DOM 获取所有卡片页面元素
-  const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
-  pageEls.forEach((el, index) => {
-    const rect = el.getBoundingClientRect()
-    const pageTop = rect.top + scrollTop
+  handleScrollRafId = requestAnimationFrame(() => {
+    handleScrollRafId = null
 
-    // 在视口范围内或预加载范围内
-    const inView = rect.top < viewportHeight && rect.bottom > 0
-    const inPreload = pageTop < scrollTop + viewportHeight * (1 + PRELOAD_COUNT * 0.5)
+    const viewportHeight = window.innerHeight
+    const scrollTop = window.scrollY
 
-    if (inView || inPreload) {
-      visibleCards.value.add(index)
-    }
+    // 直接从 DOM 获取所有卡片页面元素
+    const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
+    pageEls.forEach((el, index) => {
+      const rect = el.getBoundingClientRect()
+      const pageTop = rect.top + scrollTop
+
+      // 在视口范围内或预加载范围内
+      const inView = rect.top < viewportHeight && rect.bottom > 0
+      const inPreload = pageTop < scrollTop + viewportHeight * (1 + PRELOAD_COUNT * 0.5)
+
+      if (inView || inPreload) {
+        visibleCards.value.add(index)
+      }
+    })
   })
 }
 
@@ -3152,65 +3190,6 @@ const initPage1Animations = () => {
 
 
 
-// ==================== 生命周期 ====================
-onMounted(() => {
-  // 确保 visibleCards 初始化
-  if (!visibleCards.value) {
-    visibleCards.value = new Set<number>()
-  }
-  if (!pageRefs.value) {
-    pageRefs.value = new Map()
-  }
-
-  // 初始化可见性
-  if (!LAZY_MODE) {
-    filteredComponents.value.forEach((_, index) => {
-      if (index < PRELOAD_COUNT) {
-        visibleCards.value?.add(index)
-      }
-    })
-  } else {
-    // 等待 DOM 渲染后初始化 Observer
-    setTimeout(initIntersectionObserver, 100)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-  }
-
-  // 初始化 page1 GSAP 动画
-  nextTick(() => {
-    createExtraBubbles()
-    initPage1Animations()
-  })
-})
-
-onUnmounted(() => {
-  observer?.disconnect()
-  window.removeEventListener('scroll', handleScroll)
-  // 清理所有 GSAP 动画
-  gsap.killTweensOf('.page1 *')
-})
-
-// ==================== 分类切换时重置可见性 ====================
-watch(activeCategory, () => {
-  // 切换分类时滚动到顶部（尝试多种方法确保生效）
-  document.documentElement.scrollTop = 0
-  document.body.scrollTop = 0
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-
-  // 清空可见卡片和 pageRefs
-  visibleCards.value.clear()
-  pageRefs.value.clear()
-  // 断开旧的 observer
-  observer?.disconnect()
-  observer = null
-
-  // 等待 DOM 更新后再重新初始化 Observer
-  nextTick(() => {
-    if (LAZY_MODE) {
-      initIntersectionObserver()
-    }
-  })
-})
-
 </script>
 
 <template>
@@ -3280,13 +3259,13 @@ watch(activeCategory, () => {
       <!-- 主内容区 -->
       <div class="page1-content">
         <!-- 顶部标签 -->
-        <div ref="badgeRef" class="hero-badge">
+        <div class="hero-badge">
           <span class="badge-icon">✨</span>
           <span class="badge-text">AI-Powered</span>
         </div>
 
         <!-- 主标题 - 3D 立体字符动画 -->
-        <h1 ref="titleRef" class="page-title">
+        <h1 class="page-title">
           <span class="title-line" data-text="Creative">
             <span v-for="(char, i) in 'Creative'" :key="'c1-' + i" class="char" :data-char="char">{{
                 char
@@ -3309,7 +3288,7 @@ watch(activeCategory, () => {
         </h1>
 
         <!-- 副标题 -->
-        <p ref="descRef" class="page-desc">
+        <p class="page-desc">
           <span
               v-for="(word, i) in [
               'Scroll',
@@ -3327,7 +3306,7 @@ watch(activeCategory, () => {
         </p>
 
         <!-- 功能标签组 -->
-        <div ref="tagsRef" class="feature-tags">
+        <div class="feature-tags">
           <div class="tag tag-primary">
             <span class="tag-icon">🚀</span>
             <span class="tag-text">快速构建</span>
@@ -3343,7 +3322,7 @@ watch(activeCategory, () => {
         </div>
 
         <!-- 中文说明区 -->
-        <div ref="chineseRef" class="chinese-info">
+        <div class="chinese-info">
           <div class="info-block">
             <span class="info-icon">🏢</span>
             <span class="info-text">企业官网</span>
@@ -3363,7 +3342,7 @@ watch(activeCategory, () => {
         </div>
 
         <!-- 组件数量统计 -->
-        <div ref="statsRef" class="component-stats">
+        <div class="component-stats">
           <div class="stat-number">
             <span class="stat-value">{{ filteredComponents.length }}</span>
             <span class="stat-label">精选组件</span>
@@ -3382,7 +3361,7 @@ watch(activeCategory, () => {
       </div>
 
       <!-- 底部滚动指示器 -->
-      <div ref="scrollRef" class="scroll-indicator">
+      <div class="scroll-indicator">
         <span></span>
         <span></span>
         <span></span>
