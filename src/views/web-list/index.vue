@@ -3150,6 +3150,67 @@ const initPage1Animations = () => {
   })
 }
 
+
+
+// ==================== 生命周期 ====================
+onMounted(() => {
+  // 确保 visibleCards 初始化
+  if (!visibleCards.value) {
+    visibleCards.value = new Set<number>()
+  }
+  if (!pageRefs.value) {
+    pageRefs.value = new Map()
+  }
+
+  // 初始化可见性
+  if (!LAZY_MODE) {
+    filteredComponents.value.forEach((_, index) => {
+      if (index < PRELOAD_COUNT) {
+        visibleCards.value?.add(index)
+      }
+    })
+  } else {
+    // 等待 DOM 渲染后初始化 Observer
+    setTimeout(initIntersectionObserver, 100)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+  }
+
+  // 初始化 page1 GSAP 动画
+  nextTick(() => {
+    createExtraBubbles()
+    initPage1Animations()
+  })
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
+  window.removeEventListener('scroll', handleScroll)
+  // 清理所有 GSAP 动画
+  gsap.killTweensOf('.page1 *')
+})
+
+// ==================== 分类切换时重置可见性 ====================
+watch(activeCategory, () => {
+  // 切换分类时滚动到顶部（尝试多种方法确保生效）
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+
+  // 清空可见卡片和 pageRefs
+  visibleCards.value.clear()
+  pageRefs.value.clear()
+  // 断开旧的 observer
+  observer?.disconnect()
+  observer = null
+
+  // 等待 DOM 更新后再重新初始化 Observer
+  nextTick(() => {
+    if (LAZY_MODE) {
+      initIntersectionObserver()
+    }
+  })
+})
+
 </script>
 
 <template>
