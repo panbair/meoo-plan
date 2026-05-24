@@ -1,4 +1,5 @@
 export const componentsList = [
+  // 'CardImageCorridor3D',
   // 'CardImage3DHelix',
   // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
@@ -287,7 +288,6 @@ export const componentsList = [
   'CardTimeGravity',
   'CardTimeKaleidoscope',
   'CardTimeMagnet',
-  'CardTimeOrbitFlip',
   'CardAbstractGeometry',
   'CardTimeAether',
   'CardTimeBeat',
