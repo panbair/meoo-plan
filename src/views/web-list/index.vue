@@ -7,27 +7,28 @@ import {
   defineAsyncComponent,
   watch,
   nextTick,
-  reactive,
+  reactive
 } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
 import { useRouter } from 'vue-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import NProgress from 'nprogress'
+import { componentsList } from '@/views/web-list/config.ts'
 
 gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用，按需加载）====================
 const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other}/*/*.vue', {
   query: '?raw',
-  import: 'default',
+  import: 'default'
 })
 
 // 动态导入所有README
-const readmeModules = import.meta.glob(
-    './card-{image,img,text,3d,time,list,other}/*/README.md',
-    { query: '?raw', import: 'default' }
-)
+const readmeModules = import.meta.glob('./card-{image,img,text,3d,time,list,other}/*/README.md', {
+  query: '?raw',
+  import: 'default'
+})
 
 // 获取 router 实例
 const router = useRouter()
@@ -166,7 +167,11 @@ watch(activeCategory, () => {
 
       // 分批预加载首屏组件，避免一次性挂载过多导致卡顿
       const batchLoad = (startIndex: number, count: number) => {
-        for (let i = startIndex; i < Math.min(startIndex + count, filteredComponents.value.length); i++) {
+        for (
+          let i = startIndex;
+          i < Math.min(startIndex + count, filteredComponents.value.length);
+          i++
+        ) {
           visibleCards.value.add(i)
         }
         // 每批加载后重新强制滚回顶部，防止新组件挂载导致页面下移
@@ -270,9 +275,11 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
   // 方法2: 尝试使用现代 Clipboard API（需要 HTTPS）
   try {
     // 更严格的检查
-    if (typeof navigator !== 'undefined' &&
-        navigator.clipboard &&
-        typeof navigator.clipboard.writeText === 'function') {
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.clipboard &&
+      typeof navigator.clipboard.writeText === 'function'
+    ) {
       await navigator.clipboard.writeText(text)
       console.log('✅ 使用 Clipboard API 复制成功')
       return true
@@ -295,7 +302,7 @@ const copyComponentCode = async (cardInfo: any) => {
     let sourceCode = ''
 
     // 从已选组件中查找是否有源码
-    const selectedComp = selectedComponents.value.find(c => c.dirName === cardInfo.dirName)
+    const selectedComp = selectedComponents.value.find((c) => c.dirName === cardInfo.dirName)
     if (selectedComp && selectedComp.sourceCode) {
       sourceCode = selectedComp.sourceCode as string
     } else {
@@ -374,7 +381,7 @@ const defaultModulePositions: ModulePosition[] = [
     label: '页脚',
     icon: '📋',
     desc: '链接/版权信息'
-  },
+  }
 ]
 
 const MODULE_CONFIG_KEY = 'web-ai-module-positions'
@@ -460,7 +467,7 @@ const toggleSelect = (dirName: string, name: string, path: string, type: string)
       path,
       type,
       selected: true,
-      modulePosition: '',
+      modulePosition: ''
     })
   } else {
     // 已选中，从列表移除
@@ -483,7 +490,7 @@ const openModuleSelector = (comp: ComponentSelectInfo) => {
 const selectModulePosition = (position: string) => {
   if (currentSelectingComp.value) {
     const index = selectedComponents.value.findIndex(
-        (c) => c.dirName === currentSelectingComp.value!.dirName
+      (c) => c.dirName === currentSelectingComp.value!.dirName
     )
     if (index !== -1) {
       selectedComponents.value[index].modulePosition = position
@@ -587,7 +594,7 @@ const enterpriseInfoFields = [
   { key: 'targetAudience', label: '目标受众' },
   { key: 'mainColors', label: '品牌主色', fallback: '未设置' },
   { key: 'websiteType', label: '网站类型' },
-  { key: 'designPhilosophy', label: '设计理念', fallback: '未填写' },
+  { key: 'designPhilosophy', label: '设计理念', fallback: '未填写' }
 ] as const
 
 /** Vue → React 转换规则 */
@@ -599,8 +606,8 @@ const vueToReactRules = [
   { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
   {
     vue: 'defineProps<Props>()',
-    react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
-  },
+    react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}'
+  }
 ]
 
 /** 技术要求清单 - 带序号 */
@@ -609,36 +616,36 @@ const techRequirements = [
   { num: 2, text: '**Vue → React 转换规则**:', indent: true },
   {
     num: 3,
-    text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
+    text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`'
   },
   {
     num: 4,
-    text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图',
+    text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图'
   },
   {
     num: 5,
-    text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写',
+    text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写'
   },
   {
     num: 6,
-    text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断',
+    text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断'
   },
   {
     num: 7,
-    text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建',
+    text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建'
   },
   {
     num: 8,
-    text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
+    text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发'
   },
   {
     num: 9,
-    text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
+    text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`'
   },
   {
     num: 10,
-    text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
-  },
+    text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验'
+  }
 ]
 
 /** 输出文件清单 */
@@ -650,7 +657,7 @@ const outputFiles = [
   { file: 'sections/[模块名].tsx', desc: '各模块的 Section 组件' },
   { file: 'components/[组件名]/index.tsx', desc: '转换后的 React 组件' },
   { file: 'index.css', desc: '全局样式（含 Tailwind 配置、CSS 变量）' },
-  { file: 'tailwind.config.js', desc: 'Tailwind 配置文件' },
+  { file: 'tailwind.config.js', desc: 'Tailwind 配置文件' }
 ]
 
 /** 代码要求清单 */
@@ -663,7 +670,7 @@ const codeRequirements = [
   '样式使用 Tailwind CSS + 自定义 CSS 变量',
   '**性能优化**: 确保动画流畅度 ≥60fps，使用 will-change 提示浏览器，避免在滚动事件中执行重计算，Canvas 动画需在页面不可见时暂停（监听 visibilitychange），GSAP 动画需在组件卸载时 kill() 释放资源',
   '**错误处理**: 图片加载失败时显示占位图或纯色背景，GSAP 初始化失败时有降级方案（纯 CSS 动画或静态展示），Canvas 不支持时显示备用内容',
-  '**ScrollTrigger 清理模板**: 必须在 useEffect cleanup 中调用清理函数，示例：`return () => { tweens.forEach(t => t.kill()); ScrollTrigger.getAll().forEach(t => t.kill()); }`',
+  '**ScrollTrigger 清理模板**: 必须在 useEffect cleanup 中调用清理函数，示例：`return () => { tweens.forEach(t => t.kill()); ScrollTrigger.getAll().forEach(t => t.kill()); }`'
 ]
 
 /** 品牌主色约束 */
@@ -671,14 +678,14 @@ const mainColorConstraints = [
   '可使用 CSS 变量 `--primary-color` 统一管理',
   '按钮、强调色使用品牌主色',
   'Hover 状态可加深/加亮 10-20%',
-  '渐变色使用 `tint()` 或 `shade()` 派生辅助色',
+  '渐变色使用 `tint()` 或 `shade()` 派生辅助色'
 ]
 
 /** 设计理念约束 */
 const designConstraints = [
   '排版间距、圆角大小、阴影强度需统一',
   '动画曲线(ease)选择应匹配设计调性',
-  '图片风格、图标粗细保持一致',
+  '图片风格、图标粗细保持一致'
 ]
 
 /**
@@ -720,21 +727,21 @@ function analyzeScrollTriggerMode(sourceCode: string): string | null {
     const toggleMatch = block.match(/toggleActions\s*:\s*['"]([^'"]+)['"]/)
     if (toggleMatch) {
       const actions = toggleMatch[1]
-          .split(' ')
-          .map((a) => {
-            const map: Record<string, string> = {
-              play: '▶️播放',
-              pause: '⏸️暂停',
-              resume: '▶️继续',
-              reverse: '◀️倒放',
-              restart: '🔄重播',
-              reset: '🔚重置',
-              complete: '✅完成',
-              none: '❌无',
-            }
-            return map[a] || a
-          })
-          .join(' | ')
+        .split(' ')
+        .map((a) => {
+          const map: Record<string, string> = {
+            play: '▶️播放',
+            pause: '⏸️暂停',
+            resume: '▶️继续',
+            reverse: '◀️倒放',
+            restart: '🔄重播',
+            reset: '🔚重置',
+            complete: '✅完成',
+            none: '❌无'
+          }
+          return map[a] || a
+        })
+        .join(' | ')
       details.push(`toggleActions: '${toggleMatch[1]}'（${actions}）`)
     }
 
@@ -820,8 +827,8 @@ function analyzeCanvasComponent(sourceCode: string): string | null {
   }
 
   if (
-      /getContext\s*\(\s*['"]webgl/.test(sourceCode) ||
-      /THREE\.WebGLRenderer|new WebGLRenderer/.test(sourceCode)
+    /getContext\s*\(\s*['"]webgl/.test(sourceCode) ||
+    /THREE\.WebGLRenderer|new WebGLRenderer/.test(sourceCode)
   ) {
     result.push('⚠️ 使用 WebGL/Three.js 渲染')
     result.push('   1. 必须在 useEffect + useRef 模式下初始化渲染器')
@@ -856,7 +863,7 @@ function extractPropsInfo(sourceCode: string): string | null {
   }
 
   const withDefaultsMatch = sourceCode.match(
-      /withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s,
+    /withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s
   )
   if (withDefaultsMatch) {
     const defaultsContent = withDefaultsMatch[1].trim()
@@ -888,7 +895,7 @@ const buildCopyContent = (): string => {
 
   // 模块位置标签映射
   const moduleLabels: Record<string, string> = Object.fromEntries(
-      modulePositions.value.map((pos) => [pos.key, pos.label]),
+    modulePositions.value.map((pos) => [pos.key, pos.label])
   )
 
   // 按模块位置分组（过滤掉未分配模块的组件）
@@ -907,8 +914,8 @@ const buildCopyContent = (): string => {
   })
 
   const moduleOrder = modulePositions.value
-      .map((p) => p.key)
-      .filter((key) => componentsByModule[key]?.length > 0)
+    .map((p) => p.key)
+    .filter((key) => componentsByModule[key]?.length > 0)
 
   // 组件类型汇总
   const componentsByType: Record<string, number> = {}
@@ -970,14 +977,14 @@ const buildCopyContent = (): string => {
 
   // ===== 角色设定与技术要求 =====
   lines.push(
-      '📌 角色设定',
-      sep('-'),
-      '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
-      '直接开发完整的、可运行的 React 企业网站代码。',
-      '你是一位资深产品设计师，你必须基于用户选配的 Vue 组件，',
-      '必须严格根据企业信息来设计内容',
-      '内容图文结合设计最好！',
-      blank(),
+    '📌 角色设定',
+    sep('-'),
+    '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
+    '直接开发完整的、可运行的 React 企业网站代码。',
+    '你是一位资深产品设计师，你必须基于用户选配的 Vue 组件，',
+    '必须严格根据企业信息来设计内容',
+    '内容图文结合设计最好！',
+    blank()
   )
 
   lines.push('⚙️ 核心技术要求（必须遵守）', sep('-'))
@@ -1004,10 +1011,10 @@ const buildCopyContent = (): string => {
   lines.push(`主色配置: ${enterpriseInfo.mainColors || '未设置'}`)
   if (enterpriseInfo.mainColors) {
     const isGradient =
-        enterpriseInfo.mainColors.includes('gradient') ||
-        enterpriseInfo.mainColors.includes('linear-gradient')
+      enterpriseInfo.mainColors.includes('gradient') ||
+      enterpriseInfo.mainColors.includes('linear-gradient')
     lines.push(
-        `   ⚠️ 约束: ${isGradient ? '使用渐变色，CSS 中必须使用 `background: linear-gradient(...)` 而非单一颜色' : '整体配色以该主色为核心，所有组件的 primary/accent 颜色必须基于此色值'}`,
+      `   ⚠️ 约束: ${isGradient ? '使用渐变色，CSS 中必须使用 `background: linear-gradient(...)` 而非单一颜色' : '整体配色以该主色为核心，所有组件的 primary/accent 颜色必须基于此色值'}`
     )
     mainColorConstraints.forEach((c) => lines.push(`   • ${c}`))
   }
@@ -1047,8 +1054,8 @@ const buildCopyContent = (): string => {
       // README 效果描述
       if (readme) {
         const effectMatch =
-            readme.match(/### 核心效果\n([\s\S]*?)(?=##|$)/) ||
-            readme.match(/### 核心动画\n([\s\S]*?)(?=##|$)/)
+          readme.match(/### 核心效果\n([\s\S]*?)(?=##|$)/) ||
+          readme.match(/### 核心动画\n([\s\S]*?)(?=##|$)/)
         if (effectMatch) {
           const effects = effectMatch[1].match(/-\s*\*\*([^*]+)\*\*:\s*([^\n-]+)/g) || []
           if (effects.length > 0) {
@@ -1086,11 +1093,11 @@ const buildCopyContent = (): string => {
 
         // 完整源码
         lines.push(
-            '   • 完整 Vue 3 组件源码（转 React 时参考）:',
-            '     ```vue',
-            ...sourceCode.split('\n').map((l) => '     ' + l),
-            '     ```',
-            blank(),
+          '   • 完整 Vue 3 组件源码（转 React 时参考）:',
+          '     ```vue',
+          ...sourceCode.split('\n').map((l) => '     ' + l),
+          '     ```',
+          blank()
         )
       } else {
         lines.push('   ⚠️ 源码未找到，请检查组件路径是否正确')
@@ -1102,10 +1109,10 @@ const buildCopyContent = (): string => {
 
   // ===== 组件类型汇总 =====
   lines.push(
-      sep('-'),
-      '📊 组件类型汇总',
-      ...Object.entries(componentsByType).map(([type, count]) => `  ${type}: ${count}个`),
-      blank(),
+    sep('-'),
+    '📊 组件类型汇总',
+    ...Object.entries(componentsByType).map(([type, count]) => `  ${type}: ${count}个`),
+    blank()
   )
 
   // ===== 未分配模块的组件 =====
@@ -1117,11 +1124,11 @@ const buildCopyContent = (): string => {
 
   // ===== 输出格式要求 =====
   lines.push(
-      sep('='),
-      '📝 输出要求：直接生成完整的 React 网站代码',
-      sep('='),
-      '请直接生成以下文件的完整代码（不要写方案文档，直接写代码）：',
-      blank(),
+    sep('='),
+    '📝 输出要求：直接生成完整的 React 网站代码',
+    sep('='),
+    '请直接生成以下文件的完整代码（不要写方案文档，直接写代码）：',
+    blank()
   )
 
   lines.push('### 必须生成的文件清单')
@@ -1205,12 +1212,12 @@ const buildCopyContent = (): string => {
 
     lines.push('3. **文字动画常见模式**：')
     lines.push(
-        '   - **模糊揭示**：`{ filter: "blur(20px)", opacity: 0, y: 120 }` → `{ filter: "blur(0px)", opacity: 1, y: 0 }`',
+      '   - **模糊揭示**：`{ filter: "blur(20px)", opacity: 0, y: 120 }` → `{ filter: "blur(0px)", opacity: 1, y: 0 }`'
     )
     lines.push('   - **缩放入场**：`{ scale: 0.8, opacity: 0 }` → `{ scale: 1, opacity: 1 }`')
     lines.push('   - **交错延迟**：使用 `stagger: 0.15` 让多个段落依次动画')
     lines.push(
-        '   - **3D 旋转**：`{ rotationX: -45, opacity: 0 }` → `{ rotationX: 0, opacity: 1 }`',
+      '   - **3D 旋转**：`{ rotationX: -45, opacity: 0 }` → `{ rotationX: 0, opacity: 1 }`'
     )
     lines.push('   - **渐变遮罩**：使用 `background-clip: text` + animated gradient')
     lines.push(blank())
@@ -1346,7 +1353,7 @@ const buildCopyContent = (): string => {
   lines.push(blank())
   lines.push('##### 4.2 图片与动画的结合方式')
   lines.push(
-      '- **粒子效果 + 星空/科技图片**：背景使用深空、星系、电路板等图片，前景叠加粒子动画，营造科技感',
+    '- **粒子效果 + 星空/科技图片**：背景使用深空、星系、电路板等图片，前景叠加粒子动画，营造科技感'
   )
   lines.push('- **流体动画 + 自然/抽象图片**：使用水流、烟雾、渐变抽象图片，与流体动画呼应')
   lines.push('- **3D旋转 + 产品实拍图**：将企业真实产品图片放入3D卡片中旋转展示')
@@ -1357,19 +1364,19 @@ const buildCopyContent = (): string => {
   lines.push('根据企业行业和模块主题，组合以下关键词搜索：')
   lines.push('```')
   lines.push(
-      '科技行业：technology + innovation, AI + data, digital + transformation, startup + office',
+    '科技行业：technology + innovation, AI + data, digital + transformation, startup + office'
   )
   lines.push(
-      '金融行业：finance + professional, business + meeting, trust + handshake, investment + growth',
+    '金融行业：finance + professional, business + meeting, trust + handshake, investment + growth'
   )
   lines.push(
-      '教育行业：education + learning, students + classroom, graduation + success, online + course',
+    '教育行业：education + learning, students + classroom, graduation + success, online + course'
   )
   lines.push(
-      '医疗行业：healthcare + doctor, medical + technology, patient + care, hospital + modern',
+    '医疗行业：healthcare + doctor, medical + technology, patient + care, hospital + modern'
   )
   lines.push(
-      '制造业：manufacturing + factory, industrial + automation, production + quality, engineer + work',
+    '制造业：manufacturing + factory, industrial + automation, production + quality, engineer + work'
   )
   lines.push('```')
   lines.push(blank())
@@ -1382,7 +1389,7 @@ const buildCopyContent = (): string => {
   lines.push(blank())
   lines.push('##### 4.5 图片布局建议')
   lines.push(
-      '- **Hero 全屏背景**：`background-image: url(...)` + `background-size: cover` + 半透明遮罩层',
+    '- **Hero 全屏背景**：`background-image: url(...)` + `background-size: cover` + 半透明遮罩层'
   )
   lines.push('- **左右分栏**：左侧文字 + 右侧图片（或反之），适合产品介绍')
   lines.push('- **网格画廊**：3列或4列网格展示多个产品/案例图片')
@@ -1484,12 +1491,12 @@ const buildCopyContent = (): string => {
   lines.push('```tsx')
   lines.push('// 入场动画 - 自然舒适')
   lines.push(
-      'gsap.fromTo(element, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })',
+    'gsap.fromTo(element, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })'
   )
   lines.push(blank())
   lines.push('// 弹跳入场 - 有活力')
   lines.push(
-      'gsap.fromTo(element, { scale: 0 }, { scale: 1, duration: 0.8, ease: "back.out(1.7)" })',
+    'gsap.fromTo(element, { scale: 0 }, { scale: 1, duration: 0.8, ease: "back.out(1.7)" })'
   )
   lines.push(blank())
   lines.push('// 滚动同步 - 平滑视差')
@@ -1519,7 +1526,7 @@ const buildCopyContent = (): string => {
   lines.push('- 示例代码：')
   lines.push('```tsx')
   lines.push(
-      'const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches',
+    'const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches'
   )
   lines.push('if (!prefersReducedMotion) {')
   lines.push('  gsap.from(element, { opacity: 0, y: 50, duration: 1 })')
@@ -1564,10 +1571,10 @@ const buildCopyContent = (): string => {
   lines.push('| 错误写法 | 正确写法 | 说明 |')
   lines.push('|---------|---------|------|')
   lines.push(
-      '| `toggleActions: "play none none none"` | `toggleActions: "play none none reverse"` | 否则动画只播放一次，无法重复触发 |',
+    '| `toggleActions: "play none none none"` | `toggleActions: "play none none reverse"` | 否则动画只播放一次，无法重复触发 |'
   )
   lines.push(
-      '| 遗漏 `gsap.registerPlugin(ScrollTrigger)` | 组件顶部必须注册 | 否则 ScrollTrigger 不工作 |',
+    '| 遗漏 `gsap.registerPlugin(ScrollTrigger)` | 组件顶部必须注册 | 否则 ScrollTrigger 不工作 |'
   )
   lines.push('| 在 render 中直接执行 GSAP | 必须在 `useEffect` 中执行 | 否则 DOM 未就绪 |')
   lines.push('| 忘记清理 ScrollTrigger | `return () => t.kill()` | 否则内存泄漏 |')
@@ -1579,13 +1586,13 @@ const buildCopyContent = (): string => {
   lines.push('| 错误写法 | 正确写法 | 说明 |')
   lines.push('|---------|---------|------|')
   lines.push(
-      '| `useEffect(() => { gsap.to(...) })` | `useEffect(() => { gsap.to(...); return () => kill() }, [])` | 必须有依赖数组和清理函数 |',
+    '| `useEffect(() => { gsap.to(...) })` | `useEffect(() => { gsap.to(...); return () => kill() }, [])` | 必须有依赖数组和清理函数 |'
   )
   lines.push(
-      '| `useEffect(() => { anim = gsap.to(...) })` | 使用 `useRef` 保存：`const animRef = useRef(); animRef.current = gsap.to(...)` | 避免闭包问题 |',
+    '| `useEffect(() => { anim = gsap.to(...) })` | 使用 `useRef` 保存：`const animRef = useRef(); animRef.current = gsap.to(...)` | 避免闭包问题 |'
   )
   lines.push(
-      '| 在 `useEffect` 外定义 ScrollTrigger | 在 `useEffect` 内创建并清理 | 确保 DOM 就绪 |',
+    '| 在 `useEffect` 外定义 ScrollTrigger | 在 `useEffect` 内创建并清理 | 确保 DOM 就绪 |'
   )
   lines.push(blank())
   lines.push('##### 8.3 Canvas 错误')
@@ -1593,10 +1600,10 @@ const buildCopyContent = (): string => {
   lines.push('|---------|---------|------|')
   lines.push('| 直接操作 DOM | 使用 `useRef` 获取 canvas | React 中必须用 ref |')
   lines.push(
-      '| 在 render 中 `ctx.beginPath()` | 在 `useEffect` 中 `requestAnimationFrame` 循环 | 否则动画不流畅 |',
+    '| 在 render 中 `ctx.beginPath()` | 在 `useEffect` 中 `requestAnimationFrame` 循环 | 否则动画不流畅 |'
   )
   lines.push(
-      '| 遗漏 `canvas.width = container.offsetWidth` | 监听 resize 事件更新尺寸 | 否则 canvas 尺寸不对 |',
+    '| 遗漏 `canvas.width = container.offsetWidth` | 监听 resize 事件更新尺寸 | 否则 canvas 尺寸不对 |'
   )
   lines.push('| 页面隐藏时继续动画 | 监听 `visibilitychange` 暂停 | 否则浪费性能 |')
   lines.push(blank())
@@ -1611,7 +1618,7 @@ const buildCopyContent = (): string => {
   lines.push('      { opacity: 0, y: 50 },')
   lines.push('      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out",')
   lines.push(
-      '        scrollTrigger: { trigger: ".element", start: "top 80%", toggleActions: "play none none reverse" }',
+    '        scrollTrigger: { trigger: ".element", start: "top 80%", toggleActions: "play none none reverse" }'
   )
   lines.push('      }')
   lines.push('    )')
@@ -1627,7 +1634,7 @@ const buildCopyContent = (): string => {
   lines.push('  let animationId: number')
   lines.push('  ')
   lines.push(
-      '  const resize = () => { canvas.width = container.offsetWidth; canvas.height = container.offsetHeight }',
+    '  const resize = () => { canvas.width = container.offsetWidth; canvas.height = container.offsetHeight }'
   )
   lines.push('  resize()')
   lines.push('  window.addEventListener("resize", resize)')
@@ -1641,7 +1648,7 @@ const buildCopyContent = (): string => {
   lines.push('  })')
   lines.push('  ')
   lines.push(
-      '  return () => { cancelAnimationFrame(animationId); window.removeEventListener("resize", resize) }',
+    '  return () => { cancelAnimationFrame(animationId); window.removeEventListener("resize", resize) }'
   )
   lines.push('}, [])')
   lines.push('```')
@@ -1834,15 +1841,15 @@ const buildCopyContent = (): string => {
     'index.css',
     '各个 React 组件（按依赖顺序）',
     'App.tsx',
-    'main.tsx',
+    'main.tsx'
   ].forEach((f, i) => lines.push(`${i + 1}. ${f}`))
   lines.push(blank())
 
   // 提示
   lines.push(
-      sep('='),
-      '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 React 网站代码',
-      sep('='),
+    sep('='),
+    '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 React 网站代码',
+    sep('=')
   )
 
   return lines.join('\n')
@@ -2050,41 +2057,41 @@ const preloadComponentSourcesBatch = async (components: ComponentSelectInfo[]) =
 
     // 批次间延迟，让浏览器有时间响应
     if (i > 0) {
-      await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
+      await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY))
     }
 
     // 并行加载当前批次
     await Promise.all(
-        batch.map(async (comp) => {
-          if (!comp.sourceCode) {
-            try {
-              const moduleLoader = vueModules[comp.path]
-              if (moduleLoader && typeof moduleLoader === 'function') {
-                const module = await moduleLoader()
-                comp.sourceCode = module.default || module
-              }
-            } catch (error) {
-              console.error(`Failed to load source code for ${comp.path}:`, error)
+      batch.map(async (comp) => {
+        if (!comp.sourceCode) {
+          try {
+            const moduleLoader = vueModules[comp.path]
+            if (moduleLoader && typeof moduleLoader === 'function') {
+              const module = await moduleLoader()
+              comp.sourceCode = module.default || module
             }
+          } catch (error) {
+            console.error(`Failed to load source code for ${comp.path}:`, error)
           }
+        }
 
-          if (!comp.readme) {
-            try {
-              const readmePath = comp.path.replace(/\.vue$/, '/README.md')
-              const readmeLoader = readmeModules[readmePath]
-              if (readmeLoader && typeof readmeLoader === 'function') {
-                const module = await readmeLoader()
-                comp.readme = module.default || module
-              }
-            } catch (error) {
-              console.error(`Failed to load README for ${comp.path}:`, error)
-              comp.readme = null
+        if (!comp.readme) {
+          try {
+            const readmePath = comp.path.replace(/\.vue$/, '/README.md')
+            const readmeLoader = readmeModules[readmePath]
+            if (readmeLoader && typeof readmeLoader === 'function') {
+              const module = await readmeLoader()
+              comp.readme = module.default || module
             }
+          } catch (error) {
+            console.error(`Failed to load README for ${comp.path}:`, error)
+            comp.readme = null
           }
+        }
 
-          loaded++
-          loadingProgress.value = Math.round((loaded / total) * 100)
-        })
+        loaded++
+        loadingProgress.value = Math.round((loaded / total) * 100)
+      })
     )
   }
 
@@ -2093,21 +2100,21 @@ const preloadComponentSourcesBatch = async (components: ComponentSelectInfo[]) =
 
 // 监听已选组件变化，自动保存并预加载源码
 watch(
-    selectedComponents,
-    async (newVal, oldVal) => {
-      saveSelectedComponents()
+  selectedComponents,
+  async (newVal, oldVal) => {
+    saveSelectedComponents()
 
-      // 找出新增的组件并预加载
-      const newComps = newVal.filter(newComp =>
-          !oldVal.some(oldComp => oldComp.dirName === newComp.dirName)
-      )
+    // 找出新增的组件并预加载
+    const newComps = newVal.filter(
+      (newComp) => !oldVal.some((oldComp) => oldComp.dirName === newComp.dirName)
+    )
 
-      if (newComps.length > 0) {
-        // 新增组件也使用分批加载
-        preloadComponentSourcesBatch(newComps)
-      }
-    },
-    { deep: true }
+    if (newComps.length > 0) {
+      // 新增组件也使用分批加载
+      preloadComponentSourcesBatch(newComps)
+    }
+  },
+  { deep: true }
 )
 
 // ==================== 企业信息功能（从 web-ai 迁移） ====================
@@ -2129,7 +2136,7 @@ const enterpriseInfo = reactive<EnterpriseInfo>({
   targetAudience: '',
   mainColors: '',
   websiteType: '企业官网', // 默认企业官网，不可修改
-  designPhilosophy: '',
+  designPhilosophy: ''
 })
 
 // 加载保存的企业信息
@@ -2137,15 +2144,15 @@ const loadEnterpriseInfo = (): EnterpriseInfo => {
   try {
     const saved = localStorage.getItem('cardEnterpriseInfo')
     return saved ?
-        JSON.parse(saved) :
-        {
+      JSON.parse(saved) :
+      {
           name: '',
           industry: '',
           description: '',
           targetAudience: '',
           mainColors: '',
           websiteType: '',
-          designPhilosophy: '',
+          designPhilosophy: ''
         }
   } catch {
     return {
@@ -2155,7 +2162,7 @@ const loadEnterpriseInfo = (): EnterpriseInfo => {
       targetAudience: '',
       mainColors: '',
       websiteType: '',
-      designPhilosophy: '',
+      designPhilosophy: ''
     }
   }
 }
@@ -2167,11 +2174,11 @@ const saveEnterpriseInfo = () => {
 
 // 监听企业信息变化，自动保存
 watch(
-    enterpriseInfo,
-    () => {
-      saveEnterpriseInfo()
-    },
-    { deep: true },
+  enterpriseInfo,
+  () => {
+    saveEnterpriseInfo()
+  },
+  { deep: true }
 )
 
 // 颜色选择器相关
@@ -2195,7 +2202,7 @@ const solidColorPresets = [
   { name: '玫瑰金', value: '#E91E63' },
   { name: '雾霾蓝', value: '#607D8B' },
   { name: '珊瑚色', value: '#FF7F50' },
-  { name: '电光紫', value: '#9D4EDD' },
+  { name: '电光紫', value: '#9D4EDD' }
 ]
 
 // 预设渐变
@@ -2205,7 +2212,7 @@ const gradientPresets = [
   { name: '森林渐变', value: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' },
   { name: '海洋渐变', value: 'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)' },
   { name: '火焰渐变', value: 'linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)' },
-  { name: '银河渐变', value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' },
+  { name: '银河渐变', value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' }
 ]
 
 // 切换颜色选择器
@@ -2266,7 +2273,7 @@ const categories = [
   { key: 'card-list', label: '基础' },
   { key: 'card-other', label: '其他' },
   { key: 'favorite', label: '我的收藏' },
-  { key: 'selected', label: '已选组件' },
+  { key: 'selected', label: '已选组件' }
 ]
 
 // ==================== 响应式数据 ====================
@@ -2296,477 +2303,189 @@ const modulesOther = import.meta.glob('./card-other/*/*.vue')
 /**
  * 自动化构建组件列表
  */
-let dirNameList = [
-  'CardImageAnaglyph3D', 'CardImageEchoTrail', 'CardImageFragmentAssembly', 'CardImageMirrorSplit', 'CardImageNightVision', 'CardImagePlanetReveal', 'CardImageReflectionRipple', 'CardImageTimeSlice', 'CardImageVolumetricFog',
-  'CardImageBeforeAfter', 'CardImageCinematicWipe', 'CardImageDoubleExposure', 'CardImageHologramStack', 'CardImageKaleidoscopePrism', 'CardImageLensReveal', 'CardImageMorphTransition', 'CardImageParallaxDepth', 'CardImagePeelReveal', 'CardImageScratchReveal', 'CardImageThermalReceipt',
-  'CardImageCMYKHalftone', 'CardImageCathedralGlass', 'CardImageChromeMelt', 'CardImageShadowPuppet', 'CardImageSilkscreenPrint', 'CardImageTopoContour', 'CardImageWetPlate',
-  'CardImageGlassShatter', 'CardImageInkBleed', 'CardImageOilSlick', 'CardImagePolaroidDevelop', 'CardImageVoxelBuild',
-  'CardImageCoralParadise', 'CardImageLightTrails', 'CardImageMagneticInk', 'CardImageParticleSculpture', 'CardImageWormholePortal',
-  'CardTimeAvalanche', 'CardTimeCaustics', 'CardTimeConveyorBelt', 'CardTimeCrystallize', 'CardTimeDJMixer', 'CardTimeDebugger', 'CardTimeElevator', 'CardTimeGitCommit', 'CardTimeMagneticPoles', 'CardTimeMetronome', 'CardTimeMirrorHall', 'CardTimeNewtonCradle', 'CardTimePendulumWave', 'CardTimePianoRoll', 'CardTimePinball', 'CardTimePrismSplit', 'CardTimeRubiksCube', 'CardTimeSandDune', 'CardTimeShadowTheater', 'CardTimeSlotMachine', 'CardTimeSortAlgo', 'CardTimeSoundWave', 'CardTimeSpringMesh', 'CardTimeTectonicShift', 'CardTimeTerminal', 'CardTimeTetris', 'CardTimeTypewheel', 'CardTimeZoetrope',
-  'AIImagePromptBuilder', 'AchievementSystem', 'AugmentedReality', 'CodeDiffViewer', 'CommandPalette', 'CrystalRefraction', 'DragPhysicsEngine', 'DrawingCanvas', 'EmotionHeatmap', 'FluidSimulation', 'FormBuilder', 'GesturePlayground', 'HandwritingRecognition', 'KanbanBoard', 'MarkdownLiveEditor', 'MazeGenerator', 'MusicSequencer', 'PixelArtEditor', 'PortalTransition', 'RadarMorphChart', 'SankeyFlow', 'TerrainGenerator', 'TimelineRiver', 'TreemapZoom', 'VoiceVisualizer',
-  'CardImageBlackMirror', 'CardImageCherryBlossom', 'CardImageDNAHelix', 'CardImageFrostMelt', 'CardImageNebulaBirth', 'CardImageOrigamiFold', 'CardImagePortalOpen', 'CardImageVolcanoErupt',
-  'CardImgCinematicMask', 'CardImgLiquidMorph', 'CardImgNegativeReveal', 'CardImgNovaBirth', 'CardImgTimeFracture',
-  'CardImageAuroraWave', 'CardImageDimensionTear', 'CardImageFiberOptic', 'CardImageGravityWell', 'CardImageHoloPrism', 'CardImageInfraredShift', 'CardImageKaleidoscope', 'CardImageLightningStrike', 'CardImageMagneticField', 'CardImagePhoenixRise', 'CardImageSandstorm', 'CardImageTsunami', 'CardImageXRayScan',
-  'CardImageCarbonBlade',
-  'CardImageCarbonCrystal',
-  'CardImageCrossCrack',
-  'CardImageCurtainRise',
-  'CardImageDeepSeaCoffin',
-  'CardImageDepthStorm',
-  'CardImageDiagonalGrid',
-  'CardImageDiagonalSlice',
-  'CardImageGlacierCrevasse',
-  'CardImageMirage',
-  'CardImageObsidianSplit',
-  'CardImagePulsarBurst',
-  'CardImageRippleReveal',
-  'CardImageRockCrack',
-  'CardImageRollingShade',
-  'CardImageShatterRebuild',
-  'CardImageSkyTower',
-  'CardImageStardustCoalescence',
-  'CardImgBokeh',
-  'CardImgDiag',
-  'CardImgDoubleEdge',
-  'CardImgFeather',
-  'CardImgFocalWindow',
-  'CardImgFocusRing',
-  'CardImgMontage',
-  'CardImgNarrative',
-  'CardImgPearl',
-  'CardImgSand',
-  'CardImgSink',
-  'CardImgStarCore',
-  'CardImgVapor',
-  'CardImgDarkroom',
-  'CardImgFrost',
-  'CardImgPerspective',
-  'CardImgReversal',
-  'CardImgStage',
-  'CardImgSundial',
-  'CardImgVault',
-  'CardImgAmber',
-  'CardImgDepthLadder',
-  'CardImgFlipCard',
-  'CardImgMorningMist',
-  'CardImgSpinCard',
-  'CardImgTidalDream',
-  'CardImgWaterfall',
-  'CardImgZen',
-  'CardImgBeacon',
-  'CardImgBook',
-  'CardImgCrystal',
-  'CardImgFallingLeaf',
-  'CardImgFlyingStones',
-  'CardImgFoldedFan',
-  'CardImgPinhole',
-  'CardImgRippleWave',
-  'CardImgSplitFocus',
-  'CardImgSteel',
-  'CardImgTelescope',
-  'CardImgTitanium',
-  'CardImgTungsten',
-  'CardImgVelvet',
-  'CardImgVelvetDisplay',
-  'CardImgWaxSeal',
-  'CardImgCarousel',
-  'CardImgCloudTide',
-  'CardImgDolly',
-  'CardImgDust',
-  'CardImgFlip',
-  'CardImgFloat',
-  'CardImgFlower',
-  'CardImgForestMist',
-  'CardImgInk',
-  'CardImgMaglev',
-  'CardImgMistReveal',
-  'CardImgNebulaBreath',
-  'CardImgPolarize',
-  'CardImgPrism',
-  'CardImgRain',
-  'CardImgRipple',
-  'CardImgRiver',
-  'CardImgTwinWings',
-  'CardImgDeepPulse',
-  'CardImgFilm',
-  'CardImgGravity',
-  'CardImgHydraulic',
-  'CardImgStatic',
-  'CardImgStripes',
-  'CardImgAurora',
-  'CardImgCube',
-  'CardImgDeepSea',
-  'CardImgFog',
-  'CardImgGalaxy',
-  'CardImgMirror',
-  'CardImgThermal',
-  'CardImgBloom',
-  'CardImgCrosshair',
-  'CardImgCurtain',
-  'CardImgDepth',
-  'CardImgGilded',
-  'CardImgMercury',
-  'CardImgProjector',
-  'CardImgTyndall',
-  'CardImgAbyss',
-  'CardImgAperture',
-  'CardImgDeconstruct',
-  'CardImgFocusShift',
-  'CardImgParallax',
-  'CardImgRift',
-  'CardImgStardust',
-  'CardImgVortex',
-  'CardImgWireless',
-  'Card3DFlipGallery',
-  'Card3dHologram',
-  'Card3dHouse',
-  'Card3dTome',
-  'CardTextAurora',
-  'CardTextBioluminescent',
-  'CardTextBlur',
-  'CardTextBoiling',
-  'CardTextChladni',
-  'CardTextCinematic',
-  'CardTextCorona',
-  'CardTextCrystal',
-  'CardTextCyber',
-  'CardTextDomino',
-  'CardTextFirework',
-  'CardTextFluid3D',
-  'CardTextGalaxy',
-  'CardTextHologram',
-  'CardTextHolographic',
-  'CardTextInk',
-  'CardTextLaser',
-  'CardTextMagnetic',
-  'CardTextMetal',
-  'CardTextMoonlightEmbroider',
-  'CardTextMycelium',
-  'CardTextNeonCrack',
-  'CardTextNeonSign',
-  'CardTextOrganic',
-  'CardTextOrigami',
-  'CardTextParticleStorm',
-  'CardTextPrismDispersion',
-  'CardTextQuantumCollapse',
-  'CardTextSeismograph',
-  'CardTextSpikes',
-  'CardTextSweep',
-  'CardTextSynapse',
-  'CardTextTsunami3D',
-  'CardTextVoidRebirth',
-  'CardTextWaterWave',
-  'Card3dCube',
-  'Card3dEntanglement',
-  'Card3dSpectrum',
-  'Card3dWormhole',
-  'CardTimeOrbitFlip',
-
-  'CardTimeGravity',
-  'CardTimeKaleidoscope',
-  'CardTimeMagnet',
-  'CardTimeOrbitFlip',
-  'CardAbstractGeometry',
-  'CardTimeAether',
-  'CardTimeBeat',
-  'CardTimeBlackHole',
-  'CardTimeBlueprint',
-  'CardTimeBook',
-  'CardTimeCascade',
-  'CardTimeCinematic',
-  'CardTimeCosmic',
-  'CardTimeCosmicRhythm',
-  'CardTimeCubeFlip',
-  'CardTimeDepthParallax',
-  'CardTimeDiagonal',
-  'CardTimeDimensionFold',
-  'CardTimeDrawer',
-  'CardTimeDust',
-  'CardTimeElastic',
-  'CardTimeEpicenter',
-  'CardTimeEqualizer',
-  'CardTimeForge',
-  'CardTimeGravitonSling',
-  'CardTimeHologram',
-  'CardTimeLens',
-  'CardTimeLuminous',
-  'CardTimeLuxeDrop',
-  'CardTimeLuxury',
-  'CardTimeMagicFlip',
-  'CardTimeMaterialAwakening',
-  'CardTimeMirage',
-  'CardTimeNeon',
-  'CardTimePageFlip',
-  'CardTimePerspective',
-  'CardTimeQuantumLeap',
-  'CardTimeRasterize',
-  'CardTimeRevelation',
-  'CardTimeRipple',
-  'CardTimeShatter',
-  'CardTimeShimmer',
-  'CardTimeSingularity',
-  'CardTimeSolarFlare',
-  'CardTimeSpacetimeFissure',
-  'CardTimeSpatialDepth',
-  'CardTimeSpiral',
-  'CardTimeStellarOrbit',
-  'CardTimeTeam',
-  'CardTimeTemporal',
-  'CardTimeTheatre',
-  'CardTimeTrust',
-  'CardTimeTypography',
-  'CardTimeVoyage',
-  'CardTimeWave',
-  /*'Card3DFlipGallery',
-  'CardAbstractGeometry',*/
-  'CardAllInOne',
-  'CardAudioWave',
-  'CardAurora',
-  'CardAuroraWave',
-  'CardBioluminescence',
-  'CardCatalyst',
-  'CardCelestial',
-  'CardCircuit',
-  'CardCrystal',
-  'CardCyberspace',
-  'CardDNA',
-  'CardDataStream',
-  'CardEclipse',
-  'CardFadeBlur',
-  'CardFadeInOut',
-  'CardFireflies',
-  'CardFrost',
-  'CardFullCombo',
-  'CardFusion',
-  'CardGalaxy',
-  'CardGlacier',
-  'CardGlitch',
-  'CardGradientWave',
-  'CardGravity',
-  'CardGravity2',
-  'CardHologram',
-  'CardHolographic',
-  'CardInfinity',
-  'CardKaleidoscope',
-  'CardLightning',
-  'CardLiquid',
-  'CardLiquidMetal',
-  'CardMagma',
-  'CardMatrix',
-  'CardMeteor',
-  'CardMorph',
-  'CardMosaic',
-  'CardNebula',
-  'CardNeon',
-  'CardNeonCircuit',
-  'CardNineCombo',
-  'CardParticle',
-  'CardPhantom',
-  'CardPlasma',
-  'CardPortal',
-  'CardPrism',
-  'CardQuantum',
-  'CardRipple',
-  'CardRotate',
-  'CardRotateScaleTranslate',
-  'CardScale',
-  'CardShatter',
-  'CardSixCombo',
-  'CardSlideEdge',
-  'CardSolarSystem',
-  'CardSphere',
-  'CardSupernova',
-  'CardSwipe',
-  'CardTornado',
-  'CardTranslate',
-  'CardTranslateRotateScale',
-  'CardVoid',
-  'CardVortex',
-  'CardWave'
-]
- // dirNameList = []
+const dirNameList = componentsList
+// dirNameList = []
 
 const cardComponents = computed(() => {
   // 处理 card-list 目录组件
   const listComponents = Object.entries(modules)
-      .map(([path, module]) => {
-        const match = path.match(/\/card-list\/([^/]+)\/[^/]+\.vue$/)
-        const dirName = match?.[1] || ''
-        const name = dirName
-            .replace(/Card/g, '')
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '')
-            .trim()
+    .map(([path, module]) => {
+      const match = path.match(/\/card-list\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
 
-        return {
-          dirName,
-          name: name || dirName,
-          path,
-          // 懒加载模式：直接使用 import.meta.glob 返回的函数
-          component: LAZY_MODE ?
-              defineAsyncComponent(module as any) :
-              (module as any)?.default || null,
-          type: 'card-list'
-        }
-      })
-      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-list'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-time 目录组件
   const timeComponents = Object.entries(modulesTime)
-      .map(([path, module]) => {
-        const match = path.match(/\/card-time\/([^/]+)\/[^/]+\.vue$/)
-        const dirName = match?.[1] || ''
-        const name = dirName
-            .replace(/Card/g, '')
-            .replace(/Time/g, ' Time')
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '')
-            .trim()
+    .map(([path, module]) => {
+      const match = path.match(/\/card-time\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/Time/g, ' Time')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
 
-        return {
-          dirName,
-          name: name || dirName,
-          path,
-          // 懒加载模式：直接使用 import.meta.glob 返回的函数
-          component: LAZY_MODE ?
-              defineAsyncComponent(module as any) :
-              (module as any)?.default || null,
-          type: 'card-time'
-        }
-      })
-      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-time'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-text 目录组件
   const textComponents = Object.entries(modulesText)
-      .map(([path, module]) => {
-        const match = path.match(/\/card-text\/([^/]+)\/[^/]+\.vue$/)
-        const dirName = match?.[1] || ''
-        const name = dirName
-            .replace(/CardText/g, '文字')
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '')
-            .trim()
+    .map(([path, module]) => {
+      const match = path.match(/\/card-text\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/CardText/g, '文字')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
 
-        return {
-          dirName,
-          name: name || dirName,
-          path,
-          // 懒加载模式：直接使用 import.meta.glob 返回的函数
-          component: LAZY_MODE ?
-              defineAsyncComponent(module as any) :
-              (module as any)?.default || null,
-          type: 'card-text'
-        }
-      })
-      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-text'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-3d 目录组件
   const d3dComponents = Object.entries(modules3d)
-      .map(([path, module]) => {
-        const match = path.match(/\/card-3d\/([^/]+)\/[^/]+\.vue$/)
-        const dirName = match?.[1] || ''
-        const name = dirName
-            .replace(/Card/g, '')
-            .replace(/3d/g, ' 3D')
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '')
-            .trim()
+    .map(([path, module]) => {
+      const match = path.match(/\/card-3d\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/3d/g, ' 3D')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
 
-        return {
-          dirName,
-          name: name || dirName,
-          path,
-          // 懒加载模式：直接使用 import.meta.glob 返回的函数
-          component: LAZY_MODE ?
-              defineAsyncComponent(module as any) :
-              (module as any)?.default || null,
-          type: 'card-3d'
-        }
-      })
-      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-3d'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-img 目录组件
   const imgComponents = Object.entries(modulesImg)
-      .map(([path, module]) => {
-        const match = path.match(/\/card-img\/([^/]+)\/[^/]+\.vue$/)
-        const dirName = match?.[1] || ''
-        const name = dirName
-            .replace(/Card/g, '')
-            .replace(/Img/g, ' Image')
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '')
-            .trim()
+    .map(([path, module]) => {
+      const match = path.match(/\/card-img\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/Img/g, ' Image')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
 
-        return {
-          dirName,
-          name: name || dirName,
-          path,
-          // 懒加载模式：直接使用 import.meta.glob 返回的函数
-          component: LAZY_MODE ?
-              defineAsyncComponent(module as any) :
-              (module as any)?.default || null,
-          type: 'card-img'
-        }
-      })
-      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-img'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-image 目录组件
   const imageComponents = Object.entries(modulesImage)
-      .map(([path, module]) => {
-        const match = path.match(/\/card-image\/([^/]+)\/[^/]+\.vue$/)
-        const dirName = match?.[1] || ''
-        const name = dirName
-            .replace(/Card/g, '')
-            .replace(/Image/g, ' Image')
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '')
-            .trim()
+    .map(([path, module]) => {
+      const match = path.match(/\/card-image\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/Image/g, ' Image')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
 
-        return {
-          dirName,
-          name: name || dirName,
-          path,
-          // 懒加载模式：直接使用 import.meta.glob 返回的函数
-          component: LAZY_MODE ?
-              defineAsyncComponent(module as any) :
-              (module as any)?.default || null,
-          type: 'card-image'
-        }
-      })
-      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-image'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
   // 处理 card-other 目录组件
   const otherComponents = Object.entries(modulesOther)
-      .map(([path, module]) => {
-        const match = path.match(/\/card-other\/([^/]+)\/[^/]+\.vue$/)
-        const dirName = match?.[1] || ''
-        const name = dirName
-            .replace(/Card/g, '')
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^/, '')
-            .trim()
+    .map(([path, module]) => {
+      const match = path.match(/\/card-other\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
 
-        return {
-          dirName,
-          name: name || dirName,
-          path,
-          // 懒加载模式：直接使用 import.meta.glob 返回的函数
-          component: LAZY_MODE ?
-              defineAsyncComponent(module as any) :
-              (module as any)?.default || null,
-          type: 'card-other'
-        }
-      })
-      .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        // 懒加载模式：直接使用 import.meta.glob 返回的函数
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-other'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
-
-  console.log(imageComponents.map(item => item.dirName));
-  console.log(imgComponents.map(item => item.dirName));
-  console.log(textComponents.map(item => item.dirName));
-  console.log(d3dComponents.map(item => item.dirName));
-  console.log(timeComponents.map(item => item.dirName));
-  console.log(listComponents.map(item => item.dirName));
-  console.log(otherComponents.map(item => item.dirName));
+  console.log(imageComponents.map((item) => item.dirName))
+  console.log(imgComponents.map((item) => item.dirName))
+  console.log(textComponents.map((item) => item.dirName))
+  console.log(d3dComponents.map((item) => item.dirName))
+  console.log(timeComponents.map((item) => item.dirName))
+  console.log(listComponents.map((item) => item.dirName))
+  console.log(otherComponents.map((item) => item.dirName))
   // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后，card-other 最后
   return [
     ...imageComponents,
@@ -2818,53 +2537,54 @@ const initIntersectionObserver = () => {
   }
 
   // 节流控制：避免 Observer 回调一次性触发过多组件挂载
-  let observerPendingIndices = new Set<number>()
+  const observerPendingIndices = new Set<number>()
   let observerRafId: number | null = null
 
   // 先创建 observer 实例（避免 setTimeout 中 observer 为 null）
   observer = new IntersectionObserver(
-      (entries) => {
-        if (!visibleCards.value || isCategorySwitching) {
-          return
-        }
+    (entries) => {
+      if (!visibleCards.value || isCategorySwitching) {
+        return
+      }
 
-        entries.forEach((entry) => {
-          const index = parseInt((entry.target as HTMLElement).dataset.index || '0')
+      entries.forEach((entry) => {
+        const index = parseInt((entry.target as HTMLElement).dataset.index || '0')
 
-          if (entry.isIntersecting) {
-            // 收集需要加载的索引
-            observerPendingIndices.add(index)
-            for (let i = 1; i <= VISIBLE_BUFFER; i++) {
-              const nextIndex = index + i
-              if (nextIndex < filteredComponents.value.length) {
-                observerPendingIndices.add(nextIndex)
-              }
-            }
-          } else {
-            // 离开视口较远时卸载（节省内存）
-            const viewportHeight = window.innerHeight
-            const rect = entry.boundingClientRect
-            if (rect.top < -viewportHeight * 2 || rect.top > viewportHeight * 3) {
-              visibleCards.value.delete(index)
+        if (entry.isIntersecting) {
+          // 收集需要加载的索引
+          observerPendingIndices.add(index)
+          for (let i = 1; i <= VISIBLE_BUFFER; i++) {
+            const nextIndex = index + i
+            if (nextIndex < filteredComponents.value.length) {
+              observerPendingIndices.add(nextIndex)
             }
           }
-        })
-
-        // 使用 rAF 批量写入，避免短时间内大量组件挂载
-        if (observerRafId === null && observerPendingIndices.size > 0) {
-          observerRafId = requestAnimationFrame(() => {
-            observerPendingIndices.forEach((idx) => {
-              visibleCards.value?.add(idx)
-            })
-            observerPendingIndices.clear()
-            observerRafId = null
-          })
+        } else {
+          // 离开视口较远时卸载（节省内存）
+          const viewportHeight = window.innerHeight
+          const rect = entry.boundingClientRect
+          if (rect.top < -viewportHeight * 2 || rect.top > viewportHeight * 3) {
+            visibleCards.value.delete(index)
+          }
         }
-      },
-      {root: null,
-        rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
-        threshold: 0
-      },
+      })
+
+      // 使用 rAF 批量写入，避免短时间内大量组件挂载
+      if (observerRafId === null && observerPendingIndices.size > 0) {
+        observerRafId = requestAnimationFrame(() => {
+          observerPendingIndices.forEach((idx) => {
+            visibleCards.value?.add(idx)
+          })
+          observerPendingIndices.clear()
+          observerRafId = null
+        })
+      }
+    },
+    {
+      root: null,
+      rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
+      threshold: 0
+    }
   )
 
   // 等待 DOM 渲染后再 observe 元素
@@ -2937,7 +2657,7 @@ const createExtraBubbles = () => {
     'rgba(0, 191, 255, 0.5)', // 电光蓝
     'rgba(100, 255, 218, 0.5)', // 青色
     'rgba(255, 182, 193, 0.6)', // 浅粉
-    'rgba(173, 216, 230, 0.5)', // 天蓝
+    'rgba(173, 216, 230, 0.5)' // 天蓝
   ]
 
   // 创建 50 个气泡
@@ -2991,130 +2711,135 @@ const initPage1Animations = () => {
 
     // 入场动画序列
     tl.fromTo('.page1-bg-effects', { opacity: 0 }, { opacity: 1, duration: 1 })
-        .fromTo(
-            '.floating-orb',
-            { scale: 0, opacity: 0 },
-            {
-              scale: 1,
-              opacity: 0.6,
-              duration: 1.5,
-              stagger: 0.2
-            },
-            '-=0.5'
-        )
-        .fromTo(
-            '.hero-badge',
-            { y: -50, opacity: 0, scale: 0.8 },
-            {
-              y: 0,
-              opacity: 1,
-              scale: 1,
-              duration: 0.8,
-              ease: 'back.out(1.7)'
-            },
-            '-=1'
-        )
-        // 标题字符 3D 立体入场动画
-        .fromTo(
-            '.page-title .title-line',
-            {
-              y: 80,
-              opacity: 0,
-              scale: 0.8,
-              rotateX: -45
-            },
-            {
-              y: 0,
-              opacity: 1,
-              scale: 1,
-              rotateX: 0,
-              duration: 1,
-              stagger: 0.15,
-              ease: 'expo.out'
-            },
-            '-=0.5'
-        )
-        // 每个字符单独 3D 旋转入场
-        .fromTo(
-            '.page-title .char',
-            {
-              y: 60,
-              opacity: 0,
-              rotateX: -90,
-              rotateY: 45,
-              scale: 0.5
-            },
-            {
-              y: 0,
-              opacity: 1,
-              rotateX: 0,
-              rotateY: 0,
-              scale: 1,
-              duration: 0.8,
-              stagger: { each: 0.06, from: 'start' },
-              ease: 'elastic.out(1, 0.6)'
-            },
-            '-=0.8'
-        )
-        // 副标题词语动画
-        .fromTo(
-            '.page-desc .desc-word',
-            { y: 30, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.6,
-              stagger: 0.08
-            },
-            '-=0.5'
-        )
-        // 功能标签动画
-        .fromTo(
-            '.feature-tags .tag',
-            { scale: 0, opacity: 0, y: 20 },
-            {
-              scale: 1,
-              opacity: 1,
-              y: 0,
-              duration: 0.6,
-              stagger: 0.15,
-              ease: 'elastic.out(1, 0.5)'
-            },
-            '-=0.3'
-        )
-        // 中文信息块动画
-        .fromTo(
-            '.chinese-info .info-block',
-            { x: -60, opacity: 0 },
-            {
-              x: 0,
-              opacity: 1,
-              duration: 0.8,
-              stagger: 0.2,
-              ease: 'power2.out'
-            },
-            '-=0.5'
-        )
-        // 统计数字动画
-        .fromTo('.component-stats', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.3')
-        .fromTo(
-            '.stat-number',
-            { y: 20, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.6,
-              stagger: 0.15
-            },
-            '-=0.6'
-        )
-        // 滚动指示器动画
-        .fromTo(
-            '.scroll-indicator',
-            { opacity: 0, y: -20 },
-            { opacity: 1, y: 0, duration: 0.6 },
-            '-=0.2'
-        )
+      .fromTo(
+        '.floating-orb',
+        { scale: 0, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 0.6,
+          duration: 1.5,
+          stagger: 0.2
+        },
+        '-=0.5'
+      )
+      .fromTo(
+        '.hero-badge',
+        { y: -50, opacity: 0, scale: 0.8 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: 'back.out(1.7)'
+        },
+        '-=1'
+      )
+      // 标题字符 3D 立体入场动画
+      .fromTo(
+        '.page-title .title-line',
+        {
+          y: 80,
+          opacity: 0,
+          scale: 0.8,
+          rotateX: -45
+        },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          rotateX: 0,
+          duration: 1,
+          stagger: 0.15,
+          ease: 'expo.out'
+        },
+        '-=0.5'
+      )
+      // 每个字符单独 3D 旋转入场
+      .fromTo(
+        '.page-title .char',
+        {
+          y: 60,
+          opacity: 0,
+          rotateX: -90,
+          rotateY: 45,
+          scale: 0.5
+        },
+        {
+          y: 0,
+          opacity: 1,
+          rotateX: 0,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: { each: 0.06, from: 'start' },
+          ease: 'elastic.out(1, 0.6)'
+        },
+        '-=0.8'
+      )
+      // 副标题词语动画
+      .fromTo(
+        '.page-desc .desc-word',
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.08
+        },
+        '-=0.5'
+      )
+      // 功能标签动画
+      .fromTo(
+        '.feature-tags .tag',
+        { scale: 0, opacity: 0, y: 20 },
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.15,
+          ease: 'elastic.out(1, 0.5)'
+        },
+        '-=0.3'
+      )
+      // 中文信息块动画
+      .fromTo(
+        '.chinese-info .info-block',
+        { x: -60, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.2,
+          ease: 'power2.out'
+        },
+        '-=0.5'
+      )
+      // 统计数字动画
+      .fromTo(
+        '.component-stats',
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8 },
+        '-=0.3'
+      )
+      .fromTo(
+        '.stat-number',
+        { y: 20, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.15
+        },
+        '-=0.6'
+      )
+      // 滚动指示器动画
+      .fromTo(
+        '.scroll-indicator',
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.6 },
+        '-=0.2'
+      )
 
     // 持续动画 - 浮动光球呼吸效果
     gsap.to('.orb-1', {
@@ -3189,21 +2914,18 @@ const initPage1Animations = () => {
 
     // 脉冲圆环动画
     gsap.fromTo(
-        '.pulse-ring',
-        { scale: 0.5, opacity: 0 },
-        {
-          scale: 1,
-          opacity: 1,
-          duration: 1.5,
-          stagger: 0.3,
-          ease: 'power2.out'
-        }
+      '.pulse-ring',
+      { scale: 0.5, opacity: 0 },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 1.5,
+        stagger: 0.3,
+        ease: 'power2.out'
+      }
     )
   })
 }
-
-
-
 </script>
 
 <template>
@@ -3231,10 +2953,10 @@ const initPage1Animations = () => {
     <!-- 顶部悬浮分类选项卡 -->
     <div class="category-tabs">
       <button
-          v-for="cat in categories"
-          :key="cat.key"
-          :class="['tab-btn', { active: activeCategory === cat.key }]"
-          @click="activeCategory = cat.key"
+        v-for="cat in categories"
+        :key="cat.key"
+        :class="['tab-btn', { active: activeCategory === cat.key }]"
+        @click="activeCategory = cat.key"
       >
         {{ cat.label }}
       </button>
@@ -3282,29 +3004,29 @@ const initPage1Animations = () => {
         <h1 class="page-title">
           <span class="title-line" data-text="Creative">
             <span v-for="(char, i) in 'Creative'" :key="'c1-' + i" class="char" :data-char="char">{{
-                char
-              }}</span>
+              char
+            }}</span>
           </span>
           <span class="title-line" data-text="Cards">
             <span
-                v-for="(char, i) in 'Cards'"
-                :key="'c2-' + i"
-                class="char accent"
-                :data-char="char"
-            >{{ char }}</span
+              v-for="(char, i) in 'Cards'"
+              :key="'c2-' + i"
+              class="char accent"
+              :data-char="char"
+              >{{ char }}</span
             >
           </span>
           <span class="title-line" data-text="Gallery">
             <span v-for="(char, i) in 'Gallery'" :key="'c3-' + i" class="char" :data-char="char">{{
-                char
-              }}</span>
+              char
+            }}</span>
           </span>
         </h1>
 
         <!-- 副标题 -->
         <p class="page-desc">
           <span
-              v-for="(word, i) in [
+            v-for="(word, i) in [
               'Scroll',
               'down',
               'to',
@@ -3313,9 +3035,9 @@ const initPage1Animations = () => {
               'card',
               'animations'
             ]"
-              :key="i"
-              class="desc-word"
-          >{{ word }}</span
+            :key="i"
+            class="desc-word"
+            >{{ word }}</span
           >
         </p>
 
@@ -3383,10 +3105,10 @@ const initPage1Animations = () => {
     </div>
 
     <div
-        v-for="(cardInfo, index) in filteredComponents"
-        :key="cardInfo.name"
-        :ref="(el) => setPageRef(el, index)"
-        :class="['page', `page-card-${index + 1}`]"
+      v-for="(cardInfo, index) in filteredComponents"
+      :key="cardInfo.name"
+      :ref="(el) => setPageRef(el, index)"
+      :class="['page', `page-card-${index + 1}`]"
     >
       <!-- 懒加载：只在进入视口时渲染组件 -->
       <component :is="cardInfo.component" v-if="visibleCards.has(index)" v-bind="propsMap[index]" />
@@ -3394,47 +3116,43 @@ const initPage1Animations = () => {
         <span class="card-name">{{ cardInfo.dirName }}</span>
         <!-- 选择按钮 -->
         <button
-            :class="['select-btn', { active: isSelected(cardInfo.dirName) }]"
-            :title="isSelected(cardInfo.dirName) ? '已选中，点击取消' : '点击选择组件'"
-            @click="toggleSelect(cardInfo.dirName, cardInfo.name, cardInfo.path, cardInfo.type)"
+          :class="['select-btn', { active: isSelected(cardInfo.dirName) }]"
+          :title="isSelected(cardInfo.dirName) ? '已选中，点击取消' : '点击选择组件'"
+          @click="toggleSelect(cardInfo.dirName, cardInfo.name, cardInfo.path, cardInfo.type)"
         >
           {{ isSelected(cardInfo.dirName) ? '☑️' : '⬜' }}
         </button>
         <!-- 已选择时显示模块标签 -->
         <span
-            v-if="isSelected(cardInfo.dirName) && getComponentModulePosition(cardInfo.dirName)"
-            class="module-tag"
+          v-if="isSelected(cardInfo.dirName) && getComponentModulePosition(cardInfo.dirName)"
+          class="module-tag"
         >
           {{
             modulePositions.find((m) => m.key === getComponentModulePosition(cardInfo.dirName))
-                ?.icon
+              ?.icon
           }}
           {{
             modulePositions.find((m) => m.key === getComponentModulePosition(cardInfo.dirName))
-                ?.label
+              ?.label
           }}
         </span>
         <!-- 收藏按钮 -->
         <button
-            :class="['favorite-btn', { active: isFavorite(cardInfo.dirName) }]"
-            @click="toggleFavorite(cardInfo.dirName)"
+          :class="['favorite-btn', { active: isFavorite(cardInfo.dirName) }]"
+          @click="toggleFavorite(cardInfo.dirName)"
         >
           {{ isFavorite(cardInfo.dirName) ? '❤️' : '🤍' }}
         </button>
         <!-- 复制按钮 -->
-        <button
-            class="copy-code-btn"
-            title="复制组件代码"
-            @click="copyComponentCode(cardInfo)"
-        >
+        <button class="copy-code-btn" title="复制组件代码" @click="copyComponentCode(cardInfo)">
           📋
         </button>
         <!-- 为已选组件选择模块位置 -->
         <button
-            v-if="isSelected(cardInfo.dirName)"
-            class="module-btn"
-            title="选择模块位置"
-            @click="
+          v-if="isSelected(cardInfo.dirName)"
+          class="module-btn"
+          title="选择模块位置"
+          @click="
             openModuleSelector({
               dirName: cardInfo.dirName,
               name: cardInfo.name,
@@ -3461,17 +3179,17 @@ const initPage1Animations = () => {
         <div class="header-actions">
           <!-- 模块设置按钮 -->
           <button
-              class="selection-module-btn"
-              title="配置模块位置"
-              @click="openModuleSelectorForConfig"
+            class="selection-module-btn"
+            title="配置模块位置"
+            @click="openModuleSelectorForConfig"
           >
             ⚙️ 模块配置
           </button>
           <!-- 企业信息按钮 -->
           <button
-              :class="['selection-enterprise-btn', { active: hasEnterpriseInfo }]"
-              :title="hasEnterpriseInfo ? '已填写企业信息' : '填写企业信息'"
-              @click="openEnterpriseModal"
+            :class="['selection-enterprise-btn', { active: hasEnterpriseInfo }]"
+            :title="hasEnterpriseInfo ? '已填写企业信息' : '填写企业信息'"
+            @click="openEnterpriseModal"
           >
             {{ hasEnterpriseInfo ? '🏢 已填写' : '🏢 企业信息' }}
           </button>
@@ -3493,9 +3211,9 @@ const initPage1Animations = () => {
             🔄
           </button>
           <button
-              class="title-collapse"
-              :title="selectionListCollapsed ? '展开' : '收起'"
-              @click="toggleSelectionList"
+            class="title-collapse"
+            :title="selectionListCollapsed ? '展开' : '收起'"
+            @click="toggleSelectionList"
           >
             {{ selectionListCollapsed ? '▼' : '▲' }}
           </button>
@@ -3503,9 +3221,9 @@ const initPage1Animations = () => {
       </div>
       <div class="selection-list" :class="{ collapsed: selectionListCollapsed }">
         <div
-            v-for="pos in modulePositions.filter((p) => getComponentsByPosition(p.key).length > 0)"
-            :key="pos.key"
-            class="selection-module-group"
+          v-for="pos in modulePositions.filter((p) => getComponentsByPosition(p.key).length > 0)"
+          :key="pos.key"
+          class="selection-module-group"
         >
           <div class="selection-module-header">
             <span>{{ pos.icon }}</span>
@@ -3514,14 +3232,14 @@ const initPage1Animations = () => {
           </div>
           <div class="selection-module-items">
             <div
-                v-for="comp in getComponentsByPosition(pos.key)"
-                :key="comp.dirName"
-                class="selection-item"
+              v-for="comp in getComponentsByPosition(pos.key)"
+              :key="comp.dirName"
+              class="selection-item"
             >
               <span class="item-name">{{ comp.name }}</span>
               <button
-                  class="item-remove"
-                  @click="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)"
+                class="item-remove"
+                @click="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)"
               >
                 ×
               </button>
@@ -3530,28 +3248,28 @@ const initPage1Animations = () => {
         </div>
         <!-- 未分配模块的组件 -->
         <div
-            v-if="selectedComponents.filter((c) => !c.modulePosition).length > 0"
-            class="selection-module-group unassigned"
+          v-if="selectedComponents.filter((c) => !c.modulePosition).length > 0"
+          class="selection-module-group unassigned"
         >
           <div class="selection-module-header">
             <span>⚠️</span>
             <span>未分配模块</span>
             <span class="count"
-            >({{ selectedComponents.filter((c) => !c.modulePosition).length }})</span
+              >({{ selectedComponents.filter((c) => !c.modulePosition).length }})</span
             >
           </div>
           <div class="selection-module-items">
             <div
-                v-for="comp in selectedComponents.filter((c) => !c.modulePosition)"
-                :key="comp.dirName"
-                class="selection-item"
-                @click="openModuleSelector(comp)"
+              v-for="comp in selectedComponents.filter((c) => !c.modulePosition)"
+              :key="comp.dirName"
+              class="selection-item"
+              @click="openModuleSelector(comp)"
             >
               <span class="item-name">{{ comp.name }}</span>
               <button class="item-add" @click.stop="openModuleSelector(comp)">+</button>
               <button
-                  class="item-remove"
-                  @click.stop="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)"
+                class="item-remove"
+                @click.stop="toggleSelect(comp.dirName, comp.name, comp.path, comp.type)"
               >
                 ×
               </button>
@@ -3564,9 +3282,9 @@ const initPage1Animations = () => {
     <!-- 模块选择器弹窗 -->
     <Teleport to="body">
       <div
-          v-if="showModuleSelector"
-          class="module-selector-overlay"
-          @click.self="cancelModuleSelection"
+        v-if="showModuleSelector"
+        class="module-selector-overlay"
+        @click.self="cancelModuleSelection"
       >
         <div class="module-selector">
           <div class="module-selector-header">
@@ -3574,18 +3292,18 @@ const initPage1Animations = () => {
             <p>
               {{
                 isConfigMode
-                    ? '管理模块位置，点击模块可查看已分配的组件'
-                    : '为「' + currentSelectingComp?.name + '」选择放置位置'
+                  ? '管理模块位置，点击模块可查看已分配的组件'
+                  : '为「' + currentSelectingComp?.name + '」选择放置位置'
               }}
             </p>
             <button class="close-btn" @click="cancelModuleSelection">×</button>
           </div>
           <div class="module-position-grid">
             <button
-                v-for="pos in modulePositions"
-                :key="pos.key"
-                :class="['module-pos-btn', { selected: getComponentsByPosition(pos.key).length > 0 }]"
-                @click="isConfigMode ? null : selectModulePosition(pos.key)"
+              v-for="pos in modulePositions"
+              :key="pos.key"
+              :class="['module-pos-btn', { selected: getComponentsByPosition(pos.key).length > 0 }]"
+              @click="isConfigMode ? null : selectModulePosition(pos.key)"
             >
               <span class="pos-icon">{{ pos.icon }}</span>
               <span class="pos-label">{{ pos.label }}</span>
@@ -3623,9 +3341,9 @@ const initPage1Animations = () => {
           <div class="modal-body">
             <div class="module-editor-list">
               <div
-                  v-for="(pos, index) in editingPositions"
-                  :key="pos.key + index"
-                  class="module-editor-row"
+                v-for="(pos, index) in editingPositions"
+                :key="pos.key + index"
+                class="module-editor-row"
               >
                 <input v-model="pos.icon" class="edit-input" placeholder="图标" />
                 <input v-model="pos.key" class="edit-input" placeholder="key" />
@@ -3648,9 +3366,9 @@ const initPage1Animations = () => {
     <!-- 企业信息弹窗 -->
     <Teleport to="body">
       <div
-          v-if="showEnterpriseModal"
-          class="enterprise-modal-overlay"
-          @click.self="closeEnterpriseModal"
+        v-if="showEnterpriseModal"
+        class="enterprise-modal-overlay"
+        @click.self="closeEnterpriseModal"
       >
         <div class="enterprise-modal">
           <div class="enterprise-modal-header">
@@ -3665,9 +3383,9 @@ const initPage1Animations = () => {
               <div class="form-group">
                 <label>企业名称 *</label>
                 <input
-                    v-model="enterpriseInfo.name"
-                    type="text"
-                    placeholder="例如：深圳市科技创新有限公司"
+                  v-model="enterpriseInfo.name"
+                  type="text"
+                  placeholder="例如：深圳市科技创新有限公司"
                 />
               </div>
 
@@ -3690,18 +3408,18 @@ const initPage1Animations = () => {
               <div class="form-group form-group-full">
                 <label>企业简介</label>
                 <textarea
-                    v-model="enterpriseInfo.description"
-                    rows="3"
-                    placeholder="简单描述企业的核心业务、产品或服务..."
+                  v-model="enterpriseInfo.description"
+                  rows="3"
+                  placeholder="简单描述企业的核心业务、产品或服务..."
                 ></textarea>
               </div>
 
               <div class="form-group">
                 <label>目标受众</label>
                 <input
-                    v-model="enterpriseInfo.targetAudience"
-                    type="text"
-                    placeholder="例如：25-40岁白领群体、B2B企业客户"
+                  v-model="enterpriseInfo.targetAudience"
+                  type="text"
+                  placeholder="例如：25-40岁白领群体、B2B企业客户"
                 />
               </div>
 
@@ -3710,15 +3428,15 @@ const initPage1Animations = () => {
                 <div class="color-picker-wrapper">
                   <div class="color-input-row">
                     <input
-                        v-model="enterpriseInfo.mainColors"
-                        type="text"
-                        class="color-text-input"
-                        placeholder="输入颜色值或选择预设"
+                      v-model="enterpriseInfo.mainColors"
+                      type="text"
+                      class="color-text-input"
+                      placeholder="输入颜色值或选择预设"
                     />
                     <button
-                        class="color-picker-btn"
-                        :style="{ background: enterpriseInfo.mainColors || '#667eea' }"
-                        @click="toggleColorPicker"
+                      class="color-picker-btn"
+                      :style="{ background: enterpriseInfo.mainColors || '#667eea' }"
+                      @click="toggleColorPicker"
                     >
                       <span class="picker-icon">🎨</span>
                     </button>
@@ -3728,15 +3446,15 @@ const initPage1Animations = () => {
                   <div v-if="showColorPicker" class="color-picker-popup">
                     <div class="mode-tabs">
                       <button
-                          :class="['mode-tab', { active: colorMode === 'solid' }]"
-                          @click="colorMode = 'solid'"
+                        :class="['mode-tab', { active: colorMode === 'solid' }]"
+                        @click="colorMode = 'solid'"
                       >
                         <span class="mode-icon">●</span>
                         单色
                       </button>
                       <button
-                          :class="['mode-tab', { active: colorMode === 'gradient' }]"
-                          @click="colorMode = 'gradient'"
+                        :class="['mode-tab', { active: colorMode === 'gradient' }]"
+                        @click="colorMode = 'gradient'"
                       >
                         <span class="mode-icon gradient-icon"></span>
                         渐变
@@ -3747,28 +3465,28 @@ const initPage1Animations = () => {
                     <div v-if="colorMode === 'solid'" class="mode-content">
                       <div class="color-preset-grid">
                         <button
-                            v-for="preset in solidColorPresets"
-                            :key="preset.value"
-                            :class="['color-preset-btn', { active: singleColor === preset.value }]"
-                            :style="{ background: preset.value }"
-                            :title="preset.name"
-                            @click="selectSolidPreset(preset.value)"
+                          v-for="preset in solidColorPresets"
+                          :key="preset.value"
+                          :class="['color-preset-btn', { active: singleColor === preset.value }]"
+                          :style="{ background: preset.value }"
+                          :title="preset.name"
+                          @click="selectSolidPreset(preset.value)"
                         ></button>
                       </div>
                       <div class="custom-color-row">
                         <span class="section-label">自定义</span>
                         <input
-                            v-model="singleColor"
-                            type="color"
-                            class="color-input"
-                            @input="updateColorFromPicker"
+                          v-model="singleColor"
+                          type="color"
+                          class="color-input"
+                          @input="updateColorFromPicker"
                         />
                         <input
-                            v-model="singleColor"
-                            type="text"
-                            class="color-text-input-sm"
-                            placeholder="#0066FF"
-                            @input="updateColorFromPicker"
+                          v-model="singleColor"
+                          type="text"
+                          class="color-text-input-sm"
+                          placeholder="#0066FF"
+                          @input="updateColorFromPicker"
                         />
                       </div>
                     </div>
@@ -3777,57 +3495,57 @@ const initPage1Animations = () => {
                     <div v-if="colorMode === 'gradient'" class="mode-content">
                       <div class="gradient-presets">
                         <button
-                            v-for="preset in gradientPresets"
-                            :key="preset.value"
-                            :class="[
+                          v-for="preset in gradientPresets"
+                          :key="preset.value"
+                          :class="[
                             'gradient-preset-btn',
                             { active: enterpriseInfo.mainColors === preset.value }
                           ]"
-                            :style="{ background: preset.value }"
-                            :title="preset.name"
-                            @click="enterpriseInfo.mainColors = preset.value"
+                          :style="{ background: preset.value }"
+                          :title="preset.name"
+                          @click="enterpriseInfo.mainColors = preset.value"
                         ></button>
                       </div>
                       <div class="gradient-editor">
                         <div class="gradient-editor-row">
                           <span class="gradient-label">起始色</span>
                           <input
-                              v-model="gradientStart"
-                              type="color"
-                              class="color-input-sm"
-                              @input="applyGradient"
+                            v-model="gradientStart"
+                            type="color"
+                            class="color-input-sm"
+                            @input="applyGradient"
                           />
                           <input
-                              v-model="gradientStart"
-                              type="text"
-                              class="color-text-sm"
-                              @input="applyGradient"
+                            v-model="gradientStart"
+                            type="text"
+                            class="color-text-sm"
+                            @input="applyGradient"
                           />
                         </div>
                         <div class="gradient-editor-row">
                           <span class="gradient-label">结束色</span>
                           <input
-                              v-model="gradientEnd"
-                              type="color"
-                              class="color-input-sm"
-                              @input="applyGradient"
+                            v-model="gradientEnd"
+                            type="color"
+                            class="color-input-sm"
+                            @input="applyGradient"
                           />
                           <input
-                              v-model="gradientEnd"
-                              type="text"
-                              class="color-text-sm"
-                              @input="applyGradient"
+                            v-model="gradientEnd"
+                            type="text"
+                            class="color-text-sm"
+                            @input="applyGradient"
                           />
                         </div>
                         <div class="gradient-editor-row">
                           <span class="gradient-label">角度</span>
                           <input
-                              v-model.number="gradientAngle"
-                              type="range"
-                              min="0"
-                              max="360"
-                              class="angle-slider"
-                              @input="applyGradient"
+                            v-model.number="gradientAngle"
+                            type="range"
+                            min="0"
+                            max="360"
+                            class="angle-slider"
+                            @input="applyGradient"
                           />
                           <span class="angle-value">{{ gradientAngle }}°</span>
                         </div>
@@ -3854,9 +3572,9 @@ const initPage1Animations = () => {
               <div class="form-group form-group-full">
                 <label>网站设计理念</label>
                 <textarea
-                    v-model="enterpriseInfo.designPhilosophy"
-                    rows="3"
-                    placeholder="描述网站的设计风格、核心特色、用户体验追求等..."
+                  v-model="enterpriseInfo.designPhilosophy"
+                  rows="3"
+                  placeholder="描述网站的设计风格、核心特色、用户体验追求等..."
                 ></textarea>
               </div>
             </div>
@@ -3869,8 +3587,8 @@ const initPage1Animations = () => {
                   参考示例
                 </label>
                 <span class="expand-hint">{{
-                    showReferenceExample ? '点击收起' : '点击展开'
-                  }}</span>
+                  showReferenceExample ? '点击收起' : '点击展开'
+                }}</span>
               </div>
               <div v-show="showReferenceExample" class="reference-example">
                 <div class="ref-item">
@@ -3884,13 +3602,13 @@ const initPage1Animations = () => {
                 <div class="ref-item">
                   <span class="ref-label">企业简介:</span>
                   <span class="ref-value"
-                  >深圳AI网络有限公司是一家专注于前沿人工智能技术研发与商业应用的高科技企业。公司致力于为全球企业提供高效、智能的数字化转型方案，核心业务涵盖智能客服系统、企业级大数据分析平台及自动化营销工具。</span
+                    >深圳AI网络有限公司是一家专注于前沿人工智能技术研发与商业应用的高科技企业。公司致力于为全球企业提供高效、智能的数字化转型方案，核心业务涵盖智能客服系统、企业级大数据分析平台及自动化营销工具。</span
                   >
                 </div>
                 <div class="ref-item">
                   <span class="ref-label">目标受众:</span>
                   <span class="ref-value"
-                  >寻求数字化转型的中大型企业管理者（CEO/CTO）、互联网科技公司、电商品牌方</span
+                    >寻求数字化转型的中大型企业管理者（CEO/CTO）、互联网科技公司、电商品牌方</span
                   >
                 </div>
                 <div class="ref-item">
@@ -3951,10 +3669,10 @@ const initPage1Animations = () => {
           <div class="copy-content-wrapper">
             <h4>📝 可编辑内容（直接修改后再复制）</h4>
             <textarea
-                v-model="editablePlanContent"
-                class="copy-textarea"
-                placeholder="编辑内容..."
-                rows="20"
+              v-model="editablePlanContent"
+              class="copy-textarea"
+              placeholder="编辑内容..."
+              rows="20"
             ></textarea>
           </div>
 
@@ -4214,13 +3932,13 @@ const initPage1Animations = () => {
 // ==================== Page1 主页面样式 ====================
 .page1 {
   background: linear-gradient(
-          135deg,
-          #0c0c1e 0%,
-          #1a0a2e 15%,
-          #2d1b4a 30%,
-          #1e3a5f 50%,
-          #0d3b4a 70%,
-          #0a2a3a 100%
+    135deg,
+    #0c0c1e 0%,
+    #1a0a2e 15%,
+    #2d1b4a 30%,
+    #1e3a5f 50%,
+    #0d3b4a 70%,
+    #0a2a3a 100%
   );
   background-size: 400% 400%;
   animation: gradientShift 12s ease infinite;
@@ -4249,10 +3967,10 @@ const initPage1Animations = () => {
         border-radius: 50%;
         background: rgba(255, 105, 180, 0.6);
         box-shadow:
-            calc(var(--x1, 10) * 1px) calc(var(--y1, 20) * 1px) 0 rgba(255, 105, 180, 0.8),
-            calc(var(--x2, 30) * 1px) calc(var(--y2, 40) * 1px) 0 rgba(138, 43, 226, 0.7),
-            calc(var(--x3, 50) * 1px) calc(var(--y3, 60) * 1px) 0 rgba(0, 191, 255, 0.6),
-            calc(var(--x4, 70) * 1px) calc(var(--y4, 80) * 1px) 0 rgba(100, 255, 218, 0.5);
+          calc(var(--x1, 10) * 1px) calc(var(--y1, 20) * 1px) 0 rgba(255, 105, 180, 0.8),
+          calc(var(--x2, 30) * 1px) calc(var(--y2, 40) * 1px) 0 rgba(138, 43, 226, 0.7),
+          calc(var(--x3, 50) * 1px) calc(var(--y3, 60) * 1px) 0 rgba(0, 191, 255, 0.6),
+          calc(var(--x4, 70) * 1px) calc(var(--y4, 80) * 1px) 0 rgba(100, 255, 218, 0.5);
         animation: particleFloat 20s linear infinite;
       }
 
@@ -4263,9 +3981,9 @@ const initPage1Animations = () => {
         animation-duration: 25s;
         background: rgba(255, 255, 255, 0.5);
         box-shadow:
-            calc(var(--x5, 15) * 1px) calc(var(--y5, 25) * 1px) 0 rgba(255, 182, 193, 0.7),
-            calc(var(--x6, 45) * 1px) calc(var(--y6, 55) * 1px) 0 rgba(173, 216, 230, 0.6),
-            calc(var(--x7, 85) * 1px) calc(var(--y7, 95) * 1px) 0 rgba(221, 160, 221, 0.5);
+          calc(var(--x5, 15) * 1px) calc(var(--y5, 25) * 1px) 0 rgba(255, 182, 193, 0.7),
+          calc(var(--x6, 45) * 1px) calc(var(--y6, 55) * 1px) 0 rgba(173, 216, 230, 0.6),
+          calc(var(--x7, 85) * 1px) calc(var(--y7, 95) * 1px) 0 rgba(221, 160, 221, 0.5);
       }
     }
 
@@ -4366,10 +4084,10 @@ const initPage1Animations = () => {
         width: 450px;
         height: 450px;
         background: radial-gradient(
-                circle,
-                rgba(138, 43, 226, 0.5) 0%,
-                rgba(75, 0, 130, 0.3) 40%,
-                transparent 70%
+          circle,
+          rgba(138, 43, 226, 0.5) 0%,
+          rgba(75, 0, 130, 0.3) 40%,
+          transparent 70%
         );
         top: -120px;
         right: -100px;
@@ -4380,10 +4098,10 @@ const initPage1Animations = () => {
         width: 380px;
         height: 380px;
         background: radial-gradient(
-                circle,
-                rgba(0, 191, 255, 0.45) 0%,
-                rgba(138, 43, 226, 0.25) 40%,
-                transparent 70%
+          circle,
+          rgba(0, 191, 255, 0.45) 0%,
+          rgba(138, 43, 226, 0.25) 40%,
+          transparent 70%
         );
         bottom: 20%;
         left: -80px;
@@ -4394,10 +4112,10 @@ const initPage1Animations = () => {
         width: 320px;
         height: 320px;
         background: radial-gradient(
-                circle,
-                rgba(255, 105, 180, 0.4) 0%,
-                rgba(0, 191, 255, 0.2) 40%,
-                transparent 70%
+          circle,
+          rgba(255, 105, 180, 0.4) 0%,
+          rgba(0, 191, 255, 0.2) 40%,
+          transparent 70%
         );
         bottom: -50px;
         right: 20%;
@@ -4427,12 +4145,12 @@ const initPage1Animations = () => {
       width: 2px;
       height: 100%;
       background: linear-gradient(
-              to bottom,
-              transparent 0%,
-              rgba(255, 105, 180, 0.15) 30%,
-              rgba(138, 43, 226, 0.2) 50%,
-              rgba(0, 191, 255, 0.15) 70%,
-              transparent 100%
+        to bottom,
+        transparent 0%,
+        rgba(255, 105, 180, 0.15) 30%,
+        rgba(138, 43, 226, 0.2) 50%,
+        rgba(0, 191, 255, 0.15) 70%,
+        transparent 100%
       );
       animation: beamPulse 4s ease-in-out infinite;
 
@@ -4480,21 +4198,21 @@ const initPage1Animations = () => {
         right: 0;
         height: 60%;
         background:
-            linear-gradient(to bottom, transparent 0%, rgba(138, 43, 226, 0.05) 100%),
-            repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 49px,
-                    rgba(138, 43, 226, 0.2) 49px,
-                    rgba(138, 43, 226, 0.2) 50px
-            ),
-            repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 49px,
-                    rgba(0, 191, 255, 0.15) 49px,
-                    rgba(0, 191, 255, 0.15) 50px
-            );
+          linear-gradient(to bottom, transparent 0%, rgba(138, 43, 226, 0.05) 100%),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 49px,
+            rgba(138, 43, 226, 0.2) 49px,
+            rgba(138, 43, 226, 0.2) 50px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 49px,
+            rgba(0, 191, 255, 0.15) 49px,
+            rgba(0, 191, 255, 0.15) 50px
+          );
         transform: perspective(500px) rotateX(60deg);
         transform-origin: bottom;
         animation: perspectiveGrid 8s linear infinite;
@@ -4506,56 +4224,56 @@ const initPage1Animations = () => {
         position: absolute;
         inset: 0;
         background-image:
-            linear-gradient(
-                    30deg,
-                    rgba(0, 180, 216, 0.1) 12%,
-                    transparent 12.5%,
-                    transparent 87%,
-                    rgba(0, 180, 216, 0.1) 87.5%
-            ),
-            linear-gradient(
-                    150deg,
-                    rgba(0, 180, 216, 0.1) 12%,
-                    transparent 12.5%,
-                    transparent 87%,
-                    rgba(0, 180, 216, 0.1) 87.5%
-            ),
-            linear-gradient(
-                    30deg,
-                    rgba(0, 180, 216, 0.1) 12%,
-                    transparent 12.5%,
-                    transparent 87%,
-                    rgba(0, 180, 216, 0.1) 87.5%
-            ),
-            linear-gradient(
-                    150deg,
-                    rgba(0, 180, 216, 0.1) 12%,
-                    transparent 12.5%,
-                    transparent 87%,
-                    rgba(0, 180, 216, 0.1) 87.5%
-            ),
-            linear-gradient(
-                    60deg,
-                    rgba(0, 212, 170, 0.08) 25%,
-                    transparent 25.5%,
-                    transparent 75%,
-                    rgba(0, 212, 170, 0.08) 75%
-            ),
-            linear-gradient(
-                    60deg,
-                    rgba(0, 212, 170, 0.08) 25%,
-                    transparent 25.5%,
-                    transparent 75%,
-                    rgba(0, 212, 170, 0.08) 75%
-            );
+          linear-gradient(
+            30deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            150deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            30deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            150deg,
+            rgba(0, 180, 216, 0.1) 12%,
+            transparent 12.5%,
+            transparent 87%,
+            rgba(0, 180, 216, 0.1) 87.5%
+          ),
+          linear-gradient(
+            60deg,
+            rgba(0, 212, 170, 0.08) 25%,
+            transparent 25.5%,
+            transparent 75%,
+            rgba(0, 212, 170, 0.08) 75%
+          ),
+          linear-gradient(
+            60deg,
+            rgba(0, 212, 170, 0.08) 25%,
+            transparent 25.5%,
+            transparent 75%,
+            rgba(0, 212, 170, 0.08) 75%
+          );
         background-size: 80px 140px;
         background-position:
-            0 0,
-            0 0,
-            40px 70px,
-            40px 70px,
-            0 0,
-            40px 70px;
+          0 0,
+          0 0,
+          40px 70px,
+          40px 70px,
+          0 0,
+          40px 70px;
         opacity: 0.6;
         animation: triangleGrid 15s linear infinite;
       }
@@ -4564,36 +4282,36 @@ const initPage1Animations = () => {
     @keyframes perspectiveGrid {
       0% {
         background-position:
-            0 0,
-            0 0,
-            0 0;
+          0 0,
+          0 0,
+          0 0;
       }
       100% {
         background-position:
-            0 50px,
-            0 50px,
-            0 50px;
+          0 50px,
+          0 50px,
+          0 50px;
       }
     }
 
     @keyframes triangleGrid {
       0% {
         background-position:
-            0 0,
-            0 0,
-            40px 70px,
-            40px 70px,
-            0 0,
-            40px 70px;
+          0 0,
+          0 0,
+          40px 70px,
+          40px 70px,
+          0 0,
+          40px 70px;
       }
       100% {
         background-position:
-            0 -140px,
-            0 -140px,
-            40px -70px,
-            40px -70px,
-            0 -140px,
-            40px -70px;
+          0 -140px,
+          0 -140px,
+          40px -70px,
+          40px -70px,
+          0 -140px,
+          40px -70px;
       }
     }
 
@@ -4666,11 +4384,11 @@ const initPage1Animations = () => {
       right: 0;
       height: 2px;
       background: linear-gradient(
-              90deg,
-              transparent,
-              rgba(255, 105, 180, 0.4),
-              rgba(0, 191, 255, 0.3),
-              transparent
+        90deg,
+        transparent,
+        rgba(255, 105, 180, 0.4),
+        rgba(0, 191, 255, 0.3),
+        transparent
       );
       animation: scanDown 6s linear infinite;
       opacity: 0.6;
@@ -4767,10 +4485,10 @@ const initPage1Animations = () => {
         left: 0;
         top: 0;
         background: linear-gradient(
-                180deg,
-                rgba(255, 255, 255, 0.8) 0%,
-                rgba(200, 200, 255, 0.5) 50%,
-                transparent 100%
+          180deg,
+          rgba(255, 255, 255, 0.8) 0%,
+          rgba(200, 200, 255, 0.5) 50%,
+          transparent 100%
         );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -4792,13 +4510,13 @@ const initPage1Animations = () => {
       // 立体多层阴影 - 极光青配色
       text-shadow:
           // 青色柔和发光
-          0 0 15px rgba(0, 245, 212, 0.5),
-          0 0 30px rgba(0, 245, 212, 0.3),
-            // 2层凸起
-          1px 1px 0 #0a3d3d,
-          2px 2px 0 #082828,
-            // 柔和底部阴影
-          0 4px 8px rgba(0, 0, 0, 0.3);
+        0 0 15px rgba(0, 245, 212, 0.5),
+        0 0 30px rgba(0, 245, 212, 0.3),
+        // 2层凸起
+        1px 1px 0 #0a3d3d,
+        2px 2px 0 #082828,
+        // 柔和底部阴影
+        0 4px 8px rgba(0, 0, 0, 0.3);
 
       // 内发光效果
       &::before {
@@ -4807,10 +4525,10 @@ const initPage1Animations = () => {
         left: 0;
         top: 0;
         background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.7) 0%,
-                rgba(200, 255, 250, 0.4) 50%,
-                transparent 100%
+          135deg,
+          rgba(255, 255, 255, 0.7) 0%,
+          rgba(200, 255, 250, 0.4) 50%,
+          transparent 100%
         );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -4820,34 +4538,34 @@ const initPage1Animations = () => {
 
       &.accent {
         background: linear-gradient(
-                135deg,
-                #00d4aa 0%,
-                #00b4d8 25%,
-                #0077b6 50%,
-                #023e8a 75%,
-                #03045e 100%
+          135deg,
+          #00d4aa 0%,
+          #00b4d8 25%,
+          #0077b6 50%,
+          #023e8a 75%,
+          #03045e 100%
         );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         background-size: 200% 200%;
         animation:
-            gradientShift 4s ease infinite,
-            float3d 3s ease-in-out infinite;
+          gradientShift 4s ease infinite,
+          float3d 3s ease-in-out infinite;
 
         // 极光蓝字符的精致阴影
         text-shadow:
-            0 0 20px rgba(0, 180, 216, 0.6),
-            0 0 40px rgba(0, 119, 182, 0.4),
-            2px 2px 0 #012a4a,
-            0 4px 8px rgba(0, 0, 0, 0.3);
+          0 0 20px rgba(0, 180, 216, 0.6),
+          0 0 40px rgba(0, 119, 182, 0.4),
+          2px 2px 0 #012a4a,
+          0 4px 8px rgba(0, 0, 0, 0.3);
 
         &::before {
           background: linear-gradient(
-                  180deg,
-                  rgba(255, 255, 255, 0.8) 0%,
-                  rgba(200, 250, 255, 0.4) 40%,
-                  transparent 100%
+            180deg,
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(200, 250, 255, 0.4) 40%,
+            transparent 100%
           );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -4858,11 +4576,11 @@ const initPage1Animations = () => {
       &:hover {
         transform: translateY(-6px) scale(1.1) rotateX(8deg);
         text-shadow:
-            0 0 25px rgba(255, 200, 87, 0.9),
-            0 0 50px rgba(255, 180, 50, 0.6),
-            1px 1px 0 #3d2a00,
-            2px 2px 0 #2a1d00,
-            0 6px 12px rgba(0, 0, 0, 0.4);
+          0 0 25px rgba(255, 200, 87, 0.9),
+          0 0 50px rgba(255, 180, 50, 0.6),
+          1px 1px 0 #3d2a00,
+          2px 2px 0 #2a1d00,
+          0 6px 12px rgba(0, 0, 0, 0.4);
       }
     }
 
@@ -4965,9 +4683,9 @@ const initPage1Animations = () => {
 
       &.tag-primary {
         background: linear-gradient(
-                135deg,
-                rgba(99, 102, 241, 0.3) 0%,
-                rgba(168, 85, 247, 0.3) 100%
+          135deg,
+          rgba(99, 102, 241, 0.3) 0%,
+          rgba(168, 85, 247, 0.3) 100%
         );
         border: 1px solid rgba(99, 102, 241, 0.5);
         color: #fff;
@@ -5022,9 +4740,9 @@ const initPage1Animations = () => {
 
       &.highlight {
         background: linear-gradient(
-                135deg,
-                rgba(0, 180, 216, 0.25) 0%,
-                rgba(0, 119, 182, 0.2) 100%
+          135deg,
+          rgba(0, 180, 216, 0.25) 0%,
+          rgba(0, 119, 182, 0.2) 100%
         );
         border-color: rgba(0, 180, 216, 0.6);
       }
@@ -5213,8 +4931,8 @@ const initPage1Animations = () => {
   border-radius: 16px;
   z-index: 9998;
   box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      0 0 40px rgba(102, 126, 234, 0.1);
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(102, 126, 234, 0.1);
   overflow: hidden;
 }
 
@@ -5526,8 +5244,8 @@ const initPage1Animations = () => {
   max-height: 80vh;
   overflow-y: auto;
   box-shadow:
-      0 25px 80px rgba(0, 0, 0, 0.6),
-      0 0 40px rgba(102, 126, 234, 0.1);
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -5700,8 +5418,8 @@ const initPage1Animations = () => {
   display: flex;
   flex-direction: column;
   box-shadow:
-      0 25px 80px rgba(0, 0, 0, 0.6),
-      0 0 40px rgba(102, 126, 234, 0.1);
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(102, 126, 234, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -5788,8 +5506,8 @@ const initPage1Animations = () => {
   display: flex;
   flex-direction: column;
   box-shadow:
-      0 30px 100px rgba(0, 0, 0, 0.5),
-      0 0 60px rgba(102, 126, 234, 0.15);
+    0 30px 100px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(102, 126, 234, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -5960,8 +5678,8 @@ const initPage1Animations = () => {
   border-radius: 16px;
   padding: 16px 24px;
   box-shadow:
-      0 10px 40px rgba(255, 80, 80, 0.4),
-      0 0 20px rgba(255, 80, 80, 0.2);
+    0 10px 40px rgba(255, 80, 80, 0.4),
+    0 0 20px rgba(255, 80, 80, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.2);
   max-width: 400px;
   animation: toast-shake 0.5s ease-in-out;
@@ -6556,8 +6274,8 @@ const initPage1Animations = () => {
   display: flex;
   flex-direction: column;
   box-shadow:
-      0 30px 100px rgba(0, 0, 0, 0.5),
-      0 0 60px rgba(102, 126, 234, 0.15);
+    0 30px 100px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(102, 126, 234, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
