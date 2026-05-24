@@ -1,4 +1,6 @@
 export const componentsList = [
+  // 'CardImage3DHelix',
+  // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
   // 'CardImageCosmicDrift',
   /* 'CardImageFilmStrip',
