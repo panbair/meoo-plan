@@ -174,77 +174,77 @@ const currentDepthLayer = ref(1)
 const circumference = 2 * Math.PI * 45
 const progressOffset = computed(() => circumference * (1 - currentProgress.value))
 
-// 12 张 Unsplash 照片数据
+// 12 张照片数据 (picsum 稳定图源)
 const archiveCards = reactive<ArchiveCard[]>([
   {
     id: 1, title: '星云诞辰', description: 'NGC 3372 船底座星云',
-    image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/nebula1/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(139, 92, 246, 0.7) 100%)',
     color: '#8b5cf6', depthLayer: 1
   },
   {
     id: 2, title: '极光帷幕', description: '冰岛绿色极光',
-    image: 'https://images.unsplash.com/photo-1483347756197-71ef80e95f73?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/aurora2/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(34, 211, 238, 0.7) 100%)',
     color: '#22d3ee', depthLayer: 1
   },
   {
     id: 3, title: '银河之心', description: '银河系中心黑洞',
-    image: 'https://images.unsplash.com/photo-1464802686167-b939a6910659?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/galaxy3/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(244, 114, 182, 0.7) 100%)',
     color: '#f472b6', depthLayer: 1
   },
   {
     id: 4, title: '日冕风暴', description: '太阳表面磁暴',
-    image: 'https://images.unsplash.com/photo-1614642264762-d0a3b8bf3700?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/corona4/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(251, 191, 36, 0.7) 100%)',
     color: '#fbbf24', depthLayer: 1
   },
   {
     id: 5, title: '火星地貌', description: '红色星球表面',
-    image: 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/mars5/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(248, 113, 113, 0.7) 100%)',
     color: '#f87171', depthLayer: 2
   },
   {
     id: 6, title: '土星环带', description: '土星的壮丽环带',
-    image: 'https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/saturn6/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(167, 139, 250, 0.7) 100%)',
     color: '#a78bfa', depthLayer: 2
   },
   {
     id: 7, title: '木星红斑', description: '木星大气风暴',
-    image: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/jupiter7/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(252, 165, 165, 0.7) 100%)',
     color: '#fca5a5', depthLayer: 2
   },
   {
     id: 8, title: '月球背面', description: '神秘的月球背面',
-    image: 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/moon8/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(147, 197, 253, 0.7) 100%)',
     color: '#93c5fd', depthLayer: 2
   },
   {
     id: 9, title: '黑洞视界', description: '事件视界望远镜',
-    image: 'https://images.unsplash.com/photo-1504333639802-0e3404bcffe8?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/blackhole9/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(165, 180, 252, 0.7) 100%)',
     color: '#a5b4fc', depthLayer: 3
   },
   {
     id: 10, title: '彗星轨迹', description: 'NEOWISE 彗星',
-    image: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/comet10/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(96, 165, 250, 0.7) 100%)',
     color: '#60a5fa', depthLayer: 3
   },
   {
     id: 11, title: '仙女星系', description: 'M31 仙女座大星系',
-    image: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/galaxy11/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(196, 181, 253, 0.7) 100%)',
     color: '#c4b5fd', depthLayer: 3
   },
   {
     id: 12, title: '创生之柱', description: '鹰状星云 M16',
-    image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600&h=400&fit=crop',
+    image: 'https://picsum.photos/seed/pillar12/600/400',
     gradient: 'linear-gradient(180deg, transparent 50%, rgba(94, 234, 212, 0.7) 100%)',
     color: '#5eead4', depthLayer: 3
   }

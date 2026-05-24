@@ -107,16 +107,16 @@ interface PhotoItem {
 }
 
 const photoUrlPool = [
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=500&h=340&fit=crop',
-  'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=500&h=340&fit=crop',
+  'https://picsum.photos/seed/helix1/600/400',
+  'https://picsum.photos/seed/helix2/600/400',
+  'https://picsum.photos/seed/helix3/600/400',
+  'https://picsum.photos/seed/helix4/600/400',
+  'https://picsum.photos/seed/helix5/600/400',
+  'https://picsum.photos/seed/helix6/600/400',
+  'https://picsum.photos/seed/helix7/600/400',
+  'https://picsum.photos/seed/helix8/600/400',
+  'https://picsum.photos/seed/helix9/600/400',
+  'https://picsum.photos/seed/helix10/600/400',
 ]
 
 const titlePool = [
@@ -146,11 +146,11 @@ const photosB = ref<PhotoItem[]>(
 )
 
 // ==================== 螺旋参数 ====================
-const helixRadius = 280        // 螺旋半径 px
+const helixRadius = 360        // 螺旋半径 px
 const helixTotalTurns = 2.5    // 总螺旋圈数
-const helixYAmplitude = 230    // 垂直振幅 px
-const photoW = 145
-const photoH = 100
+const helixYAmplitude = 300    // 垂直振幅 px
+const photoW = 220
+const photoH = 150
 
 // ==================== 计算每个 pair 的 CSS 样式 ====================
 function computeStyles(pairIndex: number) {
@@ -438,10 +438,10 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 700px;
-  height: 600px;
+  width: 900px;
+  height: 700px;
   z-index: 4;
-  perspective: 1600px;
+  perspective: 1800px;
   perspective-origin: 50% 45%;
 }
 
@@ -460,10 +460,10 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 145px;
-  height: 100px;
-  margin-left: -72.5px;
-  margin-top: -50px;
+  width: 220px;
+  height: 150px;
+  margin-left: -110px;
+  margin-top: -75px;
   transform-style: preserve-3d;
   will-change: transform, opacity, filter;
   pointer-events: none;
@@ -472,8 +472,8 @@ onUnmounted(() => {
 // ==================== 照片框 ====================
 .dh-photo-frame {
   position: relative;
-  width: 145px;
-  height: 100px;
+  width: 220px;
+  height: 150px;
   border-radius: 4px;
   overflow: hidden;
   background: #081420;
@@ -504,10 +504,10 @@ onUnmounted(() => {
 // ==================== 照片标签 ====================
 .dh-photo-label {
   position: absolute;
-  bottom: -18px;
+  bottom: -22px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   color: rgba(0, 200, 230, 0.3);
   font-family: 'Courier New', monospace;
@@ -519,9 +519,9 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 145px;
+  width: 220px;
   height: 4px;
-  margin-left: -72.5px;
+  margin-left: -110px;
   margin-top: -2px;
   transform-style: preserve-3d;
   will-change: transform, opacity;
