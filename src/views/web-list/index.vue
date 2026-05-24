@@ -2297,6 +2297,8 @@ const modulesOther = import.meta.glob('./card-other/*/*.vue')
  * 自动化构建组件列表
  */
 let dirNameList = [
+  'CardImageAnaglyph3D', 'CardImageEchoTrail', 'CardImageFragmentAssembly', 'CardImageMirrorSplit', 'CardImageNightVision', 'CardImagePlanetReveal', 'CardImageReflectionRipple', 'CardImageTimeSlice', 'CardImageVolumetricFog',
+  'CardImageBeforeAfter', 'CardImageCinematicWipe', 'CardImageDoubleExposure', 'CardImageHologramStack', 'CardImageKaleidoscopePrism', 'CardImageLensReveal', 'CardImageMorphTransition', 'CardImageParallaxDepth', 'CardImagePeelReveal', 'CardImageScratchReveal', 'CardImageThermalReceipt',
   'CardImageCMYKHalftone', 'CardImageCathedralGlass', 'CardImageChromeMelt', 'CardImageShadowPuppet', 'CardImageSilkscreenPrint', 'CardImageTopoContour', 'CardImageWetPlate',
   'CardImageGlassShatter', 'CardImageInkBleed', 'CardImageOilSlick', 'CardImagePolaroidDevelop', 'CardImageVoxelBuild',
   'CardImageCoralParadise', 'CardImageLightTrails', 'CardImageMagneticInk', 'CardImageParticleSculpture', 'CardImageWormholePortal',
