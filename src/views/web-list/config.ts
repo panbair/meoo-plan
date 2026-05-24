@@ -1,4 +1,16 @@
 export const componentsList = [
+  // 'CardImageDeepSea',
+  // 'CardImageCosmicDrift',
+  /* 'CardImageFilmStrip',
+  'CardImage3DAlbum',*/
+  'CardImageCrossfadeMosaic',
+  'CardImageGridDissolve',
+  'CardImageHolographicPrism',
+  'CardImageParallaxLayerFusion',
+  'CardImagePolaroidSpread',
+  'CardImagePrismReflect',
+  'CardImageRGBChannelSplit',
+  'CardImageSpacetimeFold',
   'CardImageAnaglyph3D',
   'CardImageEchoTrail',
   'CardImageFragmentAssembly',
