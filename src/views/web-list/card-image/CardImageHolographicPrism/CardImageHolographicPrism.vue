@@ -25,7 +25,7 @@ const images = [
   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80', // 山峰2
   'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80', // 山峰3
   'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800&q=80', // 山峰4
-  'https://images.unsplash.com/photo-1486870591958-6bde2e414fa4?w=800&q=80', // 山峰5
+  'https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=800&q=80', // 山峰5
   'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80' // 山峰6
 ]
 
@@ -117,7 +117,9 @@ const heroSubRef = ref<HTMLElement | null>(null)
 const cleanupFns: CleanupFn[] = []
 
 onMounted(() => {
-  if (!sectionRef.value) return
+  if (!sectionRef.value) {
+    return
+  }
 
   // === Canvas 光效系统 ===
   const canvas = canvasRef.value
@@ -168,7 +170,9 @@ onMounted(() => {
     }
 
     function draw() {
-      if (!canvas) return
+      if (!canvas) {
+        return
+      }
       const ctx = canvas.getContext('2d')!
       ctx.clearRect(0, 0, cw, ch)
 
@@ -240,7 +244,9 @@ onMounted(() => {
 
     // 为每个碎片创建爆发动画
     fragmentRefs.value.forEach((fragEl, i) => {
-      if (!fragEl) return
+      if (!fragEl) {
+        return
+      }
 
       const frag = fragments[i]
 
@@ -305,27 +311,29 @@ onUnmounted(() => {
   cleanupFns.forEach((fn) => fn())
   if (sectionRef.value) {
     ScrollTrigger.getAll().forEach((st) => {
-      if (st.vars.trigger === sectionRef.value) st.kill()
+      if (st.vars.trigger === sectionRef.value) {
+        st.kill()
+      }
     })
   }
 })
 </script>
 
 <template>
-  <div class="hp-section" ref="sectionRef">
+  <div ref="sectionRef" class="hp-section">
     <!-- 背景深色 -->
     <div class="hp-bg"></div>
 
     <!-- 中心光晕 -->
-    <div class="hp-center-glow" ref="centerGlowRef"></div>
+    <div ref="centerGlowRef" class="hp-center-glow"></div>
 
     <!-- 6个三角形碎片 -->
     <div class="hp-fragments-container">
       <div
         v-for="(frag, i) in fragments"
         :key="frag.id"
-        class="hp-fragment"
         :ref="(el) => (fragmentRefs[i] = el as HTMLElement | null)"
+        class="hp-fragment"
         :style="{
           clipPath: frag.clipPath,
           backgroundImage: `url(${images[i]})`,
@@ -344,14 +352,14 @@ onUnmounted(() => {
     </div>
 
     <!-- Canvas 光效层 -->
-    <canvas class="hp-canvas" ref="canvasRef"></canvas>
+    <canvas ref="canvasRef" class="hp-canvas"></canvas>
 
     <!-- 标题区 -->
-    <div class="hp-hero" ref="heroRef">
-      <div class="hp-hero-tag" ref="heroTagRef">HOLOGRAPHIC PRISM BURST</div>
-      <h2 class="hp-hero-title" ref="heroTitleRef">全息棱镜爆发</h2>
-      <div class="hp-hero-line" ref="heroLineRef"></div>
-      <p class="hp-hero-sub" ref="heroSubRef">
+    <div ref="heroRef" class="hp-hero">
+      <div ref="heroTagRef" class="hp-hero-tag">HOLOGRAPHIC PRISM BURST</div>
+      <h2 ref="heroTitleRef" class="hp-hero-title">全息棱镜爆发</h2>
+      <div ref="heroLineRef" class="hp-hero-line"></div>
+      <p ref="heroSubRef" class="hp-hero-sub">
         6-Fragment · Prism Split · Laser Beams · Rainbow Glow
       </p>
     </div>
