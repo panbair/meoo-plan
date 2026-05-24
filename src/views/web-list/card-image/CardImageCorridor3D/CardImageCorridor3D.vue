@@ -73,18 +73,18 @@ interface PhotoItem {
 }
 
 const urlPool = [
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=520&h=350&fit=crop',
-  'https://images.unsplash.com/photo-1540206395-68808572332f?w=520&h=350&fit=crop',
+  'https://picsum.photos/seed/corridor1/600/400',
+  'https://picsum.photos/seed/corridor2/600/400',
+  'https://picsum.photos/seed/corridor3/600/400',
+  'https://picsum.photos/seed/corridor4/600/400',
+  'https://picsum.photos/seed/corridor5/600/400',
+  'https://picsum.photos/seed/corridor6/600/400',
+  'https://picsum.photos/seed/corridor7/600/400',
+  'https://picsum.photos/seed/corridor8/600/400',
+  'https://picsum.photos/seed/corridor9/600/400',
+  'https://picsum.photos/seed/corridor10/600/400',
+  'https://picsum.photos/seed/corridor11/600/400',
+  'https://picsum.photos/seed/corridor12/600/400',
 ]
 
 const tagPool = [
@@ -128,9 +128,9 @@ let cleanupFns: CleanupFn[] = []
 
 // ==================== 长廊参数 ====================
 const CORRIDOR_DEPTH = 580          // 长廊总深度
-const WALL_OFFSET_X = 195            // 墙壁水平偏移
+const WALL_OFFSET_X = 290            // 墙壁水平偏移
 const WALL_ANGLE = 22                // 墙壁旋转角度（度）
-const SWEET_SPOT_Z = -200            // 最佳焦点深度
+const SWEET_SPOT_Z = -260            // 最佳焦点深度
 
 // ==================== 挂载 ====================
 onMounted(() => {
@@ -372,10 +372,10 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 800px;
-  height: 480px;
+  width: 1000px;
+  height: 600px;
   z-index: 4;
-  perspective: 1100px;
+  perspective: 1500px;
   perspective-origin: 50% 48%;
 }
 
@@ -384,10 +384,10 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 155px;
-  height: 105px;
-  margin-left: -77.5px;
-  margin-top: -52.5px;
+  width: 230px;
+  height: 155px;
+  margin-left: -115px;
+  margin-top: -77.5px;
   transform-style: preserve-3d;
   will-change: transform, opacity, filter;
   pointer-events: none;
@@ -396,9 +396,9 @@ onUnmounted(() => {
 // ==================== 相框 ====================
 .cg-frame {
   position: relative;
-  width: 155px;
-  height: 105px;
-  padding: 6px;
+  width: 230px;
+  height: 155px;
+  padding: 8px;
   background: linear-gradient(135deg, #1a1e28, #141820);
   border-radius: 2px;
   box-shadow:
@@ -417,7 +417,7 @@ onUnmounted(() => {
 
 .cg-glare {
   position: absolute;
-  inset: 6px;
+  inset: 8px;
   pointer-events: none;
   background: linear-gradient(
     160deg,
@@ -430,10 +430,10 @@ onUnmounted(() => {
 // ==================== 标签 ====================
 .cg-tag {
   position: absolute;
-  bottom: -16px;
+  bottom: -20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 8.5px;
+  font-size: 10.5px;
   letter-spacing: 0.1em;
   color: rgba(160, 185, 210, 0.35);
   font-family: 'Courier New', monospace;

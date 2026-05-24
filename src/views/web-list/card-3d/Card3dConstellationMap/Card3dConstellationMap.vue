@@ -180,56 +180,56 @@ const progressOffset = computed(() => circumference * (1 - currentProgress.value
 const stars = reactive<StarPhoto[]>([
   {
     id: 1, name: '参宿七 Rigel', label: 'β Ori',
-    image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons1/500/350',
     pos: { x: -160, y: -200, z: -40 },
     tilt: -8, color: '#818cf8', glowColor: '#818cf8',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(129,140,248,0.65) 100%)'
   },
   {
     id: 2, name: '参宿四 Betelgeuse', label: 'α Ori',
-    image: 'https://images.unsplash.com/photo-1614642264762-d0a3b8bf3700?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons2/500/350',
     pos: { x: 90, y: -260, z: -80 },
     tilt: 12, color: '#f87171', glowColor: '#f87171',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(248,113,113,0.65) 100%)'
   },
   {
     id: 3, name: '参宿五 Bellatrix', label: 'γ Ori',
-    image: 'https://images.unsplash.com/photo-1483347756197-71ef80e95f73?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons3/500/350',
     pos: { x: 220, y: -180, z: -20 },
     tilt: 5, color: '#38bdf8', glowColor: '#38bdf8',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(56,189,248,0.65) 100%)'
   },
   {
     id: 4, name: '参宿一 Alnitak', label: 'ζ Ori',
-    image: 'https://images.unsplash.com/photo-1464802686167-b939a6910659?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons4/500/350',
     pos: { x: -50, y: -80, z: 30 },
     tilt: -3, color: '#a78bfa', glowColor: '#a78bfa',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(167,139,250,0.65) 100%)'
   },
   {
     id: 5, name: '参宿二 Alnilam', label: 'ε Ori',
-    image: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons5/500/350',
     pos: { x: 40, y: -60, z: 60 },
     tilt: -6, color: '#c4b5fd', glowColor: '#c4b5fd',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(196,181,253,0.65) 100%)'
   },
   {
     id: 6, name: '参宿三 Mintaka', label: 'δ Ori',
-    image: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons6/500/350',
     pos: { x: 130, y: -40, z: 90 },
     tilt: 10, color: '#67e8f9', glowColor: '#67e8f9',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(103,232,249,0.65) 100%)'
   },
   {
     id: 7, name: '参宿七 Saiph', label: 'κ Ori',
-    image: 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons7/500/350',
     pos: { x: -200, y: 60, z: -50 },
     tilt: 15, color: '#e879f9', glowColor: '#e879f9',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(232,121,249,0.65) 100%)'
   },
   {
     id: 8, name: '天狼星 Sirius', label: 'α CMa',
-    image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=500&h=350&fit=crop',
+    image: 'https://picsum.photos/seed/cons8/500/350',
     pos: { x: 250, y: 180, z: 120 },
     tilt: -12, color: '#fbbf24', glowColor: '#fbbf24',
     tintGradient: 'linear-gradient(180deg, transparent 45%, rgba(251,191,36,0.65) 100%)'
@@ -323,7 +323,12 @@ function killParticles() {
 }
 
 // ==================== 星座连线实时同步 ====================
+let edgeUpdateFrameSkip = 0
+const EDGE_SKIP = 3 // 每 3 帧更新一次，减少 getBoundingClientRect 调用
+
 function updateEdges() {
+  edgeUpdateFrameSkip++
+  if (edgeUpdateFrameSkip % EDGE_SKIP !== 0) return
   if (!constellationSvgRef.value || !photoRefs.value.length) return
   const svg = constellationSvgRef.value
   const svgRect = svg.getBoundingClientRect()
@@ -392,7 +397,6 @@ function initAnimations() {
   const photos = photoRefs.value
 
   // 3D 空间
-  gsap.set(section, { perspective: 2200, transformStyle: 'preserve-3d' })
   gsap.set(orbit, { transformStyle: 'preserve-3d', transformOrigin: 'center center' })
 
   // 初始化每张照片到其星座位置
@@ -443,8 +447,8 @@ function initAnimations() {
     ease: 'power3.inOut',
   }, '-=0.3')
 
-  // 阶段3：悬浮呼吸
-  mainTimeline.to(photos, {
+  // 阶段3：悬浮呼吸（改用独立tween + 触发时暂停，避免与scrub冲突）
+  const breatheTween = gsap.to(photos, {
     y: '+=12',
     z: '+=20',
     rotateZ: '+=3',
@@ -452,7 +456,13 @@ function initAnimations() {
     stagger: { each: 0.08, from: 'random' },
     duration: 2.8,
     ease: 'sine.inOut',
-  }, '-=0.4')
+    paused: false,
+  })
+
+  // 阶段2.5：悬浮呼吸（在滚动完成后启动呼吸效果）
+  mainTimeline.call(() => {
+    breatheTween.play()
+  }, undefined, '-=0.4')
 
   const st = ScrollTrigger.create({
     trigger: section,
@@ -465,6 +475,10 @@ function initAnimations() {
     onUpdate: (self) => {
       currentProgress.value = self.progress
       animateParticles(self.progress)
+    },
+    onLeaveBack: () => {
+      breatheTween.pause()
+      edgeUpdateFrameSkip = 0
     },
   })
   scrollTriggers.push(st)
@@ -526,6 +540,7 @@ onUnmounted(() => {
   scrollTriggers.forEach(st => st.kill())
   scrollTriggers = []
   if (mainTimeline) { mainTimeline.kill(); mainTimeline = null }
+  if (breatheTween) { breatheTween.kill(); (breatheTween as any) = null }
   killParticles()
   ScrollTrigger.getAll().forEach(st => st.kill())
   gsap.killTweensOf('*')
@@ -548,14 +563,14 @@ $gold: #fbbf24;
   overflow: hidden;
   background: radial-gradient(ellipse at 30% 40%, #10132b 0%, $bg-deep 60%, #050510 100%);
   font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
-  transform-style: preserve-3d;
+  perspective: 2200px;
 }
 
 // ==================== 深空背景 ====================
 .cosmos-bg { position: absolute; inset: 0; pointer-events: none; }
 
 .cosmos-nebula {
-  position: absolute; border-radius: 50%; filter: blur(130px); opacity: 0.2;
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
   animation: nebula-drift 24s ease-in-out infinite;
   &.cosmos-nebula-1 {
     width: 800px; height: 800px;
@@ -645,9 +660,7 @@ $gold: #fbbf24;
   position: absolute;
   width: 190px; height: 260px;
   transform-style: preserve-3d;
-  will-change: transform;
   cursor: pointer;
-  transition: filter 0.35s ease;
   &:hover { filter: brightness(1.2); z-index: 200 !important; }
 }
 
@@ -671,7 +684,6 @@ $gold: #fbbf24;
   border-radius: 14px; overflow: hidden;
   box-shadow: 0 4px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06) inset;
   background: rgba(10,10,25,0.5);
-  transform-style: preserve-3d;
 }
 
 .photo-img {
