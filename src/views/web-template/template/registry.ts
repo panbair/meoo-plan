@@ -26,13 +26,23 @@ const LABEL_MAP: Record<string, string> = {
   'glassmorphism-showcase': '毛玻璃展示',
   'timeline-scroll': '时间线滚动',
   'split-scroll': '分屏滚动',
+  'zigzag-scroll': '之字滚动',
+  'masonry-gallery': '瀑布流画廊',
+  'stack-scroll': '卡片堆叠',
+  'glitch-scroll': '故障滚动',
+  'split-text-scroll': '逐字滚动',
+  'vortex-scroll': '漩涡滚动',
+  'counter-scroll': '计数滚动',
+  'carousel-scroll': '轮播滚动',
+  'expand-scroll': '展开式滚动',
   'transition-fade': '淡入淡出',
   'transition-slide-h': '水平滑动',
   'transition-slide-v': '垂直滑动',
   'transition-scale': '缩放弹出',
   'transition-rotate3d': '3D 翻转',
   'transition-elastic': '弹性弹跳',
-  'transition-blur': '模糊过渡'
+  'transition-blur': '模糊过渡',
+  'transition-clip': '裁剪过渡'
 }
 
 // ═══════════════════════════════════════════
