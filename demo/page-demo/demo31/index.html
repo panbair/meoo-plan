@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>NexusTech 品牌故事</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { overflow: hidden; height: 100%; }
+    body { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; }
+
+    .container { height: 100%; overflow-y: auto; overflow-x: hidden; }
+
+    /* ========== 通用面板 ========== */
+    .panel { width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; flex-direction: column; }
+    .panel::before { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; pointer-events: none; }
+    .corner-decor { position: absolute; width: 60px; height: 60px; pointer-events: none; opacity: 0.25; }
+    .corner-decor.tl { top: 20px; left: 20px; border-top: 2px solid rgba(255,255,255,0.3); border-left: 2px solid rgba(255,255,255,0.3); }
+    .corner-decor.tr { top: 20px; right: 20px; border-top: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); }
+    .corner-decor.bl { bottom: 20px; left: 20px; border-bottom: 2px solid rgba(255,255,255,0.3); border-left: 2px solid rgba(255,255,255,0.3); }
+    .corner-decor.br { bottom: 20px; right: 20px; border-bottom: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3); }
+
+    .section-header { text-align: center; margin-bottom: 60px; z-index: 1; }
+    .section-tag { display: inline-block; padding: 8px 20px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 30px; font-size: 0.85rem; font-weight: 600; letter-spacing: 3px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.15); }
+    .section-title { font-size: 3.5rem; font-weight: 900; margin-bottom: 16px; background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .section-subtitle { font-size: 1.15rem; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+    .scroll-animate { opacity: 0; transform: translateY(60px); }
+    .scroll-animate.visible { opacity: 1; transform: translateY(0); transition: opacity 0.8s cubic-bezier(0.17,0.67,0.17,1), transform 0.8s cubic-bezier(0.17,0.67,0.17,1); }
+
+    /* ========== 第1页：Hero 5层视差 ========== */
+    .panel-hero { background: linear-gradient(180deg, #0a0f24 0%, #0d1540 30%, #1a1a5e 60%, #16213e 100%); flex-direction: column; text-align: center; }
+
+    .parallax-stage { position: absolute; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+
+    /* 层1：星空背景 */
+    .pl-layer-1 { position: absolute; inset: 0; }
+    .pl-star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: twinkle var(--star-duration) ease-in-out infinite; animation-delay: var(--star-delay); }
+    @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+    /* 层2：远山剪影 */
+    .pl-layer-2 { position: absolute; bottom: 0; width: 100%; height: 40%; }
+    .pl-mountain-far { position: absolute; bottom: 0; width: 0; height: 0; border-left: 600px solid transparent; border-right: 600px solid transparent; border-bottom: 300px solid rgba(20,30,80,0.6); pointer-events: none; }
+    .pl-mountain-far-1 { left: -15%; border-bottom-color: rgba(15,25,70,0.5); border-bottom-width: 280px; }
+    .pl-mountain-far-2 { left: 25%; border-bottom-color: rgba(10,20,60,0.55); border-bottom-width: 340px; border-left-width: 500px; border-right-width: 500px; }
+    .pl-mountain-far-3 { left: 60%; border-bottom-color: rgba(25,35,85,0.45); border-bottom-width: 260px; border-left-width: 700px; border-right-width: 400px; }
+
+    /* 层3：中景山脉 */
+    .pl-layer-3 { position: absolute; bottom: 0; width: 100%; height: 35%; }
+    .pl-mountain-mid { position: absolute; bottom: 0; width: 0; height: 0; border-left: 500px solid transparent; border-right: 500px solid transparent; border-bottom: 250px solid rgba(30,40,100,0.7); pointer-events: none; }
+    .pl-mountain-mid-1 { left: -10%; border-bottom-color: rgba(20,35,90,0.6); border-bottom-width: 220px; }
+    .pl-mountain-mid-2 { left: 40%; border-bottom-color: rgba(35,45,110,0.55); border-bottom-width: 260px; border-left-width: 400px; border-right-width: 600px; }
+
+    /* 层4：前景建筑剪影 */
+    .pl-layer-4 { position: absolute; bottom: 0; width: 100%; height: 25%; }
+    .pl-buildings { position: absolute; bottom: 0; display: flex; gap: 15px; align-items: flex-end; }
+    .pl-building { background: rgba(25,30,60,0.8); position: relative; }
+    .pl-building:nth-child(1) { width: 80px; height: 140px; }
+    .pl-building:nth-child(2) { width: 60px; height: 100px; margin-left: 5px; }
+    .pl-building:nth-child(3) { width: 100px; height: 180px; }
+    .pl-building:nth-child(4) { width: 50px; height: 80px; }
+    .pl-building:nth-child(5) { width: 70px; height: 120px; }
+    .pl-building:nth-child(6) { width: 90px; height: 160px; }
+    .pl-building::after { content: ''; position: absolute; top: 10px; width: 2px; height: 3px; background: rgba(255,255,200,0.6); left: 50%; transform: translateX(-50%); box-shadow: 0 15px 0 rgba(255,255,200,0.4), 0 30px 0 rgba(255,255,200,0.3), 0 45px 0 rgba(255,255,200,0.2), -15px 8px 0 rgba(255,255,200,0.3), 15px 20px 0 rgba(255,255,200,0.35); }
+    .pl-buildings-1 { left: -5%; }
+    .pl-buildings-2 { right: 5%; }
+
+    /* 层5：前景粒子+雾 */
+    .pl-layer-5 { position: absolute; inset: 0; }
+    .pl-fog { position: absolute; bottom: 0; width: 200%; height: 20%; background: radial-gradient(ellipse at 30% 100%, rgba(100,140,255,0.1) 0%, transparent 60%), radial-gradient(ellipse at 70% 100%, rgba(80,120,255,0.08) 0%, transparent 60%); animation: fog-drift 25s linear infinite; }
+    @keyframes fog-drift { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .pl-particle { position: absolute; width: 4px; height: 4px; background: rgba(150,180,255,0.5); border-radius: 50%; animation: particle-rise var(--p-dur) ease-in-out infinite; animation-delay: var(--p-delay); left: var(--p-x); bottom: var(--p-y); }
+    @keyframes particle-rise { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; } 50% { transform: translateY(-200px) scale(2); opacity: 0.8; } }
+
+    .hero-content { z-index: 2; position: relative; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 10px; padding: 12px 28px; background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border-radius: 50px; font-size: 0.9rem; font-weight: 500; margin-bottom: 28px; border: 1px solid rgba(255,255,255,0.15); }
+    .hero-badge-dot { width: 8px; height: 8px; background: #6c8cff; border-radius: 50%; animation: dot-pulse 2s ease-in-out infinite; }
+    @keyframes dot-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(108,140,255,0.6); } 50% { box-shadow: 0 0 0 12px rgba(108,140,255,0); } }
+    .hero-title { font-size: 5.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 20px; }
+    .hero-title .gradient-text { background: linear-gradient(135deg, #6c8cff 0%, #a78bfa 40%, #f472b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-subtitle { font-size: 1.4rem; color: rgba(255,255,255,0.7); margin-bottom: 40px; font-weight: 300; letter-spacing: 2px; }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; }
+    .hero-btn { padding: 16px 36px; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; }
+    .hero-btn-primary { background: linear-gradient(135deg, #6c8cff, #a78bfa); color: #fff; box-shadow: 0 8px 30px rgba(108,140,255,0.3); }
+    .hero-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(108,140,255,0.5); }
+    .hero-btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.3); }
+    .hero-btn-outline:hover { border-color: rgba(255,255,255,0.7); transform: translateY(-3px); background: rgba(255,255,255,0.05); }
+    .hero-scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .hero-scroll-line { width: 2px; height: 40px; background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent); border-radius: 1px; animation: scroll-line 2s ease-in-out infinite; }
+    .hero-scroll-text { font-size: 0.75rem; color: rgba(255,255,255,0.5); letter-spacing: 3px; }
+    @keyframes scroll-line { 0%, 100% { transform: scaleY(0); opacity: 0; } 50% { transform: scaleY(1); opacity: 1; } }
+
+    /* ========== 第2页：品牌理念 ========== */
+    .panel-about { background: linear-gradient(135deg, #0f2027 0%, #203a43 40%, #2c5364 100%); padding: 80px; }
+    .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1100px; z-index: 1; }
+    .about-card { background: rgba(255,255,255,0.06); backdrop-filter: blur(15px); border-radius: 24px; padding: 40px 30px; text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: all 0.4s ease; cursor: pointer; }
+    .about-card:hover { transform: translateY(-12px); background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+    .about-icon-wrap { width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(108,140,255,0.3), rgba(167,139,250,0.3)); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; transition: all 0.4s ease; }
+    .about-card:hover .about-icon-wrap { transform: scale(1.1) rotate(5deg); background: linear-gradient(135deg, rgba(108,140,255,0.5), rgba(167,139,250,0.5)); }
+    .about-card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; color: #fff; }
+    .about-card p { font-size: 0.95rem; color: rgba(255,255,255,0.65); line-height: 1.7; }
+
+    /* ========== 第3页：发展历程 时间轴 ========== */
+    .panel-timeline { background: linear-gradient(135deg, #141e30 0%, #243b55 100%); padding: 80px 60px; }
+    .timeline-wrap { position: relative; max-width: 1000px; width: 100%; z-index: 1; }
+    .timeline-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, rgba(108,140,255,0.5), rgba(167,139,250,0.5), transparent); transform: translateX(-50%); }
+    .timeline-items { display: flex; flex-direction: column; gap: 60px; }
+    .timeline-item { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; gap: 20px; }
+    .timeline-item:nth-child(even) .timeline-content { grid-area: 3 / 1 / 4 / 2; text-align: right; }
+    .timeline-item:nth-child(even) { grid-template-areas: ". . content"; }
+    .timeline-item:nth-child(odd) { grid-template-areas: "content . ."; }
+    .timeline-dot { width: 16px; height: 16px; background: linear-gradient(135deg, #6c8cff, #a78bfa); border-radius: 50%; margin: 0 auto; position: relative; z-index: 2; box-shadow: 0 0 20px rgba(108,140,255,0.5); transition: all 0.3s ease; }
+    .timeline-item:hover .timeline-dot { transform: scale(1.5); box-shadow: 0 0 35px rgba(167,139,250,0.7); }
+    .timeline-content { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 28px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.4s ease; }
+    .timeline-item:hover .timeline-content { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: scale(1.02); }
+    .timeline-year { font-size: 1.6rem; font-weight: 900; background: linear-gradient(135deg, #6c8cff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+    .timeline-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .timeline-desc { font-size: 0.9rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
+    .timeline-image { width: 100%; height: 120px; border-radius: 16px; background: linear-gradient(135deg, rgba(108,140,255,0.2), rgba(167,139,250,0.2)); display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 16px; transition: all 0.4s ease; }
+    .timeline-item:hover .timeline-image { background: linear-gradient(135deg, rgba(108,140,255,0.35), rgba(167,139,250,0.35)); transform: scale(1.03); }
+
+    /* ========== 第4页：核心团队 3D卡片 ========== */
+    .panel-team { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 80px; }
+    .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; max-width: 1200px; z-index: 1; perspective: 1000px; }
+    .team-card { background: rgba(255,255,255,0.06); backdrop-filter: blur(15px); border-radius: 24px; padding: 35px 24px; text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; cursor: pointer; transform-style: preserve-3d; position: relative; }
+    .team-card:hover { transform: translateY(-15px) rotateX(5deg); box-shadow: 0 30px 70px rgba(0,0,0,0.4); border-color: rgba(108,140,255,0.4); background: rgba(255,255,255,0.1); }
+    .team-avatar { width: 100px; height: 100px; margin: 0 auto 20px; background: linear-gradient(135deg, #6c8cff, #a78bfa); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; transition: all 0.4s ease; }
+    .team-avatar::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid transparent; border-top-color: rgba(108,140,255,0.5); border-right-color: rgba(167,139,250,0.5); animation: avatar-spin 4s linear infinite; }
+    @keyframes avatar-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .team-card:hover .team-avatar { transform: scale(1.15); }
+    .team-card h3 { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .team-role { font-size: 0.85rem; color: #a78bfa; font-weight: 600; margin-bottom: 14px; letter-spacing: 1px; }
+    .team-bio { font-size: 0.88rem; color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 16px; }
+    .team-social { display: flex; gap: 10px; justify-content: center; }
+    .team-social a { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.7); font-size: 0.8rem; text-decoration: none; transition: all 0.3s ease; }
+    .team-card:hover .team-social a { background: rgba(108,140,255,0.25); }
+    .team-social a:hover { background: #6c8cff !important; color: #fff; transform: translateY(-3px); }
+    .team-glow { position: absolute; top: 50%; left: 50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(108,140,255,0.15) 0%, transparent 70%); border-radius: 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+    .team-card:hover .team-glow { opacity: 1; }
+
+    /* ========== 第5页：数据成就 ========== */
+    .panel-stats { background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3e 50%, #0d0d2b 100%); padding: 80px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; max-width: 1100px; z-index: 1; }
+    .stat-card { background: rgba(255,255,255,0.04); backdrop-filter: blur(15px); border-radius: 24px; padding: 45px 30px; text-align: center; border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden; transition: all 0.4s ease; }
+    .stat-card:hover { transform: translateY(-10px); border-color: rgba(108,140,255,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #6c8cff, #a78bfa, #f472b6); opacity: 0; transition: opacity 0.4s ease; }
+    .stat-card:hover::before { opacity: 1; }
+    .stat-icon { width: 70px; height: 70px; margin: 0 auto 20px; background: linear-gradient(135deg, rgba(108,140,255,0.2), rgba(167,139,250,0.2)); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.4s ease; }
+    .stat-card:hover .stat-icon { background: linear-gradient(135deg, rgba(108,140,255,0.4), rgba(167,139,250,0.4)); transform: scale(1.1) rotate(5deg); }
+    .stat-value { font-size: 3.8rem; font-weight: 900; background: linear-gradient(135deg, #6c8cff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; transition: all 0.3s ease; }
+    .stat-label { font-size: 1rem; color: rgba(255,255,255,0.6); margin-top: 8px; font-weight: 500; }
+    .stat-plus { font-size: 2rem; font-weight: 700; color: #a78bfa; }
+
+    /* ========== 第6页：合作伙伴 ========== */
+    .panel-partners { background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%); padding: 80px; }
+    .marquee-wrap { width: 100%; max-width: 1200px; overflow: hidden; position: relative; z-index: 1; }
+    .marquee-track { display: flex; animation: marquee 30s linear infinite; }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .partner-item { flex-shrink: 0; width: 200px; height: 100px; margin: 0 18px; background: rgba(255,255,255,0.9); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; color: #333; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .partner-item:hover { transform: scale(1.08); box-shadow: 0 15px 40px rgba(0,0,0,0.2); background: #fff; }
+    .partner-row-2 { animation: marquee 30s linear infinite reverse; margin-top: 20px; }
+
+    /* ========== 第7页：联系我们 ========== */
+    .panel-contact { background: linear-gradient(135deg, #0b1331 0%, #1c2856 50%, #0b1331 100%); padding: 80px; }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; max-width: 1100px; z-index: 1; }
+    .contact-info { display: flex; flex-direction: column; gap: 20px; }
+    .contact-item { display: flex; align-items: center; gap: 18px; padding: 20px 24px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); transition: all 0.3s ease; }
+    .contact-item:hover { background: rgba(255,255,255,0.1); transform: translateX(8px); border-color: rgba(108,140,255,0.3); }
+    .contact-icon { width: 52px; height: 52px; background: linear-gradient(135deg, #6c8cff, #a78bfa); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+    .contact-item h4 { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-bottom: 4px; letter-spacing: 1px; }
+    .contact-item p { font-size: 1.1rem; font-weight: 600; color: #fff; }
+    .contact-social-row { display: flex; gap: 12px; margin-top: 10px; }
+    .contact-social-row a { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; text-decoration: none; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1); }
+    .contact-social-row a:hover { background: linear-gradient(135deg, #6c8cff, #a78bfa); transform: translateY(-5px); box-shadow: 0 10px 25px rgba(108,140,255,0.3); }
+    .contact-form-wrap { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); border-radius: 24px; padding: 40px; border: 1px solid rgba(255,255,255,0.1); }
+    .contact-form-wrap h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 28px; color: #fff; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 1rem; color: #fff; font-family: inherit; transition: all 0.3s ease; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: rgba(108,140,255,0.5); background: rgba(255,255,255,0.1); box-shadow: 0 0 20px rgba(108,140,255,0.1); }
+    .form-group textarea { height: 120px; resize: none; }
+    .form-submit { width: 100%; padding: 16px; background: linear-gradient(135deg, #6c8cff, #a78bfa); border: none; border-radius: 14px; color: #fff; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; letter-spacing: 1px; }
+    .form-submit:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(108,140,255,0.4); }
+
+    /* ========== 导航和进度条 ========== */
+    .nav-dots { position: fixed; right: 28px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 14px; }
+    .nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+    .nav-dot:hover { background: rgba(255,255,255,0.5); transform: scale(1.3); }
+    .nav-dot.active { background: #6c8cff; border-color: rgba(255,255,255,0.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108,140,255,0.5); }
+    .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #6c8cff, #a78bfa, #f472b6); z-index: 1001; width: 0%; box-shadow: 0 0 10px rgba(108,140,255,0.4); }
+    .page-indicator { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 1024px) {
+      .about-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .contact-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 3.8rem; }
+      .section-title { font-size: 2.8rem; }
+      .timeline-item, .timeline-item:nth-child(even), .timeline-item:nth-child(odd) { grid-template-columns: 40px 1fr; grid-template-areas: "dot content"; }
+      .timeline-item:nth-child(odd) .timeline-content, .timeline-item:nth-child(even) .timeline-content { text-align: left; }
+      .timeline-line { left: 20px; }
+    }
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2.8rem; }
+      .section-title { font-size: 2.2rem; }
+      .about-grid, .team-grid, .stats-grid { grid-template-columns: 1fr; }
+      .panel { padding: 60px 20px; }
+      .nav-dots { right: 12px; gap: 10px; }
+      .partner-item { width: 150px; height: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+  <nav class="nav-dots" id="navDots"></nav>
+  <div class="page-indicator"><span class="current">1</span><span class="total"> / 7</span></div>
+
+  <div class="container" id="container">
+    <!-- ===== 第1页：Hero 5层视差 ===== -->
+    <section class="panel panel-hero" data-index="0">
+      <div class="corner-decor tl"></div><div class="corner-decor tr"></div>
+      <div class="corner-decor bl"></div><div class="corner-decor br"></div>
+      <div class="parallax-stage" id="parallaxStage">
+        <div class="pl-layer-1" id="plLayer1">
+          <div class="pl-star" style="top:8%;left:12%;--star-duration:3s;--star-delay:0s"></div>
+          <div class="pl-star" style="top:15%;left:35%;--star-duration:4s;--star-delay:0.5s"></div>
+          <div class="pl-star" style="top:22%;left:58%;--star-duration:3.5s;--star-delay:1s"></div>
+          <div class="pl-star" style="top:10%;left:78%;--star-duration:2.8s;--star-delay:0.3s"></div>
+          <div class="pl-star" style="top:28%;left:22%;--star-duration:4.2s;--star-delay:1.5s"></div>
+          <div class="pl-star" style="top:5%;left:48%;--star-duration:3.2s;--star-delay:0.8s"></div>
+          <div class="pl-star" style="top:18%;left:68%;--star-duration:3.8s;--star-delay:2s"></div>
+          <div class="pl-star" style="top:32%;left:42%;--star-duration:2.5s;--star-delay:0.2s"></div>
+          <div class="pl-star" style="top:7%;left:8%;--star-duration:4.5s;--star-delay:1.2s"></div>
+          <div class="pl-star" style="top:25%;left:88%;--star-duration:3s;--star-delay:0.7s"></div>
+        </div>
+        <div class="pl-layer-2" id="plLayer2">
+          <div class="pl-mountain-far pl-mountain-far-1"></div>
+          <div class="pl-mountain-far pl-mountain-far-2"></div>
+          <div class="pl-mountain-far pl-mountain-far-3"></div>
+        </div>
+        <div class="pl-layer-3" id="plLayer3">
+          <div class="pl-mountain-mid pl-mountain-mid-1"></div>
+          <div class="pl-mountain-mid pl-mountain-mid-2"></div>
+        </div>
+        <div class="pl-layer-4" id="plLayer4">
+          <div class="pl-buildings pl-buildings-1">
+            <div class="pl-building"></div><div class="pl-building"></div><div class="pl-building"></div><div class="pl-building"></div><div class="pl-building"></div><div class="pl-building"></div>
+          </div>
+          <div class="pl-buildings pl-buildings-2">
+            <div class="pl-building"></div><div class="pl-building"></div><div class="pl-building"></div><div class="pl-building"></div><div class="pl-building"></div>
+          </div>
+        </div>
+        <div class="pl-layer-5" id="plLayer5">
+          <div class="pl-fog"></div>
+          <div class="pl-particle" style="--p-dur:5s;--p-delay:0s;--p-x:8%;--p-y:5%"></div>
+          <div class="pl-particle" style="--p-dur:6s;--p-delay:1s;--p-x:22%;--p-y:8%"></div>
+          <div class="pl-particle" style="--p-dur:4.5s;--p-delay:2s;--p-x:38%;--p-y:3%"></div>
+          <div class="pl-particle" style="--p-dur:5.5s;--p-delay:0.5s;--p-x:55%;--p-y:6%"></div>
+          <div class="pl-particle" style="--p-dur:4s;--p-delay:1.5s;--p-x:70%;--p-y:4%"></div>
+          <div class="pl-particle" style="--p-dur:6.5s;--p-delay:2.5s;--p-x:85%;--p-y:7%"></div>
+          <div class="pl-particle" style="--p-dur:5s;--p-delay:3s;--p-x:15%;--p-y:2%"></div>
+          <div class="pl-particle" style="--p-dur:4.8s;--p-delay:0.8s;--p-x:48%;--p-y:9%"></div>
+        </div>
+      </div>
+      <div class="hero-content scroll-animate" data-delay="0">
+        <div class="hero-badge"><span class="hero-badge-dot"></span> 成立于2015年 · 全球领先科技企业</div>
+        <h1 class="hero-title">
+          <span class="gradient-text">NexusTech</span><br>
+          <span style="font-size:3.5rem;color:rgba(255,255,255,0.9);">连接未来的科技之光</span>
+        </h1>
+        <p class="hero-subtitle">以创新科技驱动行业变革，用智能连接重塑未来世界</p>
+        <div class="hero-buttons">
+          <button class="hero-btn hero-btn-primary">探索品牌故事</button>
+          <button class="hero-btn hero-btn-outline">联系我们</button>
+        </div>
+      </div>
+      <div class="hero-scroll-hint">
+        <div class="hero-scroll-line"></div>
+        <div class="hero-scroll-text">向下滚动</div>
+      </div>
+    </section>
+
+    <!-- ===== 第2页：品牌理念 ===== -->
+    <section class="panel panel-about" data-index="1">
+      <div class="corner-decor tl"></div><div class="corner-decor tr"></div>
+      <div class="corner-decor bl"></div><div class="corner-decor br"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">BRAND PHILOSOPHY</div>
+        <h2 class="section-title scroll-animate" data-delay="1">品牌理念</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">以科技为核心驱动力，以用户为中心，致力于打造一个更加智能、互联、可持续的未来</p>
+      </div>
+      <div class="about-grid">
+        <div class="about-card scroll-animate" data-delay="3">
+          <div class="about-icon-wrap">🔬</div>
+          <h3>创新驱动</h3>
+          <p>持续投入研发创新，每年研发投入占比超15%，拥有专利技术超过200项，引领行业技术变革</p>
+        </div>
+        <div class="about-card scroll-animate" data-delay="4">
+          <div class="about-icon-wrap">🌍</div>
+          <h3>全球视野</h3>
+          <p>业务覆盖全球36个国家和地区，服务超过10万家企业客户，构建全球化科技服务网络</p>
+        </div>
+        <div class="about-card scroll-animate" data-delay="5">
+          <div class="about-icon-wrap">🤝</div>
+          <h3>合作共赢</h3>
+          <p>与全球顶尖科技公司建立深度战略合作，构建开放、互利、共享的产业生态系统</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 第3页：发展历程 时间轴 ===== -->
+    <section class="panel panel-timeline" data-index="2">
+      <div class="corner-decor tl"></div><div class="corner-decor tr"></div>
+      <div class="corner-decor bl"></div><div class="corner-decor br"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">MILESTONES</div>
+        <h2 class="section-title scroll-animate" data-delay="1">发展历程</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">从创业初心到行业领航，每一步都镌刻着坚持与突破</p>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-line"></div>
+        <div class="timeline-items">
+          <div class="timeline-item">
+            <div class="timeline-content scroll-animate" data-delay="3" style="grid-area:content">
+              <div class="timeline-image">💡</div>
+              <div class="timeline-year">2015</div>
+              <div class="timeline-title">梦想启航</div>
+              <div class="timeline-desc">NexusTech 在深圳正式成立，创始团队怀揣"用科技改变世界"的初心，从一间20平米的办公室起步</div>
+            </div>
+            <div class="timeline-dot" style="grid-area:dot"></div>
+          </div>
+          <div class="timeline-item" style="flex-direction:row-reverse">
+            <div style="grid-area:dot"><div class="timeline-dot"></div></div>
+            <div class="timeline-content scroll-animate" data-delay="4" style="grid-area:content">
+              <div class="timeline-image">🚀</div>
+              <div class="timeline-year">2017</div>
+              <div class="timeline-title">快速成长</div>
+              <div class="timeline-desc">首款核心产品发布，获得A轮融资5000万美元，团队扩展至200人，服务首批1000家企业客户</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-content scroll-animate" data-delay="5" style="grid-area:content">
+              <div class="timeline-image">🌏</div>
+              <div class="timeline-year">2019</div>
+              <div class="timeline-title">全球拓展</div>
+              <div class="timeline-desc">进入北美、欧洲及东南亚市场，海外营收占比突破40%，全球员工突破1000人</div>
+            </div>
+            <div class="timeline-dot" style="grid-area:dot"></div>
+          </div>
+          <div class="timeline-item">
+            <div style="grid-area:dot"><div class="timeline-dot"></div></div>
+            <div class="timeline-content scroll-animate" data-delay="6" style="grid-area:content">
+              <div class="timeline-image">🏆</div>
+              <div class="timeline-year">2021</div>
+              <div class="timeline-title">行业领军</div>
+              <div class="timeline-desc">荣获"全球科技企业100强"，年营收突破10亿美元，成为行业标杆企业</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-content scroll-animate" data-delay="7" style="grid-area:content">
+              <div class="timeline-image">✨</div>
+              <div class="timeline-year">2024</div>
+              <div class="timeline-title">未来已来</div>
+              <div class="timeline-desc">全面布局AI与量子计算领域，发布新一代智能平台，开启下一个十年的科技变革</div>
+            </div>
+            <div class="timeline-dot" style="grid-area:dot"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 第4页：核心团队 3D卡片 ===== -->
+    <section class="panel panel-team" data-index="3">
+      <div class="corner-decor tl"></div><div class="corner-decor tr"></div>
+      <div class="corner-decor bl"></div><div class="corner-decor br"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">CORE TEAM</div>
+        <h2 class="section-title scroll-animate" data-delay="1">核心团队</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">汇聚全球顶尖科技人才，以卓越的视野和超强执行力驱动未来</p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card scroll-animate" data-delay="3">
+          <div class="team-glow"></div>
+          <div class="team-avatar">👨‍💻</div>
+          <h3>陈明远</h3>
+          <div class="team-role">创始人 & CEO</div>
+          <p class="team-bio">前Google高级工程师，MIT计算机博士，拥有15年科技创业经验</p>
+          <div class="team-social"><a href="#">领</a><a href="#">推</a><a href="#">邮</a></div>
+        </div>
+        <div class="team-card scroll-animate" data-delay="4">
+          <div class="team-glow"></div>
+          <div class="team-avatar">👩‍🔬</div>
+          <h3>Sarah Zhang</h3>
+          <div class="team-role">CTO</div>
+          <p class="team-bio">Stanford AI实验室前负责人，发表论文100+篇，H-index 68</p>
+          <div class="team-social"><a href="#">领</a><a href="#">推</a><a href="#">邮</a></div>
+        </div>
+        <div class="team-card scroll-animate" data-delay="5">
+          <div class="team-glow"></div>
+          <div class="team-avatar">👨‍💼</div>
+          <h3>刘志鹏</h3>
+          <div class="team-role">COO</div>
+          <p class="team-bio">前麦肯锡资深顾问，主导过20+跨国企业数字化转型项目</p>
+          <div class="team-social"><a href="#">领</a><a href="#">推</a><a href="#">邮</a></div>
+        </div>
+        <div class="team-card scroll-animate" data-delay="6">
+          <div class="team-glow"></div>
+          <div class="team-avatar">👩‍🎨</div>
+          <h3>Alice Chen</h3>
+          <div class="team-role">首席设计官</div>
+          <p class="team-bio">前Apple高级设计师，多次获得红点、iF国际设计大奖</p>
+          <div class="team-social"><a href="#">领</a><a href="#">推</a><a href="#">邮</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 第5页：数据成就 ===== -->
+    <section class="panel panel-stats" data-index="4">
+      <div class="corner-decor tl"></div><div class="corner-decor tr"></div>
+      <div class="corner-decor bl"></div><div class="corner-decor br"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">ACHIEVEMENTS</div>
+        <h2 class="section-title scroll-animate" data-delay="1">数据见证实力</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">每一个数字背后，都是客户对我们的信任与认可</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card scroll-animate" data-delay="3">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" data-count="100000">0</div>
+          <div class="stat-label">服务企业客户</div>
+        </div>
+        <div class="stat-card scroll-animate" data-delay="4">
+          <div class="stat-icon">🌍</div>
+          <div class="stat-value" data-count="36">0</div>
+          <div class="stat-label">覆盖国家地区</div>
+        </div>
+        <div class="stat-card scroll-animate" data-delay="5">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value" data-count="99.9">0</div>
+          <div class="stat-label">系统可用率 %</div>
+        </div>
+        <div class="stat-card scroll-animate" data-delay="6">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-value" data-count="200">0</div>
+          <div class="stat-label">核心技术专利</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 第6页：合作伙伴 ===== -->
+    <section class="panel panel-partners" data-index="5">
+      <div class="corner-decor tl"></div><div class="corner-decor tr"></div>
+      <div class="corner-decor bl"></div><div class="corner-decor br"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">PARTNERS</div>
+        <h2 class="section-title scroll-animate" data-delay="1">全球合作伙伴</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">与全球顶尖企业携手，共建科技生态共同体</p>
+      </div>
+      <div class="marquee-wrap">
+        <div class="marquee-track">
+          <div class="partner-item">🔵 Google Cloud</div><div class="partner-item">☁️ AWS</div>
+          <div class="partner-item">🪟 Microsoft</div><div class="partner-item">🍎 Apple</div>
+          <div class="partner-item">🔮 NVIDIA</div><div class="partner-item">🐧 Tencent</div>
+          <div class="partner-item">🛒 Alibaba</div><div class="partner-item">🔍 Baidu</div>
+          <div class="partner-item">🔵 Google Cloud</div><div class="partner-item">☁️ AWS</div>
+          <div class="partner-item">🪟 Microsoft</div><div class="partner-item">🍎 Apple</div>
+          <div class="partner-item">🔮 NVIDIA</div><div class="partner-item">🐧 Tencent</div>
+          <div class="partner-item">🛒 Alibaba</div><div class="partner-item">🔍 Baidu</div>
+        </div>
+        <div class="marquee-track partner-row-2" style="margin-top:20px;">
+          <div class="partner-item">🔴 Oracle</div><div class="partner-item">🟢 SAP</div>
+          <div class="partner-item">🟣 IBM</div><div class="partner-item">🏦 HSBC</div>
+          <div class="partner-item">📡 Huawei</div><div class="partner-item">⚡ Tesla</div>
+          <div class="partner-item">🤖 OpenAI</div><div class="partner-item">🛰️ SpaceX</div>
+          <div class="partner-item">🔴 Oracle</div><div class="partner-item">🟢 SAP</div>
+          <div class="partner-item">🟣 IBM</div><div class="partner-item">🏦 HSBC</div>
+          <div class="partner-item">📡 Huawei</div><div class="partner-item">⚡ Tesla</div>
+          <div class="partner-item">🤖 OpenAI</div><div class="partner-item">🛰️ SpaceX</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 第7页：联系我们 ===== -->
+    <section class="panel panel-contact" data-index="6">
+      <div class="corner-decor tl"></div><div class="corner-decor tr"></div>
+      <div class="corner-decor bl"></div><div class="corner-decor br"></div>
+      <div class="section-header">
+        <div class="section-tag scroll-animate" data-delay="0">CONTACT US</div>
+        <h2 class="section-title scroll-animate" data-delay="1">与我们同行</h2>
+        <p class="section-subtitle scroll-animate" data-delay="2">期待与您携手，共同开启智能科技新篇章</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item scroll-animate" data-delay="3">
+            <div class="contact-icon">📍</div>
+            <div><h4>总部地址</h4><p>中国深圳南山区科技园路88号</p></div>
+          </div>
+          <div class="contact-item scroll-animate" data-delay="4">
+            <div class="contact-icon">📞</div>
+            <div><h4>服务热线</h4><p>400-888-NEXUS</p></div>
+          </div>
+          <div class="contact-item scroll-animate" data-delay="5">
+            <div class="contact-icon">📧</div>
+            <div><h4>电子邮箱</h4><p>hello@nexustech.com</p></div>
+          </div>
+          <div class="contact-social-row scroll-animate" data-delay="7">
+            <a href="#">微</a><a href="#">领</a><a href="#">推</a><a href="#">知</a><a href="#">抖</a>
+          </div>
+        </div>
+        <div class="contact-form-wrap scroll-animate" data-delay="6">
+          <h3>立即咨询</h3>
+          <div class="form-group"><label>您的称呼</label><input type="text" placeholder="请输入姓名"></div>
+          <div class="form-group"><label>联系电话</label><input type="tel" placeholder="请输入手机号"></div>
+          <div class="form-group"><label>公司名称</label><input type="text" placeholder="请输入公司名称"></div>
+          <div class="form-group"><label>留言内容</label><textarea placeholder="请描述您的需求..."></textarea></div>
+          <button class="form-submit">提交咨询 →</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js">
+  </script>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    const totalPanels = 7;
+    const vh = window.innerHeight;
+    const container = document.getElementById('container');
+    const progressBar = document.getElementById('progressBar');
+    const navDots = document.getElementById('navDots');
+    let panels = [];
+    let currentIndex = 0;
+
+    function createNavDots() {
+      navDots.innerHTML = '';
+      for (let i = 0; i < totalPanels; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goToPanel(i));
+        navDots.appendChild(dot);
+      }
+    }
+
+    function updateUI(index) {
+      document.querySelectorAll('.nav-dot').forEach((dot, i) => dot.classList.toggle('active', i === index));
+      document.querySelector('.page-indicator .current').textContent = index + 1;
+      progressBar.style.width = ((index + 1) / totalPanels * 100) + '%';
+    }
+
+    function goToPanel(index) {
+      if (index < 0) index = totalPanels - 1;
+      if (index >= totalPanels) index = 0;
+      currentIndex = index;
+      updateUI(index);
+      const targetScroll = index * vh;
+      ScrollTrigger.getAll().forEach(st => st.disable());
+      container.scrollTop = targetScroll;
+      requestAnimationFrame(() => ScrollTrigger.getAll().forEach(st => st.enable()));
+    }
+
+    function animateCounters(panel) {
+      const counters = panel.querySelectorAll('[data-count]');
+      counters.forEach(counter => {
+        const target = parseFloat(counter.dataset.count);
+        const isDecimal = target % 1 !== 0;
+        gsap.to({ val: 0 }, {
+          val: target, duration: 2.2, ease: 'power3.out',
+          onUpdate: function() {
+            counter.textContent = isDecimal ? this.targets()[0].val.toFixed(1) : Math.round(this.targets()[0].val).toLocaleString();
+          }
+        });
+      });
+    }
+
+    function init() {
+      panels = gsap.utils.toArray('.panel');
+      if (panels.length <= 0) return;
+
+      // 克隆第一个面板实现无限循环
+      const clonedNode = panels[0].cloneNode(true);
+      clonedNode.setAttribute('data-cloned', 'true');
+      clonedNode.classList.add('cloned-first');
+      container.appendChild(clonedNode);
+
+      // Snap 滚动
+      ScrollTrigger.create({
+        trigger: container, start: 'top top', end: `+=${totalPanels * 100}%`,
+        snap: { snapTo: 1 / totalPanels, duration: { min: 0.2, max: 0.45 }, delay: 0.05, ease: 'power1.inOut' }
+      });
+
+      // 各面板入场动画
+      panels.forEach((panel, index) => {
+        const animates = panel.querySelectorAll('.scroll-animate');
+        animates.forEach((el, i) => {
+          const delay = parseInt(el.dataset.delay) * 0.08;
+          gsap.fromTo(el, { opacity: 0, y: 60 }, {
+            scrollTrigger: { trigger: panel, start: 'top 72%', toggleActions: 'play none none reverse' },
+            opacity: 1, y: 0, duration: 0.8, delay: delay, ease: 'power3.out'
+          });
+        });
+
+        const counters = panel.querySelectorAll('[data-count]');
+        if (counters.length > 0) {
+          ScrollTrigger.create({ trigger: panel, start: 'top 75%', onEnter: () => animateCounters(panel), once: true });
+        }
+      });
+
+      // === 5层视差效果 ===
+      handleParallax();
+
+      // === 团队 3D 卡片鼠标跟随 ===
+      handleTeam3D();
+
+      // === 时间轴卡片悬停 ===
+      handleTimelineHover();
+
+      let isJumping = false;
+      container.addEventListener('scroll', () => {
+        if (isJumping) return;
+        const scrollTop = container.scrollTop;
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        let index = Math.round(scrollTop / vh);
+        if (scrollTop >= maxScroll - 10) {
+          isJumping = true; container.scrollTop = 2; setTimeout(() => isJumping = false, 500); index = 0;
+        } else if (scrollTop <= 10) {
+          isJumping = true; container.scrollTop = maxScroll - 2; setTimeout(() => isJumping = false, 500); index = totalPanels - 1;
+        } else { index = Math.max(0, Math.min(index, totalPanels - 1)); }
+        if (index !== currentIndex) { currentIndex = index; updateUI(currentIndex); }
+      }, { passive: true });
+
+      createNavDots();
+      updateUI(0);
+
+      // Hero 入场动画
+      gsap.timeline()
+        .from('.hero-badge', { opacity: 0, y: 40, duration: 0.7, ease: 'power3.out' })
+        .from('.hero-title', { opacity: 0, y: 60, duration: 0.9, ease: 'power3.out' }, '-=0.4')
+        .from('.hero-subtitle', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }, '-=0.5')
+        .from('.hero-buttons', { opacity: 0, y: 25, duration: 0.6, ease: 'power3.out' }, '-=0.4');
+
+      setTimeout(() => animateCounters(panels[0]), 600);
+
+      console.log('[NexusTech Brand Story] 初始化完成 · 5层视差Hero · 时间轴 · 3D团队 · 数字滚动 · 7屏全沉浸');
+    }
+
+    function handleParallax() {
+      const heroPanel = panels[0];
+      if (!heroPanel) return;
+      const layer1 = heroPanel.querySelector('#plLayer1');
+      const layer2 = heroPanel.querySelector('#plLayer2');
+      const layer3 = heroPanel.querySelector('#plLayer3');
+      const layer4 = heroPanel.querySelector('#plLayer4');
+      const layer5 = heroPanel.querySelector('#plLayer5');
+      if (!layer1) return;
+
+      gsap.to(layer1, { y: -30, scrollTrigger: { trigger: heroPanel, start: 'top top', end: 'bottom top', scrub: 1 } });
+      gsap.to(layer2, { y: -100, scrollTrigger: { trigger: heroPanel, start: 'top top', end: 'bottom top', scrub: 1 } });
+      gsap.to(layer3, { y: -180, scrollTrigger: { trigger: heroPanel, start: 'top top', end: 'bottom top', scrub: 1 } });
+      gsap.to(layer4, { y: -250, scrollTrigger: { trigger: heroPanel, start: 'top top', end: 'bottom top', scrub: 1 } });
+      gsap.to(layer5, { y: -350, opacity: 0.3, scrollTrigger: { trigger: heroPanel, start: 'top top', end: 'bottom top', scrub: 1 } });
+
+      // 中景山脉缩放
+      gsap.to(heroPanel.querySelectorAll('.pl-mountain-mid'), {
+        scale: 1.05, scrollTrigger: { trigger: heroPanel, start: 'top top', end: 'bottom top', scrub: 1 }
+      });
+    }
+
+    function handleTeam3D() {
+      const teamCards = document.querySelectorAll('.team-card');
+      teamCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left, y = e.clientY - rect.top;
+          const cx = rect.width / 2, cy = rect.height / 2;
+          const rotateX = (y - cy) / 18, rotateY = (cx - x) / 18;
+          gsap.to(card, { rotateX, rotateY, duration: 0.35, ease: 'power2.out' });
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power2.out' });
+        });
+      });
+    }
+
+    function handleTimelineHover() {
+      const timelineItems = document.querySelectorAll('.timeline-item');
+      timelineItems.forEach(item => {
+        const content = item.querySelector('.timeline-content');
+        const dot = item.querySelector('.timeline-dot');
+        if (!content || !dot) return;
+        item.addEventListener('mouseenter', () => {
+          gsap.to(content, { scale: 1.03, duration: 0.3, ease: 'power2.out' });
+          gsap.to(dot, { scale: 1.6, duration: 0.3, ease: 'back.out(2)' });
+        });
+        item.addEventListener('mouseleave', () => {
+          gsap.to(content, { scale: 1, duration: 0.3, ease: 'power2.out' });
+          gsap.to(dot, { scale: 1, duration: 0.3, ease: 'power2.out' });
+        });
+      });
+    }
+
+    // 键盘导航
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); goToPanel(currentIndex + 1); }
+      else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); goToPanel(currentIndex - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); goToPanel(0); }
+      else if (e.key === 'End') { e.preventDefault(); goToPanel(totalPanels - 1); }
+    });
+
+    // 触摸滑动
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(diff) > 50) diff > 0 ? goToPanel(currentIndex + 1) : goToPanel(currentIndex - 1);
+    }, { passive: true });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

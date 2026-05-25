@@ -12,49 +12,55 @@ const staticRoutes: RouteRecordRaw[] = [
     path: '/login',
     name: 'Login',
     component: () => import('@/views/Login/index.vue'),
-    meta: { title: '登录', hidden: true, noCache: true },
+    meta: { title: '登录', hidden: true, noCache: true }
   },
   {
     path: '/register',
     name: 'Register',
     component: () => import('@/views/Login/register.vue'),
-    meta: { title: '注册', hidden: true, noCache: true },
+    meta: { title: '注册', hidden: true, noCache: true }
   },
   {
     path: '/forgot-password',
     name: 'ForgotPassword',
     component: () => import('@/views/Login/forgot-password.vue'),
-    meta: { title: '忘记密码', hidden: true, noCache: true },
+    meta: { title: '忘记密码', hidden: true, noCache: true }
   },
   {
     path: '/403',
     name: 'Forbidden',
     component: () => import('@/views/Error/403.vue'),
-    meta: { title: '无权限', hidden: true, noCache: true },
+    meta: { title: '无权限', hidden: true, noCache: true }
   },
   {
     path: '/404',
     name: 'NotFound',
     component: () => import('@/views/Error/404.vue'),
-    meta: { title: '页面不存在', hidden: true, noCache: true },
+    meta: { title: '页面不存在', hidden: true, noCache: true }
   },
   {
     path: '/500',
     name: 'ServerError',
     component: () => import('@/views/Error/500.vue'),
-    meta: { title: '服务器错误', hidden: true, noCache: true },
+    meta: { title: '服务器错误', hidden: true, noCache: true }
   },
   {
     path: '/web-list',
     name: 'WebList',
     component: () => import('@/views/web-list/index.vue'),
-    meta: { title: '网站列表', icon: 'Document', noCache: false },
+    meta: { title: '网站列表', icon: 'Document', noCache: false }
   },
   {
     path: '/web-ai',
     name: 'WebAI',
     component: () => import('@/views/web-ai/index.vue'),
     meta: { title: '网站AI方案', icon: 'Document', noCache: false }
+  },
+  {
+    path: '/web-template',
+    name: 'WebTemplate',
+    component: () => import('@/views/web-template/web-template.vue'),
+    meta: { title: '网站模板', icon: 'Document', noCache: false }
   },
   {
     path: '/solution-generator',
@@ -123,7 +129,7 @@ function resetRouterConfig(): void {
         'NotFound',
         'ServerError',
         'Home',
-        'Index',
+        'Index'
       ].includes(String(name))
     ) {
       router.removeRoute(name)

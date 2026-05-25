@@ -25,7 +25,16 @@ NProgress.configure({
 /**
  * 白名单路由（无需登录即可访问）
  */
-const whiteList = ['/login', '/register', '/forgot-password', '/404', '/403', '/web-list', '/web-ai']
+const whiteList = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/404',
+  '/403',
+  '/web-list',
+  '/web-ai',
+  '/web-template'
+]
 
 /**
  * 是否已添加动态路由
@@ -45,7 +54,9 @@ function getPageTitle(to: LocationNormalizedLoaded): string {
  * 添加动态路由到路由器
  */
 async function addDynamicRoutes(menus: MenuPermission[]): Promise<void> {
-  if (!menus || menus.length === 0) return
+  if (!menus || menus.length === 0) {
+    return
+  }
 
   // 生成路由
   const generatedRoutes = await routeGenerator.generateFromMenus(menus)
@@ -116,7 +127,7 @@ router.beforeEach(async (to, _from, next) => {
   // 白名单路由，直接通过（但保持进度条显示）
   if (whiteList.includes(to.path)) {
     // 对于 web-list 等需要预加载的页面，延迟关闭进度条
-    if (to.path === '/web-list' || to.path === '/web-ai') {
+    if (to.path === '/web-template' || to.path === '/web-list' || to.path === '/web-ai') {
       // 进度条会持续显示，直到页面完全加载
       next()
       return
