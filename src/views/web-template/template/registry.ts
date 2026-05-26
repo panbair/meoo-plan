@@ -64,7 +64,12 @@ const LABEL_MAP: Record<string, string> = {
   'transition-reveal': '幕布揭幕',
   'transition-explode': '爆炸散开',
   'transition-flip-book': '翻书效果',
-  'transition-liquid': '液体波纹'
+  'transition-liquid': '液体波纹',
+  'transition-fold-explode': '折叠爆炸',
+  'transition-liquid-pixel': '液体像素',
+  'transition-neon-slice': '霓虹切片',
+  'transition-shutter-wind': '百叶风吹',
+  'transition-vortex-unveil': '漩涡揭开'
 }
 
 // ═══════════════════════════════════════════
