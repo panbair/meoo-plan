@@ -157,8 +157,8 @@ const progressBarRef = ref<HTMLElement | null>(null)
 
 let mouseX = 0
 let mouseY = 0
-let productXTo: gsap.core.Tween | null = null
-let productYTo: gsap.core.Tween | null = null
+let productXTo: ((value: number) => void) | null = null
+let productYTo: ((value: number) => void) | null = null
 let isPulseActive = false
 
 function getParticleStyle(index: number) {
@@ -328,10 +328,7 @@ function initMouseInteraction() {
     containerRef.value?.removeEventListener('mousemove', handleMouseMove)
   })
 
-  // 磁吸牵引效果
-  if (productXTo) productXTo.kill()
-  if (productYTo) productYTo.kill()
-
+  // 磁吸牵引效果（quickTo 返回函数，无需 kill，直接重新创建即可）
   productXTo = gsap.quickTo(productRef.value, 'x', { duration: 0.8, ease: 'power3.out' })
   productYTo = gsap.quickTo(productRef.value, 'y', { duration: 0.8, ease: 'power3.out' })
 
@@ -344,8 +341,8 @@ function initMouseInteraction() {
   }
   updatePosition()
   cleanupFns.push(() => {
-    if (productXTo) productXTo.kill()
-    if (productYTo) productYTo.kill()
+    productXTo = null
+    productYTo = null
   })
 }
 

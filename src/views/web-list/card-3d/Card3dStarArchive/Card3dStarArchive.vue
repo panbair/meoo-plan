@@ -347,9 +347,8 @@ function killParticles() {
 
 // ==================== 连线坐标更新 ====================
 function updateConnectionLines() {
-  if (!connectionSvgRef.value || !cardRefs.value.length) return
+  if (!cardRefs.value.length) return
 
-  const svg = connectionSvgRef.value
   const cards = cardRefs.value
   const cols = 4
   const rows = 3
@@ -367,14 +366,13 @@ function updateConnectionLines() {
         if (c < cols - 1) {
           if (lineCount === idx) {
             const nextCard = cardIdx + 1
-            const rect1 = cards[cardIdx]?.getBoundingClientRect()
-            const rect2 = cards[nextCard]?.getBoundingClientRect()
-            const svgRect = svg.getBoundingClientRect()
-            if (rect1 && rect2) {
-              line.setAttribute('x1', String(cards[cardIdx].offsetLeft + cards[cardIdx].offsetWidth / 2))
-              line.setAttribute('y1', String(cards[cardIdx].offsetTop + cards[cardIdx].offsetHeight / 2))
-              line.setAttribute('x2', String(cards[nextCard].offsetLeft + cards[nextCard].offsetWidth / 2))
-              line.setAttribute('y2', String(cards[nextCard].offsetTop + cards[nextCard].offsetHeight / 2))
+            const el1 = cards[cardIdx]
+            const el2 = cards[nextCard]
+            if (el1 && el2) {
+              line.setAttribute('x1', String(el1.offsetLeft + el1.offsetWidth / 2))
+              line.setAttribute('y1', String(el1.offsetTop + el1.offsetHeight / 2))
+              line.setAttribute('x2', String(el2.offsetLeft + el2.offsetWidth / 2))
+              line.setAttribute('y2', String(el2.offsetTop + el2.offsetHeight / 2))
             }
             return
           }
@@ -384,13 +382,13 @@ function updateConnectionLines() {
         if (r < rows - 1) {
           if (lineCount === idx) {
             const nextCard = cardIdx + cols
-            const rect1 = cards[cardIdx]?.getBoundingClientRect()
-            const rect2 = cards[nextCard]?.getBoundingClientRect()
-            if (rect1 && rect2) {
-              line.setAttribute('x1', String(cards[cardIdx].offsetLeft + cards[cardIdx].offsetWidth / 2))
-              line.setAttribute('y1', String(cards[cardIdx].offsetTop + cards[cardIdx].offsetHeight / 2))
-              line.setAttribute('x2', String(cards[nextCard].offsetLeft + cards[nextCard].offsetWidth / 2))
-              line.setAttribute('y2', String(cards[nextCard].offsetTop + cards[nextCard].offsetHeight / 2))
+            const el1 = cards[cardIdx]
+            const el2 = cards[nextCard]
+            if (el1 && el2) {
+              line.setAttribute('x1', String(el1.offsetLeft + el1.offsetWidth / 2))
+              line.setAttribute('y1', String(el1.offsetTop + el1.offsetHeight / 2))
+              line.setAttribute('x2', String(el2.offsetLeft + el2.offsetWidth / 2))
+              line.setAttribute('y2', String(el2.offsetTop + el2.offsetHeight / 2))
             }
             return
           }
@@ -539,26 +537,25 @@ function initAnimations() {
     ease: 'power3.inOut'
   }, '-=0.4')
 
-  // 阶段 4：悬浮呼吸
+  // 阶段 4：悬浮呼吸（使用固定 stagger 避免滚动反向前后的位置跳变））
   archiveTimeline.to(cards, {
     z: '+=15',
     rotateX: '+=2',
     rotateY: '+=2',
     repeat: -1,
     yoyo: true,
-    stagger: { each: 0.06, from: 'random' },
+    stagger: { each: 0.06, from: 'center' },
     duration: 2.5,
     ease: 'sine.inOut'
   }, '-=0.3')
 
-  // ScrollTrigger 驱动
+  // ScrollTrigger 驱动（移除 toggleActions 防止边界振荡，使用 scrub: true 减少延迟））
   const scrollTrigger = ScrollTrigger.create({
     trigger: section,
     start: 'top 80%',
     end: 'top 5%',
-    scrub: 1.8,
+    scrub: true,
     animation: archiveTimeline,
-    toggleActions: 'play reverse play reverse',
     immediateRender: false,
     onUpdate: (self) => {
       currentProgress.value = self.progress
@@ -778,18 +775,9 @@ $archive-pink: #f472b6;
     &:nth-child(#{$i}) {
       left: random(100) * 1%;
       top: random(100) * 1%;
-      animation-delay: random(4) * 1s;
-      animation-duration: (random(3) + 2) * 1s;
       width: (random(3) + 1) * 1px;
       height: (random(3) + 1) * 1px;
     }
-  }
-
-  animation: star-twinkle 3.5s ease-in-out infinite;
-
-  @keyframes star-twinkle {
-    0%, 100% { opacity: 0.25; transform: scale(0.8); }
-    50% { opacity: 0.9; transform: scale(1.3); }
   }
 }
 

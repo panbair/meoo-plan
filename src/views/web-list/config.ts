@@ -1,11 +1,13 @@
-export const componentsList = [
+export const componentsList = []
+
+/*export const componentsList = [
   // 'CardImageCorridor3D',
   // 'CardImage3DHelix',
   // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
   // 'CardImageCosmicDrift',
-  /* 'CardImageFilmStrip',
-  'CardImage3DAlbum',*/
+  /!* 'CardImageFilmStrip',
+  'CardImage3DAlbum',*!/
   'CardImageCrossfadeMosaic',
   'CardImageGridDissolve',
   'CardImageHolographicPrism',
@@ -339,8 +341,8 @@ export const componentsList = [
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /*'Card3DFlipGallery',
-  'CardAbstractGeometry',*/
+  /!*'Card3DFlipGallery',
+  'CardAbstractGeometry',*!/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -405,4 +407,4 @@ export const componentsList = [
   'CardVoid',
   'CardVortex',
   'CardWave'
-]
+]*/

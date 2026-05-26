@@ -242,34 +242,28 @@ onMounted(() => {
       )
     })
 
-    // === 3D 鼠标倾斜效果 ===
-    gsap.ticker.add(() => {
+    // === 3D 鼠标倾斜效果（使用 quickTo 避免每帧创建新 tween）===
+    const quickRotateX = gsap.quickTo(sceneRef.value, 'rotateX', { duration: 0.8, ease: 'power2.out' })
+    const quickRotateY = gsap.quickTo(sceneRef.value, 'rotateY', { duration: 0.8, ease: 'power2.out' })
+
+    const tiltTickHandler = () => {
       if (!sceneRef.value) return
+      quickRotateX(-mouseY.value * 15)
+      quickRotateY(mouseX.value * 15)
+    }
+    gsap.ticker.add(tiltTickHandler)
 
-      const rotateX = -mouseY.value * 15 // ±15°
-      const rotateY = mouseX.value * 15
-
-      gsap.to(sceneRef.value, {
-        rotateX,
-        rotateY,
-        duration: 0.8,
-        ease: 'power2.out',
-        transformPerspective: 1000
-      })
-    })
-
-    // === 动态光晕跟随鼠标 ===
+    // === 动态光晕跟随鼠标（使用 quickTo 避免每帧创建新 tween）===
+    let glowTickHandler: (() => void) | null = null
     if (glowRef.value) {
-      gsap.ticker.add(() => {
+      const quickGlow = gsap.quickTo(glowRef.value, 'backgroundPosition', { duration: 0.5, ease: 'power2.out' })
+
+      glowTickHandler = () => {
         const x = (mouseX.value + 1) * 50 // 0-100%
         const y = (mouseY.value + 1) * 50
-
-        gsap.to(glowRef.value, {
-          backgroundPosition: `${x}% ${y}%`,
-          duration: 0.5,
-          ease: 'power2.out'
-        })
-      })
+        quickGlow(`${x}% ${y}%`)
+      }
+      gsap.ticker.add(glowTickHandler)
     }
 
     // === 标题入场动画 ===
@@ -302,6 +296,8 @@ onMounted(() => {
   }, sectionRef.value)
 
   cleanupFns.push(() => {
+    gsap.ticker.remove(tiltTickHandler)
+    if (glowTickHandler) gsap.ticker.remove(glowTickHandler)
     ctx.revert()
     sectionRef.value?.removeEventListener('mousemove', handleMouseMove)
   })

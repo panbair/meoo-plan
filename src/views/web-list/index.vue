@@ -3106,7 +3106,7 @@ const initPage1Animations = () => {
 
     <div
       v-for="(cardInfo, index) in filteredComponents"
-      :key="cardInfo.name"
+      :key="cardInfo.dirName"
       :ref="(el) => setPageRef(el, index)"
       :class="['page', `page-card-${index + 1}`]"
     >
