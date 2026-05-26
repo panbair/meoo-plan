@@ -48,7 +48,17 @@ const LABEL_MAP: Record<string, string> = {
   'transition-fold': '纵向折叠',
   'transition-flyin': '空间飞入',
   'transition-spin': '2D螺旋入场',
-  'transition-strips': '条带交错'
+  'transition-strips': '条带交错',
+  'transition-zoom-blur': '缩放模糊',
+  'transition-wipe': '扫光擦拭',
+  'transition-mirror': '镜像翻面',
+  'transition-swirl': '涡旋卷入',
+  'transition-circle': '圆形扩散',
+  'transition-cube': '立体旋转',
+  'transition-burn': '烧灼消散',
+  'transition-shatter': '碎片纷飞',
+  'transition-swing': '钟摆荡入',
+  'transition-wind': '风卷残云'
 }
 
 // ═══════════════════════════════════════════
