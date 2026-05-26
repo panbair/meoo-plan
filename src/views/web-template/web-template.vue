@@ -17,7 +17,7 @@ const categories = computed(() => {
   for (const t of templates) {
     if (t.key.startsWith('transition-')) {
       map.transition.items.push(t)
-    } else if (['interstellar', 'liquid-metal', 'cyber-scanner', 'kaleidoscope'].includes(t.key)) {
+    } else if (['interstellar', 'liquid-metal', 'cyber-scanner', 'kaleidoscope', 'neon-city', 'folding-universe', 'memory-fragments', 'light-theater', 'elemental-portals', 'liquid-sculpture', 'kaleidoscope-world', 'chrono-gallery', 'storm-eye', 'digital-deconstruction', 'mirror-world', 'calligraphy-flow', 'metamorphosis', 'pixel-evolution', 'gravity-shift', 'theater-curtain', 'dimension-blur'].includes(t.key)) {
       map.creative.items.push(t)
     } else {
       map.scroll.items.push(t)

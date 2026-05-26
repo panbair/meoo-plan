@@ -69,7 +69,24 @@ const LABEL_MAP: Record<string, string> = {
   'transition-liquid-pixel': '液体像素',
   'transition-neon-slice': '霓虹切片',
   'transition-shutter-wind': '百叶风吹',
-  'transition-vortex-unveil': '漩涡揭开'
+  'transition-vortex-unveil': '漩涡揭开',
+  'neon-city': '霓虹都市',
+  'folding-universe': '折叠宇宙',
+  'memory-fragments': '记忆碎片',
+  'light-theater': '光影剧场',
+  'elemental-portals': '元素之门',
+  'liquid-sculpture': '液体雕塑',
+  'kaleidoscope-world': '万花筒',
+  'chrono-gallery': '时空画廊',
+  'storm-eye': '风暴之眼',
+  'digital-deconstruction': '数字解体',
+  'mirror-world': '镜中世界',
+  'calligraphy-flow': '书法流韵',
+  'metamorphosis': '蜕变',
+  'pixel-evolution': '像素进化',
+  'gravity-shift': '重力偏移',
+  'theater-curtain': '剧场帷幕',
+  'dimension-blur': '维度模糊'
 }
 
 // ═══════════════════════════════════════════
