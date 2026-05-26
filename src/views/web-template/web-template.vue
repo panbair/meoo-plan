@@ -52,11 +52,11 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   <div class="web-template-showcase">
     <!-- 模板切换面板 -->
     <div ref="navRef" class="showcase-nav">
-      <button class="showcase-toggle" @click.stop="menuOpen = !menuOpen">
+      <div class="showcase-toggle" @click.stop="menuOpen = !menuOpen">
         <span class="toggle-label">{{ templates.find((t) => t.key === activeKey)?.label }}</span>
         <span class="toggle-count">{{ templates.length }}</span>
         <span class="showcase-arrow">▾</span>
-      </button>
+      </div>
       <transition name="menu-drop">
         <div v-if="menuOpen" ref="menuRef" class="showcase-menu" @click.stop>
           <div
@@ -66,15 +66,15 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
           >
             <div class="menu-cat-head">{{ cat.label }}</div>
             <div class="menu-cat-grid">
-              <button
+              <div
                 v-for="t in cat.items"
                 :key="t.key"
                 class="showcase-item"
                 :class="{ active: activeKey === t.key }"
                 @click="selectTemplate(t.key)"
               >
-                {{ t.label }}
-              </button>
+                {{ t.label }} <span @click.stop> {{ t.key }}</span>
+              </div>
             </div>
           </div>
         </div>

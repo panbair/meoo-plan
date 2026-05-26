@@ -1,449 +1,366 @@
+<script setup lang="ts">
+/**
+ * ==================== Transition Clip ====================
+ * clip-path 裁剪切换，6 面版叠加布局，滚动驱动。
+ */
+import { onMounted, onUnmounted, nextTick } from 'vue'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
+const totalPanels = 6
+let vh = 0
+let currentIndex = 0
+
+let scrollArea: HTMLElement | null = null
+let stage: HTMLElement | null = null
+let progressBar: HTMLElement | null = null
+let navDots: HTMLElement | null = null
+let typeLabel: HTMLElement | null = null
+let panels: HTMLElement[] = []
+let mainTL: gsap.core.Timeline | null = null
+
+// ==================== 裁剪定义 ====================
+const clipDefs = [
+  { name: 'circle()',    getValue: (t: number) => `circle(${t * 80}%)` },
+  { name: 'inset()',     getValue: (t: number) => `inset(${(1 - t) * 50}%)` },
+  {
+    name: 'polygon()', getValue: (t: number) => {
+      const r = t * 50
+      return `polygon(50% ${50 - r}%, ${50 + r}% 50%, 50% ${50 + r}%, ${50 - r}% 50%)`
+    }
+  },
+  {
+    name: 'diamond()', getValue: (t: number) => {
+      const r = t * 70
+      return `polygon(50% ${50 - r}%, ${50 + r}% 50%, 50% ${50 + r}%, ${50 - r}% 50%)`
+    }
+  },
+  {
+    name: 'hexagon()', getValue: (t: number) => {
+      const r = t * 60
+      const h = r * 0.866
+      return `polygon(50% ${50 - r}%, ${50 + h}% ${50 - r / 2}%, ${50 + h}% ${50 + r / 2}%, 50% ${50 + r}%, ${50 - h}% ${50 + r / 2}%, ${50 - h}% ${50 - r / 2}%)`
+    }
+  },
+  {
+    name: 'star()', getValue: (t: number) => {
+      const outer = t * 60
+      const inner = outer * 0.4
+      const pts: string[] = []
+      for (let i = 0; i < 10; i++) {
+        const angle = (Math.PI * 2 * i) / 10 - Math.PI / 2
+        const r = i % 2 === 0 ? outer : inner
+        const cx = 50 + r * Math.cos(angle)
+        const cy = 50 + r * Math.sin(angle)
+        pts.push(`${cx}% ${cy}%`)
+      }
+      return `polygon(${pts.join(', ')})`
+    }
+  }
+]
+
+// ==================== UI 辅助 ====================
+function createNavDots() {
+  if (!navDots) return
+  navDots.innerHTML = ''
+  for (let i = 0; i < totalPanels; i++) {
+    const dot = document.createElement('button')
+    dot.className = 'tc-nav-dot' + (i === 0 ? ' tc-active' : '')
+    dot.addEventListener('click', () => goToPanel(i))
+    navDots.appendChild(dot)
+  }
+}
+
+function updateUI(index: number) {
+  document.querySelectorAll('.tc-nav-dot').forEach((dot, i) => {
+    dot.classList.toggle('tc-active', i === index)
+  })
+  const el = document.querySelector('.tc-page-indicator .tc-current')
+  if (el) el.textContent = String(index + 1)
+  if (progressBar) progressBar.style.width = ((index) / (totalPanels - 1) * 100) + '%'
+  if (typeLabel) typeLabel.textContent = clipDefs[index].name
+}
+
+function goToPanel(index: number) {
+  index = Math.max(0, Math.min(index, totalPanels - 1))
+  const targetTop = (scrollArea?.offsetTop || 0) + index * vh
+  window.scrollTo({ top: targetTop, behavior: 'smooth' })
+}
+
+// ==================== 键盘 / 触摸 ====================
+function onKeydown(e: KeyboardEvent) {
+  const keyMap: Record<string, number> = {
+    ArrowDown: 1, ArrowRight: 1,
+    ArrowUp: -1, ArrowLeft: -1,
+    Home: 0, End: totalPanels - 1
+  }
+  if (keyMap[e.key] !== undefined) {
+    e.preventDefault()
+    e.key === 'Home' || e.key === 'End'
+      ? goToPanel(keyMap[e.key])
+      : goToPanel(currentIndex + keyMap[e.key])
+  }
+}
+
+let touchStartY = 0
+function onTouchStart(e: TouchEvent) { touchStartY = e.touches[0].clientY }
+function onTouchEnd(e: TouchEvent) {
+  const diff = touchStartY - e.changedTouches[0].clientY
+  if (Math.abs(diff) > 50) goToPanel(currentIndex + (diff > 0 ? 1 : -1))
+}
+
+// ==================== 时间线构建 ====================
+function buildTimeline(): gsap.core.Timeline {
+  gsap.set(panels, { clearProps: 'all' })
+  gsap.set(panels, { position: 'absolute', width: '100vw', height: '100vh' })
+
+  const tl = gsap.timeline({ paused: true })
+  const segments = totalPanels - 1
+
+  // 初始状态：所有面板隐藏，第一个面板可见且裁剪为 0（缩到最小）
+  gsap.set(panels, { opacity: 0, clipPath: clipDefs[0].getValue(0) })
+  gsap.set(panels[0], { opacity: 1, clipPath: clipDefs[0].getValue(1) })
+
+  for (let i = 0; i < segments; i++) {
+    // 当前面板淡出
+    tl.to(panels[i], { opacity: 0, duration: 0.8, ease: 'power2.in' }, i)
+
+    // 下一个面板：opacity 淡入 + clip-path 从 0 展开到 1
+    const clipObj = { progress: 0 }
+    tl.fromTo(panels[i + 1],
+      { opacity: 0 },
+      { opacity: 1, duration: 1, ease: 'power2.out' },
+      i
+    )
+    tl.fromTo(clipObj,
+      { progress: 0 },
+      {
+        progress: 1,
+        duration: 1,
+        ease: 'power3.out',
+        onUpdate: () => {
+          const def = clipDefs[i + 1]
+          panels[i + 1].style.clipPath = def.getValue(Math.min(clipObj.progress, 1))
+        }
+      },
+      i
+    )
+  }
+
+  return tl
+}
+
+function startTimeline() {
+  const tl = buildTimeline()
+  mainTL = tl
+
+  ScrollTrigger.create({
+    trigger: scrollArea,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 0.8,
+    animation: tl,
+    onUpdate: (self) => {
+      const idx = Math.round(self.progress * (totalPanels - 1))
+      if (idx !== currentIndex) {
+        currentIndex = idx
+        updateUI(idx)
+      }
+    }
+  })
+}
+
+function killCurrent() {
+  ScrollTrigger.getAll().forEach(st => {
+    if (st.vars.trigger === scrollArea) st.kill()
+  })
+  mainTL?.kill()
+  mainTL = null
+  gsap.set(panels, { clearProps: 'all' })
+}
+
+// ==================== 生命周期 ====================
+function init() {
+  vh = window.innerHeight
+
+  scrollArea = document.getElementById('tcScrollArea') as HTMLElement
+  stage = document.getElementById('tcStage') as HTMLElement
+  progressBar = document.getElementById('tcProgressBar')
+  navDots = document.getElementById('tcNavDots')
+  typeLabel = document.getElementById('tcTypeLabel')
+  if (!scrollArea || !stage) return
+
+  panels = gsap.utils.toArray('.tc-panel') as HTMLElement[]
+
+  document.addEventListener('keydown', onKeydown)
+  document.addEventListener('touchstart', onTouchStart, { passive: true })
+  document.addEventListener('touchend', onTouchEnd, { passive: true })
+
+  createNavDots()
+  updateUI(0)
+  startTimeline()
+}
+
+function destroy() {
+  killCurrent()
+  document.removeEventListener('keydown', onKeydown)
+  document.removeEventListener('touchstart', onTouchStart)
+  document.removeEventListener('touchend', onTouchEnd)
+}
+
+onMounted(() => nextTick(init))
+onUnmounted(destroy)
+</script>
+
 <template>
-  <div class="tc-wrapper">
-    <!-- 进度条 -->
-    <div id="tcProgress" class="tc-progress"></div>
-
-    <!-- 导航点 -->
+  <div class="tc-page">
+    <div id="tcProgressBar" class="tc-progress-bar"></div>
     <nav id="tcNavDots" class="tc-nav-dots"></nav>
-
-    <!-- 页面指示器 -->
     <div class="tc-page-indicator">
-      <span class="tc-current">1</span><span class="tc-total"> / {{ PANELS }}</span>
+      <span class="tc-current">1</span>
+      <span class="tc-total"> / {{ totalPanels }}</span>
     </div>
+    <div id="tcTypeLabel" class="tc-type-label">circle()</div>
 
-    <!-- 裁剪类型标签 -->
-    <div class="tc-type-label" id="tcTypeLabel">circle()</div>
-
-    <!-- 滚动空间 -->
-    <div id="tcScrollArea" class="tc-scroll-area">
-
-      <!-- 画布窗口 -->
-      <div class="tc-canvas-sticky">
-        <div id="tcCanvas" class="tc-canvas">
-
-          <div
-            v-for="(panel, pi) in panels"
-            :key="pi"
-            class="tc-panel"
-            :class="'tc-panel-' + pi"
-            :style="{ zIndex: PANELS - pi }"
-          >
-            <div class="tc-panel-bg"></div>
-            <div class="tc-panel-shape" v-if="panel.shape">
-              <div v-for="n in panel.shapeCount" :key="n" class="tc-float-geo"></div>
-            </div>
-            <div class="tc-panel-content">
-              <span class="tc-panel-num">{{ String(pi + 1).padStart(2, '0') }}</span>
-              <div class="tc-panel-icon">{{ panel.icon }}</div>
-              <h2 class="tc-panel-title">{{ panel.title }}</h2>
-              <p class="tc-panel-desc">{{ panel.desc }}</p>
-            </div>
+    <div id="tcScrollArea" class="tc-scroll-area" :style="{ height: totalPanels * 100 + 'vh' }">
+      <div id="tcStage" class="tc-stage">
+        <section class="tc-panel tc-panel-0">
+          <div class="tc-shape-layer">
+            <div v-for="n in 3" :key="n" class="tc-float-geo"></div>
           </div>
-
-        </div>
+          <div class="tc-content">
+            <div class="tc-badge">01</div>
+            <h2>圆形裁剪</h2>
+            <p>circular mask reveals content</p>
+          </div>
+        </section>
+        <section class="tc-panel tc-panel-1">
+          <div class="tc-shape-layer">
+            <div v-for="n in 4" :key="n" class="tc-float-geo"></div>
+          </div>
+          <div class="tc-content">
+            <div class="tc-badge">02</div>
+            <h2>方形裁剪</h2>
+            <p>rectangular inset sliding from center</p>
+          </div>
+        </section>
+        <section class="tc-panel tc-panel-2">
+          <div class="tc-shape-layer">
+            <div v-for="n in 5" :key="n" class="tc-float-geo"></div>
+          </div>
+          <div class="tc-content">
+            <div class="tc-badge">03</div>
+            <h2>多边形裁剪</h2>
+            <p>multi-point polygon unveils the scene</p>
+          </div>
+        </section>
+        <section class="tc-panel tc-panel-3">
+          <div class="tc-shape-layer">
+            <div v-for="n in 6" :key="n" class="tc-float-geo"></div>
+          </div>
+          <div class="tc-content">
+            <div class="tc-badge">04</div>
+            <h2>菱形裁剪</h2>
+            <p>diamond-shaped clip reveals from center</p>
+          </div>
+        </section>
+        <section class="tc-panel tc-panel-4">
+          <div class="tc-shape-layer">
+            <div v-for="n in 7" :key="n" class="tc-float-geo"></div>
+          </div>
+          <div class="tc-content">
+            <div class="tc-badge">05</div>
+            <h2>六边形裁剪</h2>
+            <p>hexagonal mask expands outward</p>
+          </div>
+        </section>
+        <section class="tc-panel tc-panel-5">
+          <div class="tc-shape-layer">
+            <div v-for="n in 8" :key="n" class="tc-float-geo"></div>
+          </div>
+          <div class="tc-content">
+            <div class="tc-badge">06</div>
+            <h2>星形裁剪</h2>
+            <p>star-shaped clip-path transitions</p>
+          </div>
+        </section>
       </div>
-
     </div>
   </div>
 </template>
 
-<script setup>
-import { onMounted, onUnmounted } from 'vue'
-
-const PANELS = 6
-
-const panels = [
-  { icon: '●', title: '圆形裁剪', desc: 'circular mask reveals content', shape: true, shapeCount: 3 },
-  { icon: '■', title: '方形裁剪', desc: 'rectangular inset sliding from center', shape: true, shapeCount: 4 },
-  { icon: '▲', title: '多边形裁剪', desc: 'multi-point polygon unveils the scene', shape: true, shapeCount: 5 },
-  { icon: '◆', title: '菱形裁剪', desc: 'diamond-shaped clip reveals from center', shape: true, shapeCount: 6 },
-  { icon: '⬡', title: '六边形裁剪', desc: 'hexagonal mask expands outward', shape: true, shapeCount: 7 },
-  { icon: '★', title: '星形裁剪', desc: 'star-shaped clip-path transitions', shape: true, shapeCount: 8 }
-]
-
-let gsap, ScrollTrigger
-let ctx = null
-
-const clipDefs = [
-  { name: 'circle()', getValue: (t) => `circle(${t * 80}%)` },
-  { name: 'inset()', getValue: (t) => `inset(${(1 - t) * 50}%)` },
-  { name: 'polygon()', getValue: (t) => {
-    const r = t * 50
-    return `polygon(50% ${50 - r}%, ${50 + r}% 50%, 50% ${50 + r}%, ${50 - r}% 50%)`
-  }},
-  { name: 'diamond()', getValue: (t) => {
-    const r = t * 70
-    return `polygon(50% ${50 - r}%, ${50 + r}% 50%, 50% ${50 + r}%, ${50 - r}% 50%)`
-  }},
-  { name: 'hexagon()', getValue: (t) => {
-    const r = t * 60
-    const h = r * 0.866
-    return `polygon(50% ${50 - r}%, ${50 + h}% ${50 - r/2}%, ${50 + h}% ${50 + r/2}%, 50% ${50 + r}%, ${50 - h}% ${50 + r/2}%, ${50 - h}% ${50 - r/2}%)`
-  }},
-  { name: 'star()', getValue: (t) => {
-    const outer = t * 60
-    const inner = outer * 0.4
-    const pts = []
-    for (let i = 0; i < 10; i++) {
-      const angle = (Math.PI * 2 * i) / 10 - Math.PI / 2
-      const r = i % 2 === 0 ? outer : inner
-      const cx = 50 + r * Math.cos(angle)
-      const cy = 50 + r * Math.sin(angle)
-      pts.push(`${cx}% ${cy}%`)
-    }
-    return `polygon(${pts.join(', ')})`
-  }}
-]
-
-onMounted(async () => {
-  const gsapMod = await import('gsap')
-  gsap = gsapMod.default
-  const stMod = await import('gsap/ScrollTrigger')
-  ScrollTrigger = stMod.ScrollTrigger
-  gsap.registerPlugin(ScrollTrigger)
-  init()
-})
-
-function init() {
-  ctx = gsap.context((self) => {
-    const scrollArea = document.getElementById('tcScrollArea')
-    const canvas = document.getElementById('tcCanvas')
-    const progress = document.getElementById('tcProgress')
-    const navDots = document.getElementById('tcNavDots')
-    const typeLabel = document.getElementById('tcTypeLabel')
-    const total = PANELS
-    const currentEl = document.querySelector('.tc-current')
-
-    if (!scrollArea || !canvas) return
-
-    // 导航点
-    if (navDots) {
-      for (let i = 0; i < total; i++) {
-        const dot = document.createElement('div')
-        dot.className = 'tc-dot'
-        dot.dataset.index = i
-        dot.addEventListener('click', () => {
-          window.scrollTo({ top: (i / (total - 1)) * (scrollArea.scrollHeight - window.innerHeight), behavior: 'smooth' })
-        })
-        navDots.appendChild(dot)
-      }
-    }
-
-    const dotEls = document.querySelectorAll('.tc-dot')
-    const panelEls = canvas.querySelectorAll(':scope > .tc-panel')
-
-    function updateUI(idx) {
-      if (currentEl) currentEl.textContent = idx + 1
-      dotEls.forEach((d, i) => d.classList.toggle('active', i === idx))
-      if (typeLabel) typeLabel.textContent = clipDefs[idx].name
-    }
-
-    // 每个面板做 clip-path + opacity 双动画
-    panelEls.forEach((el, i) => {
-      const panelT = i / (total - 1)
-      const duration = 1 / (total - 1)
-
-      // opacity 动画：自己的区间内淡出
-      gsap.to(el, {
-        opacity: 0,
-        ease: 'power2.in',
-        scrollTrigger: {
-          trigger: scrollArea,
-          start: () => `${(panelT + duration * 0.6) * 100}% top`,
-          end: () => `${(panelT + duration) * 100}% top`,
-          scrub: true
-        }
-      })
-
-      // clip-path 动画：自己的区间内展开
-      const clipObj = { progress: 0 }
-      gsap.to(clipObj, {
-        progress: 1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: scrollArea,
-          start: () => `${panelT * 100}% top`,
-          end: () => `${(panelT + duration * 0.7) * 100}% top`,
-          scrub: 0.6,
-          onUpdate: () => {
-            const { name, getValue } = clipDefs[i]
-            el.style.clipPath = getValue(Math.min(clipObj.progress, 1))
-          }
-        }
-      })
-    })
-
-    // 进度条
-    gsap.to({ p: 0 }, {
-      p: 1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: scrollArea,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.6,
-        onUpdate: (self) => {
-          if (progress) progress.style.width = (self.progress * 100) + '%'
-          const raw = self.progress * (total - 1)
-          updateUI(Math.min(Math.round(raw), total - 1))
-        }
-      }
-    })
-
-    // 键盘
-    const onKey = (e) => {
-      const st = ScrollTrigger.getAll().find(s => s.trigger === scrollArea)
-      if (!st) return
-      let idx = Math.round(st.progress * (total - 1))
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') idx = Math.min(idx + 1, total - 1)
-      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') idx = Math.max(idx - 1, 0)
-      else return
-      e.preventDefault()
-      window.scrollTo({ top: (idx / (total - 1)) * (scrollArea.scrollHeight - window.innerHeight), behavior: 'smooth' })
-    }
-    window.addEventListener('keydown', onKey)
-    self._onKey = onKey
-
-    // 触摸
-    let touchY = 0
-    const onTouch = (e) => { touchY = e.touches[0].clientY }
-    const onTouchEnd = (e) => {
-      const dy = touchY - e.changedTouches[0].clientY
-      if (Math.abs(dy) < 40) return
-      const st = ScrollTrigger.getAll().find(s => s.trigger === scrollArea)
-      if (!st) return
-      let idx = Math.round(st.progress * (total - 1))
-      idx = dy > 0 ? Math.min(idx + 1, total - 1) : Math.max(idx - 1, 0)
-      window.scrollTo({ top: (idx / (total - 1)) * (scrollArea.scrollHeight - window.innerHeight), behavior: 'smooth' })
-    }
-    window.addEventListener('touchstart', onTouch, { passive: true })
-    window.addEventListener('touchend', onTouchEnd)
-    self._onTouch = onTouch
-    self._onTouchEnd = onTouchEnd
-
-    // 初始设置首个面板 clip
-    panelEls[0].style.clipPath = 'circle(0%)'
-    updateUI(0)
-  })
-}
-
-function destroy() {
-  if (ctx) {
-    if (ctx._onKey) window.removeEventListener('keydown', ctx._onKey)
-    if (ctx._onTouch) window.removeEventListener('touchstart', ctx._onTouch)
-    if (ctx._onTouchEnd) window.removeEventListener('touchend', ctx._onTouchEnd)
-    ctx.revert()
-    ctx = null
-  }
-}
-
-onUnmounted(destroy)
-</script>
-
-<style scoped>
-.tc-wrapper {
-  --tc-bg: #0a0a0f;
-  width: 100vw;
-  overflow: hidden;
-  background: var(--tc-bg);
-  color: #fff;
-  position: relative;
-}
-
-.tc-scroll-area {
-  height: calc(var(--vh, 1vh) * 100 * 6);
-  position: relative;
-}
-
-.tc-canvas-sticky {
-  position: sticky;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.tc-canvas {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
+<style scoped lang="scss">
+.tc-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; }
+.tc-scroll-area { position: relative; }
+.tc-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 
 .tc-panel {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  clip-path: circle(0%);
-  will-change: clip-path, opacity;
+  position: absolute; inset: 0; width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  &::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .15); pointer-events: none; }
 }
 
-.tc-panel-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
+.tc-content { text-align: center; z-index: 1; h2 { font-size: 3.5rem; font-weight: 900; margin: 0 0 16px; } p { font-size: 1.2rem; opacity: .6; margin: 0; max-width: 400px; } }
+.tc-badge { display: inline-block; padding: 6px 20px; border: 1px solid rgba(255, 255, 255, .25); border-radius: 20px; font-size: .75rem; letter-spacing: 3px; margin-bottom: 24px; }
 
-.tc-panel-0 .tc-panel-bg { background: linear-gradient(135deg, #667eea, #764ba2); }
-.tc-panel-1 .tc-panel-bg { background: linear-gradient(135deg, #f093fb, #f5576c); }
-.tc-panel-2 .tc-panel-bg { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-.tc-panel-3 .tc-panel-bg { background: linear-gradient(135deg, #43e97b, #38f9d7); }
-.tc-panel-4 .tc-panel-bg { background: linear-gradient(135deg, #fa709a, #fee140); }
-.tc-panel-5 .tc-panel-bg { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+.tc-panel-0 { background: linear-gradient(135deg, #667eea, #764ba2); }
+.tc-panel-1 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.tc-panel-2 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.tc-panel-3 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.tc-panel-4 { background: linear-gradient(135deg, #fa709a, #fee140); }
+.tc-panel-5 { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
 
-.tc-panel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.15);
-  z-index: 1;
-  pointer-events: none;
-}
-
-.tc-panel-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding: 2rem;
-}
-
-.tc-panel-num {
-  position: absolute;
-  top: -4rem;
-  right: -2rem;
-  font-size: 6rem;
-  font-weight: 900;
-  opacity: 0.06;
-  color: #fff;
-  line-height: 1;
-  pointer-events: none;
-}
-
-.tc-panel-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.7;
-}
-
-.tc-panel-title {
-  font-size: clamp(2rem, 6vw, 4rem);
-  font-weight: 800;
-  letter-spacing: -1px;
-  margin: 0.5rem 0;
-}
-
-.tc-panel-desc {
-  font-size: clamp(0.9rem, 2vw, 1.2rem);
-  opacity: 0.6;
-  max-width: 400px;
-}
-
-.tc-type-label {
-  position: fixed;
-  top: 1.5rem;
-  right: 6rem;
-  z-index: 1000;
-  font-size: 0.75rem;
-  font-family: 'Courier New', monospace;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.05);
-  padding: 0.3rem 0.8rem;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-.tc-panel-shape {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-}
-
+/* 浮动装饰 */
+.tc-shape-layer { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .tc-float-geo {
-  position: absolute;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 50%;
+  position: absolute; border: 1px solid rgba(255, 255, 255, .06); border-radius: 50%;
   animation: tc-float 8s ease-in-out infinite;
+  &:nth-child(1) { width: 120px; height: 120px; top: 10%; left: 8%; }
+  &:nth-child(2) { width: 80px; height: 80px; top: 60%; left: 75%; }
+  &:nth-child(3) { width: 60px; height: 60px; top: 70%; left: 15%; }
+  &:nth-child(4) { width: 100px; height: 100px; top: 20%; left: 80%; }
+  &:nth-child(5) { width: 50px; height: 50px; top: 40%; left: 40%; }
+  &:nth-child(6) { width: 70px; height: 70px; top: 80%; left: 60%; }
+  &:nth-child(7) { width: 90px; height: 90px; top: 50%; left: 25%; }
+  &:nth-child(8) { width: 40px; height: 40px; top: 15%; left: 50%; }
 }
-
-.tc-panel-0 .tc-float-geo { animation-delay: 0s; }
-.tc-panel-1 .tc-float-geo { animation-delay: -1s; }
-.tc-panel-2 .tc-float-geo { animation-delay: -2s; }
-.tc-panel-3 .tc-float-geo { animation-delay: -3s; }
-.tc-panel-4 .tc-float-geo { animation-delay: -4s; }
-.tc-panel-5 .tc-float-geo { animation-delay: -5s; }
-
-.tc-float-geo:nth-child(1) { width: 120px; height: 120px; top: 10%; left: 8%; }
-.tc-float-geo:nth-child(2) { width: 80px; height: 80px; top: 60%; left: 75%; }
-.tc-float-geo:nth-child(3) { width: 60px; height: 60px; top: 70%; left: 15%; }
-.tc-float-geo:nth-child(4) { width: 100px; height: 100px; top: 20%; left: 80%; }
-.tc-float-geo:nth-child(5) { width: 50px; height: 50px; top: 40%; left: 40%; }
-.tc-float-geo:nth-child(6) { width: 70px; height: 70px; top: 80%; left: 60%; }
-.tc-float-geo:nth-child(7) { width: 90px; height: 90px; top: 50%; left: 25%; }
-.tc-float-geo:nth-child(8) { width: 40px; height: 40px; top: 15%; left: 50%; }
 
 @keyframes tc-float {
   0%, 100% { transform: translateY(0) translateX(0) scale(1); }
   25% { transform: translateY(-20px) translateX(10px) scale(1.05); }
-  50% { transform: translateY(10px) translateX(-10px) scale(0.95); }
+  50% { transform: translateY(10px) translateX(-10px) scale(.95); }
   75% { transform: translateY(-10px) translateX(15px) scale(1.02); }
+}
+
+@media (max-width: 768px) {
+  .tc-content { h2 { font-size: 2.2rem; } p { font-size: 1rem; } }
 }
 </style>
 
-<style>
-.tc-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
+<style lang="scss">
+.tc-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
+.tc-nav-dot {
+  width: 12px; height: 12px; border-radius: 50%; background: rgba(255, 255, 255, .2);
+  cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(255, 255, 255, .5); transform: scale(1.3); }
+  &.tc-active { background: #6c8cff; border-color: rgba(255, 255, 255, .4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108, 140, 255, .5); }
+}
+
+.tc-progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%;
   background: linear-gradient(90deg, #667eea, #f093fb, #4facfe, #43e97b, #fa709a, #a18cd1);
-  z-index: 1000;
-  width: 0%;
-  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(108, 140, 255, .4);
 }
 
-.tc-nav-dots {
-  position: fixed;
-  right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
+.tc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0, 0, 0, .4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255, 255, 255, .1); color: rgba(255, 255, 255, .8); }
 
-.tc-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.tc-dot.active {
-  background: #fff;
-  box-shadow: 0 0 12px rgba(255,255,255,0.6);
-  transform: scale(1.3);
-}
-
-.tc-page-indicator {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  z-index: 1000;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.5);
-}
-.tc-current { color: #fff; font-weight: 700; }
+.tc-type-label { position: fixed; top: 30px; right: 145px; z-index: 1000; background: rgba(0, 0, 0, .4); backdrop-filter: blur(12px); padding: 8px 18px; border-radius: 25px; font-size: .75rem; font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: .1em; border: 1px solid rgba(255, 255, 255, .1); color: rgba(255, 255, 255, .5); }
 
 @media (max-width: 768px) {
-  .tc-nav-dots { right: 0.8rem; gap: 0.6rem; }
-  .tc-page-indicator { left: 1rem; bottom: 1rem; }
-  .tc-type-label { right: 4.5rem; top: 1rem; font-size: 0.65rem; padding: 0.2rem 0.6rem; }
+  .tc-nav-dots { gap: 10px; }
+  .tc-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; }
+  .tc-type-label { top: 16px; right: 100px; font-size: .65rem; padding: 6px 12px; }
 }
 </style>

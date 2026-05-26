@@ -42,7 +42,13 @@ const LABEL_MAP: Record<string, string> = {
   'transition-rotate3d': '3D 翻转',
   'transition-elastic': '弹性弹跳',
   'transition-blur': '模糊过渡',
-  'transition-clip': '裁剪过渡'
+  'transition-clip': '裁剪过渡',
+  'transition-skew': '倾斜扭曲',
+  'transition-hue-shift': '色相轮转',
+  'transition-fold': '纵向折叠',
+  'transition-flyin': '空间飞入',
+  'transition-spin': '2D螺旋入场',
+  'transition-strips': '条带交错'
 }
 
 // ═══════════════════════════════════════════
