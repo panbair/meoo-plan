@@ -53,6 +53,7 @@ export const componentsList = []
   'CardImageMagneticInk',
   'CardImageParticleSculpture',
   'CardImageWormholePortal',
+  // 'CardImageHoverReveal',
   'CardTimeAvalanche',
   'CardTimeCaustics',
   'CardTimeConveyorBelt',
