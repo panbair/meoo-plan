@@ -19,6 +19,8 @@ import { markRaw } from 'vue'
 // ═══════════════════════════════════════════
 const LABEL_MAP: Record<string, string> = {
   'infinite-scroll': '纵向无限滚动',
+  'panorama-drift': '竖滚横移·变体',
+  'snap-chapters': '吸附章节·变体',
   'horizontal-scroll': '横向无限滚动',
   'parallax-scroll': '多层视差滚动',
   'stagger-reveal': '交错卡片渐现',
@@ -82,11 +84,37 @@ const LABEL_MAP: Record<string, string> = {
   'digital-deconstruction': '数字解体',
   'mirror-world': '镜中世界',
   'calligraphy-flow': '书法流韵',
-  'metamorphosis': '蜕变',
+  metamorphosis: '蜕变',
   'pixel-evolution': '像素进化',
   'gravity-shift': '重力偏移',
   'theater-curtain': '剧场帷幕',
-  'dimension-blur': '维度模糊'
+  'dimension-blur': '维度模糊',
+  'z-tunnel': 'Z轴隧道',
+  'gallery-wander': '画廊漫游',
+  'mobius-strip': '莫比乌斯环',
+  'fractal-recursion': '分形递归',
+  'parallel-universe': '平行宇宙',
+  'speed-corridor': '变速走廊',
+  'cross-hatch': '十字网格',
+  'spiral-descent': '螺旋下降',
+  'elevator-lobby': '电梯大堂',
+  'snake-path': '贪吃蛇路径',
+  'cube-navigator': '魔方导航',
+  'double-helix': '双螺旋',
+  'two-d-gallery': '二维画廊',
+  'scroll-drift-grid': '滚动漂移网格',
+  'perspective-tilt': '3D透视倾斜',
+  'scroll-lens-focus': '滚动聚焦透镜',
+  'scroll-wave-grid': '滚动行波网格',
+  'scroll-orbit-grid': '滚动轨道旋转',
+  'scroll-scan-reveal': '滚动扫描揭示',
+  'scroll-pendulum-grid': '滚动钟摆网格',
+  'scroll-spread-gather': '滚动呼吸收放',
+  'scroll-magnet-pull': '滚动磁力拉扯',
+  'scroll-gravity-depression': '滚动重力凹陷',
+  'scroll-echo-grid': '滚动回音网格',
+  'scroll-prism-refract': '滚动棱镜折射',
+  'scroll-strobe-freeze': '滚动频闪定格'
 }
 
 // ═══════════════════════════════════════════

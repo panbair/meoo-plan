@@ -1,29 +1,89 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { templates, firstKey } from './template/registry'
 
 const activeKey = ref(firstKey)
 const menuOpen = ref(false)
+const searchQuery = ref('')
 const navRef = ref<HTMLElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
+const searchInputRef = ref<HTMLInputElement | null>(null)
 
 // ── 分类分组 ──
 const categories = computed(() => {
   const map: Record<string, { label: string; items: typeof templates }> = {
     scroll: { label: '滚动范式', items: [] },
     transition: { label: '过渡动画', items: [] },
-    creative: { label: '创意特效', items: [] },
+    creative: { label: '创意特效', items: [] }
   }
   for (const t of templates) {
     if (t.key.startsWith('transition-')) {
       map.transition.items.push(t)
-    } else if (['interstellar', 'liquid-metal', 'cyber-scanner', 'kaleidoscope', 'neon-city', 'folding-universe', 'memory-fragments', 'light-theater', 'elemental-portals', 'liquid-sculpture', 'kaleidoscope-world', 'chrono-gallery', 'storm-eye', 'digital-deconstruction', 'mirror-world', 'calligraphy-flow', 'metamorphosis', 'pixel-evolution', 'gravity-shift', 'theater-curtain', 'dimension-blur'].includes(t.key)) {
+    } else if (
+      [
+        'interstellar',
+        'liquid-metal',
+        'cyber-scanner',
+        'kaleidoscope',
+        'neon-city',
+        'folding-universe',
+        'memory-fragments',
+        'light-theater',
+        'elemental-portals',
+        'liquid-sculpture',
+        'kaleidoscope-world',
+        'chrono-gallery',
+        'storm-eye',
+        'digital-deconstruction',
+        'mirror-world',
+        'calligraphy-flow',
+        'metamorphosis',
+        'pixel-evolution',
+        'gravity-shift',
+        'theater-curtain',
+        'dimension-blur',
+        'z-tunnel',
+        'gallery-wander',
+        'mobius-strip',
+        'fractal-recursion',
+        'parallel-universe',
+        'speed-corridor',
+        'cross-hatch',
+        'spiral-descent',
+        'elevator-lobby',
+        'snake-path',
+        'cube-navigator',
+        'double-helix',
+        'slide-deck',
+        'timeline-journey',
+        'compare-slider',
+        'feature-tour',
+        'before-after-reveal',
+        'catalog-browser'
+      ].includes(t.key)
+    ) {
       map.creative.items.push(t)
     } else {
       map.scroll.items.push(t)
     }
   }
   return Object.values(map).filter((c) => c.items.length > 0)
+})
+
+// ── 搜索过滤 ──
+const filteredCategories = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return categories.value
+  return categories.value
+    .map((cat) => ({
+      ...cat,
+      items: cat.items.filter(
+        (t) =>
+          t.label.toLowerCase().includes(q) ||
+          t.key.toLowerCase().includes(q)
+      )
+    }))
+    .filter((cat) => cat.items.length > 0)
 })
 
 const activeCom = computed(() => {
@@ -34,7 +94,16 @@ const activeCom = computed(() => {
 function selectTemplate(key: string) {
   activeKey.value = key
   menuOpen.value = false
+  searchQuery.value = ''
 }
+
+// 菜单打开时自动聚焦搜索框
+watch(menuOpen, async (open) => {
+  if (open) {
+    await nextTick()
+    searchInputRef.value?.focus()
+  }
+})
 
 // 点击外部关闭
 function onDocClick(e: MouseEvent) {
@@ -59,12 +128,32 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
       </div>
       <transition name="menu-drop">
         <div v-if="menuOpen" ref="menuRef" class="showcase-menu" @click.stop>
-          <div
-            v-for="cat in categories"
-            :key="cat.label"
-            class="menu-category"
-          >
-            <div class="menu-cat-head">{{ cat.label }}</div>
+          <!-- 搜索框 -->
+          <div class="menu-search-box">
+            <svg class="menu-search-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              class="menu-search-input"
+              type="text"
+              placeholder="搜索模板名称..."
+              @keydown.escape="searchQuery = ''; searchInputRef?.blur()"
+            />
+            <button v-if="searchQuery" class="menu-search-clear" @click="searchQuery = ''; searchInputRef?.focus()" title="清除">
+              ╳
+            </button>
+          </div>
+
+          <!-- 无结果提示 -->
+          <div v-if="filteredCategories.length === 0" class="menu-no-result">
+            未找到匹配的模板
+          </div>
+
+          <!-- 分类列表 -->
+          <div v-for="cat in filteredCategories" :key="cat.label" class="menu-category">
+            <div class="menu-cat-head">{{ cat.label }} <span class="menu-cat-count">{{ cat.items.length }}</span></div>
             <div class="menu-cat-grid">
               <div
                 v-for="t in cat.items"
@@ -73,7 +162,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
                 :class="{ active: activeKey === t.key }"
                 @click="selectTemplate(t.key)"
               >
-                {{ t.label }} <span @click.stop> {{ t.key }}</span>
+                {{ t.label }}
               </div>
             </div>
           </div>
@@ -83,7 +172,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 
     <!-- 背景遮罩 -->
     <transition name="menu-drop">
-      <div v-if="menuOpen" class="menu-backdrop" @click="menuOpen = false" />
+      <div v-if="menuOpen" class="menu-backdrop" @click="menuOpen = false"></div>
     </transition>
 
     <!-- 当前模板 -->
@@ -168,14 +257,14 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   top: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  width: 480px;
-  max-height: 420px;
+  width: 610px;
+  max-height: 450px;
   overflow-y: auto;
   background: rgba(15, 15, 18, 0.92);
   backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
-  padding: 20px 18px 14px;
+  padding: 18px 18px 14px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -193,6 +282,70 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
+// ── 搜索框 ──
+.menu-search-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: rgba(99, 130, 255, 0.5);
+    background: rgba(255, 255, 255, 0.09);
+  }
+}
+
+.menu-search-icon {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.menu-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  font-size: 0.78rem;
+  font-family: inherit;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.menu-search-clear {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+}
+
+.menu-no-result {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+  padding: 20px 0;
+}
+
 .menu-category {
   display: flex;
   flex-direction: column;
@@ -205,6 +358,17 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   text-transform: uppercase;
   letter-spacing: 0.6px;
   padding: 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-cat-count {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0 6px;
 }
 
 .menu-cat-grid {
@@ -242,7 +406,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 // ── 过渡动画 ──
 .menu-drop-enter-active,
 .menu-drop-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 .menu-drop-enter-from,
 .menu-drop-leave-to {
