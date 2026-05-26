@@ -1,0 +1,236 @@
+<script setup lang="ts">
+/**
+ * ==================== Transition Reveal ====================
+ * 幕布揭幕 —— 使用 mask-image 渐变从顶部向下揭开，
+ * 如同舞台幕布缓缓降下露出下一场景，滚动驱动。
+ */
+import { onMounted, onUnmounted, nextTick } from 'vue'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
+const totalPanels = 7
+let vh = 0
+let currentIndex = 0
+
+let scrollArea: HTMLElement | null = null
+let stage: HTMLElement | null = null
+let progressBar: HTMLElement | null = null
+let navDots: HTMLElement | null = null
+let panels: HTMLElement[] = []
+let mainTL: gsap.core.Timeline | null = null
+
+function createNavDots() {
+  if (!navDots) return
+  navDots.innerHTML = ''
+  for (let i = 0; i < totalPanels; i++) {
+    const dot = document.createElement('button')
+    dot.className = 'tre-nav-dot' + (i === 0 ? ' tre-active' : '')
+    dot.addEventListener('click', () => goToPanel(i))
+    navDots.appendChild(dot)
+  }
+}
+
+function updateUI(index: number) {
+  document.querySelectorAll('.tre-nav-dot').forEach((dot, i) => {
+    dot.classList.toggle('tre-active', i === index)
+  })
+  const el = document.querySelector('.tre-page-indicator .tre-current')
+  if (el) el.textContent = String(index + 1)
+  if (progressBar) progressBar.style.width = ((index) / (totalPanels - 1) * 100) + '%'
+}
+
+function goToPanel(index: number) {
+  index = Math.max(0, Math.min(index, totalPanels - 1))
+  const targetTop = (scrollArea?.offsetTop || 0) + index * vh
+  window.scrollTo({ top: targetTop, behavior: 'smooth' })
+}
+
+function onKeydown(e: KeyboardEvent) {
+  const keyMap: Record<string, number> = {
+    ArrowDown: 1, ArrowRight: 1,
+    ArrowUp: -1, ArrowLeft: -1,
+    Home: 0, End: totalPanels - 1
+  }
+  if (keyMap[e.key] !== undefined) {
+    e.preventDefault()
+    e.key === 'Home' || e.key === 'End'
+      ? goToPanel(keyMap[e.key])
+      : goToPanel(currentIndex + keyMap[e.key])
+  }
+}
+
+let touchStartY = 0
+function onTouchStart(e: TouchEvent) { touchStartY = e.touches[0].clientY }
+function onTouchEnd(e: TouchEvent) {
+  const diff = touchStartY - e.changedTouches[0].clientY
+  if (Math.abs(diff) > 50) goToPanel(currentIndex + (diff > 0 ? 1 : -1))
+}
+
+function buildTimeline(): gsap.core.Timeline {
+  gsap.set(panels, { clearProps: 'all' })
+  gsap.set(panels, {
+    position: 'absolute', width: '100vw', height: '100vh'
+  })
+
+  const tl = gsap.timeline({ paused: true })
+  const segments = totalPanels - 1
+
+  // z-index 堆叠：prev > next，这样当前屏覆盖在下一屏上方
+  panels.forEach((p, i) => { p.style.zIndex = String(totalPanels - i) })
+  // 初始：所有面板 mask-bottom=100（完全遮住），第一屏除外
+  gsap.set(panels, {
+    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 0%)',
+    maskImage: 'linear-gradient(to bottom, transparent 0%, black 0%)',
+    WebkitMaskSize: '100% 100%',
+    maskSize: '100% 100%',
+    WebkitMaskRepeat: 'no-repeat',
+    maskRepeat: 'no-repeat',
+    opacity: 1
+  })
+
+  for (let i = 0; i < segments; i++) {
+    // 当前面板 mask 从底向上揭开：使用自定义对象提供可动画的数值属性
+    // GSAP 需要至少一个数值属性才能正确参与 timeline（scrub 兼容性）
+    const maskObj = { progress: 0 }
+    tl.to(maskObj, {
+      progress: 1,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        const p = maskObj.progress
+        // 透明区域从顶部向下扩大：mask顶部透明→逐渐向下覆盖
+        // black=可见, transparent=隐藏
+        const visiblePct = (1 - p) * 100
+        const maskVal = `linear-gradient(to bottom, black 0%, black ${visiblePct}%, transparent ${visiblePct}%)`
+        panels[i].style.WebkitMaskImage = maskVal
+        panels[i].style.maskImage = maskVal
+        panels[i].style.transform = `scale(${1 - p * 0.05})`
+      }
+    }, i)
+
+    // 下一屏从缩小状态恢复（在揭开的同时显现）
+    tl.fromTo(panels[i + 1],
+      { scale: 0.95, opacity: 0.9 },
+      { scale: 1, opacity: 1, duration: 1, ease: 'power2.out' },
+      i
+    )
+  }
+
+  return tl
+}
+
+function startTimeline() {
+  const tl = buildTimeline()
+  mainTL = tl
+
+  ScrollTrigger.create({
+    trigger: scrollArea,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 0.8,
+    animation: tl,
+    onUpdate: (self) => {
+      const idx = Math.round(self.progress * (totalPanels - 1))
+      if (idx !== currentIndex) {
+        currentIndex = idx
+        updateUI(idx)
+      }
+    }
+  })
+}
+
+function killCurrent() {
+  ScrollTrigger.getAll().forEach(st => {
+    if (st.vars.trigger === scrollArea) st.kill()
+  })
+  mainTL?.kill()
+  mainTL = null
+  gsap.set(panels, { clearProps: 'all' })
+}
+
+function init() {
+  vh = window.innerHeight
+  scrollArea = document.getElementById('treScrollArea') as HTMLElement
+  stage = document.getElementById('treStage') as HTMLElement
+  progressBar = document.getElementById('treProgressBar')
+  navDots = document.getElementById('treNavDots')
+  if (!scrollArea || !stage) return
+  panels = gsap.utils.toArray('.tre-panel') as HTMLElement[]
+
+  document.addEventListener('keydown', onKeydown)
+  document.addEventListener('touchstart', onTouchStart, { passive: true })
+  document.addEventListener('touchend', onTouchEnd, { passive: true })
+
+  createNavDots()
+  updateUI(0)
+  startTimeline()
+}
+
+function destroy() {
+  killCurrent()
+  document.removeEventListener('keydown', onKeydown)
+  document.removeEventListener('touchstart', onTouchStart)
+  document.removeEventListener('touchend', onTouchEnd)
+}
+
+onMounted(() => nextTick(init))
+onUnmounted(destroy)
+</script>
+
+<template>
+  <div class="tre-page">
+    <div id="treProgressBar" class="tre-progress-bar"></div>
+    <nav id="treNavDots" class="tre-nav-dots"></nav>
+    <div class="tre-page-indicator">
+      <span class="tre-current">1</span>
+      <span class="tre-total"> / {{ totalPanels }}</span>
+    </div>
+
+    <div id="treScrollArea" class="tre-scroll-area" :style="{ height: totalPanels * 100 + 'vh' }">
+      <div id="treStage" class="tre-stage">
+        <section class="tre-panel tre-panel-0"><div class="tre-content"><h2>Panel 1</h2></div></section>
+        <section class="tre-panel tre-panel-1"><div class="tre-content"><h2>Panel 2</h2></div></section>
+        <section class="tre-panel tre-panel-2"><div class="tre-content"><h2>Panel 3</h2></div></section>
+        <section class="tre-panel tre-panel-3"><div class="tre-content"><h2>Panel 4</h2></div></section>
+        <section class="tre-panel tre-panel-4"><div class="tre-content"><h2>Panel 5</h2></div></section>
+        <section class="tre-panel tre-panel-5"><div class="tre-content"><h2>Panel 6</h2></div></section>
+        <section class="tre-panel tre-panel-6"><div class="tre-content"><h2>Panel 7</h2></div></section>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.tre-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; }
+.tre-scroll-area { position: relative; }
+.tre-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
+.tre-panel {
+  position: absolute; inset: 0; width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(255,255,255,.08); border-radius: 20px; pointer-events: none; z-index: 0; }
+}
+.tre-content { text-align: center; z-index: 0; h2 { font-size: 3.5rem; font-weight: 900; margin: 0 0 16px; } }
+.tre-panel-0 { background: linear-gradient(135deg, #1a0a2e, #16213e); }
+.tre-panel-1 { background: linear-gradient(135deg, #0f2027, #2c5364); }
+.tre-panel-2 { background: linear-gradient(135deg, #141e30, #243b55); }
+.tre-panel-3 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+.tre-panel-4 { background: linear-gradient(135deg, #0d0d1a, #1a1a3e); }
+.tre-panel-5 { background: linear-gradient(135deg, #1a2980, #26d0ce); }
+.tre-panel-6 { background: linear-gradient(135deg, #0b1331, #1c2856); }
+@media (max-width: 768px) { .tre-content { h2 { font-size: 2.2rem; } } }
+</style>
+
+<style lang="scss">
+.tre-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
+.tre-nav-dot {
+  width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.2);
+  cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(255,255,255,.5); transform: scale(1.3); }
+  &.tre-active { background: #ff6b9d; border-color: rgba(255,107,157,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(255,107,157,.5); }
+}
+.tre-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #ff6b9d, #c44dff, #6b9dff); box-shadow: 0 0 10px rgba(255,107,157,.4); }
+.tre-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+@media (max-width: 768px) { .tre-nav-dots { gap: 10px; } .tre-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
+</style>

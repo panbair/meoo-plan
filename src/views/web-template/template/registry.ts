@@ -58,7 +58,13 @@ const LABEL_MAP: Record<string, string> = {
   'transition-burn': '烧灼消散',
   'transition-shatter': '碎片纷飞',
   'transition-swing': '钟摆荡入',
-  'transition-wind': '风卷残云'
+  'transition-wind': '风卷残云',
+  'transition-pixel': '像素融化',
+  'transition-glitch': '数字故障',
+  'transition-reveal': '幕布揭幕',
+  'transition-explode': '爆炸散开',
+  'transition-flip-book': '翻书效果',
+  'transition-liquid': '液体波纹'
 }
 
 // ═══════════════════════════════════════════
