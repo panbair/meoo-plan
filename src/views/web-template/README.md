@@ -1,5 +1,5 @@
 只要纯粹的动画架构，不填充花哨的文案内容。重新创建6个新模板：
-
+创建一个 Node.js 脚本来并行下载项目的所有图片并转换为 base64，再绑定到项目里面
 
 
 
@@ -199,3 +199,35 @@ Let me be thorough in my analysis.
 | ⭐ | `catalog-browser` | 与 `elevator-lobby` 有重叠，但多段横滚+snap 体验不同 |
 
 需要我开始创建哪些？
+
+
+弹性物理
+scroll-rubber-stretch 橡皮拉伸
+面板像橡皮筋被拉扯变形后弹回原位
+多窗口
+scroll-picture-in-picture 画中画
+上一个面板缩小到角落，新面板全屏入场
+翻转棋盘
+scroll-chess-flip 棋盘翻转
+面板被切成棋盘格，每个格子独立翻转揭示
+水波纹
+scroll-ripple-reveal 涟漪揭示
+从点击/中心处泛起涟漪波纹逐步揭示新面板
+打字机
+scroll-typewriter 打字机卷纸
+面板像打字机纸张一样从底部卷出
+电梯
+scroll-elevator-ride 电梯升降
+面板是电梯门，打开→进入→关闭→到达新楼层
+折纸
+scroll-origami-unfold 折纸展开
+面板像折纸一样折叠→逐步展开成全屏
+弹幕穿越
+scroll-bullet-screen 弹幕穿越
+面板碎片像弹幕一样从右向左飞过
+磁铁吸附
+scroll-magnet-assemble 磁铁拼装
+面板碎片从四面八方飞来磁铁般吸附成完整画面
+时钟指针
+scroll-clock-wipe 时钟擦除
+像时钟指针一样旋转扫过，扫过的区域变成新面板

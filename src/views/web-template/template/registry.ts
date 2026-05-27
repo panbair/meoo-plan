@@ -114,32 +114,7 @@ const LABEL_MAP: Record<string, string> = {
   'scroll-gravity-depression': '滚动重力凹陷',
   'scroll-echo-grid': '滚动回音网格',
   'scroll-prism-refract': '滚动棱镜折射',
-  'scroll-strobe-freeze': '滚动频闪定格',
-  'scroll-zigzag-drift': '滚动锯齿漂移',
-  'scroll-carousel-ring': '滚动旋转木马',
-  'scroll-depth-dive': '滚动纵深潜入',
-  'scroll-elastic-snap': '滚动弹性弹射',
-  'scroll-crossfade-stack': '滚动交叉淡入',
-  'scroll-orbit-wheel': '滚动轨道轮盘',
-  'scroll-infinite-horizontal': '无限横移循环',
-  'scroll-h-then-v': '横转纵滚动',
-  'scroll-v-then-h': '纵转横滚动',
-  'scroll-v-h-v': '纵横纵滚动',
-  'scroll-snake-path': '蛇形路径',
-  'scroll-u-turn': 'U型回转',
-  'scroll-flat-to-3d': '平面转3D',
-  'scroll-diamond-path': '菱形路径',
-  'scroll-zoom-lane': '缩放车道',
-  'scroll-rotate-reveal': '旋转揭示',
-  'scroll-pendulum-swing': '钟摆摆动',
-  'scroll-card-fan': '扇形展牌',
-  'scroll-matrix-rain': '矩阵雨',
-  'scroll-conveyor-belt': '传送带',
-  'scroll-book-flip': '翻书',
-  'scroll-telescope-zoom': '望远镜变焦',
-  'scroll-slot-machine': '老虎机',
-  'scroll-helix-tower': '螺旋塔',
-  'scroll-curtain-peel': '幕帘剥离'
+  'scroll-strobe-freeze': '滚动频闪定格'
 }
 
 // ═══════════════════════════════════════════
