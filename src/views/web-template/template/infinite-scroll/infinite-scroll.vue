@@ -198,8 +198,8 @@ onUnmounted(destroy)
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
-  background: #0a0a0f;
-  color: #fff;
+  background: #06060e;
+  color: #f0f0f8;
 }
 
 .infinite-scroll-container {
@@ -225,33 +225,49 @@ onUnmounted(destroy)
     content: '';
     position: absolute;
     inset: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
     pointer-events: none;
+    background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(255, 255, 255, 0.015), transparent);
   }
 }
 
-/* 各屏背景 */
+/* 各屏背景 — 精致渐变配色 */
 .infinite-scroll-panel-hero {
-  background: linear-gradient(180deg, #0a0f24 0%, #0d1540 30%, #1a1a5e 60%, #16213e 100%);
+  background:
+    radial-gradient(ellipse 80% 50% at 30% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(236, 72, 153, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #07081a 0%, #0c1033 30%, #14164a 60%, #0e1130 100%);
 }
 .infinite-scroll-panel-about {
-  background: linear-gradient(135deg, #0f2027 0%, #203a43 40%, #2c5364 100%);
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 70%),
+    linear-gradient(135deg, #071a1f 0%, #0f3040 40%, #164e5c 70%, #0a2830 100%);
 }
 .infinite-scroll-panel-timeline {
-  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+  background:
+    radial-gradient(ellipse 50% 60% at 20% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 65%),
+    linear-gradient(150deg, #0a1025 0%, #162450 50%, #1a2d5c 80%, #0d1830 100%);
 }
 .infinite-scroll-panel-team {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 65%),
+    linear-gradient(135deg, #0c0c22 0%, #121a3c 40%, #0a2850 70%, #0d1530 100%);
 }
 .infinite-scroll-panel-stats {
-  background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3e 50%, #0d0d2b 100%);
+  background:
+    radial-gradient(ellipse 60% 50% at 40% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 65%),
+    linear-gradient(160deg, #08081a 0%, #12123a 40%, #1a1450 60%, #0a0a22 100%);
 }
 .infinite-scroll-panel-partners {
-  background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+  background:
+    radial-gradient(ellipse 70% 50% at 60% 40%, rgba(20, 184, 166, 0.15) 0%, transparent 65%),
+    linear-gradient(135deg, #0a1e40 0%, #134e6e 40%, #1a8a8a 70%, #0e3858 100%);
 }
 .infinite-scroll-panel-contact {
-  background: linear-gradient(135deg, #0b1331 0%, #1c2856 50%, #0b1331 100%);
+  background:
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, #080e28 0%, #121e48 40%, #0e1838 70%, #070c20 100%);
 }
 
 @media (max-width: 768px) {

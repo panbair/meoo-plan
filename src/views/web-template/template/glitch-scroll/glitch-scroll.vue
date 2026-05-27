@@ -207,8 +207,8 @@ onUnmounted(destroy)
   height: 100vh;
   overflow: hidden;
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #08080f;
-  color: #fff;
+  background: #050510;
+  color: #f0f0f8;
 }
 
 .glitch-scroll-container {
@@ -266,11 +266,11 @@ onUnmounted(destroy)
 .glitch-rgb-b { background: linear-gradient(135deg, #3366ff, #0033ff); }
 
 /* 各屏背景 */
-.glitch-scroll-panel-0 { background: linear-gradient(180deg, #0a0f24, #1a1a5e); }
-.glitch-scroll-panel-1 { background: linear-gradient(135deg, #0f2027, #2c5364); }
-.glitch-scroll-panel-2 { background: linear-gradient(135deg, #141e30, #243b55); }
-.glitch-scroll-panel-3 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
-.glitch-scroll-panel-4 { background: linear-gradient(135deg, #0b1331, #1c2856); }
+.glitch-scroll-panel-0 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(255,0,100,0.06), transparent 70%), linear-gradient(180deg, #07081c, #101848, #0a0e30); }
+.glitch-scroll-panel-1 { background: radial-gradient(ellipse 60% 50% at 30% 60%, rgba(0,255,200,0.05), transparent 65%), linear-gradient(135deg, #071820, #0e3040, #164050); }
+.glitch-scroll-panel-2 { background: radial-gradient(ellipse 50% 60% at 70% 30%, rgba(100,0,255,0.06), transparent 65%), linear-gradient(135deg, #0a1025, #162450, #1a2d5c); }
+.glitch-scroll-panel-3 { background: radial-gradient(ellipse 60% 50% at 40% 50%, rgba(0,100,255,0.07), transparent 65%), linear-gradient(135deg, #0c0c22, #0e2850, #0a1840); }
+.glitch-scroll-panel-4 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(255,50,100,0.06), transparent 70%), linear-gradient(135deg, #080e28, #121e48, #0e1838); }
 
 @media (max-width: 768px) {
   .glitch-scroll-panel { padding: 60px 20px; font-size: 2rem; }

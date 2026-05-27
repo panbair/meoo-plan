@@ -199,8 +199,8 @@ onUnmounted(destroy)
   height: 100vh;
   overflow: hidden;
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0a0a0f;
-  color: #fff;
+  background: #060610;
+  color: #f0f0f8;
 }
 
 .hscroll-container {
@@ -262,25 +262,25 @@ onUnmounted(destroy)
 
 /* 各屏背景 */
 .hscroll-panel-intro {
-  background: linear-gradient(135deg, #0a0f24, #1a1a5e);
+  background: radial-gradient(ellipse 70% 50% at 40% 30%, rgba(99,102,241,0.1), transparent 70%), linear-gradient(135deg, #07081c, #0e1240, #14164a);
 }
 .hscroll-panel-features {
-  background: linear-gradient(135deg, #0f2027, #2c5364);
+  background: radial-gradient(ellipse 60% 50% at 70% 40%, rgba(6,182,212,0.08), transparent 65%), linear-gradient(135deg, #071820, #0e3040, #164e5c);
 }
 .hscroll-panel-work {
-  background: linear-gradient(135deg, #141e30, #243b55);
+  background: radial-gradient(ellipse 50% 60% at 30% 60%, rgba(139,92,246,0.07), transparent 65%), linear-gradient(135deg, #0a1025, #162450, #1a2d5c);
 }
 .hscroll-panel-tech {
-  background: linear-gradient(135deg, #1a1a2e, #0f3460);
+  background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(59,130,246,0.08), transparent 65%), linear-gradient(135deg, #0c0c22, #0e2850, #0a1840);
 }
 .hscroll-panel-team {
-  background: linear-gradient(135deg, #0d0d1a, #1a1a3e);
+  background: radial-gradient(ellipse 50% 50% at 40% 50%, rgba(168,85,247,0.07), transparent 65%), linear-gradient(135deg, #08081a, #12123a, #0e0e28);
 }
 .hscroll-panel-stats {
-  background: linear-gradient(135deg, #1a2980, #26d0ce);
+  background: radial-gradient(ellipse 70% 50% at 60% 40%, rgba(20,184,166,0.12), transparent 65%), linear-gradient(135deg, #081e38, #10506e, #0e3858);
 }
 .hscroll-panel-contact {
-  background: linear-gradient(135deg, #0b1331, #1c2856);
+  background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(99,102,241,0.08), transparent 70%), linear-gradient(135deg, #080e28, #121e48, #0e1838);
 }
 
 @media (max-width: 768px) {

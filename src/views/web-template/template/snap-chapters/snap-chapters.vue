@@ -117,9 +117,9 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-$bg: #0a0a12;
+$bg: #050510;
 $accent: #7c5cfc;
-.sc-page { height: 100vh; overflow: hidden; font-family: system-ui, sans-serif; background: $bg; color: #fff; }
+.sc-page { height: 100vh; overflow: hidden; font-family: system-ui, sans-serif; background: $bg; color: #f0f0f8; }
 .sc-container { height: 100%; overflow-y: auto; overflow-x: hidden; }
 .sc-track { /* wrapper for ScrollTrigger snap trigger */ }
 .sc-panel {
@@ -129,16 +129,16 @@ $accent: #7c5cfc;
   position: relative; overflow: hidden;
   &::after {
     position: absolute; bottom: 30px; right: 40px;
-    font-size: 8rem; font-weight: 900; color: rgba(255,255,255,0.03);
+    font-size: 8rem; font-weight: 900; color: rgba(255,255,255,0.025);
     pointer-events: none;
   }
-  &.p1 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(124,92,252,0.12), transparent), linear-gradient(180deg, #0a0e24, #121640); &::after { content: '01'; } }
-  &.p2 { background: linear-gradient(135deg, #0f2027, #2c5364); &::after { content: '02'; } }
-  &.p3 { background: linear-gradient(135deg, #1a1a2e, #243b55); &::after { content: '03'; } }
-  &.p4 { background: linear-gradient(135deg, #1a1a2e, #0f3460); &::after { content: '04'; } }
-  &.p5 { background: linear-gradient(135deg, #0d0d1a, #1a1a3e); &::after { content: '05'; } }
-  &.p6 { background: linear-gradient(135deg, #1a2980, #26d0ce); &::after { content: '06'; } }
-  &.p7 { background: linear-gradient(135deg, #16213e, #1a1a5e); &::after { content: '07'; } }
+  &.p1 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(124,92,252,0.1), transparent), linear-gradient(180deg, #06081c, #0e1240, #0a0e30); &::after { content: '01'; } }
+  &.p2 { background: radial-gradient(ellipse 60% 50% at 70% 30%, rgba(6,182,212,0.08), transparent), linear-gradient(135deg, #071820, #0e3040, #164e5c); &::after { content: '02'; } }
+  &.p3 { background: radial-gradient(ellipse 50% 60% at 30% 60%, rgba(139,92,246,0.07), transparent), linear-gradient(135deg, #0c0c24, #162450, #0e1838); &::after { content: '03'; } }
+  &.p4 { background: radial-gradient(ellipse 60% 50% at 60% 30%, rgba(59,130,246,0.08), transparent), linear-gradient(135deg, #0c0c22, #0e2850, #0a1840); &::after { content: '04'; } }
+  &.p5 { background: radial-gradient(ellipse 50% 50% at 40% 50%, rgba(168,85,247,0.07), transparent), linear-gradient(135deg, #08081a, #12123a, #0e0e28); &::after { content: '05'; } }
+  &.p6 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(20,184,166,0.1), transparent), linear-gradient(135deg, #081e38, #10506e, #0a3858); &::after { content: '06'; } }
+  &.p7 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(99,102,241,0.08), transparent), linear-gradient(135deg, #0a1030, #121850, #0c1240); &::after { content: '07'; } }
 }
 
 @media (max-width: 600px) {

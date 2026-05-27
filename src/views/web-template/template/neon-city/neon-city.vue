@@ -179,23 +179,23 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.nc-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #03030a; color: #fff; }
+.nc-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #020208; color: #f0f0f8; }
 .nc-scroll-area { position: relative; }
 .nc-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .nc-panel {
   position: absolute; inset: 0; width: 100vw; height: 100vh;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
-  &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(0,255,255,.06); border-radius: 20px; pointer-events: none; z-index: 1; }
+  &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(0,255,255,.05); border-radius: 24px; pointer-events: none; z-index: 1; box-shadow: inset 0 0 40px rgba(0, 255, 255, 0.02); }
 }
 .nc-slice-container { position: absolute; inset: 0; z-index: 0; }
-.nc-content { text-align: center; z-index: 2; position: relative; h2 { font-size: 6rem; font-weight: 900; margin: 0; text-shadow: 0 0 30px rgba(0,255,255,.3), 0 0 60px rgba(255,0,255,.2); letter-spacing: 4px; } }
-.nc-panel-0 { background: linear-gradient(135deg, #0a0f24, #1a1a5e); }
-.nc-panel-1 { background: linear-gradient(135deg, #0f1a1a, #1a3a5e); }
-.nc-panel-2 { background: linear-gradient(135deg, #1a0f24, #3a1a5e); }
-.nc-panel-3 { background: linear-gradient(135deg, #0f241a, #1a5e3a); }
-.nc-panel-4 { background: linear-gradient(135deg, #241a0f, #5e3a1a); }
-.nc-panel-5 { background: linear-gradient(135deg, #1a0f0f, #5e1a1a); }
-.nc-panel-6 { background: linear-gradient(135deg, #0f0f24, #1a1a5e); }
+.nc-content { text-align: center; z-index: 2; position: relative; h2 { font-size: 6rem; font-weight: 900; margin: 0; text-shadow: 0 0 40px rgba(0,255,255,.25), 0 0 80px rgba(255,0,255,.15), 0 0 120px rgba(0,255,255,.08); letter-spacing: 6px; } }
+.nc-panel-0 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,255,255,0.06) 0%, transparent 70%), linear-gradient(135deg, #060a1c 0%, #101850 50%, #0a0e30 100%); }
+.nc-panel-1 { background: radial-gradient(ellipse 50% 50% at 30% 60%, rgba(0,200,200,0.06) 0%, transparent 65%), linear-gradient(135deg, #081418 0%, #0e3050 50%, #082028 100%); }
+.nc-panel-2 { background: radial-gradient(ellipse 50% 50% at 70% 30%, rgba(200,0,255,0.06) 0%, transparent 65%), linear-gradient(135deg, #120820 0%, #301050 50%, #1a0830 100%); }
+.nc-panel-3 { background: radial-gradient(ellipse 50% 50% at 40% 60%, rgba(0,255,180,0.06) 0%, transparent 65%), linear-gradient(135deg, #081a12 0%, #0e4830 50%, #082818 100%); }
+.nc-panel-4 { background: radial-gradient(ellipse 50% 50% at 60% 40%, rgba(255,150,0,0.05) 0%, transparent 65%), linear-gradient(135deg, #181008 0%, #483010 50%, #281808 100%); }
+.nc-panel-5 { background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,0,80,0.06) 0%, transparent 65%), linear-gradient(135deg, #140808 0%, #481018 50%, #280810 100%); }
+.nc-panel-6 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,100,255,0.06) 0%, transparent 70%), linear-gradient(135deg, #06081c 0%, #101850 50%, #080c28 100%); }
 @media (max-width: 768px) { .nc-content { h2 { font-size: 3.5rem; } } }
 </style>
 

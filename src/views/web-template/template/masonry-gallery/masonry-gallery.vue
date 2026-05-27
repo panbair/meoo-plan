@@ -169,11 +169,11 @@ onUnmounted(destroy)
 
 <style scoped>
 .mg-wrapper {
-  --mg-bg: #0a0a14;
+  --mg-bg: #060610;
   width: 100vw;
   min-height: 100vh;
   background: var(--mg-bg);
-  color: #fff;
+  color: #f0f0f8;
   position: relative;
   overflow-x: hidden;
 }
@@ -194,8 +194,9 @@ onUnmounted(destroy)
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 40%, rgba(99, 102, 241, 0.12) 0%, transparent 70%),
-              radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 50% 35%, rgba(99, 102, 241, 0.1) 0%, transparent 65%),
+              radial-gradient(ellipse at 75% 75%, rgba(236, 72, 153, 0.06) 0%, transparent 55%),
+              radial-gradient(ellipse at 25% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
 }
 
 .mg-header-content {
@@ -307,12 +308,12 @@ onUnmounted(destroy)
   inset: 0;
 }
 
-.mg-card-theme-0 .mg-card-bg { background: linear-gradient(160deg, #1a1a3e 0%, #2d1b69 100%); }
-.mg-card-theme-1 .mg-card-bg { background: linear-gradient(160deg, #1e1a2e 0%, #0f3460 100%); }
-.mg-card-theme-2 .mg-card-bg { background: linear-gradient(160deg, #1a2e2e 0%, #0f4c4c 100%); }
-.mg-card-theme-3 .mg-card-bg { background: linear-gradient(160deg, #2e1a2a 0%, #533483 100%); }
-.mg-card-theme-4 .mg-card-bg { background: linear-gradient(160deg, #1a1a2e 0%, #4a1a3a 100%); }
-.mg-card-theme-5 .mg-card-bg { background: linear-gradient(160deg, #2e2a1a 0%, #4a3a1a 100%); }
+.mg-card-theme-0 .mg-card-bg { background: linear-gradient(160deg, #12103a 0%, #2d1b69 50%, #1a1048 100%); }
+.mg-card-theme-1 .mg-card-bg { background: linear-gradient(160deg, #0c1828 0%, #0e3460 50%, #0a2040 100%); }
+.mg-card-theme-2 .mg-card-bg { background: linear-gradient(160deg, #0a1e22 0%, #0e4848 50%, #083838 100%); }
+.mg-card-theme-3 .mg-card-bg { background: linear-gradient(160deg, #1c0e28 0%, #4a2070 50%, #2a1248 100%); }
+.mg-card-theme-4 .mg-card-bg { background: linear-gradient(160deg, #180a20 0%, #4c1638 50%, #2e0c24 100%); }
+.mg-card-theme-5 .mg-card-bg { background: linear-gradient(160deg, #1a1808 0%, #3a3010 50%, #282008 100%); }
 
 .mg-card-glow {
   position: absolute;

@@ -209,8 +209,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .tl-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #080c18;
-  color: #fff;
+  background: #050810;
+  color: #f0f0f8;
   position: relative;
   overflow-x: hidden;
 }
@@ -221,7 +221,10 @@ onUnmounted(destroy)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #0a0f24, #111838, #0f1d36);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(20, 184, 166, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, #060a1c 0%, #0c1538 40%, #101e48 70%, #0a1530 100%);
   position: relative;
   overflow: hidden;
 }
@@ -233,7 +236,7 @@ onUnmounted(destroy)
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(108, 140, 255, 0.1), transparent 65%);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.04) 40%, transparent 65%);
   pointer-events: none;
 }
 
@@ -346,19 +349,19 @@ onUnmounted(destroy)
 /* ═══════ 卡片 ═══════ */
 .tl-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
   padding: 28px 30px;
   width: 100%;
   max-width: 460px;
-  transition: all 0.3s ease;
+  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
     transform: translateY(-4px);
   }
 }
@@ -423,7 +426,9 @@ onUnmounted(destroy)
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #0f1d36, #1a2848);
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(99, 102, 241, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #0a1830 0%, #121e48 50%, #0e1a3c 100%);
   text-align: center;
   padding: 80px 40px;
 

@@ -240,11 +240,11 @@ onUnmounted(destroy)
   padding: 3rem clamp(1.5rem, 5vw, 4rem);
 }
 /* 各屏背景 */
-.exp-panel-0 { background: linear-gradient(160deg, #080d20 0%, #121840 50%, #080d20 100%); }
-.exp-panel-1 { background: linear-gradient(160deg, #20080d 0%, #40121a 50%, #20080d 100%); }
-.exp-panel-2 { background: linear-gradient(160deg, #082010 0%, #15302a 50%, #082010 100%); }
-.exp-panel-3 { background: linear-gradient(160deg, #201008 0%, #402818 50%, #201008 100%); }
-.exp-panel-4 { background: linear-gradient(160deg, #100820 0%, #281840 50%, #100820 100%); }
+.exp-panel-0 { background: radial-gradient(ellipse 60% 50% at 30% 30%, rgba(99,102,241,0.08), transparent 65%), linear-gradient(160deg, #080d20 0%, #121840 50%, #080d20 100%); }
+.exp-panel-1 { background: radial-gradient(ellipse 50% 50% at 70% 40%, rgba(236,72,153,0.07), transparent 60%), linear-gradient(160deg, #20080d 0%, #40121a 50%, #20080d 100%); }
+.exp-panel-2 { background: radial-gradient(ellipse 60% 50% at 40% 60%, rgba(16,185,129,0.08), transparent 65%), linear-gradient(160deg, #082010 0%, #15302a 50%, #082010 100%); }
+.exp-panel-3 { background: radial-gradient(ellipse 50% 50% at 60% 30%, rgba(245,158,11,0.06), transparent 60%), linear-gradient(160deg, #201008 0%, #402818 50%, #201008 100%); }
+.exp-panel-4 { background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(139,92,246,0.08), transparent 65%), linear-gradient(160deg, #100820 0%, #281840 50%, #100820 100%); }
 
 /* 网格背景 */
 .exp-grid-bg {

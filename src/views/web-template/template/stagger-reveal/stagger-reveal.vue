@@ -186,8 +186,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .stagger-brand-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0a0a0f;
-  color: #fff;
+  background: #060610;
+  color: #f0f0f8;
 }
 
 /* ===== 段落通用 ===== */
@@ -202,7 +202,10 @@ onUnmounted(destroy)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #0a0f24, #1a1a5e);
+  background:
+    radial-gradient(ellipse 70% 50% at 40% 30%, rgba(124, 58, 237, 0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 70%, rgba(236, 72, 153, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #07081c 0%, #0e1240 50%, #161860 80%, #0c0e30 100%);
   text-align: center;
 }
 
@@ -269,11 +272,15 @@ onUnmounted(destroy)
 }
 
 .stagger-left {
-  background: linear-gradient(135deg, #0f2027, #203a43);
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 40%, rgba(6, 182, 212, 0.08) 0%, transparent 70%),
+    linear-gradient(135deg, #071820 0%, #0e2e40 40%, #164050 70%, #0a2228 100%);
   justify-content: flex-start;
 }
 .stagger-right {
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 70%),
+    linear-gradient(135deg, #0c0c24 0%, #121840 50%, #0e1c48 80%, #0a0e28 100%);
   justify-content: flex-end;
 }
 
@@ -309,14 +316,15 @@ onUnmounted(destroy)
   border-radius: 20px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
 
   &::after {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.04);
   }
 }
 
@@ -330,13 +338,13 @@ onUnmounted(destroy)
   z-index: 2;
 }
 
-/* 渐变占位图 */
-.stagger-img-1 { background: linear-gradient(135deg, #667eea, #764ba2); }
-.stagger-img-2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
-.stagger-img-3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-.stagger-img-4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
-.stagger-img-5 { background: linear-gradient(135deg, #fa709a, #fee140); }
-.stagger-img-6 { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+/* 渐变占位图 — 更丰富的色彩层次 */
+.stagger-img-1 { background: linear-gradient(135deg, #4f46e5, #7c3aed 50%, #a855f7); }
+.stagger-img-2 { background: linear-gradient(135deg, #ec4899, #f43f5e 50%, #fb923c); }
+.stagger-img-3 { background: linear-gradient(135deg, #0891b2, #06b6d4 50%, #22d3ee); }
+.stagger-img-4 { background: linear-gradient(135deg, #059669, #10b981 50%, #34d399); }
+.stagger-img-5 { background: linear-gradient(135deg, #e11d48, #f472b6 50%, #fbbf24); }
+.stagger-img-6 { background: linear-gradient(135deg, #8b5cf6, #c084fc 50%, #e879f9); }
 
 .stagger-card-body {
   flex: 1;
@@ -395,7 +403,9 @@ onUnmounted(destroy)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #16213e, #1c2856);
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 65%),
+    linear-gradient(180deg, #0c1230 0%, #141e4a 50%, #101840 100%);
   text-align: center;
 }
 
@@ -417,7 +427,7 @@ onUnmounted(destroy)
 .stagger-cta {
   display: inline-block;
   padding: 14px 40px;
-  background: linear-gradient(135deg, #6c8cff, #a78bfa);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
   border: none;
   border-radius: 30px;
   color: #fff;
@@ -425,11 +435,11 @@ onUnmounted(destroy)
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(108, 140, 255, 0.3);
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.35);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(108, 140, 255, 0.5);
+    box-shadow: 0 8px 36px rgba(99, 102, 241, 0.5);
   }
 }
 
