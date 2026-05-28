@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { templates, firstKey } from './template/registry'
 
@@ -9,12 +9,12 @@ const navRef = ref<HTMLElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
 const searchInputRef = ref<HTMLInputElement | null>(null)
 
-// ── 分类分组 ──
+// 鈹€鈹€ 鍒嗙被鍒嗙粍 鈹€鈹€
 const categories = computed(() => {
   const map: Record<string, { label: string; items: typeof templates }> = {
-    scroll: { label: '滚动范式', items: [] },
-    transition: { label: '过渡动画', items: [] },
-    creative: { label: '创意特效', items: [] }
+    scroll: { label: '婊氬姩鑼冨紡', items: [] },
+    transition: { label: '杩囨浮鍔ㄧ敾', items: [] },
+    creative: { label: '鍒涙剰鐗规晥', items: [] }
   }
   for (const t of templates) {
     if (t.key.startsWith('transition-')) {
@@ -70,7 +70,7 @@ const categories = computed(() => {
   return Object.values(map).filter((c) => c.items.length > 0)
 })
 
-// ── 搜索过滤 ──
+// 鈹€鈹€ 鎼滅储杩囨护 鈹€鈹€
 const filteredCategories = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   if (!q) return categories.value
@@ -95,11 +95,20 @@ function selectTemplate(key: string) {
   activeKey.value = key
   menuOpen.value = false
   searchQuery.value = ''
-  // 切换模板时恢复滚动条到顶部
-  window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+  // 鍒囨崲妯℃澘鏃舵仮澶嶆粴鍔ㄦ潯鍒伴《閮?
+  // 绔嬪嵆婊氬姩涓€娆?
+  window.scrollTo(0, 0)
+  // nextTick 鍚庡啀婊氬姩涓€娆★紙纭繚鏂扮粍浠?DOM 宸叉寕杞斤級
+  nextTick(() => {
+    window.scrollTo(0, 0)
+    // 寤惰繜涓€甯у啀婊氬姩锛堢‘淇?ScrollTrigger 鍒濆鍖栧悗浣嶇疆姝ｇ‘锛?
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0)
+    })
+  })
 }
 
-// 菜单打开时自动聚焦搜索框
+// 鑿滃崟鎵撳紑鏃惰嚜鍔ㄨ仛鐒︽悳绱㈡
 watch(menuOpen, async (open) => {
   if (open) {
     await nextTick()
@@ -107,7 +116,7 @@ watch(menuOpen, async (open) => {
   }
 })
 
-// 点击外部关闭
+// 鐐瑰嚮澶栭儴鍏抽棴
 function onDocClick(e: MouseEvent) {
   const target = e.target as HTMLElement
   if (navRef.value && !navRef.value.contains(target)) {
@@ -121,7 +130,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 
 <template>
   <div class="web-template-showcase">
-    <!-- 模板切换面板 -->
+    <!-- 妯℃澘鍒囨崲闈㈡澘 -->
     <div ref="navRef" class="showcase-nav">
       <div class="showcase-toggle" :class="{ open: menuOpen }" @click.stop="menuOpen = !menuOpen">
         <div class="toggle-icon">
@@ -140,7 +149,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
       </div>
       <transition name="menu-pop">
         <div v-if="menuOpen" ref="menuRef" class="showcase-menu" @click.stop>
-          <!-- 菜单头部 -->
+          <!-- 鑿滃崟澶撮儴 -->
           <div class="menu-header">
             <div class="menu-header-left">
               <div class="menu-header-icon">
@@ -151,17 +160,17 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
                   <rect x="14" y="14" width="7" height="7" rx="1.5" />
                 </svg>
               </div>
-              <span class="menu-header-title">模板库</span>
+              <span class="menu-header-title">妯℃澘搴?/span>
               <span class="menu-header-count">{{ templates.length }}</span>
             </div>
-            <button class="menu-close-btn" @click="menuOpen = false" title="关闭">
+            <button class="menu-close-btn" @click="menuOpen = false" title="鍏抽棴">
               <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
             </button>
           </div>
 
-          <!-- 搜索框 -->
+          <!-- 鎼滅储妗?-->
           <div class="menu-search-box">
             <svg class="menu-search-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
               <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -171,25 +180,25 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
               v-model="searchQuery"
               class="menu-search-input"
               type="text"
-              placeholder="搜索模板..."
+              placeholder="鎼滅储妯℃澘..."
               @keydown.escape="searchQuery = ''; searchInputRef?.blur()"
             />
-            <button v-if="searchQuery" class="menu-search-clear" @click="searchQuery = ''; searchInputRef?.focus()" title="清除">
+            <button v-if="searchQuery" class="menu-search-clear" @click="searchQuery = ''; searchInputRef?.focus()" title="娓呴櫎">
               <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
             </button>
           </div>
 
-          <!-- 无结果提示 -->
+          <!-- 鏃犵粨鏋滄彁绀?-->
           <div v-if="filteredCategories.length === 0" class="menu-no-result">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36">
               <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
             </svg>
-            <span>未找到匹配的模板</span>
+            <span>鏈壘鍒板尮閰嶇殑妯℃澘</span>
           </div>
 
-          <!-- 分类列表 -->
+          <!-- 鍒嗙被鍒楄〃 -->
           <div v-for="(cat, ci) in filteredCategories" :key="cat.label" class="menu-category">
             <div class="menu-cat-head">
               <span class="menu-cat-dot" :class="`cat-dot-${ci}`"></span>
@@ -212,26 +221,26 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
       </transition>
     </div>
 
-    <!-- 背景遮罩 -->
+    <!-- 鑳屾櫙閬僵 -->
     <transition name="menu-pop">
       <div v-if="menuOpen" class="menu-backdrop" @click="menuOpen = false"></div>
     </transition>
 
-    <!-- 当前模板 -->
+    <!-- 褰撳墠妯℃澘 -->
     <component :is="activeCom" :key="activeKey" />
   </div>
 </template>
 
 <style scoped lang="scss">
-// ═══════════════════════════════════════
-//  Cosmic Glass — 配色系统
-// ═══════════════════════════════════════
-//  深空基底: #09091A → #101028
-//  主强调紫: #7C3AED → #A78BFA → #C4B5FD
-//  次强调青: #0D9488 → #2DD4BF → #5EEAD4
-//  暖强调玫: #E11D48 → #FB7185 → #FDA4AF
-//  表面玻璃: rgba(18,18,42,0.88~0.96)
-// ═══════════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
+//  Cosmic Glass 鈥?閰嶈壊绯荤粺
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
+//  娣辩┖鍩哄簳: #09091A 鈫?#101028
+//  涓诲己璋冪传: #7C3AED 鈫?#A78BFA 鈫?#C4B5FD
+//  娆″己璋冮潚: #0D9488 鈫?#2DD4BF 鈫?#5EEAD4
+//  鏆栧己璋冪帿: #E11D48 鈫?#FB7185 鈫?#FDA4AF
+//  琛ㄩ潰鐜荤拑: rgba(18,18,42,0.88~0.96)
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 
 * {
   margin: 0;
@@ -243,7 +252,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   width: 100%;
   min-height: 100vh;
   position: relative;
-  // 深空基底色 + 微弱径向光晕
+  // 娣辩┖鍩哄簳鑹?+ 寰急寰勫悜鍏夋檿
   background:
     radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 58, 237, 0.06) 0%, transparent 70%),
     radial-gradient(ellipse 60% 50% at 85% 100%, rgba(13, 148, 136, 0.04) 0%, transparent 60%),
@@ -251,9 +260,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
     linear-gradient(180deg, #09091A 0%, #0F0F26 40%, #0A0A1E 100%);
 }
 
-// ══════════════════════════════════
-// 遮罩
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 閬僵
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .menu-backdrop {
   position: fixed;
   inset: 0;
@@ -262,9 +271,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   backdrop-filter: blur(3px);
 }
 
-// ══════════════════════════════════
-// 导航容器
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 瀵艰埅瀹瑰櫒
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .showcase-nav {
   position: fixed;
   top: 26px;
@@ -273,9 +282,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   z-index: 10000;
 }
 
-// ══════════════════════════════════
-// 触发按钮 — 深邃玻璃胶囊
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 瑙﹀彂鎸夐挳 鈥?娣遍們鐜荤拑鑳跺泭
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .showcase-toggle {
   display: flex;
   align-items: center;
@@ -356,9 +365,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// ══════════════════════════════════
-// 下拉菜单 — 深空霜玻璃
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 涓嬫媺鑿滃崟 鈥?娣辩┖闇滅幓鐠?
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .showcase-menu {
   position: absolute;
   top: calc(100% + 14px);
@@ -394,9 +403,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// ══════════════════════════════════
-// 菜单头部
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 鑿滃崟澶撮儴
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .menu-header {
   display: flex;
   align-items: center;
@@ -457,9 +466,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// ══════════════════════════════════
-// 搜索框 — 微光输入区
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 鎼滅储妗?鈥?寰厜杈撳叆鍖?
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .menu-search-box {
   display: flex;
   align-items: center;
@@ -516,9 +525,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// ══════════════════════════════════
-// 无结果
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 鏃犵粨鏋?
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .menu-no-result {
   display: flex;
   flex-direction: column;
@@ -529,9 +538,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   font-size: 0.85rem;
 }
 
-// ══════════════════════════════════
-// 分类区块
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 鍒嗙被鍖哄潡
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .menu-category {
   display: flex;
   flex-direction: column;
@@ -547,7 +556,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   padding: 4px 2px;
 }
 
-// 三色分类指示点
+// 涓夎壊鍒嗙被鎸囩ず鐐?
 .menu-cat-dot {
   width: 8px;
   height: 8px;
@@ -598,9 +607,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   gap: 6px;
 }
 
-// ══════════════════════════════════
-// 模板卡片 — 精妙层级
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 妯℃澘鍗＄墖 鈥?绮惧灞傜骇
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .showcase-item {
   padding: 9px 12px;
   background: rgba(255, 255, 255, 0.022);
@@ -640,9 +649,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// ══════════════════════════════════
-// 弹出动画
-// ══════════════════════════════════
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+// 寮瑰嚭鍔ㄧ敾
+// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
 .menu-pop-enter-active {
   transition:
     opacity 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -662,7 +671,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   transform: translateX(-50%) translateY(-8px) scale(0.95);
 }
 
-// 遮罩独立过渡
+// 閬僵鐙珛杩囨浮
 .menu-backdrop.menu-pop-enter-active,
 .menu-backdrop.menu-pop-leave-active {
   transition: opacity 0.22s ease;
