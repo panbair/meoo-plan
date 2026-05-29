@@ -148,7 +148,7 @@ onUnmounted(destroy)
           <div class="tc-explode-container">
             <span v-for="n in 16" :key="n" class="tc-explode-frag" :style="{
               position:'absolute',width:'20px',height:'20px',borderRadius:'2px',
-              background:`hsl(${n*22},70%,60%)`,opacity:'.6',
+              background:`hsl(${n*22},85%,65%)`,opacity:'.65',
               left:30+Math.random()*40+'%', top:30+Math.random()*40+'%'
             }"></span>
           </div>
@@ -162,7 +162,7 @@ onUnmounted(destroy)
           <div class="tc-explode-container">
             <span v-for="n in 16" :key="n" class="tc-explode-frag" :style="{
               position:'absolute',width:'20px',height:'20px',borderRadius:'50%',
-              background:`hsl(${n*22+60},70%,60%)`,opacity:'.6',
+              background:`hsl(${n*22+60},85%,65%)`,opacity:'.65',
               left:30+Math.random()*40+'%', top:30+Math.random()*40+'%'
             }"></span>
           </div>
@@ -176,7 +176,7 @@ onUnmounted(destroy)
           <div class="tc-explode-container">
             <span v-for="n in 16" :key="n" class="tc-explode-frag" :style="{
               position:'absolute',width:'16px',height:'16px',borderRadius:'3px',
-              background:`hsl(${n*22+120},70%,60%)`,opacity:'.6',
+              background:`hsl(${n*22+120},85%,65%)`,opacity:'.65',
               left:30+Math.random()*40+'%', top:30+Math.random()*40+'%'
             }"></span>
           </div>
@@ -189,7 +189,7 @@ onUnmounted(destroy)
           <div class="tc-explode-container">
             <span v-for="n in 16" :key="n" class="tc-explode-frag" :style="{
               position:'absolute',width:'12px',height:'24px',borderRadius:'2px',
-              background:`hsl(${n*22+180},70%,60%)`,opacity:'.6',
+              background:`hsl(${n*22+180},85%,65%)`,opacity:'.65',
               left:30+Math.random()*40+'%', top:30+Math.random()*40+'%'
             }"></span>
           </div>
@@ -211,7 +211,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tc-page { font-family: 'Noto Serif SC', 'Georgia', serif; background: #f5f0f8; color: #1a1a2e; }
+.tc-page { font-family: 'Noto Serif SC', 'Georgia', serif; background: #fff0f5; color: #2d1f3d; }
 .tc-scroll-area { position: relative; }
 .tc-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .tc-panel {
@@ -221,37 +221,37 @@ onUnmounted(destroy)
 .tc-spotlight {
   position: absolute; z-index: 10; pointer-events: none;
   width: 800px; height: 800px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,240,200,.25) 0%, rgba(255,240,200,.05) 30%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,200,100,.35) 0%, rgba(255,220,150,.12) 30%, transparent 70%);
   transform: translate(-50%, -50%);
 }
 .tc-curtain {
   position: absolute; top: 0; width: 52%; height: 100%; z-index: 5; pointer-events: none;
-  background: linear-gradient(0deg, #1a0a08, #2a0a08, #1a0a08);
-  &::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0,0,0,.08) 4px, rgba(0,0,0,.08) 6px); }
+  background: linear-gradient(0deg, #ff6b6b, #ff8e72, #ff6b6b);
+  &::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,255,255,.08) 4px, rgba(255,255,255,.08) 6px); }
 }
-.tc-curtain-l { left: 0; box-shadow: inset -4px 0 20px rgba(0,0,0,.6); }
-.tc-curtain-r { right: 0; box-shadow: inset 4px 0 20px rgba(0,0,0,.6); }
+.tc-curtain-l { left: 0; box-shadow: inset -4px 0 20px rgba(180,30,30,.35); }
+.tc-curtain-r { right: 0; box-shadow: inset 4px 0 20px rgba(180,30,30,.35); }
 .tc-explode-container { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .tc-content { text-align: center; z-index: 2; position: relative;
-  h2 { font-size: 5.5rem; font-weight: 300; margin: 0; letter-spacing: 16px; color: #1a1a2e; text-shadow: 0 0 40px rgba(232,213,176,.2); }
+  h2 { font-size: 5.5rem; font-weight: 300; margin: 0; letter-spacing: 16px; color: #2d1f3d; text-shadow: 0 0 40px rgba(255,107,107,.25); }
 }
-.tc-panel-0 { background: radial-gradient(ellipse at center, #1a1008 0%, #0d0d0d 60%); }
-.tc-panel-1 { background: radial-gradient(ellipse at center, #1a1408 0%, #0d0d0d 60%); }
-.tc-panel-2 { background: radial-gradient(ellipse at center, #1a0a14 0%, #0d0d0d 60%); }
-.tc-panel-3 { background: radial-gradient(ellipse at center, #0a141a 0%, #0d0d0d 60%); }
-.tc-panel-4 { background: radial-gradient(ellipse at center, #141a0a 0%, #0d0d0d 60%); }
-.tc-panel-5 { background: radial-gradient(ellipse at center, #0a1a14 0%, #0d0d0d 60%); }
-.tc-panel-6 { background: radial-gradient(ellipse at center, #1a0a08 0%, #0d0d0d 60%); }
+.tc-panel-0 { background: radial-gradient(ellipse at center, #fff5f5 0%, #fce4ec 40%, #f8bbd0 100%); }
+.tc-panel-1 { background: radial-gradient(ellipse at center, #fff8f0 0%, #fff3e0 40%, #ffcc80 100%); }
+.tc-panel-2 { background: radial-gradient(ellipse at center, #f5fffa 0%, #e0f7fa 40%, #80deea 100%); }
+.tc-panel-3 { background: radial-gradient(ellipse at center, #f5f9ff 0%, #e3f2fd 40%, #90caf9 100%); }
+.tc-panel-4 { background: radial-gradient(ellipse at center, #fdf5ff 0%, #f3e5f5 40%, #ce93d8 100%); }
+.tc-panel-5 { background: radial-gradient(ellipse at center, #fffff5 0%, #fffde7 40%, #fff176 100%); }
+.tc-panel-6 { background: radial-gradient(ellipse at center, #fff5f7 0%, #fce4ec 40%, #f48fb1 100%); }
 @media (max-width: 768px) { .tc-content { h2 { font-size: 3.5rem; letter-spacing: 8px; } } .tc-spotlight { width: 400px; height: 400px; } }
 </style>
 
 <style lang="scss">
 .tc-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.tc-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(232,213,176,.12); cursor: pointer; border: 1px solid rgba(232,213,176,.2); transition: all .3s;
-  &:hover { background: rgba(232,213,176,.4); transform: scale(1.3); }
-  &.tc-active { background: #e8d5b0; border-color: rgba(232,213,176,.5); transform: scale(1.4); box-shadow: 0 0 16px rgba(232,213,176,.4); }
+.tc-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,107,107,.15); cursor: pointer; border: 1px solid rgba(255,107,107,.25); transition: all .3s;
+  &:hover { background: rgba(255,107,107,.45); transform: scale(1.3); }
+  &.tc-active { background: #ff6b6b; border-color: rgba(255,107,107,.6); transform: scale(1.4); box-shadow: 0 0 16px rgba(255,107,107,.45); }
 }
-.tc-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #e8d5b0, #b89a6b, #e8d5b0); }
-.tc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(13,13,13,.6); backdrop-filter: blur(8px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(232,213,176,.15); color: rgba(232,213,176,.8); }
+.tc-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #ff6b6b, #ffa07a, #48c9b0, #5dade2, #c39bd3); }
+.tc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255,255,255,.7); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,107,107,.2); color: rgba(45,31,61,.8); }
 @media (max-width: 768px) { .tc-nav-dots { gap: 10px; } .tc-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

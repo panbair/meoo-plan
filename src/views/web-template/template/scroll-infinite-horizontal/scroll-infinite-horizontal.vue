@@ -1,191 +1,299 @@
 <script setup lang="ts">
-/**
- * ==================== Scroll Infinite Horizontal ====================
- * 无限横移 —— 竖滚驱动横向移动，到末尾无缝循环回到开头
- *
- * 核心机制：
- *   1. scrollArea 撑出很大的纵向空间（TOTAL×3 屏，给足循环缓冲）
- *   2. sticky 视口锁定，track flex 横排面板（含首屏克隆）
- *   3. scroll 监听手动计算 translateX（不用 gsap tween，避免跳转时残留态）
- *   4. 滚到末尾→瞬移回开头，滚到开头→瞬移到末尾，双向无限循环
- */
-import { onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
+// ==================== 常量 ====================
+const totalPanels = 7
+const cloneCount = totalPanels * 2 // 14 个面板（7 原始 + 7 克隆）
 
-const TOTAL = 7
+// ==================== 面板数据 ====================
+const panelData = [
+  { badge: 'INFINITE', emoji: '∞', title: '无限循环', desc: '7 屏无缝循环滚动', color: '#6366f1', bg: 'linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 50%, #0d0d3a 100%)' },
+  { badge: 'SMOOTH', emoji: '✦', title: '丝滑过渡', desc: 'GSAP power3 弹性缓动', color: '#06b6d4', bg: 'linear-gradient(135deg, #042f2e 0%, #0a4a4a 50%, #052e2e 100%)' },
+  { badge: 'REACTIVE', emoji: '◈', title: '全端适配', desc: '桌面/平板/手机完美呈现', color: '#8b5cf6', bg: 'linear-gradient(135deg, #1a0a2e 0%, #2d1a4e 50%, #1a0d3a 100%)' },
+  { badge: 'CONTROL', emoji: '◆', title: '多维操控', desc: '滚轮 · 键盘 · 触摸 · 点击', color: '#3b82f6', bg: 'linear-gradient(135deg, #0a1a2e 0%, #1a2d4e 50%, #0d1d3a 100%)' },
+  { badge: 'PERFORM', emoji: '⬡', title: '高性能', desc: 'GSAP 优化 · 稳定 60FPS', color: '#14b8a6', bg: 'linear-gradient(135deg, #042e2a 0%, #0a4a42 50%, #052e28 100%)' },
+  { badge: 'AESTHETIC', emoji: '◇', title: '精工美学', desc: '渐变背景 · 毛玻璃 UI', color: '#f472b6', bg: 'linear-gradient(135deg, #2e0a1a 0%, #4e1a2d 50%, #3a0d1d 100%)' },
+  { badge: 'BOUNDLESS', emoji: '⟡', title: '无界体验', desc: '首尾相接 · 永无止境', color: '#a78bfa', bg: 'linear-gradient(135deg, #1a0a2e 0%, #2d1a4e 50%, #1a0d3a 100%)' },
+]
 
-let currentIndex = 0
+// 克隆面板列表（14 项，前7后7内容相同）
+const clonedPanels = computed(() => [...panelData, ...panelData])
+
+// ==================== 状态 ====================
 let vw = 0
-let isJumping = false
+let activeVisualIndex = 0 // 在 14 个面板中的视觉位置 (0~13)
+let isTransitioning = false
+let wheelAccumulator = 0
+const WHEEL_THRESHOLD = 80 // 累积滚动量阈值 (px)
 
-let scrollArea: HTMLElement | null = null
-let track: HTMLElement | null = null
+// DOM 引用
+let rootEl: HTMLElement | null = null
+let trackEl: HTMLElement | null = null
 let progressBar: HTMLElement | null = null
-let navDots: HTMLElement | null = null
 
-// 滚动空间倍率：中间区域是真实的 TOTAL 屏，前后各加 1 屏作为跳转缓冲
-const PADDING = 1
-const SCROLL_SCREENS = TOTAL + PADDING * 2 // 9
+// ==================== 工具函数 ====================
+function activePanel(): number {
+  return activeVisualIndex % totalPanels
+}
 
-function createNavDots() {
-  if (!navDots) {
+function getTrackX(index: number): number {
+  return -index * vw
+}
+
+// ==================== UI 更新 ====================
+function updateUI() {
+  const idx = activePanel()
+  // 更新导航点
+  document.querySelectorAll('.rih-dot').forEach((dot, i) => {
+    dot.classList.toggle('rih-active', i === idx)
+  })
+  // 更新页码
+  const currentEl = document.querySelector('.rih-current') as HTMLElement
+  if (currentEl) currentEl.textContent = String(idx + 1)
+  // 更新进度条
+  if (progressBar) {
+    gsap.to(progressBar, {
+      width: `${((idx + 1) / totalPanels) * 100}%`,
+      duration: 0.35,
+      ease: 'power2.out',
+    })
+  }
+}
+
+// ==================== 核心：向前翻页 ====================
+function goNext() {
+  if (isTransitioning || !trackEl) return
+  isTransitioning = true
+
+  let targetVisual = activeVisualIndex + 1
+  const needsReset = targetVisual >= cloneCount
+
+  gsap.to(trackEl, {
+    x: getTrackX(targetVisual),
+    duration: 0.55,
+    ease: 'power3.out',
+    onComplete: () => {
+      if (needsReset) {
+        // 走到了克隆区起始位置(P0')，视觉上等于 P0，无缝跳回
+        activeVisualIndex = 0
+        gsap.set(trackEl, { x: getTrackX(0) })
+      } else {
+        activeVisualIndex = targetVisual
+      }
+      isTransitioning = false
+      updateUI()
+    },
+  })
+}
+
+// ==================== 核心：向后翻页 ====================
+function goPrev() {
+  if (isTransitioning || !trackEl) return
+
+  if (activeVisualIndex === 0) {
+    // 在原始 P0，需要跳回克隆区才能向左动画
+    activeVisualIndex = totalPanels // 跳到克隆 P0(P7)
+    gsap.set(trackEl, { x: getTrackX(activeVisualIndex) })
+  }
+
+  isTransitioning = true
+  const targetVisual = activeVisualIndex - 1
+
+  gsap.to(trackEl, {
+    x: getTrackX(targetVisual),
+    duration: 0.55,
+    ease: 'power3.out',
+    onComplete: () => {
+      activeVisualIndex = targetVisual
+      isTransitioning = false
+      updateUI()
+    },
+  })
+}
+
+// ==================== 跳转到指定面板（支持一次跨多屏） ====================
+function goToPanel(targetIdx: number) {
+  if (isTransitioning || !trackEl) return
+  targetIdx = ((targetIdx % totalPanels) + totalPanels) % totalPanels
+  const current = activePanel()
+  if (targetIdx === current) return
+
+  const forwardDist = (targetIdx - current + totalPanels) % totalPanels
+  const backwardDist = (current - targetIdx + totalPanels) % totalPanels
+
+  if (forwardDist <= backwardDist) {
+    // 向前连续调用 goNext
+    isTransitioning = true
+    chainNext(forwardDist)
+  } else {
+    // 向后连续调用 goPrev
+    isTransitioning = true
+    chainPrev(backwardDist)
+  }
+}
+
+function chainNext(remaining: number) {
+  if (remaining <= 0) {
+    isTransitioning = false
+    updateUI()
     return
   }
-  navDots.innerHTML = ''
-  for (let i = 0; i < TOTAL; i++) {
-    const dot = document.createElement('button')
-    dot.className = 'sih-dot' + (i === 0 ? ' sih-active' : '')
-    dot.addEventListener('click', () => goTo(i))
-    navDots.appendChild(dot)
-  }
-}
+  // 解除 isTransitioning 锁 → 手动执行一次 goNext 核心逻辑
+  isTransitioning = false
+  let targetVisual = activeVisualIndex + 1
+  const needsReset = targetVisual >= cloneCount
 
-function updateUI(index: number) {
-  index = ((index % TOTAL) + TOTAL) % TOTAL
-  document.querySelectorAll('.sih-dot').forEach((d, i) => {
-    d.classList.toggle('sih-active', i === index)
-  })
-  const el = document.querySelector('.sih-indicator .sih-cur')
-  if (el) {
-    el.textContent = String(index + 1)
-  }
-  if (progressBar) {
-    progressBar.style.width = ((index + 1) / TOTAL) * 100 + '%'
-  }
-}
-
-function goTo(index: number) {
-  index = ((index % TOTAL) + TOTAL) % TOTAL
-  const vh = window.innerHeight
-  // 实际 scrollY：加上 PADDING 的偏移
-  gsap.to(window, {
-    scrollTo: { y: (index + PADDING) * vh, autoKill: false },
-    duration: 0.6,
-    ease: 'power2.inOut',
+  gsap.to(trackEl!, {
+    x: getTrackX(targetVisual),
+    duration: remaining > 1 ? 0.28 : 0.55, // 多步跳转时加速
+    ease: remaining > 1 ? 'power2.inOut' : 'power3.out',
+    onComplete: () => {
+      if (needsReset) {
+        activeVisualIndex = 0
+        gsap.set(trackEl!, { x: getTrackX(0) })
+      } else {
+        activeVisualIndex = targetVisual
+      }
+      updateUI()
+      chainNext(remaining - 1)
+    },
   })
 }
 
+function chainPrev(remaining: number) {
+  if (remaining <= 0) {
+    isTransitioning = false
+    updateUI()
+    return
+  }
+
+  if (activeVisualIndex === 0) {
+    activeVisualIndex = totalPanels
+    gsap.set(trackEl!, { x: getTrackX(activeVisualIndex) })
+  }
+
+  const targetVisual = activeVisualIndex - 1
+
+  gsap.to(trackEl!, {
+    x: getTrackX(targetVisual),
+    duration: remaining > 1 ? 0.28 : 0.55,
+    ease: remaining > 1 ? 'power2.inOut' : 'power3.out',
+    onComplete: () => {
+      activeVisualIndex = targetVisual
+      updateUI()
+      chainPrev(remaining - 1)
+    },
+  })
+}
+
+// ==================== 滚轮事件 ====================
+function onWheel(e: WheelEvent) {
+  const rect = rootEl?.getBoundingClientRect()
+  if (!rect) return
+  // 鼠标不在容器区域 → 穿透
+  if (e.clientY < rect.top || e.clientY > rect.bottom) return
+  if (e.clientX < rect.left || e.clientX > rect.right) return
+
+  e.preventDefault()
+  wheelAccumulator += Math.abs(e.deltaY) > 5 ? e.deltaY : 0
+
+  if (wheelAccumulator >= WHEEL_THRESHOLD) {
+    wheelAccumulator = 0
+    goNext()
+  } else if (wheelAccumulator <= -WHEEL_THRESHOLD) {
+    wheelAccumulator = 0
+    goPrev()
+  }
+}
+
+// ==================== 键盘导航 ====================
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-    e.preventDefault()
-    goTo(currentIndex + 1)
-  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-    e.preventDefault()
-    goTo(currentIndex - 1)
+  const focusTag = (document.activeElement?.tagName || '').toLowerCase()
+  if (focusTag === 'input' || focusTag === 'textarea' || focusTag === 'select') return
+
+  switch (e.key) {
+    case 'ArrowRight':
+    case 'ArrowDown':
+      e.preventDefault()
+      goNext()
+      break
+    case 'ArrowLeft':
+    case 'ArrowUp':
+      e.preventDefault()
+      goPrev()
+      break
+    case 'Home':
+      e.preventDefault()
+      goToPanel(0)
+      break
+    case 'End':
+      e.preventDefault()
+      goToPanel(totalPanels - 1)
+      break
   }
 }
 
+// ==================== 触摸滑动 ====================
+let touchStartX = 0
 let touchStartY = 0
+
 function onTouchStart(e: TouchEvent) {
+  touchStartX = e.touches[0].clientX
   touchStartY = e.touches[0].clientY
 }
+
 function onTouchEnd(e: TouchEvent) {
-  const diff = touchStartY - e.changedTouches[0].clientY
-  if (Math.abs(diff) > 50) {
-    goTo(currentIndex + (diff > 0 ? 1 : -1))
+  const dx = touchStartX - e.changedTouches[0].clientX
+  const dy = touchStartY - e.changedTouches[0].clientY
+  // 水平滑动超过阈值，且不是垂直滑动
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+    dx > 0 ? goNext() : goPrev()
   }
 }
 
-function onScroll() {
-  if (isJumping) {
-    return
-  }
-
-  const vh = window.innerHeight
-  const sy = window.scrollY
-
-  // 当前在"真实区域"中的位置（去掉 PADDING 偏移）
-  const realPos = sy / vh - PADDING // 可以是负数(上缓冲区)或超过TOTAL(下缓冲区)
-  const floatIdx = Math.max(0, Math.min(TOTAL - 0.001, realPos))
-
-  // 横移：面板索引 → translateX
-  // 使用 modulo 让横移值在 0~TOTAL 之间循环
-  const wrappedPos = ((realPos % TOTAL) + TOTAL) % TOTAL
-  const tx = -wrappedPos * vw
-  if (track) {
-    track.style.transform = `translateX(${tx}px)`
-  }
-
-  // 当前面板索引
-  const idx = ((Math.round(wrappedPos) % TOTAL) + TOTAL) % TOTAL
-  if (idx !== currentIndex) {
-    currentIndex = idx
-    updateUI(idx)
-  }
-
-  // 无限循环跳转（用 vh 阈值替代像素硬编码）
-  const maxScroll = (SCROLL_SCREENS - 1) * vh
-  if (sy >= (TOTAL + PADDING) * vh - 2) {
-    // 滚过了下缓冲 → 瞬移回上方对应位置
-    isJumping = true
-    const jumpTo = sy - TOTAL * vh
-    window.scrollTo(0, Math.max(jumpTo, 2))
-    requestAnimationFrame(() => {
-      setTimeout(() => { isJumping = false }, 50)
-    })
-  } else if (sy < (PADDING) * vh) {
-    // 滚到了上缓冲 → 瞬移到下方对应位置
-    isJumping = true
-    const jumpTo = sy + TOTAL * vh
-    window.scrollTo(0, Math.min(jumpTo, maxScroll - 2))
-    requestAnimationFrame(() => {
-      setTimeout(() => { isJumping = false }, 50)
-    })
+// ==================== 窗口 resize ====================
+function onResize() {
+  vw = window.innerWidth
+  if (trackEl) {
+    gsap.set(trackEl, { x: getTrackX(activeVisualIndex) })
   }
 }
 
+// ==================== 初始化 / 销毁 ====================
 function init() {
   vw = window.innerWidth
+  rootEl = document.querySelector('.rih-root') as HTMLElement
+  trackEl = document.querySelector('.rih-track') as HTMLElement
+  progressBar = document.querySelector('.rih-progress-fill') as HTMLElement
 
-  scrollArea = document.getElementById('sihArea') as HTMLElement
-  track = document.getElementById('sihTrack') as HTMLElement
-  progressBar = document.getElementById('sihProgress')
-  navDots = document.getElementById('sihNav')
-  if (!scrollArea || !track) {
-    return
-  }
+  if (!rootEl || !trackEl) return
 
-  // 滚动空间
-  scrollArea.style.height = SCROLL_SCREENS * 100 + 'vh'
+  // 初始化 track 位置
+  gsap.set(trackEl, { x: 0 })
 
-  // ⚠️ 先加监听，再加锁，再滚动：防止 scrollY 为 0 时 onScroll 误算 wrappedPos=6 卡在面板 07
-  window.addEventListener('scroll', onScroll, { passive: true })
-  isJumping = true
-
-  // 初始滚到 PADDING 位置（面板1）
-  window.scrollTo(0, PADDING * window.innerHeight)
-
+  // 事件绑定
+  rootEl.addEventListener('wheel', onWheel, { passive: false })
   document.addEventListener('keydown', onKeydown)
   document.addEventListener('touchstart', onTouchStart, { passive: true })
   document.addEventListener('touchend', onTouchEnd, { passive: true })
   window.addEventListener('resize', onResize)
+  window.addEventListener('orientationchange', () => setTimeout(onResize, 200))
 
-  createNavDots()
-  updateUI(0)
-
-  // 等 scrollTo 真正生效后再解锁并同步渲染
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      isJumping = false
-      onScroll()
-    })
-  })
-}
-
-function onResize() {
-  vw = window.innerWidth
+  updateUI()
 }
 
 function destroy() {
-  window.removeEventListener('scroll', onScroll)
+  gsap.killTweensOf(trackEl)
+  gsap.killTweensOf(progressBar)
+  rootEl?.removeEventListener('wheel', onWheel)
   document.removeEventListener('keydown', onKeydown)
   document.removeEventListener('touchstart', onTouchStart)
   document.removeEventListener('touchend', onTouchEnd)
   window.removeEventListener('resize', onResize)
+  rootEl = null
+  trackEl = null
+  progressBar = null
 }
 
 onMounted(() => nextTick(init))
@@ -193,190 +301,373 @@ onUnmounted(destroy)
 </script>
 
 <template>
-  <div class="sih-page">
+  <div class="rih-root">
     <!-- 进度条 -->
-    <div id="sihProgress" class="sih-progress-bar"></div>
-
-    <!-- 导航点 -->
-    <nav id="sihNav" class="sih-nav-dots"></nav>
-
-    <!-- 指示器 -->
-    <div class="sih-indicator">
-      <span class="sih-cur">1</span>
-      <span class="sih-tot"> / {{ TOTAL }}</span>
-      <span class="sih-loop-badge">∞</span>
+    <div class="rih-progress">
+      <div class="rih-progress-fill"></div>
     </div>
 
-    <!-- 滚动空间 -->
-    <div id="sihArea" class="sih-scroll-area">
-      <!-- 吸顶视口 -->
-      <div class="sih-viewport">
-        <!-- 横向轨道 -->
-        <div id="sihTrack" class="sih-track">
-          <section
-            v-for="n in TOTAL"
-            :key="n"
-            class="sih-panel"
-            :style="{
-              background: `linear-gradient(${130 + (n - 1) * 18}deg, hsl(${(n - 1) * 48 + 200}, 55%, 72%), hsl(${(n - 1) * 48 + 230}, 45%, 18%))`,
-            }"
-          >
-            <span class="sih-num">{{ String(n).padStart(2, '0') }}</span>
-          </section>
+    <!-- 右上角页码指示器 -->
+    <div class="rih-indicator">
+      <span class="rih-current">1</span>
+      <span class="rih-sep">/</span>
+      <span class="rih-total">{{ totalPanels }}</span>
+    </div>
+
+    <!-- 底部导航点 -->
+    <nav class="rih-dots">
+      <button
+        v-for="(_, i) in panelData"
+        :key="i"
+        class="rih-dot"
+        :class="{ 'rih-active': i === 0 }"
+        :aria-label="`跳转到第 ${i + 1} 屏`"
+        @click="goToPanel(i)"
+      ></button>
+    </nav>
+
+    <!-- 面板轨道 -->
+    <div class="rih-track" :style="{ width: `${cloneCount * 100}vw` }">
+      <section
+        v-for="(panel, i) in clonedPanels"
+        :key="`${i}`"
+        class="rih-panel"
+        :style="{
+          background: panel.bg,
+          width: '100vw',
+        }"
+      >
+        <!-- 装饰元素 -->
+        <div class="rih-deco-ring" :style="{ borderColor: panel.color + '22' }"></div>
+        <div class="rih-deco-ring rih-deco-ring-2" :style="{ borderColor: panel.color + '15' }"></div>
+
+        <div class="rih-content">
+          <!-- Badge -->
+          <span class="rih-badge" :style="{ borderColor: panel.color + '40', color: panel.color }">
+            {{ panel.badge }}
+          </span>
+
+          <!-- Emoji -->
+          <div class="rih-emoji" :style="{ color: panel.color }">{{ panel.emoji }}</div>
+
+          <!-- 标题 -->
+          <h2 class="rih-title">{{ panel.title }}</h2>
+
+          <!-- 描述 -->
+          <p class="rih-desc">{{ panel.desc }}</p>
+
+          <!-- 屏幕序号 -->
+          <div class="rih-number" :style="{ color: panel.color + '20' }">
+            {{ String((i % totalPanels) + 1).padStart(2, '0') }}
+          </div>
         </div>
-      </div>
+      </section>
+    </div>
+
+    <!-- 左右提示箭头 -->
+    <div class="rih-hint rih-hint-left" @click="goPrev">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15,18 9,12 15,6" />
+      </svg>
+    </div>
+    <div class="rih-hint rih-hint-right" @click="goNext">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9,6 15,12 9,18" />
+      </svg>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.sih-page {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #0a0a16;
-  color: #1a1a2e;
-}
-
-/* 滚动空间 */
-.sih-scroll-area {
+/* ========== 根容器 ========== */
+.rih-root {
   position: relative;
-}
-
-/* 吸顶视口 */
-.sih-viewport {
-  position: sticky;
-  top: 0;
-  width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #08081a;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* 横向轨道 */
-.sih-track {
+/* ========== 进度条 ========== */
+.rih-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.rih-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa, #f472b6, #06b6d4);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+}
+
+/* ========== 页码指示器 ========== */
+.rih-indicator {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 1000;
   display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rih-current {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  min-width: 1.2em;
+  text-align: center;
+}
+
+.rih-sep {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 1px;
+}
+
+.rih-total {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ========== 导航点 ========== */
+.rih-dots {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  gap: 12px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rih-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.4);
+  }
+
+  &.rih-active {
+    background: #8b8cff;
+    border-color: rgba(139, 140, 255, 0.5);
+    width: 14px;
+    border-radius: 7px;
+    box-shadow: 0 0 16px rgba(139, 140, 255, 0.5), 0 0 32px rgba(139, 140, 255, 0.2);
+  }
+}
+
+/* ========== 面板轨道 ========== */
+.rih-track {
+  display: flex;
+  height: 100%;
   will-change: transform;
 }
 
-/* 面板 */
-.sih-panel {
-  min-width: 100vw;
+/* ========== 单个面板 ========== */
+.rih-panel {
+  flex-shrink: 0;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  flex-shrink: 0;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 20px;
-    pointer-events: none;
-  }
 }
 
-.sih-num {
-  font-size: clamp(4rem, 10vw, 8rem);
-  font-weight: 900;
-  color: rgba(26, 26, 46, 0.05);
-  user-select: none;
+/* 装饰圆环 */
+.rih-deco-ring {
+  position: absolute;
+  width: 70vmin;
+  height: 70vmin;
+  border-radius: 50%;
+  border: 1px solid;
+  opacity: 0.4;
   pointer-events: none;
+  animation: rih-spin-slow 40s linear infinite;
 }
 
-@media (max-width: 768px) {
-  .sih-num {
-    font-size: 3rem;
-  }
-}
-</style>
-
-<style lang="scss">
-$accent: #60c0ff;
-
-/* 进度条 */
-.sih-progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  width: 0%;
-  background: linear-gradient(90deg, $accent, #a78bfa, $accent);
-  z-index: 1001;
-  box-shadow: 0 0 8px rgba($accent, 0.4);
+.rih-deco-ring-2 {
+  width: 90vmin;
+  height: 90vmin;
+  opacity: 0.25;
+  animation-duration: 55s;
+  animation-direction: reverse;
 }
 
-/* 导航点（底部居中） */
-.sih-nav-dots {
-  position: fixed;
-  bottom: 28px;
+@keyframes rih-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========== 面板内容 ========== */
+.rih-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 40px;
+}
+
+/* Badge */
+.rih-badge {
+  display: inline-block;
+  padding: 5px 22px;
+  border: 1px solid;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+/* Emoji 装饰 */
+.rih-emoji {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  line-height: 1;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 20px currentColor);
+}
+
+/* 标题 */
+.rih-title {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 12px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* 描述 */
+.rih-desc {
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* 面板序号水印 */
+.rih-number {
+  position: absolute;
+  bottom: -120px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
-  display: flex;
-  flex-direction: row;
-  gap: 14px;
+  font-size: clamp(8rem, 15vw, 14rem);
+  font-weight: 900;
+  pointer-events: none;
+  line-height: 1;
+  opacity: 0.6;
+  letter-spacing: -0.05em;
 }
 
-.sih-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(26, 26, 46, 0.18);
-  cursor: pointer;
-  border: 2px solid transparent;
-  padding: 0;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(26, 26, 46, 0.45);
-    transform: scale(1.3);
-  }
-
-  &.sih-active {
-    background: $accent;
-    border-color: rgba(26, 26, 46, 0.4);
-    transform: scale(1.4);
-    box-shadow: 0 0 18px rgba($accent, 0.5);
-  }
-}
-
-/* 指示器 */
-.sih-indicator {
+/* ========== 左右提示箭头 ========== */
+.rih-hint {
   position: fixed;
-  top: 28px;
-  right: 28px;
-  z-index: 1000;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  padding: 8px 20px;
-  border-radius: 24px;
-  font-size: 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(26, 26, 46, 0.75);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  animation: rih-fade-in 1s 1.2s ease forwards;
 
-  .sih-cur {
-    color: $accent;
-    font-weight: 700;
-  }
-
-  .sih-loop-badge {
-    margin-left: 6px;
-    font-size: 0.7rem;
-    color: rgba($accent, 0.7);
-    border: 1px solid rgba($accent, 0.3);
-    padding: 1px 6px;
-    border-radius: 8px;
+  &:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 24px rgba(139, 140, 255, 0.2);
   }
 }
 
+.rih-hint-left { left: 20px; }
+.rih-hint-right { right: 20px; }
+
+@keyframes rih-fade-in {
+  from { opacity: 0; transform: translateY(-50%) translateX(-8px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+/* ========== 响应式 ========== */
 @media (max-width: 768px) {
-  .sih-nav-dots {
-    gap: 10px;
+  .rih-hint {
+    width: 38px;
+    height: 38px;
+    svg { width: 20px; height: 20px; }
   }
+  .rih-hint-left { left: 10px; }
+  .rih-hint-right { right: 10px; }
+  .rih-indicator {
+    top: 16px;
+    right: 14px;
+    padding: 6px 14px;
+  }
+  .rih-dots {
+    bottom: 20px;
+    gap: 10px;
+    padding: 8px 16px;
+  }
+  .rih-dot {
+    width: 8px;
+    height: 8px;
+  }
+  .rih-dot.rih-active {
+    width: 12px;
+  }
+  .rih-number {
+    bottom: -60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rih-content { padding: 24px; }
+  .rih-emoji { font-size: 2.2rem; }
 }
 </style>

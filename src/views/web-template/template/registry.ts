@@ -137,6 +137,7 @@ const LABEL_MAP: Record<string, string> = {
   'scroll-film-reel': '胶片卷动',
   'scroll-flat-to-3d': '平面转3D',
   'scroll-h-then-v': '先横后纵',
+  'scroll-h-v-h': '横纵横',
   'scroll-helix-tower': '螺旋塔',
   'scroll-infinite-horizontal': '无限横向滚动',
   'scroll-iris-open': '虹膜开合',

@@ -95,6 +95,8 @@ function buildTimeline(): gsap.core.Timeline {
   removeWipeBars()
   gsap.set(panels, { clearProps: 'all' })
   gsap.set(panels, { position: 'absolute', width: '100vw', height: '100vh' })
+  // z-index 倒序：面板0在最上(7)，面板6在最下(1)，wipe 逐层揭示
+  panels.forEach((p, i) => { p.style.zIndex = String(totalPanels - i) })
 
   for (let i = 0; i < totalPanels - 1; i++) {
     wipeBars.push(createWipeBar(panels[i]))
