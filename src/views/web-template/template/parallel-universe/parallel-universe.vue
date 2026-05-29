@@ -148,7 +148,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.pu-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060610; color: #fff; }
+.pu-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .pu-scroll-area { position: relative; }
 .pu-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .pu-track { display: flex; will-change: transform; }
@@ -161,13 +161,13 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .pu-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.pu-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.1); cursor: pointer; border: 1px solid rgba(255,255,255,.1); transition: all .3s;
-  &:hover { background: rgba(255,255,255,.3); transform: scale(1.3); }
+.pu-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.1); cursor: pointer; border: 1px solid rgba(255,255,255,.1); transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.3); transform: scale(1.3); }
   &.pu-active { background: #60d0ff; border-color: rgba(96,208,255,.5); transform: scale(1.4); box-shadow: 0 0 16px rgba(96,208,255,.4); }
   &.pu-pair { background: rgba(255,160,96,.3); border-color: rgba(255,160,96,.2); }
 }
 .pu-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #60d0ff, #fa9060, #60d0ff, #fa9060); }
-.pu-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.pu-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 .pu-pair-label { font-weight: 700; color: #60d0ff; font-size: .8rem; letter-spacing: 2px; }
 @media (max-width: 768px) { .pu-nav-dots { gap: 10px; } .pu-page-indicator { top: 16px; right: 14px; } }
 </style>

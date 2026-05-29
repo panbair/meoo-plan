@@ -100,7 +100,7 @@ onUnmounted(destroy)
         <!-- 中心准星装饰 -->
         <div class="irs-reticle"></div>
         <section v-for="n in TOTAL" :key="n" class="irs-panel"
-          :style="{ background: `radial-gradient(circle at 50% 50%, hsl(${(n-1)*44}, 50%, 32%) 0%, hsl(${(n-1)*44+20}, 38%, 14%) 100%)` }">
+          :style="{ background: `radial-gradient(circle at 50% 50%, hsl(${(n-1)*44}, 50%, 32%) 0%, hsl(${(n-1)*44+20}, 38%, 86%) 100%)` }">
           <span class="irs-num">{{ String(n).padStart(2, '0') }}</span>
         </section>
       </div>
@@ -109,7 +109,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.irs-page { font-family: system-ui, sans-serif; background: #040408; color: #fff; }
+.irs-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .irs-scroll-area { position: relative; }
 .irs-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .irs-panel {
@@ -117,11 +117,11 @@ onUnmounted(destroy)
   will-change: clip-path, opacity;
   &::before { content: ''; position: absolute; inset: 24px; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; pointer-events: none; }
 }
-.irs-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255,255,255,0.05); user-select: none; pointer-events: none; }
+.irs-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46,0.05); user-select: none; pointer-events: none; }
 .irs-reticle {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 60px; height: 60px;
   border: 1px solid rgba(255,255,255,0.06); border-radius: 50%; z-index: 500; pointer-events: none;
-  &::before, &::after { content: ''; position: absolute; background: rgba(255,255,255,0.04); }
+  &::before, &::after { content: ''; position: absolute; background: rgba(26, 26, 46,0.04); }
   &::before { width: 1px; height: 20px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
   &::after { width: 20px; height: 1px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
 }
@@ -132,13 +132,13 @@ $accent: #f59e0b;
 .irs-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #ef4444); z-index: 1001; }
 .irs-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .irs-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.irs-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.irs-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .irs-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .irs-cur { color: $accent; font-weight: 700; }
 }
 </style>

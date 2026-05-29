@@ -100,12 +100,12 @@ onUnmounted(destroy)
     <div id="shsArea" class="shs-scroll-area">
       <div class="shs-viewport">
         <section v-for="n in TOTAL" :key="'p'+n" class="shs-content"
-          :style="{ background: `linear-gradient(${140+(n-1)*20}deg, hsl(${(n-1)*44}, 50%, 30%), hsl(${(n-1)*44+20}, 38%, 16%))` }">
+          :style="{ background: `linear-gradient(${140+(n-1)*20}deg, hsl(${(n-1)*44}, 50%, 72%), hsl(${(n-1)*44+20}, 38%, 84%))` }">
           <span class="shs-num">{{ String(n).padStart(2, '0') }}</span>
         </section>
         <div v-for="n in TOTAL" :key="'s'+n" class="shs-shutter">
-          <div class="shs-blade shs-top" :style="{ background: `hsl(${(n-1)*44}, 30%, 16%)` }"></div>
-          <div class="shs-blade shs-bottom" :style="{ background: `hsl(${(n-1)*44}, 30%, 14%)` }"></div>
+          <div class="shs-blade shs-top" :style="{ background: `hsl(${(n-1)*44}, 30%, 84%)` }"></div>
+          <div class="shs-blade shs-bottom" :style="{ background: `hsl(${(n-1)*44}, 30%, 86%)` }"></div>
           <div class="shs-blade shs-left" :style="{ background: `hsl(${(n-1)*44}, 32%, 15%)` }"></div>
           <div class="shs-blade shs-right" :style="{ background: `hsl(${(n-1)*44}, 28%, 13%)` }"></div>
         </div>
@@ -115,14 +115,14 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.shs-page { font-family: system-ui, sans-serif; background: #040408; color: #fff; }
+.shs-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .shs-scroll-area { position: relative; }
 .shs-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .shs-content {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   &::before { content: ''; position: absolute; inset: 24px; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; pointer-events: none; }
 }
-.shs-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255,255,255,0.05); user-select: none; pointer-events: none; }
+.shs-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46,0.05); user-select: none; pointer-events: none; }
 .shs-shutter { position: absolute; inset: 0; pointer-events: none; }
 .shs-blade { position: absolute; will-change: transform; }
 .shs-top { top: 0; left: 0; width: 100%; height: 50%; clip-path: polygon(0 0, 100% 0, 50% 100%); }
@@ -136,13 +136,13 @@ $accent: #ef4444;
 .shs-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #f97316); z-index: 1001; }
 .shs-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .shs-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.shs-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.shs-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .shs-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .shs-cur { color: $accent; font-weight: 700; }
 }
 </style>

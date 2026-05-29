@@ -184,7 +184,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tfe-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #080814; color: #fff; perspective: 1500px; }
+.tfe-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #080814; color: #1a1a2e; perspective: 1500px; }
 .tfe-scroll-area { position: relative; }
 .tfe-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1500px; transform-style: preserve-3d; }
 .tfe-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; backface-visibility: hidden;
@@ -192,7 +192,7 @@ onUnmounted(destroy)
 }
 .tfe-frag-container { position: absolute; inset: 0; z-index: 0; }
 .tfe-content { text-align: center; z-index: 2; position: relative; h2 { font-size: 3.5rem; font-weight: 900; margin: 0; } }
-.tfe-panel-0 { background: linear-gradient(135deg, #2d1b4e, #1a1a3e); }
+.tfe-panel-0 { background: linear-gradient(135deg, #2d1b4e, #dcdcf0); }
 .tfe-panel-1 { background: linear-gradient(135deg, #1b3a4b, #2c5f7c); }
 .tfe-panel-2 { background: linear-gradient(135deg, #3d2c2c, #5c3d3d); }
 .tfe-panel-3 { background: linear-gradient(135deg, #1a3a2a, #2d5a3f); }
@@ -204,12 +204,12 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .tfe-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.tfe-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.2); cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.5); transform: scale(1.3); }
+.tfe-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.2); cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.5); transform: scale(1.3); }
   &.tfe-active { background: #e74c3c; border-color: rgba(231,76,60,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(231,76,60,.5); }
 }
 .tfe-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #e74c3c, #f39c12, #e74c3c); background-size: 200% 100%; animation: tfePulse 2s ease-in-out infinite; box-shadow: 0 0 10px rgba(231,76,60,.4); }
 @keyframes tfePulse { 0%,100% { background-position: 0% 50% } 50% { background-position: 100% 50% } }
-.tfe-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.tfe-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tfe-nav-dots { gap: 10px; } .tfe-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

@@ -227,8 +227,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .tb-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0a0a0f;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 .tb-scroll-area { position: relative; }
 .tb-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
@@ -298,13 +298,13 @@ onUnmounted(destroy)
 .tb-deco-6 { width: 380px; height: 380px; bottom: -130px; left: 40%; background: radial-gradient(circle, rgba(108,140,255,0.08), transparent 60%); }
 
 /* ═══════ 各面板背景 ═══════ */
-.tb-panel-0 { background: linear-gradient(135deg, #0a0f24, #1a1a5e); }
-.tb-panel-1 { background: linear-gradient(135deg, #0f2027, #2c5364); }
-.tb-panel-2 { background: linear-gradient(135deg, #141e30, #243b55); }
-.tb-panel-3 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+.tb-panel-0 { background: linear-gradient(135deg, #e8ebf5, #d8daf0); }
+.tb-panel-1 { background: linear-gradient(135deg, #e8f0f4, #d0e4ec); }
+.tb-panel-2 { background: linear-gradient(135deg, #e8ecf2, #d4e0ec); }
+.tb-panel-3 { background: linear-gradient(135deg, #dcdff0, #d0ddf0); }
 .tb-panel-4 { background: linear-gradient(135deg, #1a0f24, #3a1540); }
-.tb-panel-5 { background: linear-gradient(135deg, #0a1a2e, #1a3e5e); }
-.tb-panel-6 { background: linear-gradient(135deg, #0b1331, #1c2856); }
+.tb-panel-5 { background: linear-gradient(135deg, #0a1a2e, #d6e4ee); }
+.tb-panel-6 { background: linear-gradient(135deg, #e4e8f5, #d8dff0); }
 
 @media (max-width: 768px) {
   .tb-content {
@@ -329,16 +329,16 @@ onUnmounted(destroy)
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.2);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s ease;
 
-  &:hover { background: rgba(255, 255, 255, 0.5); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46, 0.5); transform: scale(1.3); }
 
   &.tb-active {
     background: #6c8cff;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.4);
     box-shadow: 0 0 20px rgba(108, 140, 255, 0.5);
   }
@@ -359,13 +359,13 @@ onUnmounted(destroy)
   top: 30px;
   right: 30px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 22px;
   border-radius: 25px;
   font-size: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(26, 26, 46, 0.8);
 }
 @media (max-width: 768px) {
   .tb-nav-dots { gap: 10px; }

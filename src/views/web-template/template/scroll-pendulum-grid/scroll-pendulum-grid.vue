@@ -173,7 +173,7 @@ $bg: #070710;
 }
 .spg-num {
   font-size: 5rem; font-weight: 900;
-  color: rgba(255,255,255,0.08); pointer-events: none; user-select: none;
+  color: rgba(26, 26, 46,0.08); pointer-events: none; user-select: none;
 }
 
 @for $ri from 0 through 3 {
@@ -181,7 +181,7 @@ $bg: #070710;
     $i: $ri * 5 + $ci;
     $hue: 20 + $ri * 25 + $ci * 16;
     .spg-c#{$i} {
-      background: linear-gradient(135deg, hsl($hue,30%,7%), hsl($hue+18,35%,12%), hsl($hue+36,25%,8%));
+      background: linear-gradient(135deg, hsl($hue,30%,7%), hsl($hue+18,35%,12%), hsl($hue+36, 25%, 92%));
       &::before {
         content: ''; position: absolute; inset: 16px;
         border: 1px solid hsla($hue,40%,50%,0.1); border-radius: 16px; pointer-events: none;
@@ -217,19 +217,19 @@ $accent: #fa0;
 }
 .spg-dot {
   width: 10px; height: 10px; border-radius: 50%;
-  background: rgba(255,255,255,0.15); cursor: pointer;
+  background: rgba(26, 26, 46,0.15); cursor: pointer;
   border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
   &.spg-active {
-    background: $accent; border-color: rgba(255,255,255,0.35);
+    background: $accent; border-color: rgba(26, 26, 46,0.35);
     transform: scale(1.4); box-shadow: 0 0 16px rgba($accent, 0.45);
   }
 }
 .spg-indicator {
   position: fixed; top: 20px; right: 20px; z-index: 1000;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px);
   padding: 6px 18px; border-radius: 20px; font-size: 0.8rem;
-  color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(26, 26, 46,0.7); border: 1px solid rgba(255,255,255,0.08);
   .spg-cur-r { color: $accent; font-weight: 700; }
   .spg-cur-c { color: #fc6; font-weight: 700; }
 }

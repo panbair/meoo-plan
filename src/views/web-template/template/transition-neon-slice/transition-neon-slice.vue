@@ -224,7 +224,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tns-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #050510; color: #fff; perspective: 1500px; }
+.tns-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #050510; color: #1a1a2e; perspective: 1500px; }
 .tns-scroll-area { position: relative; }
 .tns-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1500px; transform-style: preserve-3d; }
 .tns-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -235,24 +235,24 @@ onUnmounted(destroy)
 .tns-slice-r { filter: brightness(1.5) sepia(1) hue-rotate(-30deg) saturate(3); } // 红色调
 .tns-slice-b { filter: brightness(1.5) sepia(1) hue-rotate(200deg) saturate(3); } // 蓝色调
 .tns-content { text-align: center; z-index: 2; position: relative; h2 { font-size: 3.5rem; font-weight: 900; margin: 0; text-shadow: 0 0 30px rgba(0,255,255,.3), 0 0 60px rgba(255,0,255,.2); } }
-.tns-panel-0 { background: linear-gradient(135deg, #0a0f24, #1a1a5e); }
+.tns-panel-0 { background: linear-gradient(135deg, #e8ebf5, #d8daf0); }
 .tns-panel-1 { background: linear-gradient(135deg, #0f1a1a, #1a3a5e); }
 .tns-panel-2 { background: linear-gradient(135deg, #1a0f24, #3a1a5e); }
 .tns-panel-3 { background: linear-gradient(135deg, #0f241a, #1a5e3a); }
 .tns-panel-4 { background: linear-gradient(135deg, #241a0f, #5e3a1a); }
 .tns-panel-5 { background: linear-gradient(135deg, #1a0f0f, #5e1a1a); }
-.tns-panel-6 { background: linear-gradient(135deg, #0f0f24, #1a1a5e); }
+.tns-panel-6 { background: linear-gradient(135deg, #0f0f24, #d8daf0); }
 @media (max-width: 768px) { .tns-content { h2 { font-size: 2.2rem; } } }
 </style>
 
 <style lang="scss">
 .tns-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.tns-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.2); cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.5); transform: scale(1.3); }
+.tns-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.2); cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.5); transform: scale(1.3); }
   &.tns-active { background: #0ff; border-color: rgba(0,255,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(0,255,255,.6); }
 }
 .tns-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #0ff, #f0f, #0ff); background-size: 200% 100%; animation: tnsShine 1.5s linear infinite; box-shadow: 0 0 15px rgba(0,255,255,.5); }
 @keyframes tnsShine { 0% { background-position: 0% 50% } 100% { background-position: 200% 50% } }
-.tns-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(0,255,255,.2); color: rgba(255,255,255,.8); }
+.tns-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(0,255,255,.2); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tns-nav-dots { gap: 10px; } .tns-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

@@ -142,7 +142,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.cn-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; height: 100vh; overflow: hidden; color: #fff; }
+.cn-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; height: 100vh; overflow: hidden; color: #1a1a2e; }
 .cn-outer { height: 100%; overflow-y: auto; overflow-x: hidden; }
 .cn-face { width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
 .cn-cube-scene { perspective: 900px; width: 60vmin; height: 60vmin; }
@@ -159,10 +159,10 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .cn-nav-dots { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-.cn-nav-dot { width: 10px; height: 10px; border-radius: 4px; background: rgba(255,255,255,.12); cursor: pointer; transition: all .3s; border: none;
-  &:hover { background: rgba(255,255,255,.35); }
+.cn-nav-dot { width: 10px; height: 10px; border-radius: 4px; background: rgba(26, 26, 46,.12); cursor: pointer; transition: all .3s; border: none;
+  &:hover { background: rgba(26, 26, 46,.35); }
   &.cn-active { background: #f0a060; transform: scale(1.4) rotate(45deg); box-shadow: 0 0 14px rgba(240,160,96,.5); }
 }
 .cn-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #f0a060, #e08050); }
-.cn-indicator { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.cn-indicator { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.75); }
 </style>

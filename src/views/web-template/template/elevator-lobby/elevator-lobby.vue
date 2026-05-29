@@ -134,11 +134,11 @@ onUnmounted(destroy)
     </div>
 
     <div id="elOuter" class="el-outer">
-      <section v-for="(cnt, fi) in exhibitsPerFloor" :key="fi" class="el-floor" :style="{ background: `linear-gradient(180deg, hsl(${fi*60},24%,8%), hsl(${fi*60+20},16%,5%))` }">
+      <section v-for="(cnt, fi) in exhibitsPerFloor" :key="fi" class="el-floor" :style="{ background: `linear-gradient(180deg, hsl(${fi*60}, 24%, 92%), hsl(${fi*60+20},16%,5%))` }">
         <div class="el-h-area">
           <div class="el-h-pinned">
             <div class="el-h-track">
-              <div v-for="n in cnt" :key="n" class="el-h-panel" :class="n===1&&'el-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*360/cnt+fi*30},26%,14%), hsl(${(n-1)*360/cnt+fi*30+20},14%,8%))` }">
+              <div v-for="n in cnt" :key="n" class="el-h-panel" :class="n===1&&'el-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*360/cnt+fi*30}, 26%, 86%), hsl(${(n-1)*360/cnt+fi*30+20}, 14%, 92%))` }">
                 <div class="el-h-content">
                   <div class="el-h-num">{{ String(n).padStart(2, '0') }}</div>
                   <h3>{{ floorNames[fi] }}·展品{{ n }}</h3>
@@ -153,7 +153,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.el-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060610; color: #fff; height: 100vh; overflow: hidden; }
+.el-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; height: 100vh; overflow: hidden; }
 .el-outer { height: 100%; overflow-y: auto; overflow-x: hidden; }
 .el-floor { width: 100%; height: 100vh; position: relative; flex-shrink: 0; }
 .el-h-area { position: relative; width: 100%; height: 100%; }
@@ -170,16 +170,16 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .el-elevator-panel { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); border-radius: 14px; padding: 8px; border: 1px solid rgba(255,255,255,.08); }
-.el-floor-btn { display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 10px; background: transparent; border: 1px solid transparent; color: rgba(255,255,255,.4); cursor: pointer; transition: all .25s; font-family: inherit; width: 100%;
+.el-floor-btn { display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 10px; background: transparent; border: 1px solid transparent; color: rgba(26, 26, 46,.4); cursor: pointer; transition: all .25s; font-family: inherit; width: 100%;
   .el-fn { font-size: .8rem; font-weight: 700; width: 22px; text-align: center; }
   .el-fl { font-size: .7rem; white-space: nowrap; }
-  &:hover { background: rgba(255,255,255,.08); color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.1); }
-  &.el-floor-active { background: rgba(99,130,255,.25); border-color: rgba(99,130,255,.4); color: #fff;
+  &:hover { background: rgba(26, 26, 46,.08); color: rgba(26, 26, 46,.8); border-color: rgba(26, 26, 46,.1); }
+  &.el-floor-active { background: rgba(99,130,255,.25); border-color: rgba(99,130,255,.4); color: #1a1a2e;
     .el-fn { color: #a0b8ff; }
   }
 }
-.el-floor-indicator { position: fixed; top: 24px; right: 24px; z-index: 1000; display: flex; align-items: baseline; gap: 4px; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,.08); }
+.el-floor-indicator { position: fixed; top: 24px; right: 24px; z-index: 1000; display: flex; align-items: baseline; gap: 4px; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,.08); }
 .el-floor-num { font-size: 1.4rem; font-weight: 900; color: #a0b8ff; }
-.el-floor-unit { font-size: .65rem; color: rgba(255,255,255,.35); margin-right: 6px; }
-.el-floor-name { font-size: .85rem; color: rgba(255,255,255,.7); }
+.el-floor-unit { font-size: .65rem; color: rgba(26, 26, 46,.35); margin-right: 6px; }
+.el-floor-name { font-size: .85rem; color: rgba(26, 26, 46,.7); }
 </style>

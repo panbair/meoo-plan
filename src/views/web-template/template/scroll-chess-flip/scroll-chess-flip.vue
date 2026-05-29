@@ -127,7 +127,7 @@ onUnmounted(destroy)
             </div>
             <!-- 背面(下一个面板颜色) -->
             <div class="csf-face csf-back"
-              :style="{ background: n < TOTAL ? `hsl(${n*44 + ((c-1)%2)*8}, ${48 + ((c-1)%2)*6}%, ${26 + ((c-1)%2)*4}%)` : `hsl(0, 0%, 10%)` }">
+              :style="{ background: n < TOTAL ? `hsl(${n*44 + ((c-1)%2)*8}, ${48 + ((c-1)%2)*6}%, ${26 + ((c-1)%2)*4}%)` : `hsl(0, 0%, 90%)` }">
               <span v-if="c === Math.ceil(CELLS/2)" class="csf-num">{{ n < TOTAL ? String(n + 1).padStart(2, '0') : '✓' }}</span>
             </div>
           </div>
@@ -138,7 +138,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.csf-page { font-family: system-ui, sans-serif; background: #060610; color: #fff; }
+.csf-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .csf-scroll-area { position: relative; }
 .csf-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; perspective: 1200px; }
 .csf-board { position: absolute; inset: 0; }
@@ -151,7 +151,7 @@ onUnmounted(destroy)
 }
 .csf-front { }
 .csf-back { transform: rotateY(180deg); }
-.csf-num { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; color: rgba(255,255,255,0.06); user-select: none; pointer-events: none; }
+.csf-num { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; color: rgba(26, 26, 46,0.06); user-select: none; pointer-events: none; }
 </style>
 
 <style lang="scss">
@@ -159,13 +159,13 @@ $accent: #10b981;
 .csf-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #34d399); z-index: 1001; }
 .csf-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .csf-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.csf-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.csf-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .csf-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .csf-cur { color: $accent; font-weight: 700; }
 }
 </style>

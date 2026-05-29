@@ -221,8 +221,8 @@ onUnmounted(destroy)
   height: 100vh;
   overflow: hidden;
   font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
-  background: #060610;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 .exp-container {
   height: 100%;
@@ -240,19 +240,19 @@ onUnmounted(destroy)
   padding: 3rem clamp(1.5rem, 5vw, 4rem);
 }
 /* 各屏背景 */
-.exp-panel-0 { background: radial-gradient(ellipse 60% 50% at 30% 30%, rgba(99,102,241,0.08), transparent 65%), linear-gradient(160deg, #080d20 0%, #121840 50%, #080d20 100%); }
-.exp-panel-1 { background: radial-gradient(ellipse 50% 50% at 70% 40%, rgba(236,72,153,0.07), transparent 60%), linear-gradient(160deg, #20080d 0%, #40121a 50%, #20080d 100%); }
-.exp-panel-2 { background: radial-gradient(ellipse 60% 50% at 40% 60%, rgba(16,185,129,0.08), transparent 65%), linear-gradient(160deg, #082010 0%, #15302a 50%, #082010 100%); }
-.exp-panel-3 { background: radial-gradient(ellipse 50% 50% at 60% 30%, rgba(245,158,11,0.06), transparent 60%), linear-gradient(160deg, #201008 0%, #402818 50%, #201008 100%); }
-.exp-panel-4 { background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(139,92,246,0.08), transparent 65%), linear-gradient(160deg, #100820 0%, #281840 50%, #100820 100%); }
+.exp-panel-0 { background: radial-gradient(ellipse 60% 50% at 30% 30%, rgba(99,102,241,0.08), transparent 65%), linear-gradient(160deg, #f0f2f8 0%, #e4e8f2 50%, #f0f2f8 100%); }
+.exp-panel-1 { background: radial-gradient(ellipse 50% 50% at 70% 40%, rgba(236,72,153,0.07), transparent 60%), linear-gradient(160deg, #f4f0f2 0%, #ece4e6 50%, #f4f0f2 100%); }
+.exp-panel-2 { background: radial-gradient(ellipse 60% 50% at 40% 60%, rgba(16,185,129,0.08), transparent 65%), linear-gradient(160deg, #f0f6f2 0%, #e4ece8 50%, #f0f6f2 100%); }
+.exp-panel-3 { background: radial-gradient(ellipse 50% 50% at 60% 30%, rgba(245,158,11,0.06), transparent 60%), linear-gradient(160deg, #f4f2f0 0%, #ece6e2 50%, #f4f2f0 100%); }
+.exp-panel-4 { background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(139,92,246,0.08), transparent 65%), linear-gradient(160deg, #f0eef8 0%, #e6e4f2 50%, #f0eef8 100%); }
 
 /* 网格背景 */
 .exp-grid-bg {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
 }
@@ -299,7 +299,7 @@ onUnmounted(destroy)
   font-weight: 800;
   line-height: 1.2;
   margin: 0 0 1rem;
-  background: linear-gradient(135deg, #fff 0%, #c4b5fd 70%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #c4b5fd 70%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -316,7 +316,7 @@ onUnmounted(destroy)
 .exp-details-label {
   font-size: 0.6rem;
   letter-spacing: 0.3em;
-  color: rgba(255,255,255,0.2);
+  color: rgba(26, 26, 46,0.2);
   margin-bottom: 1rem;
 }
 .exp-details-list {
@@ -332,10 +332,10 @@ onUnmounted(destroy)
   align-items: center;
   gap: 0.8rem;
   font-size: clamp(0.8rem, 1.2vw, 0.95rem);
-  color: rgba(255,255,255,0.65);
+  color: rgba(26, 26, 46,0.65);
   padding: 0.6rem 0.8rem;
   border-left: 2px solid rgba(168,85,247,0.25);
-  background: rgba(255,255,255,0.02);
+  background: rgba(26, 26, 46,0.02);
   border-radius: 0 8px 8px 0;
   will-change: transform, opacity;
 }
@@ -386,14 +386,14 @@ onUnmounted(destroy)
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.18);
+  background: rgba(26, 26, 46,0.18);
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.3s ease;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
   &.exp-active {
     background: #a855f7;
-    border-color: rgba(255,255,255,0.3);
+    border-color: rgba(26, 26, 46,0.3);
     transform: scale(1.4);
     box-shadow: 0 0 16px rgba(168,85,247,0.5);
   }
@@ -416,13 +416,13 @@ onUnmounted(destroy)
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  background: rgba(0,0,0,0.35);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   padding: 6px 18px;
   border-radius: 20px;
   font-size: 0.85rem;
   border: 1px solid rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.7);
+  color: rgba(26, 26, 46,0.7);
 }
 /* 竖排标签 */
 .exp-vertical-label {
@@ -433,7 +433,7 @@ onUnmounted(destroy)
   z-index: 1000;
   font-size: 0.65rem;
   letter-spacing: 0.4em;
-  color: rgba(255,255,255,0.1);
+  color: rgba(26, 26, 46,0.1);
   pointer-events: none;
   white-space: nowrap;
 }

@@ -159,7 +159,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.db-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060610; color: #fff; }
+.db-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .db-scroll-area { position: relative; }
 .db-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .db-panel {
@@ -168,25 +168,25 @@ onUnmounted(destroy)
   &::after { content: ''; position: absolute; inset: 40px; border: 1px solid rgba(255,255,255,.03); border-radius: 50%; pointer-events: none; z-index: 1; }
 }
 .db-content { text-align: center; z-index: 2; position: relative;
-  h2 { font-size: 5rem; font-weight: 300; margin: 0; letter-spacing: 12px; color: rgba(255,255,255,.5); text-shadow: 0 0 60px rgba(255,255,255,.08); }
+  h2 { font-size: 5rem; font-weight: 300; margin: 0; letter-spacing: 12px; color: rgba(26, 26, 46,.5); text-shadow: 0 0 60px rgba(255,255,255,.08); }
 }
-.db-panel-0 { background: radial-gradient(ellipse at 40% 40%, #1a1a3e, #060610); }
+.db-panel-0 { background: radial-gradient(ellipse at 40% 40%, #dcdcf0, #060610); }
 .db-panel-1 { background: radial-gradient(ellipse at 60% 60%, #3e1a2e, #060610); }
 .db-panel-2 { background: radial-gradient(ellipse at 30% 60%, #1a3e2e, #060610); }
 .db-panel-3 { background: radial-gradient(ellipse at 70% 30%, #2e1a3e, #060610); }
 .db-panel-4 { background: radial-gradient(ellipse at 50% 50%, #3e3e1a, #060610); }
 .db-panel-5 { background: radial-gradient(ellipse at 40% 70%, #1a2e3e, #060610); }
-.db-panel-6 { background: radial-gradient(ellipse at 50% 40%, #1a1a3e, #060610); }
+.db-panel-6 { background: radial-gradient(ellipse at 50% 40%, #dcdcf0, #060610); }
 @media (max-width: 768px) { .db-content { h2 { font-size: 3.5rem; letter-spacing: 6px; } } }
 </style>
 
 <style lang="scss">
 .db-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.db-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.06); cursor: pointer; border: 1px solid rgba(255,255,255,.08); transition: all .3s;
-  &:hover { background: rgba(255,255,255,.2); transform: scale(1.3); }
-  &.db-active { background: rgba(255,255,255,.7); border-color: rgba(255,255,255,.3); transform: scale(1.3); box-shadow: 0 0 20px rgba(255,255,255,.15); }
+.db-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.06); cursor: pointer; border: 1px solid rgba(255,255,255,.08); transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.2); transform: scale(1.3); }
+  &.db-active { background: rgba(26, 26, 46,.7); border-color: rgba(26, 26, 46,.3); transform: scale(1.3); box-shadow: 0 0 20px rgba(255,255,255,.15); }
 }
-.db-progress-bar { position: fixed; top: 0; left: 0; height: 2px; z-index: 1001; width: 0%; background: rgba(255,255,255,.3); }
-.db-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(6,6,16,.5); backdrop-filter: blur(16px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.06); color: rgba(255,255,255,.5); }
+.db-progress-bar { position: fixed; top: 0; left: 0; height: 2px; z-index: 1001; width: 0%; background: rgba(26, 26, 46,.3); }
+.db-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(6,6,16,.5); backdrop-filter: blur(16px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.06); color: rgba(26, 26, 46,.5); }
 @media (max-width: 768px) { .db-nav-dots { gap: 10px; } .db-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

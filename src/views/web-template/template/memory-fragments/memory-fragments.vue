@@ -172,7 +172,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.mf-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0a0a14; color: #fff; }
+.mf-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0a0a14; color: #1a1a2e; }
 .mf-scroll-area { position: relative; }
 .mf-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1500px; }
 .mf-panel {
@@ -181,13 +181,13 @@ onUnmounted(destroy)
   &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(255,255,255,.06); border-radius: 20px; pointer-events: none; z-index: 1; }
 }
 .mf-content { text-align: center; z-index: 2; h2 { font-size: 6rem; font-weight: 900; margin: 0; letter-spacing: 4px; opacity: .85; } }
-.mf-panel-0 { background: linear-gradient(135deg, #1a1a2e, #2d2d4e); }
+.mf-panel-0 { background: linear-gradient(135deg, #dcdff0, #2d2d4e); }
 .mf-panel-1 { background: linear-gradient(135deg, #2d2d4e, #3a3a5e); }
 .mf-panel-2 { background: linear-gradient(135deg, #1a2e2d, #2d4e4e); }
 .mf-panel-3 { background: linear-gradient(135deg, #2e1a2d, #4e2d4e); }
 .mf-panel-4 { background: linear-gradient(135deg, #2d2e1a, #4e4e2d); }
 .mf-panel-5 { background: linear-gradient(135deg, #2e1a1a, #4e2d2d); }
-.mf-panel-6 { background: linear-gradient(135deg, #1a1a3e, #2d2d6e); }
+.mf-panel-6 { background: linear-gradient(135deg, #dcdcf0, #2d2d6e); }
 @media (max-width: 768px) { .mf-content { h2 { font-size: 3.5rem; } } }
 </style>
 
@@ -198,6 +198,6 @@ onUnmounted(destroy)
   &.mf-active { background: #64b4ff; border-color: rgba(100,180,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(100,180,255,.5); }
 }
 .mf-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #64b4ff, #a78bfa, #f472b6); box-shadow: 0 0 10px rgba(100,180,255,.4); }
-.mf-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.mf-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .mf-nav-dots { gap: 10px; } .mf-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

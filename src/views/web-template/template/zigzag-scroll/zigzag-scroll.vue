@@ -352,7 +352,7 @@ onUnmounted(destroy)
 .zz-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
   background: #080c18;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 /* ═══════ 滚动空间 ═══════ */
@@ -439,7 +439,7 @@ onUnmounted(destroy)
   font-size: 14rem;
   font-weight: 900;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.025);
+  color: rgba(26, 26, 46, 0.025);
   pointer-events: none;
   top: 50%;
   transform: translateY(-50%);
@@ -452,13 +452,13 @@ onUnmounted(destroy)
 .zz-panel-reverse .zz-content { padding-left: 80px; }
 
 /* ═══════ 各屏背景渐变 ═══════ */
-.zz-panel-0 { background: linear-gradient(135deg, #0a0f24, #1a1a5e); }
-.zz-panel-1 { background: linear-gradient(135deg, #0f2027, #2c5364); }
-.zz-panel-2 { background: linear-gradient(135deg, #141e30, #243b55); }
-.zz-panel-3 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
-.zz-panel-4 { background: linear-gradient(135deg, #0d0d1a, #1a1a3e); }
-.zz-panel-5 { background: linear-gradient(135deg, #1a2980, #26d0ce); }
-.zz-panel-6 { background: linear-gradient(135deg, #0b1331, #1c2856); }
+.zz-panel-0 { background: linear-gradient(135deg, #e8ebf5, #d8daf0); }
+.zz-panel-1 { background: linear-gradient(135deg, #e8f0f4, #d0e4ec); }
+.zz-panel-2 { background: linear-gradient(135deg, #e8ecf2, #d4e0ec); }
+.zz-panel-3 { background: linear-gradient(135deg, #dcdff0, #d0ddf0); }
+.zz-panel-4 { background: linear-gradient(135deg, #ececf2, #dcdcf0); }
+.zz-panel-5 { background: linear-gradient(135deg, #d0d8f0, #d0f5f4); }
+.zz-panel-6 { background: linear-gradient(135deg, #e4e8f5, #d8dff0); }
 
 /* ═══════ 行标签 ═══════ */
 .zz-row-labels {
@@ -476,11 +476,11 @@ onUnmounted(destroy)
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(26, 26, 46, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(26, 26, 46, 0.4);
   backdrop-filter: blur(10px);
   transition: all 0.35s ease;
 }
@@ -488,7 +488,7 @@ onUnmounted(destroy)
 .zz-row-label.zz-row-active {
   background: rgba(108, 140, 255, 0.18);
   border-color: rgba(108, 140, 255, 0.4);
-  color: #fff;
+  color: #1a1a2e;
   box-shadow: 0 0 16px rgba(108, 140, 255, 0.15);
 }
 
@@ -532,16 +532,16 @@ onUnmounted(destroy)
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(26, 26, 46, 0.18);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.35s ease;
 
-  &:hover { background: rgba(255, 255, 255, 0.5); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46, 0.5); transform: scale(1.3); }
 
   &.zz-active {
     background: #6c8cff;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.5);
     box-shadow: 0 0 18px rgba(108, 140, 255, 0.5);
   }
@@ -565,13 +565,13 @@ onUnmounted(destroy)
   top: 30px;
   right: 30px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 7px 18px;
   border-radius: 20px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(26, 26, 46, 0.8);
 }
 
 @media (max-width: 768px) {

@@ -211,7 +211,7 @@ onUnmounted(destroy)
             :key="'v' + n"
             class="htv-panel htv-v-panel"
             :style="{
-              background: `linear-gradient(${180 + n * 20}deg, hsl(${320 + n * 25}, 50%, 30%), hsl(${340 + n * 25}, 38%, 16%))`,
+              background: `linear-gradient(${180 + n * 20}deg, hsl(${320 + n * 25}, 50%, 72%), hsl(${340 + n * 25}, 38%, 84%))`,
               top: (n) * 100 + 'vh',
               left: (H_COUNT - 1) * 100 + 'vw',
             }"
@@ -228,7 +228,7 @@ onUnmounted(destroy)
 .htv-page {
   font-family: system-ui, -apple-system, sans-serif;
   background: #0a0a14;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 .htv-scroll-area {
@@ -283,7 +283,7 @@ onUnmounted(destroy)
 .htv-num {
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
 }
@@ -295,7 +295,7 @@ onUnmounted(destroy)
   left: 50%;
   transform: translateX(-50%);
   font-size: 2rem;
-  color: rgba(255, 255, 255, 0.12);
+  color: rgba(26, 26, 46, 0.12);
   animation: htv-bounce 1.5s ease-in-out infinite;
   pointer-events: none;
 }
@@ -350,21 +350,21 @@ $accent-v: #f472b6;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   /* 横向阶段的点用蓝色 */
   &[data-phase='h'].htv-active {
     background: $accent-h;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent-h, 0.5);
   }
@@ -372,7 +372,7 @@ $accent-v: #f472b6;
   /* 纵向阶段的点用粉色 */
   &[data-phase='v'].htv-active {
     background: $accent-v;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent-v, 0.5);
   }
@@ -384,13 +384,13 @@ $accent-v: #f472b6;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
   display: flex;
   align-items: center;
   gap: 6px;

@@ -136,7 +136,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.twr-page { font-family: 'Courier New', monospace; background: #1a1a1a; color: #333; }
+.twr-page { font-family: 'Courier New', monospace; background: #f5f0f8; color: #333; }
 .twr-scroll-area { position: relative; }
 .twr-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; perspective: 1200px; }
 
@@ -172,7 +172,7 @@ onUnmounted(destroy)
 .twr-roller {
   width: 60vw; max-width: 600px; height: 18px; border-radius: 9px;
   background: linear-gradient(180deg, #555, #333, #555);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.75);
   will-change: transform;
   &::before, &::after {
     content: ''; position: absolute; top: 3px; width: 12px; height: 12px; border-radius: 50%;
@@ -188,13 +188,13 @@ $accent: #8b6914;
 .twr-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #b8941f); z-index: 1001; }
 .twr-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .twr-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.twr-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.twr-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .twr-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .twr-cur { color: $accent; font-weight: 700; }
 }
 </style>

@@ -90,7 +90,7 @@ onUnmounted(destroy)
       <div class="rtr-viewport">
         <div class="rtr-stage">
           <section v-for="n in TOTAL" :key="n" class="rtr-panel"
-            :style="{ background: 'linear-gradient(' + (140 + (n - 1) * 22) + 'deg, hsl(' + ((n - 1) * 44) + ', 50%, 30%), hsl(' + ((n - 1) * 44 + 22) + ', 38%, 15%))' }">
+            :style="{ background: 'linear-gradient(' + (140 + (n - 1) * 22) + 'deg, hsl(' + ((n - 1) * 44) + ', 50%, 72%), hsl(' + ((n - 1) * 44 + 22) + ', 38%, 15%))' }">
             <span class="rtr-num">{{ String(n).padStart(2, '0') }}</span>
           </section>
         </div>
@@ -99,7 +99,7 @@ onUnmounted(destroy)
   </div>
 </template>
 <style scoped lang="scss">
-.rtr-page { font-family: system-ui, -apple-system, sans-serif; background: #060610; color: #fff; }
+.rtr-page { font-family: system-ui, -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .rtr-scroll-area { position: relative; }
 .rtr-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; perspective: 1200px; }
 .rtr-stage { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
@@ -108,21 +108,21 @@ onUnmounted(destroy)
   will-change: transform, opacity, filter; backface-visibility: hidden;
   &::before { content: ''; position: absolute; inset: 28px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; pointer-events: none; }
 }
-.rtr-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255, 255, 255, 0.05); user-select: none; pointer-events: none; }
+.rtr-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46, 0.05); user-select: none; pointer-events: none; }
 </style>
 <style lang="scss">
 $accent: #8b5cf6;
 .rtr-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #06b6d4); z-index: 1001; }
 .rtr-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .rtr-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); cursor: pointer;
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46, 0.15); cursor: pointer;
   border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255, 255, 255, 0.4); transform: scale(1.3); }
-  &.rtr-active { background: $accent; border-color: rgba(255, 255, 255, 0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  &:hover { background: rgba(26, 26, 46, 0.4); transform: scale(1.3); }
+  &.rtr-active { background: $accent; border-color: rgba(26, 26, 46, 0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .rtr-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(26, 26, 46, 0.75);
   .rtr-cur { color: $accent; font-weight: 700; }
 }
 </style>

@@ -216,7 +216,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tpx-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; }
+.tpx-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .tpx-scroll-area { position: relative; }
 .tpx-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .tpx-panel {
@@ -227,23 +227,23 @@ onUnmounted(destroy)
 .tpx-content { text-align: center; z-index: 0; h2 { font-size: 3.5rem; font-weight: 900; margin: 0 0 16px; } }
 .tpx-panel-0 { background: linear-gradient(135deg, #1a0a2e, #16213e); }
 .tpx-panel-1 { background: linear-gradient(135deg, #0f0c29, #302b63); }
-.tpx-panel-2 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+.tpx-panel-2 { background: linear-gradient(135deg, #dcdff0, #d0ddf0); }
 .tpx-panel-3 { background: linear-gradient(135deg, #0d1b2a, #1b263b); }
-.tpx-panel-4 { background: linear-gradient(135deg, #1a0a2e, #1a1a3e); }
-.tpx-panel-5 { background: linear-gradient(135deg, #2d1b69, #1a2980); }
-.tpx-panel-6 { background: linear-gradient(135deg, #0b1331, #1c2856); }
+.tpx-panel-4 { background: linear-gradient(135deg, #1a0a2e, #dcdcf0); }
+.tpx-panel-5 { background: linear-gradient(135deg, #2d1b69, #d0d8f0); }
+.tpx-panel-6 { background: linear-gradient(135deg, #e4e8f5, #d8dff0); }
 @media (max-width: 768px) { .tpx-content { h2 { font-size: 2.2rem; } } }
 </style>
 
 <style lang="scss">
 .tpx-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
 .tpx-nav-dot {
-  width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.2);
+  width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.2);
   cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.5); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46,.5); transform: scale(1.3); }
   &.tpx-active { background: #00ff88; border-color: rgba(0,255,136,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(0,255,136,.5); }
 }
 .tpx-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #00ff88, #a78bfa, #f472b6); box-shadow: 0 0 10px rgba(0,255,136,.4); }
-.tpx-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.tpx-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tpx-nav-dots { gap: 10px; } .tpx-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

@@ -153,7 +153,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.se-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #020812; color: #fff; }
+.se-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #020812; color: #1a1a2e; }
 .se-scroll-area { position: relative; }
 .se-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1500px; }
 .se-panel {
@@ -163,7 +163,7 @@ onUnmounted(destroy)
 }
 .se-content { text-align: center; z-index: 2; h2 { font-size: 6rem; font-weight: 900; margin: 0; letter-spacing: 4px; opacity: .85; } }
 .se-panel-0 { background: radial-gradient(circle at 30% 40%, #0a2a5e, #020812); }
-.se-panel-1 { background: radial-gradient(circle at 60% 50%, #0a3e5e, #021220); }
+.se-panel-1 { background: radial-gradient(circle at 60% 50%, #d8e8f0, #021220); }
 .se-panel-2 { background: radial-gradient(circle at 50% 30%, #0a5e2a, #021208); }
 .se-panel-3 { background: radial-gradient(circle at 40% 60%, #5e0a2a, #120208); }
 .se-panel-4 { background: radial-gradient(circle at 70% 50%, #3e0a5e, #120220); }
@@ -179,6 +179,6 @@ onUnmounted(destroy)
   &.se-active { background: #64a0dc; border-color: rgba(100,160,220,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(100,160,220,.5); }
 }
 .se-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #64a0dc, #2ecc71, #9b59b6); box-shadow: 0 0 10px rgba(100,160,220,.4); }
-.se-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.se-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .se-nav-dots { gap: 10px; } .se-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

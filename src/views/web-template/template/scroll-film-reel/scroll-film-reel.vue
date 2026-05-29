@@ -111,7 +111,7 @@ onUnmounted(destroy)
       <div class="flm-viewport">
         <div class="flm-strip">
           <div v-for="n in TOTAL" :key="n" class="flm-frame"
-            :style="{ background: `linear-gradient(180deg, hsl(${(n-1)*44}, 35%, 18%), hsl(${(n-1)*44+20}, 28%, 10%))` }">
+            :style="{ background: `linear-gradient(180deg, hsl(${(n-1)*44}, 35%, 18%), hsl(${(n-1)*44+20}, 28%, 90%))` }">
             <!-- 帧内容 -->
             <div class="flm-content">
               <span class="flm-num">{{ String(n).padStart(2, '0') }}</span>
@@ -136,7 +136,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.flm-page { font-family: 'Courier New', monospace; background: #0a0a0a; color: #fff; }
+.flm-page { font-family: 'Courier New', monospace; background: #f5f0f8; color: #1a1a2e; }
 .flm-scroll-area { position: relative; }
 .flm-viewport {
   position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden;
@@ -159,7 +159,7 @@ onUnmounted(destroy)
   border: 1px solid rgba(255,255,255,0.04); border-radius: 2px;
 }
 
-.flm-num { font-size: clamp(4rem, 10vw, 8rem); font-weight: 300; color: rgba(255,255,255,0.05); user-select: none; }
+.flm-num { font-size: clamp(4rem, 10vw, 8rem); font-weight: 300; color: rgba(26, 26, 46,0.05); user-select: none; }
 
 .flm-border {
   position: absolute; inset: 4px 36px; border: 2px solid rgba(255,255,255,0.04); border-radius: 2px; pointer-events: none;
@@ -167,7 +167,7 @@ onUnmounted(destroy)
 
 .flm-frame-id {
   position: absolute; bottom: 12px; right: 44px; font-size: 0.6rem;
-  color: rgba(255,255,255,0.08); letter-spacing: 2px;
+  color: rgba(26, 26, 46,0.08); letter-spacing: 2px;
 }
 
 /* 齿孔 */
@@ -180,7 +180,7 @@ onUnmounted(destroy)
 .flm-perfs-r { right: 4px; }
 .flm-perf {
   width: 14px; height: 10px; border-radius: 2px;
-  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(26, 26, 46,0.03); border: 1px solid rgba(255,255,255,0.04);
 }
 
 /* 放映机遮光框 */
@@ -197,13 +197,13 @@ $accent: #d4d4d4;
 .flm-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, #888, #ccc); z-index: 1001; }
 .flm-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .flm-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.flm-active { background: $accent; border-color: rgba(255,255,255,0.3); transform: scale(1.5); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.flm-active { background: $accent; border-color: rgba(26, 26, 46,0.3); transform: scale(1.5); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
 }
 .flm-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.08); color: rgba(26, 26, 46,0.5);
   .flm-cur { color: $accent; font-weight: 700; }
 }
 </style>

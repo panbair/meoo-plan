@@ -85,7 +85,7 @@ onUnmounted(destroy)
       <div class="hlx-viewport">
         <div id="hlxTower" class="hlx-tower">
           <div v-for="n in TOTAL" :key="n" class="hlx-step"
-            :style="{ background: `linear-gradient(150deg, hsl(${(n-1)*36}, 50%, 30%), hsl(${(n-1)*36+18}, 38%, 15%))` }">
+            :style="{ background: `linear-gradient(150deg, hsl(${(n-1)*36}, 50%, 72%), hsl(${(n-1)*36+18}, 38%, 15%))` }">
             <span class="hlx-num">{{ String(n).padStart(2, '0') }}</span>
           </div>
         </div>
@@ -95,17 +95,17 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.hlx-page { font-family: system-ui, sans-serif; background: #050510; color: #fff; }
+.hlx-page { font-family: system-ui, sans-serif; background: #050510; color: #1a1a2e; }
 .hlx-scroll-area { position: relative; }
 .hlx-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; perspective: 1200px; perspective-origin: 50% 45%; display: flex; align-items: center; justify-content: center; }
 .hlx-tower { position: relative; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; }
 .hlx-step {
   position: absolute; width: 260px; height: 180px; margin-left: -130px; margin-top: -90px; border-radius: 14px;
   display: flex; align-items: center; justify-content: center; backface-visibility: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4); will-change: opacity; transition: box-shadow 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 6px 24px rgba(255, 255, 255, 0.75); will-change: opacity; transition: box-shadow 0.3s;
   &.hlx-front { box-shadow: 0 8px 40px rgba(100, 140, 255, 0.12); }
 }
-.hlx-num { font-size: 2.5rem; font-weight: 900; color: rgba(255, 255, 255, 0.06); user-select: none; pointer-events: none; }
+.hlx-num { font-size: 2.5rem; font-weight: 900; color: rgba(26, 26, 46, 0.06); user-select: none; pointer-events: none; }
 </style>
 
 <style lang="scss">
@@ -113,13 +113,13 @@ $accent: #818cf8;
 .hlx-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #c084fc); z-index: 1001; }
 .hlx-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
 .hlx-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255, 255, 255, 0.4); transform: scale(1.3); }
-  &.hlx-active { background: $accent; border-color: rgba(255, 255, 255, 0.35); transform: scale(1.5); box-shadow: 0 0 12px rgba($accent, 0.5); }
+  width: 8px; height: 8px; border-radius: 50%; background: rgba(26, 26, 46, 0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46, 0.4); transform: scale(1.3); }
+  &.hlx-active { background: $accent; border-color: rgba(26, 26, 46, 0.35); transform: scale(1.5); box-shadow: 0 0 12px rgba($accent, 0.5); }
 }
 .hlx-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(26, 26, 46, 0.75);
   .hlx-cur { color: $accent; font-weight: 700; }
 }
 </style>

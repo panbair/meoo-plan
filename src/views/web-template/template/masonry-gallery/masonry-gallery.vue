@@ -173,7 +173,7 @@ onUnmounted(destroy)
   width: 100vw;
   min-height: 100vh;
   background: var(--mg-bg);
-  color: #f0f0f8;
+  color: #1a1a2e;
   position: relative;
   overflow-x: hidden;
 }
@@ -211,7 +211,7 @@ onUnmounted(destroy)
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.3em;
-  color: rgba(255,255,255,0.35);
+  color: rgba(26, 26, 46,0.35);
   border: 1px solid rgba(255,255,255,0.1);
   padding: 0.3rem 1rem;
   border-radius: 20px;
@@ -231,7 +231,7 @@ onUnmounted(destroy)
 
 .mg-header-desc {
   font-size: clamp(0.9rem, 2vw, 1.1rem);
-  color: rgba(255,255,255,0.5);
+  color: rgba(26, 26, 46,0.5);
   line-height: 1.6;
   margin: 1rem 0 2rem;
 }
@@ -250,12 +250,12 @@ onUnmounted(destroy)
   display: block;
   font-size: 2rem;
   font-weight: 800;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 .mg-stat-label {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(26, 26, 46,0.4);
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
@@ -268,7 +268,7 @@ onUnmounted(destroy)
   align-items: center;
   gap: 0.3rem;
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.3);
+  color: rgba(26, 26, 46,0.3);
   letter-spacing: 0.2em;
   animation: mg-bounce 2s ease-in-out infinite;
 }
@@ -300,7 +300,7 @@ onUnmounted(destroy)
 
 .mg-card:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(99,102,241,0.1);
+  box-shadow: 0 20px 60px rgba(255, 255, 255, 0.75), 0 0 40px rgba(99,102,241,0.1);
 }
 
 .mg-card-bg {
@@ -334,7 +334,7 @@ onUnmounted(destroy)
 .mg-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.4) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(255, 255, 255, 0.75) 100%);
   z-index: 1;
 }
 
@@ -353,10 +353,10 @@ onUnmounted(destroy)
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.5);
+  color: rgba(26, 26, 46,0.5);
   text-transform: uppercase;
   margin-bottom: 0.3rem;
-  background: rgba(255,255,255,0.06);
+  background: rgba(26, 26, 46,0.06);
   padding: 0.2rem 0.7rem;
   border-radius: 10px;
   width: fit-content;
@@ -381,7 +381,7 @@ onUnmounted(destroy)
 
 .mg-card-desc {
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.55);
+  color: rgba(26, 26, 46,0.55);
   line-height: 1.5;
   margin: 0.2rem 0 0;
 }
@@ -392,7 +392,7 @@ onUnmounted(destroy)
   right: 1.2rem;
   font-size: 2rem;
   font-weight: 900;
-  color: rgba(255,255,255,0.06);
+  color: rgba(26, 26, 46,0.06);
   line-height: 1;
   z-index: 1;
 }
@@ -411,7 +411,7 @@ onUnmounted(destroy)
 .mg-footer {
   text-align: center;
   padding: 4rem 2rem;
-  color: rgba(255,255,255,0.2);
+  color: rgba(26, 26, 46,0.2);
   font-size: 0.85rem;
   letter-spacing: 0.2em;
 }

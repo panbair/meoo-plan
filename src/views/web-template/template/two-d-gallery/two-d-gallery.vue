@@ -215,7 +215,7 @@ $accent: #6c8cff;
   overflow: hidden;
   font-family: system-ui, sans-serif;
   background: $bg;
-  color: #fff;
+  color: #1a1a2e;
 }
 .t2d-viewport {
   width: 100vw;
@@ -239,7 +239,7 @@ $accent: #6c8cff;
   overflow: hidden;
   font-size: 6rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(26, 26, 46, 0.2);
   &::after {
     content: counter(t2d-cell, decimal-leading-zero);
     position: absolute;
@@ -247,7 +247,7 @@ $accent: #6c8cff;
     right: 40px;
     font-size: 8rem;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.03);
+    color: rgba(26, 26, 46, 0.03);
     pointer-events: none;
   }
   // 反色递增：行越深越蓝，列越深越暖
@@ -255,37 +255,37 @@ $accent: #6c8cff;
     background: linear-gradient(135deg, #0a0e24, #121640);
   }
   &.c2 {
-    background: linear-gradient(135deg, #0a1028, #1a1a5e);
+    background: linear-gradient(135deg, #0a1028, #d8daf0);
   }
   &.c3 {
-    background: linear-gradient(135deg, #0f2027, #2c5364);
+    background: linear-gradient(135deg, #e8f0f4, #d0e4ec);
   }
   &.c4 {
-    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    background: linear-gradient(135deg, #dcdff0, #d0ddf0);
   }
   &.c5 {
-    background: linear-gradient(135deg, #141e30, #243b55);
+    background: linear-gradient(135deg, #e8ecf2, #d4e0ec);
   }
   &.c6 {
-    background: linear-gradient(135deg, #16213e, #1a1a5e);
+    background: linear-gradient(135deg, #16213e, #d8daf0);
   }
   &.c7 {
-    background: linear-gradient(135deg, #0d0d1a, #1a1a3e);
+    background: linear-gradient(135deg, #ececf2, #dcdcf0);
   }
   &.c8 {
-    background: linear-gradient(135deg, #1a2980, #26d0ce);
+    background: linear-gradient(135deg, #d0d8f0, #d0f5f4);
   }
   &.c9 {
-    background: linear-gradient(135deg, #0b1331, #1c2856);
+    background: linear-gradient(135deg, #e4e8f5, #d8dff0);
   }
   &.c10 {
     background: linear-gradient(135deg, #0f1528, #2a1a5e);
   }
   &.c11 {
-    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    background: linear-gradient(135deg, #dcdff0, #d0ddf0);
   }
   &.c12 {
-    background: linear-gradient(135deg, #141e30, #1a1a5e);
+    background: linear-gradient(135deg, #e8ecf2, #d8daf0);
   }
 }
 @media (max-width: 600px) {
@@ -339,17 +339,17 @@ $accent: #6c8cff;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.2);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s;
   &:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(26, 26, 46, 0.5);
     transform: scale(1.3);
   }
   &.active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.4);
     box-shadow: 0 0 20px rgba(108, 140, 255, 0.5);
   }
@@ -369,17 +369,17 @@ $accent: #6c8cff;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.2);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s;
   &:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(26, 26, 46, 0.5);
     transform: scale(1.3);
   }
   &.active {
     background: #f472b6;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.4);
     box-shadow: 0 0 20px rgba(244, 114, 182, 0.5);
   }
@@ -390,12 +390,12 @@ $accent: #6c8cff;
   top: 20px;
   right: 20px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(8px);
   padding: 6px 18px;
   border-radius: 20px;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(26, 26, 46, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   .t2d-cur-r {
     color: $accent;

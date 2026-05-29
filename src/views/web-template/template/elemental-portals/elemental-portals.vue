@@ -224,7 +224,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.ep-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0a0a0a; color: #fff; }
+.ep-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .ep-scroll-area { position: relative; }
 .ep-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .ep-panel {
@@ -237,7 +237,7 @@ onUnmounted(destroy)
 .ep-water { background: radial-gradient(circle at 50% 50%, #0066cc, #000a1a); }
 .ep-wind { background: radial-gradient(circle at 50% 30%, #88ccff, #0a1a2a); }
 .ep-earth { background: radial-gradient(circle at 50% 90%, #8b6914, #1a1000); }
-.ep-light { background: radial-gradient(circle at 50% 50%, #ffffff, #1a1a2e); .ep-content h2 { color: #1a1a2e; } }
+.ep-light { background: radial-gradient(circle at 50% 50%, #ffffff, #dcdff0); .ep-content h2 { color: #1a1a2e; } }
 .ep-shadow { background: radial-gradient(circle at 50% 50%, #220044, #050510); }
 .ep-void { background: radial-gradient(circle at 50% 50%, #0a0a2e, #020208); }
 @media (max-width: 768px) { .ep-content { h2 { font-size: 3.5rem; } } }
@@ -245,11 +245,11 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .ep-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.ep-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.4); transform: scale(1.3); }
+.ep-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.4); transform: scale(1.3); }
   &.ep-active { background: #ffa500; border-color: rgba(255,165,0,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(255,165,0,.6); }
 }
 .ep-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #ff4400, #0066cc, #88ccff, #8b6914, #ffffff, #8800cc, #0a0a2e); box-shadow: 0 0 10px rgba(255,165,0,.4); }
-.ep-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.ep-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .ep-nav-dots { gap: 10px; } .ep-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

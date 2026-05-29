@@ -183,8 +183,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .tlz-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #020208;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .tlz-scroll-area {
@@ -218,7 +218,7 @@ onUnmounted(destroy)
 .tlz-num {
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
 }
@@ -236,7 +236,7 @@ onUnmounted(destroy)
 .tlz-cross-h,
 .tlz-cross-v {
   position: absolute;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(26, 26, 46, 0.06);
 }
 
 .tlz-cross-h {
@@ -295,20 +295,20 @@ $accent: #22d3ee;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &.tlz-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent, 0.5);
   }
@@ -319,13 +319,13 @@ $accent: #22d3ee;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
 
   .tlz-cur {
     color: $accent;

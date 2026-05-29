@@ -183,7 +183,7 @@ $bg: #04040a;
 }
 .ssr-num {
   font-size: 5rem; font-weight: 900;
-  color: rgba(255,255,255,0.08); pointer-events: none; user-select: none;
+  color: rgba(26, 26, 46,0.08); pointer-events: none; user-select: none;
 }
 
 @for $ri from 0 through 4 {
@@ -191,7 +191,7 @@ $bg: #04040a;
     $i: $ri * 4 + $ci;
     $hue: 240 + $ri * 18 + $ci * 12;
     .ssr-c#{$i} {
-      background: linear-gradient(135deg, hsl($hue,30%,7%), hsl($hue+15,35%,12%), hsl($hue+30,25%,8%));
+      background: linear-gradient(135deg, hsl($hue,30%,7%), hsl($hue+15,35%,12%), hsl($hue+30, 25%, 92%));
       &::before {
         content: ''; position: absolute; inset: 16px;
         border: 1px solid hsla($hue,40%,50%,0.1); border-radius: 16px; pointer-events: none;
@@ -227,19 +227,19 @@ $accent: #69f;
 }
 .ssr-dot {
   width: 10px; height: 10px; border-radius: 50%;
-  background: rgba(255,255,255,0.15); cursor: pointer;
+  background: rgba(26, 26, 46,0.15); cursor: pointer;
   border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
   &.ssr-active {
-    background: $accent; border-color: rgba(255,255,255,0.35);
+    background: $accent; border-color: rgba(26, 26, 46,0.35);
     transform: scale(1.4); box-shadow: 0 0 16px rgba($accent, 0.45);
   }
 }
 .ssr-indicator {
   position: fixed; top: 20px; right: 20px; z-index: 1000;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px);
   padding: 6px 18px; border-radius: 20px; font-size: 0.8rem;
-  color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(26, 26, 46,0.7); border: 1px solid rgba(255,255,255,0.08);
   .ssr-cur-r { color: $accent; font-weight: 700; }
   .ssr-cur-c { color: #8af; font-weight: 700; }
 }

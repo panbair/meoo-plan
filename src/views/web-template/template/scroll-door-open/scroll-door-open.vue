@@ -116,18 +116,18 @@ onUnmounted(destroy)
       <div class="dro-viewport">
         <!-- 内容面板(门后面) -->
         <section v-for="n in TOTAL" :key="'c'+n" class="dro-content"
-          :style="{ background: `linear-gradient(${140+(n-1)*20}deg, hsl(${(n-1)*44}, 50%, 30%), hsl(${(n-1)*44+20}, 38%, 16%))` }">
+          :style="{ background: `linear-gradient(${140+(n-1)*20}deg, hsl(${(n-1)*44}, 50%, 72%), hsl(${(n-1)*44+20}, 38%, 84%))` }">
           <span class="dro-num">{{ String(n).padStart(2, '0') }}</span>
         </section>
 
         <!-- 门(在内容前面) -->
         <div v-for="n in TOTAL" :key="'d'+n" class="dro-door">
           <div class="dro-left"
-            :style="{ background: `linear-gradient(90deg, hsl(${(n-1)*44}, 35%, 18%) 0%, hsl(${(n-1)*44}, 40%, 22%) 100%)` }">
+            :style="{ background: `linear-gradient(90deg, hsl(${(n-1)*44}, 35%, 18%) 0%, hsl(${(n-1)*44}, 40%, 78%) 100%)` }">
             <div class="dro-handle dro-handle-r"></div>
           </div>
           <div class="dro-right"
-            :style="{ background: `linear-gradient(270deg, hsl(${(n-1)*44}, 35%, 18%) 0%, hsl(${(n-1)*44}, 40%, 22%) 100%)` }">
+            :style="{ background: `linear-gradient(270deg, hsl(${(n-1)*44}, 35%, 18%) 0%, hsl(${(n-1)*44}, 40%, 78%) 100%)` }">
             <div class="dro-handle dro-handle-l"></div>
           </div>
         </div>
@@ -137,7 +137,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.dro-page { font-family: system-ui, sans-serif; background: #060610; color: #fff; }
+.dro-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .dro-scroll-area { position: relative; }
 .dro-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 
@@ -145,13 +145,13 @@ onUnmounted(destroy)
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   &::before { content: ''; position: absolute; inset: 24px; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; pointer-events: none; }
 }
-.dro-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255,255,255,0.05); user-select: none; pointer-events: none; }
+.dro-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46,0.05); user-select: none; pointer-events: none; }
 
 .dro-door { position: absolute; inset: 0; pointer-events: none; }
 
 .dro-left, .dro-right {
   position: absolute; top: 0; height: 100%; width: 50%; will-change: transform;
-  box-shadow: 0 0 30px rgba(0,0,0,0.4);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.75);
 }
 .dro-left { left: 0; }
 .dro-right { right: 0; }
@@ -159,7 +159,7 @@ onUnmounted(destroy)
 /* 门把手 */
 .dro-handle {
   position: absolute; top: 50%; width: 4px; height: 40px; border-radius: 2px;
-  background: rgba(255,255,255,0.1); transform: translateY(-50%);
+  background: rgba(26, 26, 46,0.1); transform: translateY(-50%);
 }
 .dro-handle-r { right: 20px; }
 .dro-handle-l { left: 20px; }
@@ -167,11 +167,11 @@ onUnmounted(destroy)
 /* 门缝中线 */
 .dro-left::after {
   content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 1px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(255, 255, 255, 0.75);
 }
 .dro-right::before {
   content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(255, 255, 255, 0.75);
 }
 </style>
 
@@ -180,13 +180,13 @@ $accent: #14b8a6;
 .dro-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #0ea5e9); z-index: 1001; }
 .dro-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .dro-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.dro-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.dro-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .dro-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .dro-cur { color: $accent; font-weight: 700; }
 }
 </style>

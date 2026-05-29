@@ -141,7 +141,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.ls-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #020a14; color: #fff; }
+.ls-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #020a14; color: #1a1a2e; }
 .ls-scroll-area { position: relative; }
 .ls-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .ls-panel {
@@ -150,7 +150,7 @@ onUnmounted(destroy)
   &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(0,200,255,.08); border-radius: 20px; pointer-events: none; z-index: 1; }
 }
 .ls-content { text-align: center; z-index: 2; h2 { font-size: 6rem; font-weight: 900; margin: 0; letter-spacing: 4px; opacity: .85; } }
-.ls-panel-0 { background: radial-gradient(circle at 50% 50%, #0a2a3e, #020a14); }
+.ls-panel-0 { background: radial-gradient(circle at 50% 50%, #e0eaf2, #020a14); }
 .ls-panel-1 { background: radial-gradient(circle at 50% 50%, #0a3e2a, #021410); }
 .ls-panel-2 { background: radial-gradient(circle at 50% 50%, #2a0a3e, #140210); }
 .ls-panel-3 { background: radial-gradient(circle at 50% 50%, #3e2a0a, #141002); }
@@ -167,6 +167,6 @@ onUnmounted(destroy)
   &.ls-active { background: #00c8ff; border-color: rgba(0,200,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(0,200,255,.6); }
 }
 .ls-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #00c8ff, #00ff88, #0088ff); box-shadow: 0 0 15px rgba(0,200,255,.5); }
-.ls-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(0,200,255,.2); color: rgba(255,255,255,.8); }
+.ls-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(0,200,255,.2); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .ls-nav-dots { gap: 10px; } .ls-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

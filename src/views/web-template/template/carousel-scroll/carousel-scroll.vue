@@ -158,8 +158,8 @@ onUnmounted(destroy)
   height: 100vh;
   overflow: hidden;
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #060610;
-  color: #f0f0f8;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .carousel-scroll-container {
@@ -218,11 +218,11 @@ onUnmounted(destroy)
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.2);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s ease;
-  &:hover { background: rgba(255, 255, 255, 0.5); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46, 0.5); transform: scale(1.3); }
   &.carousel-scroll-active {
     width: 28px;
     border-radius: 5px;
@@ -247,13 +247,13 @@ onUnmounted(destroy)
   top: 30px;
   right: 30px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 7px 18px;
   border-radius: 20px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(26, 26, 46, 0.8);
 }
 @media (max-width: 768px) {
   .carousel-scroll-nav-dots { gap: 8px; }

@@ -143,7 +143,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.dh-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; height: 100vh; overflow: hidden; background: #06060f; color: #fff; }
+.dh-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; height: 100vh; overflow: hidden; background: #06060f; color: #1a1a2e; }
 .dh-outer { height: 100%; overflow-y: auto; overflow-x: hidden; }
 .dh-set { width: 100%; height: 100vh; display: flex; flex-direction: column; position: relative; flex-shrink: 0; overflow: hidden; }
 .dh-helix-zone { flex: 1; position: relative; overflow: hidden; }
@@ -155,10 +155,10 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .dh-nav-dots { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
-.dh-nav-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.12); cursor: pointer; transition: all .3s; border: 1px solid transparent;
-  &:hover { background: rgba(255,255,255,.35); }
+.dh-nav-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(26, 26, 46,.12); cursor: pointer; transition: all .3s; border: 1px solid transparent;
+  &:hover { background: rgba(26, 26, 46,.35); }
   &.dh-active { background: #ff6b6b; border-color: #ffd93d; transform: scale(1.5); box-shadow: 0 0 12px rgba(255,107,107,.5); }
 }
 .dh-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77); }
-.dh-indicator { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.dh-indicator { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.75); }
 </style>

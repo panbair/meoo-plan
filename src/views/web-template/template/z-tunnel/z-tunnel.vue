@@ -118,7 +118,7 @@ onUnmounted(destroy)
       <div class="zt-pinned">
         <div id="ztTrack" class="zt-track">
           <section v-for="n in totalPanels" :key="n" class="zt-panel zt-panel-bg" :style="{
-            background: `radial-gradient(ellipse at 50% 50%, hsl(${(n-1)*52}, 40%, 20%), hsl(${(n-1)*52}, 30%, 8%))`
+            background: `radial-gradient(ellipse at 50% 50%, hsl(${(n-1)*52}, 40%, 80%), hsl(${(n-1)*52}, 30%, 92%))`
           }">
             <div class="zt-content"><h2>0{{ n }}</h2></div>
           </section>
@@ -129,7 +129,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.zt-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060610; color: #fff; }
+.zt-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .zt-scroll-area { position: relative; }
 .zt-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1200px; }
 .zt-track { display: flex; will-change: transform; }
@@ -140,11 +140,11 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .zt-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.zt-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.12); cursor: pointer; border: 1px solid rgba(255,255,255,.12); transition: all .3s;
-  &:hover { background: rgba(255,255,255,.4); transform: scale(1.3); }
+.zt-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.12); cursor: pointer; border: 1px solid rgba(255,255,255,.12); transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.4); transform: scale(1.3); }
   &.zt-active { background: #7c6cff; border-color: rgba(124,108,255,.4); transform: scale(1.4); box-shadow: 0 0 18px rgba(124,108,255,.5); }
 }
 .zt-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #7c6cff, #a78bfa, #7c6cff); }
-.zt-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.zt-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .zt-nav-dots { gap: 10px; } .zt-page-indicator { top: 16px; right: 14px; } }
 </style>

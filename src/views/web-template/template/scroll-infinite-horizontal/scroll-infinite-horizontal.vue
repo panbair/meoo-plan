@@ -117,18 +117,18 @@ function onScroll() {
     updateUI(idx)
   }
 
-  // 无限循环跳转
+  // 无限循环跳转（用 vh 阈值替代像素硬编码）
   const maxScroll = (SCROLL_SCREENS - 1) * vh
-  if (sy >= (TOTAL + PADDING) * vh) {
-    // 滚过了下缓冲 → 跳回上面对应位置
+  if (sy >= (TOTAL + PADDING) * vh - 2) {
+    // 滚过了下缓冲 → 瞬移回上方对应位置
     isJumping = true
     const jumpTo = sy - TOTAL * vh
-    window.scrollTo(0, jumpTo)
+    window.scrollTo(0, Math.max(jumpTo, 2))
     requestAnimationFrame(() => {
       setTimeout(() => { isJumping = false }, 50)
     })
-  } else if (sy <= (PADDING - 1) * vh && sy < 10) {
-    // 滚过了上缓冲 → 跳到下面对应位置
+  } else if (sy < (PADDING) * vh) {
+    // 滚到了上缓冲 → 瞬移到下方对应位置
     isJumping = true
     const jumpTo = sy + TOTAL * vh
     window.scrollTo(0, Math.min(jumpTo, maxScroll - 2))
@@ -152,10 +152,13 @@ function init() {
   // 滚动空间
   scrollArea.style.height = SCROLL_SCREENS * 100 + 'vh'
 
+  // ⚠️ 先加监听，再加锁，再滚动：防止 scrollY 为 0 时 onScroll 误算 wrappedPos=6 卡在面板 07
+  window.addEventListener('scroll', onScroll, { passive: true })
+  isJumping = true
+
   // 初始滚到 PADDING 位置（面板1）
   window.scrollTo(0, PADDING * window.innerHeight)
 
-  window.addEventListener('scroll', onScroll, { passive: true })
   document.addEventListener('keydown', onKeydown)
   document.addEventListener('touchstart', onTouchStart, { passive: true })
   document.addEventListener('touchend', onTouchEnd, { passive: true })
@@ -163,8 +166,14 @@ function init() {
 
   createNavDots()
   updateUI(0)
-  // 触发一次渲染
-  onScroll()
+
+  // 等 scrollTo 真正生效后再解锁并同步渲染
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      isJumping = false
+      onScroll()
+    })
+  })
 }
 
 function onResize() {
@@ -209,7 +218,7 @@ onUnmounted(destroy)
             :key="n"
             class="sih-panel"
             :style="{
-              background: `linear-gradient(${130 + (n - 1) * 18}deg, hsl(${(n - 1) * 48 + 200}, 55%, 30%), hsl(${(n - 1) * 48 + 230}, 45%, 18%))`,
+              background: `linear-gradient(${130 + (n - 1) * 18}deg, hsl(${(n - 1) * 48 + 200}, 55%, 72%), hsl(${(n - 1) * 48 + 230}, 45%, 18%))`,
             }"
           >
             <span class="sih-num">{{ String(n).padStart(2, '0') }}</span>
@@ -224,7 +233,7 @@ onUnmounted(destroy)
 .sih-page {
   font-family: system-ui, -apple-system, sans-serif;
   background: #0a0a16;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 /* 滚动空间 */
@@ -271,7 +280,7 @@ onUnmounted(destroy)
 .sih-num {
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
 }
@@ -314,20 +323,20 @@ $accent: #60c0ff;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(26, 26, 46, 0.18);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(26, 26, 46, 0.45);
     transform: scale(1.3);
   }
 
   &.sih-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.4);
     box-shadow: 0 0 18px rgba($accent, 0.5);
   }
@@ -339,13 +348,13 @@ $accent: #60c0ff;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
   display: flex;
   align-items: center;
   gap: 6px;

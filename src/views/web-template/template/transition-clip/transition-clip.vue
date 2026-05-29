@@ -292,7 +292,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tc-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; }
+.tc-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .tc-scroll-area { position: relative; }
 .tc-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 
@@ -342,10 +342,10 @@ onUnmounted(destroy)
 <style lang="scss">
 .tc-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
 .tc-nav-dot {
-  width: 12px; height: 12px; border-radius: 50%; background: rgba(255, 255, 255, .2);
+  width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46, .2);
   cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255, 255, 255, .5); transform: scale(1.3); }
-  &.tc-active { background: #6c8cff; border-color: rgba(255, 255, 255, .4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108, 140, 255, .5); }
+  &:hover { background: rgba(26, 26, 46, .5); transform: scale(1.3); }
+  &.tc-active { background: #6c8cff; border-color: rgba(26, 26, 46, .4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108, 140, 255, .5); }
 }
 
 .tc-progress-bar {
@@ -354,9 +354,9 @@ onUnmounted(destroy)
   box-shadow: 0 0 10px rgba(108, 140, 255, .4);
 }
 
-.tc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0, 0, 0, .4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255, 255, 255, .1); color: rgba(255, 255, 255, .8); }
+.tc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0, 0, 0, .4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255, 255, 255, .1); color: rgba(26, 26, 46, .8); }
 
-.tc-type-label { position: fixed; top: 30px; right: 145px; z-index: 1000; background: rgba(0, 0, 0, .4); backdrop-filter: blur(12px); padding: 8px 18px; border-radius: 25px; font-size: .75rem; font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: .1em; border: 1px solid rgba(255, 255, 255, .1); color: rgba(255, 255, 255, .5); }
+.tc-type-label { position: fixed; top: 30px; right: 145px; z-index: 1000; background: rgba(0, 0, 0, .4); backdrop-filter: blur(12px); padding: 8px 18px; border-radius: 25px; font-size: .75rem; font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: .1em; border: 1px solid rgba(255, 255, 255, .1); color: rgba(26, 26, 46, .5); }
 
 @media (max-width: 768px) {
   .tc-nav-dots { gap: 10px; }

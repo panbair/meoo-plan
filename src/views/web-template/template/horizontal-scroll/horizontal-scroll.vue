@@ -199,8 +199,8 @@ onUnmounted(destroy)
   height: 100vh;
   overflow: hidden;
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #060610;
-  color: #f0f0f8;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .hscroll-container {
@@ -308,19 +308,19 @@ onUnmounted(destroy)
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.2);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(26, 26, 46, 0.5);
     transform: scale(1.3);
   }
 
   &.hscroll-active {
     background: #6c8cff;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.4);
     box-shadow: 0 0 20px rgba(108, 140, 255, 0.5);
   }
@@ -344,13 +344,13 @@ onUnmounted(destroy)
   top: 30px;
   right: 30px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 22px;
   border-radius: 25px;
   font-size: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(26, 26, 46, 0.8);
 }
 
 @media (max-width: 768px) {

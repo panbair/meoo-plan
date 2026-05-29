@@ -130,7 +130,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 $bg: #0a0a12;
 $accent: #6c8cff;
-.pd-page { font-family: system-ui, sans-serif; background: $bg; color: #fff; }
+.pd-page { font-family: system-ui, sans-serif; background: $bg; color: #1a1a2e; }
 .pd-scroll-area { position: relative; }
 .pd-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .pd-track { display: flex; will-change: transform; }
@@ -140,16 +140,16 @@ $accent: #6c8cff;
   position: relative; overflow: hidden;
   &::after {
     position: absolute; bottom: 30px; right: 40px;
-    font-size: 8rem; font-weight: 900; color: rgba(255,255,255,0.03);
+    font-size: 8rem; font-weight: 900; color: rgba(26, 26, 46,0.03);
     pointer-events: none;
   }
-  &.p1 { background: linear-gradient(135deg, #0a1028, #1a1a5e); &::after { content: '01'; } }
-  &.p2 { background: linear-gradient(135deg, #0f2027, #2c5364); &::after { content: '02'; } }
-  &.p3 { background: linear-gradient(135deg, #141e30, #243b55); &::after { content: '03'; } }
-  &.p4 { background: linear-gradient(135deg, #1a1a2e, #0f3460); &::after { content: '04'; } }
-  &.p5 { background: linear-gradient(135deg, #0d0d1a, #1a1a3e); &::after { content: '05'; } }
-  &.p6 { background: linear-gradient(135deg, #1a2980, #26d0ce); &::after { content: '06'; } }
-  &.p7 { background: linear-gradient(135deg, #16213e, #1a1a5e); &::after { content: '07'; } }
+  &.p1 { background: linear-gradient(135deg, #0a1028, #d8daf0); &::after { content: '01'; } }
+  &.p2 { background: linear-gradient(135deg, #e8f0f4, #d0e4ec); &::after { content: '02'; } }
+  &.p3 { background: linear-gradient(135deg, #e8ecf2, #d4e0ec); &::after { content: '03'; } }
+  &.p4 { background: linear-gradient(135deg, #dcdff0, #d0ddf0); &::after { content: '04'; } }
+  &.p5 { background: linear-gradient(135deg, #ececf2, #dcdcf0); &::after { content: '05'; } }
+  &.p6 { background: linear-gradient(135deg, #d0d8f0, #d0f5f4); &::after { content: '06'; } }
+  &.p7 { background: linear-gradient(135deg, #16213e, #d8daf0); &::after { content: '07'; } }
 }
 .pd-panel-inner { font-size: 5rem; font-weight: 300; opacity: 0.3; z-index: 1; }
 
@@ -172,16 +172,16 @@ $accent: #6c8cff;
 }
 .pd-dot {
   width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4);
+  background: rgba(26, 26, 46,0.06); color: rgba(26, 26, 46,0.4);
   font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
   display: flex; align-items: center; justify-content: center;
-  &:hover { background: rgba(255,255,255,0.15); }
-  &.active { background: $accent; border-color: rgba(255,255,255,0.5); color: #fff; transform: scale(1.15); box-shadow: 0 0 16px rgba(108,140,255,0.4); }
+  &:hover { background: rgba(26, 26, 46,0.15); }
+  &.active { background: $accent; border-color: rgba(26, 26, 46,0.5); color: #1a1a2e; transform: scale(1.15); box-shadow: 0 0 16px rgba(108,140,255,0.4); }
 }
 .pd-indicator {
   position: fixed; top: 20px; right: 20px; z-index: 1000;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 6px 18px; border-radius: 20px;
-  font-size: 0.8rem; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); padding: 6px 18px; border-radius: 20px;
+  font-size: 0.8rem; color: rgba(26, 26, 46,0.7); border: 1px solid rgba(255,255,255,0.08);
   .pd-cur { color: $accent; font-weight: 700; }
 }
 </style>

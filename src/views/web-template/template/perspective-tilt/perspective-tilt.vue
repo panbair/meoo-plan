@@ -208,7 +208,7 @@ $accent: #7c8cfc;
 .per-num {
   font-size: clamp(1.5rem, 4vw, 3.5rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.12);
+  color: rgba(26, 26, 46, 0.12);
   pointer-events: none;
   user-select: none;
 }
@@ -222,7 +222,7 @@ $accent: #7c8cfc;
       background: linear-gradient(
         135deg,
         hsl($hue, 35%, 6%),
-        hsl($hue + 15, 40%, 10%),
+        hsl($hue + 15, 40%, 90%),
         hsl($hue + 30, 30%, 7%)
       );
       border: 1px solid hsla($hue, 30%, 45%, 0.08);
@@ -268,18 +268,18 @@ $accent: #7c8cfc;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
   &.per-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.4);
     box-shadow: 0 0 16px rgba($accent, 0.45);
   }

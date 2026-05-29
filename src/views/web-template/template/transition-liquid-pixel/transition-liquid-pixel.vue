@@ -182,7 +182,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tlp-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #060610; color: #fff; perspective: 1200px; }
+.tlp-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; perspective: 1200px; }
 .tlp-scroll-area { position: relative; }
 .tlp-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1200px; transform-style: preserve-3d; }
 .tlp-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; will-change: filter, transform;
@@ -192,20 +192,20 @@ onUnmounted(destroy)
 .tlp-panel-0 { background: linear-gradient(135deg, #1a0a3e, #0a2a5e); }
 .tlp-panel-1 { background: linear-gradient(135deg, #0a3e3a, #0a5e2a); }
 .tlp-panel-2 { background: linear-gradient(135deg, #3e1a0a, #5e2a0a); }
-.tlp-panel-3 { background: linear-gradient(135deg, #1a1a3e, #2a2a5e); }
+.tlp-panel-3 { background: linear-gradient(135deg, #dcdcf0, #d6d6ee); }
 .tlp-panel-4 { background: linear-gradient(135deg, #3e0a3e, #5e0a5e); }
 .tlp-panel-5 { background: linear-gradient(135deg, #0a3e1a, #0a5e3a); }
-.tlp-panel-6 { background: linear-gradient(135deg, #1a1a2e, #2a3a5e); }
+.tlp-panel-6 { background: linear-gradient(135deg, #dcdff0, #2a3a5e); }
 @media (max-width: 768px) { .tlp-content { h2 { font-size: 2.2rem; } } }
 </style>
 
 <style lang="scss">
 .tlp-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.tlp-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.4); transform: scale(1.3); }
+.tlp-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.4); transform: scale(1.3); }
   &.tlp-active { background: #2ecc71; border-color: rgba(46,204,113,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(46,204,113,.5); }
 }
 .tlp-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #2ecc71, #3498db, #9b59b6); box-shadow: 0 0 10px rgba(46,204,113,.4); }
-.tlp-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.tlp-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tlp-nav-dots { gap: 10px; } .tlp-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

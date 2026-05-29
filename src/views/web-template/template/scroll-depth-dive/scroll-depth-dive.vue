@@ -161,7 +161,7 @@ onUnmounted(destroy)
             :key="n"
             class="ddv-layer"
             :style="{
-              background: `radial-gradient(ellipse at center, hsl(${(n - 1) * 40 + 200}, 55%, 32%) 0%, hsl(${(n - 1) * 40 + 220}, 40%, 16%) 100%)`,
+              background: `radial-gradient(ellipse at center, hsl(${(n - 1) * 40 + 200}, 55%, 32%) 0%, hsl(${(n - 1) * 40 + 220}, 40%, 84%) 100%)`,
             }"
           >
             <span class="ddv-num">{{ String(n).padStart(2, '0') }}</span>
@@ -177,7 +177,7 @@ onUnmounted(destroy)
 .ddv-page {
   font-family: system-ui, -apple-system, sans-serif;
   background: #080814;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 .ddv-scroll-area {
@@ -219,7 +219,7 @@ onUnmounted(destroy)
 .ddv-num {
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.06);
+  color: rgba(26, 26, 46, 0.06);
   user-select: none;
   pointer-events: none;
   z-index: 1;
@@ -263,20 +263,20 @@ $accent: #4ae0c0;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &.ddv-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent, 0.5);
   }
@@ -287,12 +287,12 @@ $accent: #4ae0c0;
   top: 24px;
   right: 24px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(10px);
   padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(26, 26, 46, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.08);
 
   .ddv-cur {

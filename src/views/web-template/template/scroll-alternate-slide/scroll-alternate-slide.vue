@@ -181,7 +181,7 @@ onUnmounted(destroy)
           :key="n"
           class="als-panel"
           :style="{
-            background: `linear-gradient(${[180,90,180,270][(n-1)%4]}deg, hsl(${(n-1)*44}, 50%, 30%), hsl(${(n-1)*44+20}, 38%, 16%))`,
+            background: `linear-gradient(${[180,90,180,270][(n-1)%4]}deg, hsl(${(n-1)*44}, 50%, 72%), hsl(${(n-1)*44+20}, 38%, 84%))`,
           }"
         >
           <span class="als-num">{{ String(n).padStart(2, '0') }}</span>
@@ -195,8 +195,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .als-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #08080f;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .als-scroll-area {
@@ -234,14 +234,14 @@ onUnmounted(destroy)
 .als-num {
   font-size: clamp(5rem, 12vw, 10rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
 }
 
 .als-dir-hint {
   font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.06);
+  color: rgba(26, 26, 46, 0.06);
   pointer-events: none;
   user-select: none;
 }
@@ -277,34 +277,34 @@ $c-left: #f472b6;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &[data-dir='down'].als-active {
     background: $c-down;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($c-down, 0.5);
   }
 
   &[data-dir='right'].als-active {
     background: $c-right;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($c-right, 0.5);
   }
 
   &[data-dir='left'].als-active {
     background: $c-left;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($c-left, 0.5);
   }
@@ -315,13 +315,13 @@ $c-left: #f472b6;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
   display: flex;
   align-items: center;
   gap: 8px;

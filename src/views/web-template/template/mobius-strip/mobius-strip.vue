@@ -112,7 +112,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.mb-page { height: 100vh; overflow: hidden; font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060610; color: #fff; }
+.mb-page { height: 100vh; overflow: hidden; font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .mb-container { height: 100%; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; }
 .mb-panel {
   width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -127,11 +127,11 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .mb-nav-dots { position: fixed; right: 28px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 14px; }
-.mb-nav-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.12); cursor: pointer; border: 1px solid rgba(255,255,255,.1); transition: all .3s;
-  &:hover { background: rgba(255,255,255,.4); transform: scale(1.3); }
+.mb-nav-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,.12); cursor: pointer; border: 1px solid rgba(255,255,255,.1); transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.4); transform: scale(1.3); }
   &.mb-active { background: #4ecdc4; border-color: rgba(78,205,196,.5); transform: scale(1.5); box-shadow: 0 0 18px rgba(78,205,196,.4); }
 }
 .mb-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #4ecdc4, #2ec4b6, #4ecdc4); transition: width .4s; }
-.mb-page-indicator { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.mb-page-indicator { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .mb-nav-dots { right: 12px; gap: 10px; } .mb-page-indicator { bottom: 20px; } }
 </style>

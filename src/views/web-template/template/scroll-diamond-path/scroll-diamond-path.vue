@@ -184,7 +184,7 @@ onUnmounted(destroy)
             :style="{
               left: pos[0] * CELL_W * 100 + 'vw',
               top: pos[1] * CELL_H * 100 + 'vh',
-              background: `linear-gradient(${120 + i * 25}deg, hsl(${i * 40}, 52%, 30%), hsl(${i * 40 + 20}, 40%, 16%))`,
+              background: `linear-gradient(${120 + i * 25}deg, hsl(${i * 40}, 52%, 72%), hsl(${i * 40 + 20}, 40%, 84%))`,
             }"
           >
             <span class="dmd-num">{{ String(i + 1).padStart(2, '0') }}</span>
@@ -200,7 +200,7 @@ onUnmounted(destroy)
 .dmd-page {
   font-family: system-ui, -apple-system, sans-serif;
   background: #08080e;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 .dmd-scroll-area {
@@ -242,7 +242,7 @@ onUnmounted(destroy)
 .dmd-num {
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
   z-index: 1;
@@ -284,20 +284,20 @@ $accent: #f59e0b;
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &.dmd-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent, 0.5);
   }
@@ -308,13 +308,13 @@ $accent: #f59e0b;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
 
   .dmd-cur {
     color: $accent;

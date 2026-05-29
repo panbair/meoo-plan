@@ -109,6 +109,7 @@ const catEmojis: Record<string, string> = {
 }
 
 function selectTemplate(key: string) {
+  // 先更新模板，让 FAB 按钮标签立刻切换
   activeKey.value = key
   closeOverlay()
 }
@@ -124,10 +125,25 @@ function closeOverlay() {
 }
 
 function scrollToCat(key: string) {
+  // 立即更新侧栏高亮，给用户即时反馈
   activeSideCat.value = key
-  nextTick(() => {
-    const el = document.getElementById(`cat-section-${key}`)
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+  const container = contentRef.value
+  if (!container) return
+
+  // 先重置滚动条到顶部
+  container.scrollTop = 0
+
+  // 等布局更新后再平滑滚动到目标分类
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`cat-section-${key}`)
+      if (!el) return
+      const containerRect = container.getBoundingClientRect()
+      const elRect = el.getBoundingClientRect()
+      const targetTop = elRect.top - containerRect.top
+      container.scrollTo({ top: targetTop, behavior: 'smooth' })
+    })
   })
 }
 

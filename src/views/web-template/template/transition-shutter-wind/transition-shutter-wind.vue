@@ -169,7 +169,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tsw-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a14; color: #fff; perspective: 1200px; }
+.tsw-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a14; color: #1a1a2e; perspective: 1200px; }
 .tsw-scroll-area { position: relative; }
 .tsw-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1200px; transform-style: preserve-3d; }
 .tsw-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -179,21 +179,21 @@ onUnmounted(destroy)
 .tsw-content { text-align: center; z-index: 2; position: relative; h2 { font-size: 3.5rem; font-weight: 900; margin: 0; } }
 .tsw-panel-0 { background: linear-gradient(135deg, #1a2a5e, #2a1a4e); }
 .tsw-panel-1 { background: linear-gradient(135deg, #2a5e1a, #4e1a1a); }
-.tsw-panel-2 { background: linear-gradient(135deg, #5e2a1a, #5e5e1a); }
-.tsw-panel-3 { background: linear-gradient(135deg, #1a5e5e, #1a1a5e); }
+.tsw-panel-2 { background: linear-gradient(135deg, #eedad2, #5e5e1a); }
+.tsw-panel-3 { background: linear-gradient(135deg, #1a5e5e, #d8daf0); }
 .tsw-panel-4 { background: linear-gradient(135deg, #5e1a5e, #5e1a2a); }
-.tsw-panel-5 { background: linear-gradient(135deg, #2a2a5e, #1a5e4e); }
+.tsw-panel-5 { background: linear-gradient(135deg, #d6d6ee, #1a5e4e); }
 .tsw-panel-6 { background: linear-gradient(135deg, #4e2a1a, #5e4e1a); }
 @media (max-width: 768px) { .tsw-content { h2 { font-size: 2.2rem; } } }
 </style>
 
 <style lang="scss">
 .tsw-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.tsw-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.4); transform: scale(1.3); }
+.tsw-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.4); transform: scale(1.3); }
   &.tsw-active { background: #f1c40f; border-color: rgba(241,196,15,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(241,196,15,.5); }
 }
 .tsw-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #f1c40f, #e67e22, #e74c3c); box-shadow: 0 0 10px rgba(241,196,15,.4); }
-.tsw-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.tsw-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tsw-nav-dots { gap: 10px; } .tsw-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

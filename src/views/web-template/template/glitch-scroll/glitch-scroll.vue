@@ -208,7 +208,7 @@ onUnmounted(destroy)
   overflow: hidden;
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
   background: #050510;
-  color: #f0f0f8;
+  color: #1a1a2e;
 }
 
 .glitch-scroll-container {
@@ -266,7 +266,7 @@ onUnmounted(destroy)
 .glitch-rgb-b { background: linear-gradient(135deg, #3366ff, #0033ff); }
 
 /* 各屏背景 */
-.glitch-scroll-panel-0 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(255,0,100,0.06), transparent 70%), linear-gradient(180deg, #07081c, #101848, #0a0e30); }
+.glitch-scroll-panel-0 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(255,0,100,0.06), transparent 70%), linear-gradient(180deg, #07081c, #101848, #eceef4); }
 .glitch-scroll-panel-1 { background: radial-gradient(ellipse 60% 50% at 30% 60%, rgba(0,255,200,0.05), transparent 65%), linear-gradient(135deg, #071820, #0e3040, #164050); }
 .glitch-scroll-panel-2 { background: radial-gradient(ellipse 50% 60% at 70% 30%, rgba(100,0,255,0.06), transparent 65%), linear-gradient(135deg, #0a1025, #162450, #1a2d5c); }
 .glitch-scroll-panel-3 { background: radial-gradient(ellipse 60% 50% at 40% 50%, rgba(0,100,255,0.07), transparent 65%), linear-gradient(135deg, #0c0c22, #0e2850, #0a1840); }
@@ -293,11 +293,11 @@ onUnmounted(destroy)
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.2);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s ease;
-  &:hover { background: rgba(255, 255, 255, 0.5); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46, 0.5); transform: scale(1.3); }
   &.glitch-scroll-active {
     background: #ff3366;
     border-color: rgba(255, 51, 102, 0.5);
@@ -322,13 +322,13 @@ onUnmounted(destroy)
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 22px;
   border-radius: 25px;
   font-size: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(26, 26, 46, 0.8);
 }
 @media (max-width: 768px) {
   .glitch-scroll-nav-dots { right: 12px; gap: 10px; }

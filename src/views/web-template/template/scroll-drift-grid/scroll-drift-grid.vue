@@ -209,7 +209,7 @@ $accent: #7c8cfc;
 .drift-num {
   font-size: 5rem;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.08);
+  color: rgba(26, 26, 46, 0.08);
   pointer-events: none;
   user-select: none;
 }
@@ -224,7 +224,7 @@ $accent: #7c8cfc;
         135deg,
         hsl($hue, 30%, 7%),
         hsl($hue + 20, 35%, 12%),
-        hsl($hue + 40, 25%, 8%)
+        hsl($hue + 40, 25%, 92%)
       );
       &::before {
         content: '';
@@ -286,18 +286,18 @@ $accent: #7c8cfc;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
   &.drift-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.4);
     box-shadow: 0 0 16px rgba($accent, 0.45);
   }

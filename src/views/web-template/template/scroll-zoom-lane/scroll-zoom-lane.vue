@@ -180,7 +180,7 @@ onUnmounted(destroy)
             :key="n"
             class="zml-panel"
             :style="{
-              background: `radial-gradient(ellipse at ${40 + (n % 3) * 15}% ${35 + (n % 2) * 20}%, hsl(${(n - 1) * 42}, 55%, 32%) 0%, hsl(${(n - 1) * 42 + 25}, 40%, 14%) 100%)`,
+              background: `radial-gradient(ellipse at ${40 + (n % 3) * 15}% ${35 + (n % 2) * 20}%, hsl(${(n - 1) * 42}, 55%, 32%) 0%, hsl(${(n - 1) * 42 + 25}, 40%, 86%) 100%)`,
             }"
           >
             <span class="zml-num">{{ String(n).padStart(2, '0') }}</span>
@@ -194,8 +194,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .zml-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #060610;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .zml-scroll-area {
@@ -225,13 +225,13 @@ onUnmounted(destroy)
   justify-content: center;
   will-change: transform, opacity, filter;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 40px rgba(255, 255, 255, 0.75);
 }
 
 .zml-num {
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.06);
+  color: rgba(26, 26, 46, 0.06);
   user-select: none;
   pointer-events: none;
 }
@@ -265,20 +265,20 @@ $accent: #ec4899;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &.zml-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent, 0.5);
   }
@@ -289,13 +289,13 @@ $accent: #ec4899;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
 
   .zml-cur {
     color: $accent;

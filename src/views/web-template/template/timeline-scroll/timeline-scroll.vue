@@ -210,7 +210,7 @@ onUnmounted(destroy)
 .tl-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
   background: #050810;
-  color: #f0f0f8;
+  color: #1a1a2e;
   position: relative;
   overflow-x: hidden;
 }
@@ -224,7 +224,7 @@ onUnmounted(destroy)
   background:
     radial-gradient(ellipse 80% 50% at 50% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
     radial-gradient(ellipse 50% 40% at 20% 80%, rgba(20, 184, 166, 0.05) 0%, transparent 60%),
-    linear-gradient(180deg, #060a1c 0%, #0c1538 40%, #101e48 70%, #0a1530 100%);
+    linear-gradient(180deg, #f0f1f8 0%, #0c1538 40%, #101e48 70%, #0a1530 100%);
   position: relative;
   overflow: hidden;
 }
@@ -349,7 +349,7 @@ onUnmounted(destroy)
 /* ═══════ 卡片 ═══════ */
 .tl-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(26, 26, 46, 0.035);
   backdrop-filter: blur(16px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 18px;
@@ -359,9 +359,9 @@ onUnmounted(destroy)
   transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    background: rgba(26, 26, 46, 0.06);
+    border-color: rgba(26, 26, 46, 0.12);
+    box-shadow: 0 12px 48px rgba(255, 255, 255, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
     transform: translateY(-4px);
   }
 }
@@ -439,18 +439,18 @@ onUnmounted(destroy)
 .tl-cta {
   padding: 14px 40px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(26, 26, 46, 0.05);
   backdrop-filter: blur(10px);
   border-radius: 30px;
-  color: #fff;
+  color: #1a1a2e;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(26, 26, 46, 0.12);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: translateY(-2px);
     box-shadow: 0 6px 24px rgba(108, 140, 255, 0.2);
   }
@@ -486,16 +486,16 @@ onUnmounted(destroy)
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(26, 26, 46, 0.18);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.35s ease;
 
-  &:hover { background: rgba(255, 255, 255, 0.5); transform: scale(1.3); }
+  &:hover { background: rgba(26, 26, 46, 0.5); transform: scale(1.3); }
 
   &.tl-active {
     background: #6c8cff;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.5);
     box-shadow: 0 0 20px rgba(108, 140, 255, 0.5);
   }
@@ -519,13 +519,13 @@ onUnmounted(destroy)
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 7px 20px;
   border-radius: 20px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(26, 26, 46, 0.8);
 }
 
 @media (max-width: 768px) {

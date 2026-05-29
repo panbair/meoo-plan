@@ -138,7 +138,7 @@ onUnmounted(destroy)
         <div class="ch-h-area">
           <div class="ch-h-pinned">
             <div class="ch-h-track">
-              <div v-for="n in colsPerRow[0]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*90},30%,14%), hsl(${(n-1)*90+30},20%,8%))` }">
+              <div v-for="n in colsPerRow[0]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*90}, 30%, 86%), hsl(${(n-1)*90+30}, 20%, 92%))` }">
                 <div class="ch-h-content"><div class="ch-h-badge">R1·C{{ n }}</div><h2>象限 {{ n }}</h2></div>
               </div>
             </div>
@@ -150,7 +150,7 @@ onUnmounted(destroy)
         <div class="ch-h-area">
           <div class="ch-h-pinned">
             <div class="ch-h-track">
-              <div v-for="n in colsPerRow[1]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*120+30},28%,14%), hsl(${(n-1)*120+60},18%,8%))` }">
+              <div v-for="n in colsPerRow[1]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*120+30}, 28%, 86%), hsl(${(n-1)*120+60}, 18%, 92%))` }">
                 <div class="ch-h-content"><div class="ch-h-badge">R2·C{{ n }}</div><h2>三柱 {{ n }}</h2></div>
               </div>
             </div>
@@ -174,7 +174,7 @@ onUnmounted(destroy)
         <div class="ch-h-area">
           <div class="ch-h-pinned">
             <div class="ch-h-track">
-              <div v-for="n in colsPerRow[3]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*120+90},26%,14%), hsl(${(n-1)*120+120},16%,8%))` }">
+              <div v-for="n in colsPerRow[3]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*120+90}, 26%, 86%), hsl(${(n-1)*120+120}, 16%, 92%))` }">
                 <div class="ch-h-content"><div class="ch-h-badge">R4·C{{ n }}</div><h2>三联 {{ n }}</h2></div>
               </div>
             </div>
@@ -186,7 +186,7 @@ onUnmounted(destroy)
         <div class="ch-h-area">
           <div class="ch-h-pinned">
             <div class="ch-h-track">
-              <div v-for="n in colsPerRow[4]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*90+120},30%,14%), hsl(${(n-1)*90+150},20%,8%))` }">
+              <div v-for="n in colsPerRow[4]" :key="n" class="ch-h-panel" :class="n===1&&'ch-h-active'" :style="{ background: `linear-gradient(135deg, hsl(${(n-1)*90+120}, 30%, 86%), hsl(${(n-1)*90+150}, 20%, 92%))` }">
                 <div class="ch-h-content"><div class="ch-h-badge">R5·C{{ n }}</div><h2>四象 {{ n }}</h2></div>
               </div>
             </div>
@@ -198,7 +198,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.ch-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #080812; color: #fff; height: 100vh; overflow: hidden; }
+.ch-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; height: 100vh; overflow: hidden; }
 .ch-outer { height: 100%; overflow-y: auto; overflow-x: hidden; }
 .ch-row { width: 100%; height: 100vh; position: relative; flex-shrink: 0; }
 .ch-h-area { position: relative; width: 100%; height: 100%; }
@@ -213,10 +213,10 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .ch-nav-dots { position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
-.ch-nav-dot { width: 10px; height: 24px; border-radius: 5px; background: rgba(255,255,255,.12); cursor: pointer; transition: all .3s; border: none;
-  &:hover { background: rgba(255,255,255,.3); }
+.ch-nav-dot { width: 10px; height: 24px; border-radius: 5px; background: rgba(26, 26, 46,.12); cursor: pointer; transition: all .3s; border: none;
+  &:hover { background: rgba(26, 26, 46,.3); }
   &.ch-active { background: #7c6cff; height: 36px; box-shadow: 0 0 14px rgba(124,108,255,.5); }
 }
 .ch-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #7c6cff, #a78bfa); }
-.ch-page-indicator { position: fixed; top: 24px; right: 28px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.ch-page-indicator { position: fixed; top: 24px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.75); }
 </style>

@@ -168,7 +168,7 @@ onUnmounted(destroy)
             :key="n"
             class="mxr-cell"
             :style="{
-              background: `linear-gradient(180deg, hsl(${150 + ((n - 1) % COLS) * 10 + Math.floor((n - 1) / COLS) * 20}, 50%, 28%) 0%, hsl(${170 + ((n - 1) % COLS) * 10 + Math.floor((n - 1) / COLS) * 20}, 35%, 14%) 100%)`,
+              background: `linear-gradient(180deg, hsl(${150 + ((n - 1) % COLS) * 10 + Math.floor((n - 1) / COLS) * 20}, 50%, 28%) 0%, hsl(${170 + ((n - 1) % COLS) * 10 + Math.floor((n - 1) / COLS) * 20}, 35%, 86%) 100%)`,
             }"
           >
             <span class="mxr-num">{{ String(n).padStart(2, '0') }}</span>
@@ -185,7 +185,7 @@ onUnmounted(destroy)
 .mxr-page {
   font-family: 'Courier New', monospace;
   background: #020808;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 .mxr-scroll-area {
@@ -291,7 +291,7 @@ $accent: #34d399;
 
   &.mxr-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(26, 26, 46, 0.3);
     transform: scale(1.5);
     box-shadow: 0 0 12px rgba($accent, 0.5);
   }
@@ -302,7 +302,7 @@ $accent: #34d399;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;

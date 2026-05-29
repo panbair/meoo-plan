@@ -117,13 +117,13 @@ onUnmounted(destroy)
             <span class="qdc-num">{{ String(n).padStart(2, '0') }}</span>
           </div>
           <div class="qdc-quad qdc-tr"
-            :style="{ background: `linear-gradient(225deg, hsl(${(n-1)*44+5}, 48%, 30%), hsl(${(n-1)*44+20}, 38%, 16%))` }">
+            :style="{ background: `linear-gradient(225deg, hsl(${(n-1)*44+5}, 48%, 72%), hsl(${(n-1)*44+20}, 38%, 84%))` }">
           </div>
           <div class="qdc-quad qdc-bl"
             :style="{ background: `linear-gradient(45deg, hsl(${(n-1)*44+10}, 46%, 28%), hsl(${(n-1)*44+25}, 36%, 15%))` }">
           </div>
           <div class="qdc-quad qdc-br"
-            :style="{ background: `linear-gradient(315deg, hsl(${(n-1)*44+15}, 44%, 26%), hsl(${(n-1)*44+30}, 34%, 14%))` }">
+            :style="{ background: `linear-gradient(315deg, hsl(${(n-1)*44+15}, 44%, 26%), hsl(${(n-1)*44+30}, 34%, 86%))` }">
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.qdc-page { font-family: system-ui, sans-serif; background: #060610; color: #fff; }
+.qdc-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .qdc-scroll-area { position: relative; }
 .qdc-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 
@@ -149,14 +149,14 @@ onUnmounted(destroy)
 
 .qdc-num {
   font-size: clamp(4rem, 10vw, 8rem); font-weight: 900;
-  color: rgba(255,255,255,0.05); user-select: none; pointer-events: none;
+  color: rgba(26, 26, 46,0.05); user-select: none; pointer-events: none;
   /* 数字在左上角象限，但视觉上居中于整个屏幕 */
   position: absolute; bottom: 0; right: 0;
   transform: translate(50%, 50%);
 }
 
 /* 十字线装饰 */
-.qdc-cross-h, .qdc-cross-v { position: fixed; z-index: 500; pointer-events: none; background: rgba(255,255,255,0.03); }
+.qdc-cross-h, .qdc-cross-v { position: fixed; z-index: 500; pointer-events: none; background: rgba(26, 26, 46,0.03); }
 .qdc-cross-h { left: 0; right: 0; top: 50%; height: 1px; }
 .qdc-cross-v { top: 0; bottom: 0; left: 50%; width: 1px; }
 </style>
@@ -166,13 +166,13 @@ $accent: #ec4899;
 .qdc-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #8b5cf6); z-index: 1001; }
 .qdc-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .qdc-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.qdc-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.qdc-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .qdc-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .qdc-cur { color: $accent; font-weight: 700; }
 }
 </style>

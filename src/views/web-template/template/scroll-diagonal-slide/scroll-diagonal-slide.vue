@@ -158,7 +158,7 @@ onUnmounted(destroy)
           :key="n"
           class="dgs-panel"
           :style="{
-            background: `linear-gradient(135deg, hsl(${(n - 1) * 44}, 50%, 30%), hsl(${(n - 1) * 44 + 20}, 38%, 16%))`,
+            background: `linear-gradient(135deg, hsl(${(n - 1) * 44}, 50%, 72%), hsl(${(n - 1) * 44 + 20}, 38%, 84%))`,
           }"
         >
           <span class="dgs-num">{{ String(n).padStart(2, '0') }}</span>
@@ -173,8 +173,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .dgs-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #08080f;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .dgs-scroll-area {
@@ -210,7 +210,7 @@ onUnmounted(destroy)
 .dgs-num {
   font-size: clamp(5rem, 12vw, 10rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
 }
@@ -257,20 +257,20 @@ $accent: #a78bfa;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &.dgs-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent, 0.5);
   }
@@ -281,13 +281,13 @@ $accent: #a78bfa;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
   display: flex;
   align-items: center;
   gap: 8px;

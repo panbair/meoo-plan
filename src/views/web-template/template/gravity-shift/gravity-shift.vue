@@ -145,7 +145,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.gs-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0c0c14; color: #fff; }
+.gs-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0c0c14; color: #1a1a2e; }
 .gs-scroll-area { position: relative; }
 .gs-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .gs-panel {
@@ -154,26 +154,26 @@ onUnmounted(destroy)
   &::after { content: ''; position: absolute; inset: 30px; border: 1px solid rgba(255,255,255,.05); border-radius: 18px; pointer-events: none; z-index: 1; }
 }
 .gs-content { text-align: center; z-index: 2; position: relative;
-  h2 { font-size: 5rem; font-weight: 900; margin: 0; letter-spacing: 6px; color: rgba(255,255,255,.7); text-shadow: 0 0 50px rgba(255,255,255,.05); }
+  h2 { font-size: 5rem; font-weight: 900; margin: 0; letter-spacing: 6px; color: rgba(26, 26, 46,.7); text-shadow: 0 0 50px rgba(255,255,255,.05); }
 }
-.gs-panel-0 { background: radial-gradient(ellipse at 30% 30%, #2a1a3e, #0c0c14); }
+.gs-panel-0 { background: radial-gradient(ellipse at 30% 30%, #e4dcf0, #0c0c14); }
 .gs-panel-1 { background: radial-gradient(ellipse at 70% 70%, #1a3e2a, #0c0c14); }
-.gs-panel-2 { background: radial-gradient(ellipse at 30% 70%, #3e1a2a, #0c0c14); }
-.gs-panel-3 { background: radial-gradient(ellipse at 70% 30%, #1a2a3e, #0c0c14); }
+.gs-panel-2 { background: radial-gradient(ellipse at 30% 70%, #ead8e0, #0c0c14); }
+.gs-panel-3 { background: radial-gradient(ellipse at 70% 30%, #dce2f0, #0c0c14); }
 .gs-panel-4 { background: radial-gradient(ellipse at 50% 50%, #3e3e1a, #0c0c14); }
 .gs-panel-5 { background: radial-gradient(ellipse at 30% 50%, #1a3e3e, #0c0c14); }
-.gs-panel-6 { background: radial-gradient(ellipse at 50% 30%, #2a1a3e, #0c0c14); }
+.gs-panel-6 { background: radial-gradient(ellipse at 50% 30%, #e4dcf0, #0c0c14); }
 @media (max-width: 768px) { .gs-content { h2 { font-size: 3.5rem; } } }
 </style>
 
 <style lang="scss">
 .gs-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.gs-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.1); cursor: pointer; border: 1px solid rgba(255,255,255,.15); transition: all .3s;
-  &:hover { background: rgba(255,255,255,.3); transform: scale(1.3); }
-  &.gs-active { background: #fff; border-color: rgba(255,255,255,.5); transform: scale(1.4); box-shadow: 0 0 16px rgba(255,255,255,.3); }
+.gs-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.1); cursor: pointer; border: 1px solid rgba(255,255,255,.15); transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.3); transform: scale(1.3); }
+  &.gs-active { background: #fff; border-color: rgba(26, 26, 46,.5); transform: scale(1.4); box-shadow: 0 0 16px rgba(255,255,255,.3); }
 }
 .gs-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #a8f, #4a8, #a8f); animation: gsSlide 2s linear infinite; }
 @keyframes gsSlide { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-.gs-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.5); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.7); }
+.gs-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.5); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.15); color: rgba(26, 26, 46,.7); }
 @media (max-width: 768px) { .gs-nav-dots { gap: 10px; } .gs-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

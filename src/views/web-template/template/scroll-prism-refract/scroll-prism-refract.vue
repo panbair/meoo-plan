@@ -144,7 +144,7 @@ onUnmounted(() => { st?.kill() })
 .spr-scrollArea { position: relative; }
 .spr-viewport {
   position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden;
-  background: #0a0a0a;
+  background: #f5f0f8;
 }
 .spr-grid {
   display: grid;
@@ -166,7 +166,7 @@ onUnmounted(() => { st?.kill() })
 .spr-num {
   position: absolute; bottom: 32px; right: 40px;
   font-size: clamp(4rem, 8vw, 10rem); font-weight: 900;
-  color: rgba(255,255,255,0.07); z-index: 1;
+  color: rgba(26, 26, 46,0.07); z-index: 1;
   font-family: 'Inter', system-ui, sans-serif; line-height: 1;
 }
 /* 纯白基底，靠 hue-rotate 产生色散 */
@@ -192,9 +192,9 @@ onUnmounted(() => { st?.kill() })
 .spr-cell-19 { background: linear-gradient(135deg, #dee2e6 0%, #f8f9fa 50%, #e9ecef 100%); }
 .spr-nav { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 100; }
 .spr-nav-rows, .spr-nav-cols { display: flex; gap: 8px; justify-content: center; }
-.spr-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.55); font-family: monospace; }
+.spr-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(26, 26, 46,0.55); font-family: monospace; }
 .spr-info { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 100; }
-.spr-progress-bar { width: 200px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.spr-progress-bar { width: 200px; height: 4px; background: rgba(26, 26, 46,0.1); border-radius: 2px; overflow: hidden; }
 .spr-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff); border-radius: 2px; transition: width 0.1s linear; }
-.spr-pos { font-size: 12px; color: rgba(0,0,0,0.5); font-family: monospace; }
+.spr-pos { font-size: 12px; color: rgba(255, 255, 255, 0.8); font-family: monospace; }
 </style>

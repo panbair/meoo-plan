@@ -28,6 +28,7 @@ const LABEL_MAP: Record<string, string> = {
   'glassmorphism-showcase': '毛玻璃展示',
   'timeline-scroll': '时间线滚动',
   'split-scroll': '分屏滚动',
+  'contrast-split': '对比分屏',
   'zigzag-scroll': '之字滚动',
   'masonry-gallery': '瀑布流画廊',
   'stack-scroll': '卡片堆叠',

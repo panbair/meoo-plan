@@ -186,8 +186,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .stagger-brand-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #060610;
-  color: #f0f0f8;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 /* ===== 段落通用 ===== */
@@ -280,7 +280,7 @@ onUnmounted(destroy)
 .stagger-right {
   background:
     radial-gradient(ellipse 60% 50% at 80% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 70%),
-    linear-gradient(135deg, #0c0c24 0%, #121840 50%, #0e1c48 80%, #0a0e28 100%);
+    linear-gradient(135deg, #0c0c24 0%, #e4e8f2 50%, #0e1c48 80%, #0a0e28 100%);
   justify-content: flex-end;
 }
 
@@ -288,7 +288,7 @@ onUnmounted(destroy)
   position: absolute;
   font-size: 16rem;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.03);
+  color: rgba(26, 26, 46, 0.03);
   line-height: 1;
   pointer-events: none;
 }
@@ -334,7 +334,7 @@ onUnmounted(destroy)
   left: 24px;
   font-size: 3rem;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.15);
+  color: rgba(26, 26, 46, 0.15);
   z-index: 2;
 }
 
@@ -430,7 +430,7 @@ onUnmounted(destroy)
   background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
   border: none;
   border-radius: 30px;
-  color: #fff;
+  color: #1a1a2e;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -476,19 +476,19 @@ onUnmounted(destroy)
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 46, 0.2);
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(26, 26, 46, 0.5);
     transform: scale(1.3);
   }
 
   &.stagger-active {
     background: #6c8cff;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.4);
     box-shadow: 0 0 20px rgba(108, 140, 255, 0.5);
   }
@@ -514,13 +514,13 @@ onUnmounted(destroy)
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 22px;
   border-radius: 25px;
   font-size: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(26, 26, 46, 0.8);
 }
 
 @media (max-width: 768px) {

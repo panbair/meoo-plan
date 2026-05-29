@@ -169,7 +169,7 @@ onUnmounted(destroy)
             :key="n"
             class="lcv-card"
             :style="{
-              background: `linear-gradient(${150 + (n - 1) * 20}deg, hsl(${(n - 1) * 44 + 200}, 55%, 30%), hsl(${(n - 1) * 44 + 220}, 42%, 17%))`,
+              background: `linear-gradient(${150 + (n - 1) * 20}deg, hsl(${(n - 1) * 44 + 200}, 55%, 72%), hsl(${(n - 1) * 44 + 220}, 42%, 17%))`,
             }"
           >
             <span class="lcv-num">{{ String(n).padStart(2, '0') }}</span>
@@ -191,8 +191,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .lcv-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #060610;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .lcv-scroll-area {
@@ -231,7 +231,7 @@ onUnmounted(destroy)
   justify-content: center;
   will-change: transform, opacity;
   border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 12px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 50px rgba(255, 255, 255, 0.8);
   visibility: hidden;
 
   &::before {
@@ -247,7 +247,7 @@ onUnmounted(destroy)
 .lcv-num {
   font-size: clamp(3rem, 7vw, 5rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.06);
+  color: rgba(26, 26, 46, 0.06);
   user-select: none;
   pointer-events: none;
 }
@@ -290,7 +290,7 @@ onUnmounted(destroy)
     left: 50%;
     width: 8px;
     height: 2px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(26, 26, 46, 0.08);
     transform: translate(-50%, -50%);
   }
 }
@@ -344,20 +344,20 @@ $accent: #f472b6;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(26, 26, 46, 0.18);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(26, 26, 46, 0.45);
     transform: scale(1.3);
   }
 
   &.lcv-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(26, 26, 46, 0.4);
     transform: scale(1.4);
     box-shadow: 0 0 18px rgba($accent, 0.5);
   }
@@ -368,13 +368,13 @@ $accent: #f472b6;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
   display: flex;
   align-items: center;
   gap: 6px;

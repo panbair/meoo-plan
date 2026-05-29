@@ -114,7 +114,7 @@ onUnmounted(destroy)
         <div id="gwTrack" class="gw-track">
           <section v-for="n in totalPanels" :key="n" class="gw-panel gw-panel-bg" :style="{
             background: n % 2 === 1
-              ? `linear-gradient(135deg, hsl(${(n-1)*52}, 35%, 14%), hsl(${(n-1)*52+30}, 25%, 8%))`
+              ? `linear-gradient(135deg, hsl(${(n-1)*52}, 35%, 86%), hsl(${(n-1)*52+30}, 25%, 92%))`
               : `linear-gradient(135deg, hsl(${(n-1)*52+60}, 30%, 12%), hsl(${(n-1)*52+90}, 20%, 6%))`,
             borderRadius: n % 2 === 0 ? '0' : '20px',
             margin: n % 2 === 0 ? '0' : '0 12px'
@@ -128,7 +128,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.gw-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #080810; color: #fff; }
+.gw-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #080810; color: #1a1a2e; }
 .gw-scroll-area { position: relative; }
 .gw-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .gw-track { display: flex; will-change: transform; align-items: center; }
@@ -142,11 +142,11 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .gw-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.gw-nav-dot { width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,.1); cursor: pointer; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.4); transform: scale(1.3); }
+.gw-nav-dot { width: 10px; height: 10px; border-radius: 2px; background: rgba(26, 26, 46,.1); cursor: pointer; transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.4); transform: scale(1.3); }
   &.gw-active { background: #f0a060; width: 22px; border-radius: 5px; box-shadow: 0 0 14px rgba(240,160,96,.4); }
 }
 .gw-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #f0a060, #e07050, #f0a060); }
-.gw-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.gw-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .gw-nav-dots { gap: 10px; } .gw-page-indicator { top: 16px; right: 14px; } }
 </style>

@@ -184,7 +184,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tsn-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; }
+.tsn-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .tsn-scroll-area { position: relative; }
 .tsn-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1200px; }
 .tsn-panel {
@@ -194,25 +194,25 @@ onUnmounted(destroy)
   &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(255,255,255,.08); border-radius: 20px; pointer-events: none; z-index: 0; }
 }
 .tsn-content { text-align: center; z-index: 0; h2 { font-size: 3.5rem; font-weight: 900; margin: 0 0 16px; } }
-.tsn-panel-0 { background: linear-gradient(135deg, #0a0f24, #1a1a5e); }
-.tsn-panel-1 { background: linear-gradient(135deg, #0f2027, #2c5364); }
-.tsn-panel-2 { background: linear-gradient(135deg, #141e30, #243b55); }
-.tsn-panel-3 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
-.tsn-panel-4 { background: linear-gradient(135deg, #0d0d1a, #1a1a3e); }
-.tsn-panel-5 { background: linear-gradient(135deg, #1a2980, #26d0ce); }
-.tsn-panel-6 { background: linear-gradient(135deg, #0b1331, #1c2856); }
+.tsn-panel-0 { background: linear-gradient(135deg, #e8ebf5, #d8daf0); }
+.tsn-panel-1 { background: linear-gradient(135deg, #e8f0f4, #d0e4ec); }
+.tsn-panel-2 { background: linear-gradient(135deg, #e8ecf2, #d4e0ec); }
+.tsn-panel-3 { background: linear-gradient(135deg, #dcdff0, #d0ddf0); }
+.tsn-panel-4 { background: linear-gradient(135deg, #ececf2, #dcdcf0); }
+.tsn-panel-5 { background: linear-gradient(135deg, #d0d8f0, #d0f5f4); }
+.tsn-panel-6 { background: linear-gradient(135deg, #e4e8f5, #d8dff0); }
 @media (max-width: 768px) { .tsn-content { h2 { font-size: 2.2rem; } } }
 </style>
 
 <style lang="scss">
 .tsn-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
 .tsn-nav-dot {
-  width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.2);
+  width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.2);
   cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.5); transform: scale(1.3); }
-  &.tsn-active { background: #6c8cff; border-color: rgba(255,255,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108,140,255,.5); }
+  &:hover { background: rgba(26, 26, 46,.5); transform: scale(1.3); }
+  &.tsn-active { background: #6c8cff; border-color: rgba(26, 26, 46,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108,140,255,.5); }
 }
 .tsn-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #6c8cff, #a78bfa, #f472b6); box-shadow: 0 0 10px rgba(108,140,255,.4); }
-.tsn-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.tsn-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tsn-nav-dots { gap: 10px; } .tsn-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

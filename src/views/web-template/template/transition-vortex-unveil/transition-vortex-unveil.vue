@@ -131,7 +131,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tvu-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #020210; color: #fff; perspective: 1800px; }
+.tvu-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #020210; color: #1a1a2e; perspective: 1800px; }
 .tvu-scroll-area { position: relative; }
 .tvu-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1800px; transform-style: preserve-3d; }
 .tvu-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -150,11 +150,11 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .tvu-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.tvu-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.4); transform: scale(1.3); }
+.tvu-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.15); cursor: pointer; border: 2px solid transparent; transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.4); transform: scale(1.3); }
   &.tvu-active { background: #9b59b6; border-color: rgba(155,89,182,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(155,89,182,.5); }
 }
 .tvu-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #9b59b6, #3498db, #2ecc71); box-shadow: 0 0 10px rgba(155,89,182,.4); }
-.tvu-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.tvu-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tvu-nav-dots { gap: 10px; } .tvu-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

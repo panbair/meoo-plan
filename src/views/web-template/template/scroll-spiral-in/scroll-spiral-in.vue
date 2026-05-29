@@ -116,7 +116,7 @@ onUnmounted(destroy)
     <div id="spiArea" class="spi-scroll-area">
       <div class="spi-viewport">
         <section v-for="n in TOTAL" :key="n" class="spi-panel"
-          :style="{ background: `conic-gradient(from ${(n-1)*45}deg at 50% 50%, hsl(${(n-1)*44}, 50%, 28%), hsl(${(n-1)*44+30}, 40%, 20%), hsl(${(n-1)*44}, 50%, 28%))` }">
+          :style="{ background: `conic-gradient(from ${(n-1)*45}deg at 50% 50%, hsl(${(n-1)*44}, 50%, 28%), hsl(${(n-1)*44+30}, 40%, 80%), hsl(${(n-1)*44}, 50%, 28%))` }">
           <span class="spi-num">{{ String(n).padStart(2, '0') }}</span>
         </section>
       </div>
@@ -125,7 +125,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.spi-page { font-family: system-ui, sans-serif; background: #040408; color: #fff; }
+.spi-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .spi-scroll-area { position: relative; }
 .spi-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .spi-panel {
@@ -133,7 +133,7 @@ onUnmounted(destroy)
   will-change: transform, opacity;
   &::before { content: ''; position: absolute; inset: 24px; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; pointer-events: none; }
 }
-.spi-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255,255,255,0.05); user-select: none; pointer-events: none; }
+.spi-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46,0.05); user-select: none; pointer-events: none; }
 </style>
 
 <style lang="scss">
@@ -141,13 +141,13 @@ $accent: #a855f7;
 .spi-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #ec4899); z-index: 1001; }
 .spi-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .spi-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.spi-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.spi-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .spi-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .spi-cur { color: $accent; font-weight: 700; }
 }
 </style>

@@ -179,7 +179,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tsw-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #fff; }
+.tsw-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .tsw-scroll-area { position: relative; }
 .tsw-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .tsw-panel {
@@ -188,25 +188,25 @@ onUnmounted(destroy)
   &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(255,255,255,.08); border-radius: 20px; pointer-events: none; z-index: 0; }
 }
 .tsw-content { text-align: center; z-index: 0; h2 { font-size: 3.5rem; font-weight: 900; margin: 0 0 16px; } }
-.tsw-panel-0 { background: linear-gradient(135deg, #0a0f24, #1a1a5e); }
-.tsw-panel-1 { background: linear-gradient(135deg, #0f2027, #2c5364); }
-.tsw-panel-2 { background: linear-gradient(135deg, #141e30, #243b55); }
-.tsw-panel-3 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
-.tsw-panel-4 { background: linear-gradient(135deg, #0d0d1a, #1a1a3e); }
-.tsw-panel-5 { background: linear-gradient(135deg, #1a2980, #26d0ce); }
-.tsw-panel-6 { background: linear-gradient(135deg, #0b1331, #1c2856); }
+.tsw-panel-0 { background: linear-gradient(135deg, #e8ebf5, #d8daf0); }
+.tsw-panel-1 { background: linear-gradient(135deg, #e8f0f4, #d0e4ec); }
+.tsw-panel-2 { background: linear-gradient(135deg, #e8ecf2, #d4e0ec); }
+.tsw-panel-3 { background: linear-gradient(135deg, #dcdff0, #d0ddf0); }
+.tsw-panel-4 { background: linear-gradient(135deg, #ececf2, #dcdcf0); }
+.tsw-panel-5 { background: linear-gradient(135deg, #d0d8f0, #d0f5f4); }
+.tsw-panel-6 { background: linear-gradient(135deg, #e4e8f5, #d8dff0); }
 @media (max-width: 768px) { .tsw-content { h2 { font-size: 2.2rem; } } }
 </style>
 
 <style lang="scss">
 .tsw-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
 .tsw-nav-dot {
-  width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.2);
+  width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.2);
   cursor: pointer; border: 2px solid transparent; transition: all .3s;
-  &:hover { background: rgba(255,255,255,.5); transform: scale(1.3); }
-  &.tsw-active { background: #6c8cff; border-color: rgba(255,255,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108,140,255,.5); }
+  &:hover { background: rgba(26, 26, 46,.5); transform: scale(1.3); }
+  &.tsw-active { background: #6c8cff; border-color: rgba(26, 26, 46,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(108,140,255,.5); }
 }
 .tsw-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #6c8cff, #a78bfa, #f472b6); box-shadow: 0 0 10px rgba(108,140,255,.4); }
-.tsw-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.tsw-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .tsw-nav-dots { gap: 10px; } .tsw-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

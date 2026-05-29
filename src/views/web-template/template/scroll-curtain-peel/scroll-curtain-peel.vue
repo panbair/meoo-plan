@@ -107,7 +107,7 @@ onUnmounted(destroy)
       <div class="ctp-viewport">
         <div class="ctp-stack">
           <section v-for="n in TOTAL" :key="n" class="ctp-layer"
-            :style="{ background: `linear-gradient(${140 + (n-1)*22}deg, hsl(${(n-1)*44}, 50%, 30%), hsl(${(n-1)*44+20}, 38%, 15%))` }">
+            :style="{ background: `linear-gradient(${140 + (n-1)*22}deg, hsl(${(n-1)*44}, 50%, 72%), hsl(${(n-1)*44+20}, 38%, 15%))` }">
             <span class="ctp-num">{{ String(n).padStart(2, '0') }}</span>
           </section>
         </div>
@@ -117,7 +117,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.ctp-page { font-family: system-ui, sans-serif; background: #060610; color: #fff; }
+.ctp-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .ctp-scroll-area { position: relative; }
 .ctp-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .ctp-stack { position: relative; width: 100%; height: 100%; }
@@ -126,7 +126,7 @@ onUnmounted(destroy)
   will-change: clip-path, transform, opacity; transform-origin: center center;
   &::before { content: ''; position: absolute; inset: 28px; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; pointer-events: none; }
 }
-.ctp-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255,255,255,0.05); user-select: none; pointer-events: none; }
+.ctp-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46,0.05); user-select: none; pointer-events: none; }
 </style>
 
 <style lang="scss">
@@ -134,13 +134,13 @@ $accent: #e879f9;
 .ctp-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #f472b6); z-index: 1001; }
 .ctp-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .ctp-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.ctp-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.ctp-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .ctp-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .ctp-cur { color: $accent; font-weight: 700; }
 }
 </style>

@@ -173,7 +173,7 @@ onUnmounted(destroy)
             <div
               class="bkf-face bkf-front"
               :style="{
-                background: `linear-gradient(100deg, hsl(${(n - 1) * 40 + 20}, 25%, 18%) 0%, hsl(${(n - 1) * 40}, 35%, 25%) 5%, hsl(${(n - 1) * 40}, 30%, 20%) 100%)`,
+                background: `linear-gradient(100deg, hsl(${(n - 1) * 40 + 20}, 25%, 18%) 0%, hsl(${(n - 1) * 40}, 35%, 25%) 5%, hsl(${(n - 1) * 40}, 30%, 80%) 100%)`,
               }"
             >
               <span class="bkf-num">{{ String(n).padStart(2, '0') }}</span>
@@ -185,7 +185,7 @@ onUnmounted(destroy)
             <div
               class="bkf-face bkf-back"
               :style="{
-                background: `linear-gradient(260deg, hsl(${(n - 1) * 40 + 10}, 20%, 16%) 0%, hsl(${(n - 1) * 40 + 10}, 28%, 22%) 95%, hsl(${(n - 1) * 40 + 20}, 22%, 17%) 100%)`,
+                background: `linear-gradient(260deg, hsl(${(n - 1) * 40 + 10}, 20%, 84%) 0%, hsl(${(n - 1) * 40 + 10}, 28%, 78%) 95%, hsl(${(n - 1) * 40 + 20}, 22%, 17%) 100%)`,
               }"
             >
               <span class="bkf-num bkf-num-back">{{ String(n).padStart(2, '0') }}</span>
@@ -201,7 +201,7 @@ onUnmounted(destroy)
 .bkf-wrapper {
   font-family: 'Georgia', 'Times New Roman', serif;
   background: #0c0c14;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 .bkf-scroll-area {
@@ -250,7 +250,7 @@ onUnmounted(destroy)
   top: 5%;
   bottom: 5%;
   width: 10%;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5), transparent);
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.8), transparent);
   z-index: 250;
   pointer-events: none;
   opacity: 0;
@@ -294,7 +294,7 @@ onUnmounted(destroy)
 .bkf-num {
   font-size: clamp(3rem, 6vw, 5rem);
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.07);
+  color: rgba(26, 26, 46, 0.07);
   user-select: none;
   pointer-events: none;
   font-style: italic;
@@ -302,7 +302,7 @@ onUnmounted(destroy)
 }
 
 .bkf-num-back {
-  color: rgba(255, 255, 255, 0.04);
+  color: rgba(26, 26, 46, 0.04);
 }
 
 /* 页面纹理线 */
@@ -320,7 +320,7 @@ onUnmounted(destroy)
 
 .bkf-line {
   height: 1px;
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(26, 26, 46, 0.025);
   border-radius: 1px;
 }
 
@@ -360,20 +360,20 @@ $accent: #d4a574;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &.bkf-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent, 0.5);
   }
@@ -384,13 +384,13 @@ $accent: #d4a574;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
 
   .bkf-cur {
     color: $accent;

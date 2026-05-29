@@ -97,10 +97,10 @@ function updateCells(p: number) {
     if (!el) continue
     const seed = cellSeeds[i]
     const visible = seed > threshold
-    // 不可见时消失 + 缩小
-    el.style.opacity = visible ? '1' : '0.03'
+    // 不可见时淡化 + 缩小（浅色主题：亮度提升 + 透明代替暗化）
+    el.style.opacity = visible ? '1' : '0.06'
     el.style.transform = visible ? 'scale(1)' : 'scale(0.7)'
-    el.style.filter = visible ? 'none' : 'blur(6px) brightness(0.3)'
+    el.style.filter = visible ? 'none' : 'blur(6px) brightness(1.6) saturate(0.3)'
     el.style.pointerEvents = visible ? 'auto' : 'none'
   }
 }
@@ -141,7 +141,7 @@ onUnmounted(() => { st?.kill() })
 .ssf-scrollArea { position: relative; }
 .ssf-viewport {
   position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden;
-  background: #000005;
+  background: #f7f8fc;
 }
 .ssf-grid {
   display: grid;
@@ -158,41 +158,41 @@ onUnmounted(() => { st?.kill() })
 }
 .ssf-cell::before {
   content: ''; position: absolute; inset: 16px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(0,0,0,0.06);
   pointer-events: none; z-index: 2;
 }
 .ssf-num {
   position: absolute; bottom: 32px; right: 40px;
   font-size: clamp(4rem, 8vw, 10rem); font-weight: 900;
-  color: rgba(255,255,255,0.08); z-index: 1;
+  color: rgba(0,0,0,0.04); z-index: 1;
   font-family: 'Inter', system-ui, sans-serif; line-height: 1;
 }
-/* 霓虹荧光配色 */
-.ssf-cell-0  { background: #ff006e; }
-.ssf-cell-1  { background: #8338ec; }
-.ssf-cell-2  { background: #3a86ff; }
-.ssf-cell-3  { background: #00f5d4; }
-.ssf-cell-4  { background: #fee440; }
-.ssf-cell-5  { background: #ff5400; }
-.ssf-cell-6  { background: #9b5de5; }
-.ssf-cell-7  { background: #f15bb5; }
-.ssf-cell-8  { background: #00bbf9; }
-.ssf-cell-9  { background: #00f5d4; }
-.ssf-cell-10 { background: #ff006e; }
-.ssf-cell-11 { background: #fee440; }
-.ssf-cell-12 { background: #8338ec; }
-.ssf-cell-13 { background: #3a86ff; }
-.ssf-cell-14 { background: #ff5400; }
-.ssf-cell-15 { background: #f15bb5; }
-.ssf-cell-16 { background: #00bbf9; }
-.ssf-cell-17 { background: #9b5de5; }
-.ssf-cell-18 { background: #ff006e; }
-.ssf-cell-19 { background: #00f5d4; }
+/* 明亮青春糖果配色 */
+.ssf-cell-0  { background: #ff7eb3; }
+.ssf-cell-1  { background: #c084fc; }
+.ssf-cell-2  { background: #60a5fa; }
+.ssf-cell-3  { background: #2dd4bf; }
+.ssf-cell-4  { background: #fbbf24; }
+.ssf-cell-5  { background: #fb923c; }
+.ssf-cell-6  { background: #a78bfa; }
+.ssf-cell-7  { background: #f472b6; }
+.ssf-cell-8  { background: #38bdf8; }
+.ssf-cell-9  { background: #34d399; }
+.ssf-cell-10 { background: #f87171; }
+.ssf-cell-11 { background: #facc15; }
+.ssf-cell-12 { background: #818cf8; }
+.ssf-cell-13 { background: #4ade80; }
+.ssf-cell-14 { background: #fb923c; }
+.ssf-cell-15 { background: #e879f9; }
+.ssf-cell-16 { background: #22d3ee; }
+.ssf-cell-17 { background: #a5b4fc; }
+.ssf-cell-18 { background: #fb7185; }
+.ssf-cell-19 { background: #6ee7b7; }
 .ssf-nav { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 100; }
 .ssf-nav-rows, .ssf-nav-cols { display: flex; gap: 8px; justify-content: center; }
-.ssf-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.55); font-family: monospace; }
+.ssf-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(0,0,0,0.4); font-family: monospace; background: rgba(255,255,255,0.7); }
 .ssf-info { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 100; }
-.ssf-progress-bar { width: 200px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
-.ssf-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff006e, #8338ec, #3a86ff, #00f5d4); border-radius: 2px; transition: width 0.1s linear; }
-.ssf-pos { font-size: 12px; color: rgba(255,255,255,0.5); font-family: monospace; }
+.ssf-progress-bar { width: 200px; height: 4px; background: rgba(0,0,0,0.06); border-radius: 2px; overflow: hidden; }
+.ssf-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff7eb3, #c084fc, #60a5fa, #2dd4bf, #fbbf24); border-radius: 2px; transition: width 0.1s linear; }
+.ssf-pos { font-size: 12px; color: rgba(0,0,0,0.45); font-family: monospace; font-weight: 500; }
 </style>

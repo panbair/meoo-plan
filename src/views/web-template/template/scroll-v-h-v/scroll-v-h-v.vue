@@ -204,7 +204,7 @@ onUnmounted(destroy)
               :key="'v1-' + n"
               class="vhv-panel"
               :style="{
-                background: `linear-gradient(${155 + (n - 1) * 18}deg, hsl(${200 + (n - 1) * 22}, 50%, 30%), hsl(${220 + (n - 1) * 22}, 40%, 16%))`,
+                background: `linear-gradient(${155 + (n - 1) * 18}deg, hsl(${200 + (n - 1) * 22}, 50%, 72%), hsl(${220 + (n - 1) * 22}, 40%, 84%))`,
               }"
             >
               <span class="vhv-num">{{ String(n).padStart(2, '0') }}</span>
@@ -233,7 +233,7 @@ onUnmounted(destroy)
             :key="'v2-' + n"
             class="vhv-panel vhv-abs-panel"
             :style="{
-              background: `linear-gradient(${170 + n * 20}deg, hsl(${280 + n * 25}, 48%, 30%), hsl(${300 + n * 25}, 38%, 16%))`,
+              background: `linear-gradient(${170 + n * 20}deg, hsl(${280 + n * 25}, 48%, 72%), hsl(${300 + n * 25}, 38%, 84%))`,
               top: ((V1 - 1) + n) * 100 + 'vh',
               left: (H - 1) * 100 + 'vw',
             }"
@@ -250,7 +250,7 @@ onUnmounted(destroy)
 .vhv-page {
   font-family: system-ui, -apple-system, sans-serif;
   background: #0a0a14;
-  color: #fff;
+  color: #1a1a2e;
 }
 
 .vhv-scroll-area {
@@ -303,7 +303,7 @@ onUnmounted(destroy)
 .vhv-num {
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
 }
@@ -311,7 +311,7 @@ onUnmounted(destroy)
 .vhv-turn-hint {
   position: absolute;
   font-size: 2rem;
-  color: rgba(255, 255, 255, 0.12);
+  color: rgba(26, 26, 46, 0.12);
   pointer-events: none;
 }
 
@@ -387,34 +387,34 @@ $c-v2: #c084fc;
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &[data-phase='v1'].vhv-active {
     background: $c-v1;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 12px rgba($c-v1, 0.5);
   }
 
   &[data-phase='h'].vhv-active {
     background: $c-h;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 12px rgba($c-h, 0.5);
   }
 
   &[data-phase='v2'].vhv-active {
     background: $c-v2;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 12px rgba($c-v2, 0.5);
   }
@@ -425,13 +425,13 @@ $c-v2: #c084fc;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
   display: flex;
   align-items: center;
   gap: 6px;

@@ -133,7 +133,7 @@ onUnmounted(destroy)
       <div class="sc-pinned">
         <div id="scTrack" class="sc-track">
           <section v-for="n in totalPanels" :key="n" class="sc-panel" :style="{
-            background: `linear-gradient(135deg, hsl(${(n-1)*52+120}, 20%, 10%), hsl(${(n-1)*52}, 15%, 6%))`
+            background: `linear-gradient(135deg, hsl(${(n-1)*52+120}, 20%, 90%), hsl(${(n-1)*52}, 15%, 6%))`
           }">
             <!-- 深景层（最远，几乎不动） -->
             <div class="sc-deep-bg" :style="{
@@ -162,7 +162,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.sc-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #040408; color: #fff; }
+.sc-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .sc-scroll-area { position: relative; }
 .sc-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .sc-track { display: flex; will-change: transform; }
@@ -178,11 +178,11 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .sc-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 14px; }
-.sc-nav-dot { width: 12px; height: 12px; border-radius: 2px; background: rgba(255,255,255,.08); cursor: pointer; border: 1px solid rgba(255,255,255,.06); transition: all .3s;
-  &:hover { background: rgba(255,255,255,.3); transform: scale(1.3) rotate(45deg); }
+.sc-nav-dot { width: 12px; height: 12px; border-radius: 2px; background: rgba(26, 26, 46,.08); cursor: pointer; border: 1px solid rgba(255,255,255,.06); transition: all .3s;
+  &:hover { background: rgba(26, 26, 46,.3); transform: scale(1.3) rotate(45deg); }
   &.sc-active { background: #88dd70; border-color: rgba(136,221,112,.4); width: 24px; border-radius: 6px; box-shadow: 0 0 16px rgba(136,221,112,.3); }
 }
 .sc-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #88dd70, #44aa88, #88dd70); }
-.sc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.sc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .sc-nav-dots { gap: 10px; } .sc-page-indicator { top: 16px; right: 14px; } }
 </style>

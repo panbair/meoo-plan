@@ -114,9 +114,9 @@ onUnmounted(destroy)
         <div v-for="n in TOTAL" :key="n" class="psp-group">
           <!-- 左半 -->
           <div class="psp-half psp-left"
-            :style="{ background: `linear-gradient(90deg, hsl(${(n-1)*44}, 50%, 28%), hsl(${(n-1)*44+10}, 42%, 20%))` }">
+            :style="{ background: `linear-gradient(90deg, hsl(${(n-1)*44}, 50%, 28%), hsl(${(n-1)*44+10}, 42%, 80%))` }">
             <div class="psp-inner">
-              <div class="psp-deco psp-deco-circle" :style="{ borderColor: `hsla(${(n-1)*44+20}, 50%, 40%, 0.08)` }"></div>
+              <div class="psp-deco psp-deco-circle" :style="{ borderColor: `hsla(${(n-1)*44+20}, 50%, 75%,0.08)` }"></div>
             </div>
           </div>
           <!-- 右半 -->
@@ -135,7 +135,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.psp-page { font-family: system-ui, sans-serif; background: #060610; color: #fff; }
+.psp-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .psp-scroll-area { position: relative; }
 .psp-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .psp-group { position: absolute; inset: 0; will-change: opacity; }
@@ -146,12 +146,12 @@ onUnmounted(destroy)
 
 .psp-inner { position: absolute; inset: 0; will-change: transform; display: flex; align-items: center; justify-content: center; }
 
-.psp-num { font-size: clamp(4rem, 10vw, 8rem); font-weight: 900; color: rgba(255,255,255,0.06); user-select: none; pointer-events: none; }
+.psp-num { font-size: clamp(4rem, 10vw, 8rem); font-weight: 900; color: rgba(26, 26, 46,0.06); user-select: none; pointer-events: none; }
 
 .psp-deco { position: absolute; pointer-events: none; }
 .psp-deco-circle { width: 40vw; height: 40vw; max-width: 350px; max-height: 350px; border-radius: 50%; border: 1px solid; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 
-.psp-seam { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.03); pointer-events: none; z-index: 10; }
+.psp-seam { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(26, 26, 46,0.03); pointer-events: none; z-index: 10; }
 </style>
 
 <style lang="scss">
@@ -159,13 +159,13 @@ $accent: #0ea5e9;
 .psp-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #38bdf8); z-index: 1001; }
 .psp-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .psp-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.psp-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.psp-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .psp-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .psp-cur { color: $accent; font-weight: 700; }
 }
 </style>

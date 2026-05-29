@@ -188,7 +188,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.dd-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #03030a; color: #fff; }
+.dd-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #03030a; color: #1a1a2e; }
 .dd-scroll-area { position: relative; }
 .dd-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .dd-panel {
@@ -200,7 +200,7 @@ onUnmounted(destroy)
 .dd-panel-0 { background: linear-gradient(135deg, #1a0a0a, #3e1a1a); }
 .dd-panel-1 { background: linear-gradient(135deg, #1a1a0a, #3e3e1a); }
 .dd-panel-2 { background: linear-gradient(135deg, #0a1a0a, #1a3e1a); }
-.dd-panel-3 { background: linear-gradient(135deg, #0a0a1a, #1a1a3e); }
+.dd-panel-3 { background: linear-gradient(135deg, #0a0a1a, #dcdcf0); }
 .dd-panel-4 { background: linear-gradient(135deg, #1a0a1a, #3e1a3e); }
 .dd-panel-5 { background: linear-gradient(135deg, #0a1a1a, #1a3e3e); }
 .dd-panel-6 { background: linear-gradient(135deg, #1a1a1a, #3e3e3e); }
@@ -214,6 +214,6 @@ onUnmounted(destroy)
   &.dd-active { background: #ff3264; border-color: rgba(255,50,100,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(255,50,100,.5); }
 }
 .dd-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #ff3264, #ff6600, #ffcc00); box-shadow: 0 0 15px rgba(255,50,100,.5); }
-.dd-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.dd-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .dd-nav-dots { gap: 10px; } .dd-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

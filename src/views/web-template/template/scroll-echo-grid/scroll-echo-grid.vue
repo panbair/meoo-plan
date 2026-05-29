@@ -162,34 +162,34 @@ onUnmounted(() => { st?.kill() })
 .seg-num {
   position: absolute; bottom: 32px; right: 40px;
   font-size: clamp(4rem, 8vw, 10rem); font-weight: 900;
-  color: rgba(255,255,255,0.06); z-index: 1;
+  color: rgba(26, 26, 46,0.06); z-index: 1;
   font-family: 'Inter', system-ui, sans-serif; line-height: 1;
 }
-.seg-cell-0  { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); }
-.seg-cell-1  { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+.seg-cell-0  { background: linear-gradient(135deg, #e8f0f4 0%, #203a43 50%, #d0e4ec 100%); }
+.seg-cell-1  { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #d0ddf0 100%); }
 .seg-cell-2  { background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); }
-.seg-cell-3  { background: linear-gradient(135deg, #141e30 0%, #243b55 100%); }
+.seg-cell-3  { background: linear-gradient(135deg, #e8ecf2 0%, #d4e0ec 100%); }
 .seg-cell-4  { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); }
 .seg-cell-5  { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
 .seg-cell-6  { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%); }
 .seg-cell-7  { background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%); }
-.seg-cell-8  { background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%); }
-.seg-cell-9  { background: linear-gradient(135deg, #141e30 0%, #1e3c72 100%); }
+.seg-cell-8  { background: linear-gradient(135deg, #e8f0f4 0%, #d0e4ec 100%); }
+.seg-cell-9  { background: linear-gradient(135deg, #e8ecf2 0%, #1e3c72 100%); }
 .seg-cell-10 { background: linear-gradient(135deg, #302b63 0%, #0f0c29 100%); }
-.seg-cell-11 { background: linear-gradient(135deg, #203a43 0%, #0f2027 100%); }
+.seg-cell-11 { background: linear-gradient(135deg, #203a43 0%, #e8f0f4 100%); }
 .seg-cell-12 { background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%); }
 .seg-cell-13 { background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%); }
-.seg-cell-14 { background: linear-gradient(135deg, #243b55 0%, #141e30 100%); }
+.seg-cell-14 { background: linear-gradient(135deg, #d4e0ec 0%, #e8ecf2 100%); }
 .seg-cell-15 { background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%); }
-.seg-cell-16 { background: linear-gradient(135deg, #0f3460 0%, #16213e 100%); }
+.seg-cell-16 { background: linear-gradient(135deg, #d0ddf0 0%, #16213e 100%); }
 .seg-cell-17 { background: linear-gradient(135deg, #b21f1f 0%, #1a2a6c 100%); }
 .seg-cell-18 { background: linear-gradient(135deg, #fdbb2d 0%, #b21f1f 100%); }
-.seg-cell-19 { background: linear-gradient(135deg, #2c5364 0%, #203a43 100%); }
+.seg-cell-19 { background: linear-gradient(135deg, #d0e4ec 0%, #203a43 100%); }
 .seg-nav { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 100; }
 .seg-nav-rows, .seg-nav-cols { display: flex; gap: 8px; justify-content: center; }
-.seg-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.5); font-family: monospace; }
+.seg-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(26, 26, 46,0.5); font-family: monospace; }
 .seg-info { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 100; }
-.seg-progress-bar { width: 200px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
-.seg-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #2c5364, #fdbb2d); border-radius: 2px; transition: width 0.1s linear; }
-.seg-pos { font-size: 12px; color: rgba(255,255,255,0.4); font-family: monospace; }
+.seg-progress-bar { width: 200px; height: 4px; background: rgba(26, 26, 46,0.08); border-radius: 2px; overflow: hidden; }
+.seg-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #d0e4ec, #fdbb2d); border-radius: 2px; transition: width 0.1s linear; }
+.seg-pos { font-size: 12px; color: rgba(26, 26, 46,0.4); font-family: monospace; }
 </style>

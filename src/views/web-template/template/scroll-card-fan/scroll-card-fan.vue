@@ -146,7 +146,7 @@ onUnmounted(destroy)
             :key="n"
             class="cfn-card"
             :style="{
-              background: `linear-gradient(${160 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 30%), hsl(${(n - 1) * 44 + 20}, 38%, 15%))`,
+              background: `linear-gradient(${160 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 72%), hsl(${(n - 1) * 44 + 20}, 38%, 15%))`,
             }"
           >
             <span class="cfn-num">{{ String(n).padStart(2, '0') }}</span>
@@ -164,8 +164,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .cfn-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #060610;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .cfn-scroll-area {
@@ -206,7 +206,7 @@ onUnmounted(destroy)
 .cfn-num {
   font-size: clamp(4rem, 8vw, 7rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.06);
+  color: rgba(26, 26, 46, 0.06);
   user-select: none;
   pointer-events: none;
 }
@@ -215,7 +215,7 @@ onUnmounted(destroy)
   position: absolute;
   width: 20px;
   height: 20px;
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(26, 26, 46, 0.06);
   border-style: solid;
   border-width: 0;
   pointer-events: none;
@@ -289,20 +289,20 @@ $accent: #10b981;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &.cfn-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($accent, 0.5);
   }
@@ -313,13 +313,13 @@ $accent: #10b981;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
 
   .cfn-cur {
     color: $accent;

@@ -172,7 +172,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.pe-page { font-family: 'Courier New', 'Noto Sans SC', monospace; background: #0a0a0a; color: #0f0; }
+.pe-page { font-family: 'Courier New', 'Noto Sans SC', monospace; background: #f5f0f8; color: #0f0; }
 .pe-scroll-area { position: relative; }
 .pe-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .pe-panel {

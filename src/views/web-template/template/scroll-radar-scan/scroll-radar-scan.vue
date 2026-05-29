@@ -136,7 +136,7 @@ onUnmounted(destroy)
     <div id="rdrArea" class="rdr-scroll-area">
       <div class="rdr-viewport">
         <section v-for="n in TOTAL" :key="n" class="rdr-panel"
-          :style="{ background: `radial-gradient(circle at 50% 50%, hsl(${(n-1)*44+120}, 40%, 20%), hsl(${(n-1)*44+140}, 30%, 8%))` }">
+          :style="{ background: `radial-gradient(circle at 50% 50%, hsl(${(n-1)*44+120}, 40%, 80%), hsl(${(n-1)*44+140}, 30%, 92%))` }">
           <span class="rdr-num">{{ String(n).padStart(2, '0') }}</span>
         </section>
       </div>
@@ -189,7 +189,7 @@ $accent: #22c55e;
 .rdr-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #4ade80); z-index: 1001; }
 .rdr-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .rdr-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
   &:hover { background: rgba(0,255,80,0.4); transform: scale(1.3); }
   &.rdr-active { background: $accent; border-color: rgba(0,255,80,0.4); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }

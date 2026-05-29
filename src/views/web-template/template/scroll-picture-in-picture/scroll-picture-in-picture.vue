@@ -75,7 +75,7 @@ function init() {
           panel.style.opacity = String(Math.max(0, 1 - fadeP))
           panel.style.zIndex = String(TOTAL + 5)
           panel.style.borderRadius = '16px'
-          panel.style.boxShadow = '0 8px 30px rgba(0,0,0,0.6)'
+          panel.style.boxShadow = '0 8px 30px rgba(255, 255, 255, 0.85)'
         } else if (dist < 0) {
           // 正在缩小到画中画 (-1 < dist < 0)
           const shrinkP = -dist // 0→1
@@ -128,7 +128,7 @@ onUnmounted(destroy)
     <div id="pipArea" class="pip-scroll-area">
       <div class="pip-viewport">
         <section v-for="n in TOTAL" :key="n" class="pip-panel"
-          :style="{ background: `linear-gradient(${140+(n-1)*20}deg, hsl(${(n-1)*44}, 50%, 30%), hsl(${(n-1)*44+20}, 38%, 16%))` }">
+          :style="{ background: `linear-gradient(${140+(n-1)*20}deg, hsl(${(n-1)*44}, 50%, 72%), hsl(${(n-1)*44+20}, 38%, 84%))` }">
           <span class="pip-num">{{ String(n).padStart(2, '0') }}</span>
         </section>
       </div>
@@ -137,7 +137,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.pip-page { font-family: system-ui, sans-serif; background: #08080f; color: #fff; }
+.pip-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .pip-scroll-area { position: relative; }
 .pip-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .pip-panel {
@@ -145,7 +145,7 @@ onUnmounted(destroy)
   will-change: transform, opacity, border-radius; transform-origin: top left; overflow: hidden;
   &::before { content: ''; position: absolute; inset: 24px; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; pointer-events: none; }
 }
-.pip-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255,255,255,0.05); user-select: none; pointer-events: none; }
+.pip-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46,0.05); user-select: none; pointer-events: none; }
 </style>
 
 <style lang="scss">
@@ -153,13 +153,13 @@ $accent: #3b82f6;
 .pip-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #60a5fa); z-index: 1001; }
 .pip-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .pip-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.pip-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.pip-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .pip-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .pip-cur { color: $accent; font-weight: 700; }
 }
 </style>

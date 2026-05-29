@@ -111,7 +111,7 @@ onUnmounted(destroy)
           <section v-for="n in totalSegments" :key="n" class="sp-panel" :class="n % 2 === 1 ? 'sp-even' : 'sp-odd'" :style="{
             left: `${(n-1)*100}vw`,
             background: n % 2 === 1
-              ? `linear-gradient(135deg, hsl(${(n-1)*51},30%,14%), hsl(${(n-1)*51+20},20%,8%))`
+              ? `linear-gradient(135deg, hsl(${(n-1)*51}, 30%, 86%), hsl(${(n-1)*51+20}, 20%, 92%))`
               : `linear-gradient(225deg, hsl(${(n-1)*51+60},28%,12%), hsl(${(n-1)*51+80},18%,6%))`
           }">
             <div class="sp-content" :style="{ flexDirection: n % 2 === 1 ? 'column' : 'column-reverse' }">
@@ -127,7 +127,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.sp-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060512; color: #fff; }
+.sp-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060512; color: #1a1a2e; }
 .sp-scroll-area { position: relative; }
 .sp-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .sp-track { position: relative; height: 100vh; will-change: transform; }
@@ -143,10 +143,10 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .sp-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 12px; }
-.sp-nav-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.12); cursor: pointer; transition: all .3s; border: none;
-  &:hover { background: rgba(255,255,255,.35); }
+.sp-nav-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,.12); cursor: pointer; transition: all .3s; border: none;
+  &:hover { background: rgba(26, 26, 46,.35); }
   &.sp-active { background: #60d0a0; transform: scale(1.5); box-shadow: 0 0 16px rgba(96,208,160,.5); }
 }
 .sp-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #60d0a0, #40b080); }
-.sp-indicator { position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.sp-indicator { position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.75); }
 </style>

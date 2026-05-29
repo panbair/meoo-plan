@@ -143,7 +143,7 @@ onUnmounted(destroy)
       <div class="elv-viewport">
         <!-- 楼层内容(电梯门后面) -->
         <section v-for="n in TOTAL" :key="n" class="elv-floor"
-          :style="{ background: `linear-gradient(180deg, hsl(${(n-1)*44}, 40%, 25%), hsl(${(n-1)*44+20}, 32%, 14%))` }">
+          :style="{ background: `linear-gradient(180deg, hsl(${(n-1)*44}, 40%, 25%), hsl(${(n-1)*44+20}, 32%, 86%))` }">
           <span class="elv-num">{{ String(n).padStart(2, '0') }}</span>
           <div class="elv-floor-label">{{ n }}F</div>
         </section>
@@ -170,7 +170,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.elv-page { font-family: system-ui, sans-serif; background: #0a0a12; color: #fff; }
+.elv-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .elv-scroll-area { position: relative; }
 .elv-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 
@@ -179,8 +179,8 @@ onUnmounted(destroy)
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
   opacity: 0; will-change: opacity;
 }
-.elv-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(255,255,255,0.04); user-select: none; }
-.elv-floor-label { font-size: 1rem; color: rgba(255,255,255,0.15); letter-spacing: 4px; }
+.elv-num { font-size: clamp(5rem, 12vw, 10rem); font-weight: 900; color: rgba(26, 26, 46,0.04); user-select: none; }
+.elv-floor-label { font-size: 1rem; color: rgba(26, 26, 46,0.15); letter-spacing: 4px; }
 
 /* 电梯门 */
 .elv-doors { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
@@ -196,18 +196,18 @@ onUnmounted(destroy)
 }
 .elv-door-handle {
   position: absolute; top: 50%; width: 3px; height: 50px; border-radius: 2px;
-  background: rgba(255,255,255,0.08); transform: translateY(-50%);
+  background: rgba(26, 26, 46,0.08); transform: translateY(-50%);
 }
 .elv-door-l .elv-door-handle { right: 16px; }
 .elv-door-r .elv-door-handle { left: 16px; }
 
-.elv-gap { position: absolute; left: 50%; top: 3vh; bottom: 3vh; width: 2px; margin-left: -1px; background: rgba(0,0,0,0.6); z-index: 11; }
+.elv-gap { position: absolute; left: 50%; top: 3vh; bottom: 3vh; width: 2px; margin-left: -1px; background: rgba(255, 255, 255, 0.85); z-index: 11; }
 
 /* 电梯框架 */
 .elv-frame {
   position: absolute; inset: 2vh 0; border: 3px solid rgba(255,255,255,0.04); border-radius: 4px;
   pointer-events: none; z-index: 12;
-  &::before { content: ''; position: absolute; top: 0; left: 50%; width: 40%; transform: translateX(-50%); height: 3px; background: rgba(255,255,255,0.04); border-radius: 2px; }
+  &::before { content: ''; position: absolute; top: 0; left: 50%; width: 40%; transform: translateX(-50%); height: 3px; background: rgba(26, 26, 46,0.04); border-radius: 2px; }
 }
 
 /* 楼层指示器 */
@@ -226,13 +226,13 @@ $accent: #f59e0b;
 .elv-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #fbbf24); z-index: 1001; }
 .elv-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .elv-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.elv-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.elv-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .elv-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .elv-cur { color: $accent; font-weight: 700; }
 }
 </style>

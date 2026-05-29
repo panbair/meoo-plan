@@ -140,7 +140,7 @@ onUnmounted(() => { st?.kill() })
 .smp-scrollArea { position: relative; }
 .smp-viewport {
   position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden;
-  background: #0a0a0f;
+  background: #f5f0f8;
 }
 .smp-grid {
   display: grid;
@@ -163,7 +163,7 @@ onUnmounted(() => { st?.kill() })
 .smp-num {
   position: absolute; bottom: 32px; right: 40px;
   font-size: clamp(4rem, 8vw, 10rem); font-weight: 900;
-  color: rgba(255,255,255,0.06); z-index: 1;
+  color: rgba(26, 26, 46,0.06); z-index: 1;
   font-family: 'Inter', system-ui, sans-serif; line-height: 1;
 }
 .smp-cell-0  { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
@@ -188,9 +188,9 @@ onUnmounted(() => { st?.kill() })
 .smp-cell-19 { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
 .smp-nav { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 100; }
 .smp-nav-rows, .smp-nav-cols { display: flex; gap: 8px; justify-content: center; }
-.smp-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.6); font-family: monospace; }
+.smp-nav-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(26, 26, 46,0.6); font-family: monospace; }
 .smp-info { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 100; }
-.smp-progress-bar { width: 200px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.smp-progress-bar { width: 200px; height: 4px; background: rgba(26, 26, 46,0.1); border-radius: 2px; overflow: hidden; }
 .smp-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #667eea, #f093fb); border-radius: 2px; transition: width 0.1s linear; }
-.smp-pos { font-size: 12px; color: rgba(255,255,255,0.5); font-family: monospace; }
+.smp-pos { font-size: 12px; color: rgba(26, 26, 46,0.5); font-family: monospace; }
 </style>

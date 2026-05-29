@@ -18,6 +18,7 @@ const N = 7
 let vh = 0
 let cur = 0
 let jumping = false
+let ready = false  // 标志：初始化完成前不触屏边界循环
 let touchY = 0
 let scroller: HTMLElement | null = null
 let bar: HTMLElement | null = null
@@ -50,7 +51,7 @@ function go(i: number) {
 }
 
 function onScroll() {
-  if (!scroller || jumping) return
+  if (!scroller || jumping || !ready) return
   const top = scroller.scrollTop
   const max = scroller.scrollHeight - scroller.clientHeight
   let i = Math.round(top / vh)
@@ -90,8 +91,11 @@ function init() {
   document.addEventListener('touchend', onTE, { passive: true })
   createDots()
   updateUI(0)
+  // 延迟启用边界循环，避免初始化时 scrollTop=0 触发误跳
+  setTimeout(() => { ready = true }, 300)
 }
 function destroy() {
+  ready = false
   st?.kill(); st = null
   scroller?.removeEventListener('scroll', onScroll)
   document.removeEventListener('keydown', onKey)
@@ -119,20 +123,20 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 $bg: #050510;
 $accent: #7c5cfc;
-.sc-page { height: 100vh; overflow: hidden; font-family: system-ui, sans-serif; background: $bg; color: #f0f0f8; }
+.sc-page { height: 100vh; overflow: hidden; font-family: system-ui, sans-serif; background: $bg; color: #1a1a2e; }
 .sc-container { height: 100%; overflow-y: auto; overflow-x: hidden; }
 .sc-track { /* wrapper for ScrollTrigger snap trigger */ }
 .sc-panel {
   width: 100%; height: 100vh;
   display: flex; align-items: center; justify-content: center;
-  font-size: 6rem; font-weight: 300; color: rgba(255,255,255,0.25);
+  font-size: 6rem; font-weight: 300; color: rgba(26, 26, 46,0.25);
   position: relative; overflow: hidden;
   &::after {
     position: absolute; bottom: 30px; right: 40px;
-    font-size: 8rem; font-weight: 900; color: rgba(255,255,255,0.025);
+    font-size: 8rem; font-weight: 900; color: rgba(26, 26, 46,0.025);
     pointer-events: none;
   }
-  &.p1 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(124,92,252,0.1), transparent), linear-gradient(180deg, #06081c, #0e1240, #0a0e30); &::after { content: '01'; } }
+  &.p1 { background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(124,92,252,0.1), transparent), linear-gradient(180deg, #f0f2f8, #0e1240, #eceef4); &::after { content: '01'; } }
   &.p2 { background: radial-gradient(ellipse 60% 50% at 70% 30%, rgba(6,182,212,0.08), transparent), linear-gradient(135deg, #071820, #0e3040, #164e5c); &::after { content: '02'; } }
   &.p3 { background: radial-gradient(ellipse 50% 60% at 30% 60%, rgba(139,92,246,0.07), transparent), linear-gradient(135deg, #0c0c24, #162450, #0e1838); &::after { content: '03'; } }
   &.p4 { background: radial-gradient(ellipse 60% 50% at 60% 30%, rgba(59,130,246,0.08), transparent), linear-gradient(135deg, #0c0c22, #0e2850, #0a1840); &::after { content: '04'; } }
@@ -159,16 +163,16 @@ $accent: #7c5cfc;
 }
 .sc-dot {
   width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.35);
+  background: rgba(26, 26, 46,0.06); color: rgba(26, 26, 46,0.35);
   font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
   display: flex; align-items: center; justify-content: center;
-  &:hover { background: rgba(255,255,255,0.15); }
-  &.active { background: $accent; border-color: rgba(255,255,255,0.5); color: #fff; transform: scale(1.15); box-shadow: 0 0 16px rgba(124,92,252,0.4); }
+  &:hover { background: rgba(26, 26, 46,0.15); }
+  &.active { background: $accent; border-color: rgba(26, 26, 46,0.5); color: #1a1a2e; transform: scale(1.15); box-shadow: 0 0 16px rgba(124,92,252,0.4); }
 }
 .sc-indicator {
   position: fixed; top: 20px; left: 20px; z-index: 1000;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 6px 18px; border-radius: 20px;
-  font-size: 0.8rem; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); padding: 6px 18px; border-radius: 20px;
+  font-size: 0.8rem; color: rgba(26, 26, 46,0.7); border: 1px solid rgba(255,255,255,0.08);
   .sc-cur { color: $accent; font-weight: 700; }
 }
 </style>

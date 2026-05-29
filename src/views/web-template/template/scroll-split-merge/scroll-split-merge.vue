@@ -216,7 +216,7 @@ onUnmounted(destroy)
             <div
               class="spm-slide spm-panel"
               :style="{
-                background: `linear-gradient(${155 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 30%), hsl(${(n - 1) * 44 + 20}, 38%, 16%))`,
+                background: `linear-gradient(${155 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 72%), hsl(${(n - 1) * 44 + 20}, 38%, 84%))`,
               }"
             >
               <span class="spm-num">{{ String(n).padStart(2, '0') }}</span>
@@ -230,7 +230,7 @@ onUnmounted(destroy)
             <div
               class="spm-left spm-panel spm-half"
               :style="{
-                background: `linear-gradient(${140 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 30%), hsl(${(n - 1) * 44 + 20}, 38%, 16%))`,
+                background: `linear-gradient(${140 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 72%), hsl(${(n - 1) * 44 + 20}, 38%, 84%))`,
               }"
             >
               <span class="spm-num spm-num-left">{{ String(n).padStart(2, '0') }}</span>
@@ -240,7 +240,7 @@ onUnmounted(destroy)
             <div
               class="spm-right spm-panel spm-half"
               :style="{
-                background: `linear-gradient(${140 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 30%), hsl(${(n - 1) * 44 + 20}, 38%, 16%))`,
+                background: `linear-gradient(${140 + (n - 1) * 20}deg, hsl(${(n - 1) * 44}, 50%, 72%), hsl(${(n - 1) * 44 + 20}, 38%, 84%))`,
               }"
             >
               <span class="spm-num spm-num-right">{{ String(n).padStart(2, '0') }}</span>
@@ -255,8 +255,8 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .spm-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #08080f;
-  color: #fff;
+  background: #f5f0f8;
+  color: #1a1a2e;
 }
 
 .spm-scroll-area {
@@ -317,7 +317,7 @@ onUnmounted(destroy)
 .spm-num {
   font-size: clamp(5rem, 12vw, 10rem);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(26, 26, 46, 0.05);
   user-select: none;
   pointer-events: none;
 }
@@ -333,7 +333,7 @@ onUnmounted(destroy)
 
 .spm-mode-label {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.08);
+  color: rgba(26, 26, 46, 0.08);
   letter-spacing: 3px;
   pointer-events: none;
 }
@@ -346,7 +346,7 @@ onUnmounted(destroy)
   top: 10%;
   bottom: 10%;
   width: 1px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(26, 26, 46, 0.03);
   pointer-events: none;
 }
 </style>
@@ -380,27 +380,27 @@ $c-split: #f472b6;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.15);
   cursor: pointer;
   border: 2px solid transparent;
   padding: 0;
   transition: all 0.3s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(26, 26, 46, 0.4);
     transform: scale(1.3);
   }
 
   &[data-type='slide'].spm-active {
     background: $c-slide;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($c-slide, 0.5);
   }
 
   &[data-type='split'].spm-active {
     background: $c-split;
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(26, 26, 46, 0.35);
     transform: scale(1.5);
     box-shadow: 0 0 14px rgba($c-split, 0.5);
   }
@@ -411,13 +411,13 @@ $c-split: #f472b6;
   top: 28px;
   right: 28px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   padding: 8px 20px;
   border-radius: 24px;
   font-size: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(26, 26, 46, 0.75);
   display: flex;
   align-items: center;
   gap: 8px;

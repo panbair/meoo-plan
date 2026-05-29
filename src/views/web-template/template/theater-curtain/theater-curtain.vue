@@ -211,7 +211,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tc-page { font-family: 'Noto Serif SC', 'Georgia', serif; background: #0d0d0d; color: #e8d5b0; }
+.tc-page { font-family: 'Noto Serif SC', 'Georgia', serif; background: #f5f0f8; color: #1a1a2e; }
 .tc-scroll-area { position: relative; }
 .tc-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .tc-panel {
@@ -233,7 +233,7 @@ onUnmounted(destroy)
 .tc-curtain-r { right: 0; box-shadow: inset 4px 0 20px rgba(0,0,0,.6); }
 .tc-explode-container { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .tc-content { text-align: center; z-index: 2; position: relative;
-  h2 { font-size: 5.5rem; font-weight: 300; margin: 0; letter-spacing: 16px; color: #e8d5b0; text-shadow: 0 0 40px rgba(232,213,176,.2); }
+  h2 { font-size: 5.5rem; font-weight: 300; margin: 0; letter-spacing: 16px; color: #1a1a2e; text-shadow: 0 0 40px rgba(232,213,176,.2); }
 }
 .tc-panel-0 { background: radial-gradient(ellipse at center, #1a1008 0%, #0d0d0d 60%); }
 .tc-panel-1 { background: radial-gradient(ellipse at center, #1a1408 0%, #0d0d0d 60%); }

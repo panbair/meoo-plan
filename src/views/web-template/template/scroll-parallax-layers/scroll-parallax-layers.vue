@@ -107,7 +107,7 @@ onUnmounted(destroy)
         <div v-for="n in TOTAL" :key="n" class="plx-group">
           <!-- 背景层(最慢) -->
           <div class="plx-layer plx-bg"
-            :style="{ background: `radial-gradient(ellipse at 50% 60%, hsl(${(n-1)*44}, 40%, 22%), hsl(${(n-1)*44+20}, 30%, 10%))` }">
+            :style="{ background: `radial-gradient(ellipse at 50% 60%, hsl(${(n-1)*44}, 40%, 78%), hsl(${(n-1)*44+20}, 30%, 90%))` }">
             <div class="plx-bg-shape plx-bg-circle"></div>
             <div class="plx-bg-shape plx-bg-line"></div>
           </div>
@@ -118,8 +118,8 @@ onUnmounted(destroy)
           </div>
           <!-- 前景层(最快) -->
           <div class="plx-layer plx-fg">
-            <div class="plx-fg-bar" :style="{ background: `hsla(${(n-1)*44+10}, 50%, 35%, 0.15)` }"></div>
-            <div class="plx-fg-dot" :style="{ background: `hsla(${(n-1)*44+20}, 55%, 40%, 0.1)` }"></div>
+            <div class="plx-fg-bar" :style="{ background: `hsla(${(n-1)*44+10}, 50%, 70%,0.15)` }"></div>
+            <div class="plx-fg-dot" :style="{ background: `hsla(${(n-1)*44+20}, 55%, 75%,0.1)` }"></div>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.plx-page { font-family: system-ui, sans-serif; background: #040408; color: #fff; }
+.plx-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .plx-scroll-area { position: relative; }
 .plx-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .plx-group { position: absolute; inset: 0; }
@@ -138,11 +138,11 @@ onUnmounted(destroy)
 .plx-bg { display: flex; align-items: center; justify-content: center; }
 .plx-bg-shape { position: absolute; pointer-events: none; }
 .plx-bg-circle { width: 50vw; height: 50vw; max-width: 500px; max-height: 500px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.03); top: 20%; left: 25%; }
-.plx-bg-line { width: 60%; height: 1px; background: rgba(255,255,255,0.02); bottom: 30%; left: 20%; }
+.plx-bg-line { width: 60%; height: 1px; background: rgba(26, 26, 46,0.02); bottom: 30%; left: 20%; }
 
 /* 中景层 */
 .plx-mid { display: flex; align-items: center; justify-content: center; }
-.plx-num { font-size: clamp(5rem, 14vw, 12rem); font-weight: 900; color: rgba(255,255,255,0.06); user-select: none; pointer-events: none; }
+.plx-num { font-size: clamp(5rem, 14vw, 12rem); font-weight: 900; color: rgba(26, 26, 46,0.06); user-select: none; pointer-events: none; }
 
 /* 前景层 */
 .plx-fg { pointer-events: none; }
@@ -155,13 +155,13 @@ $accent: #6366f1;
 .plx-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #8b5cf6); z-index: 1001; }
 .plx-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .plx-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.plx-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.plx-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .plx-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .plx-cur { color: $accent; font-weight: 700; }
 }
 </style>

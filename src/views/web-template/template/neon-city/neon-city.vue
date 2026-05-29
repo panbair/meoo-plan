@@ -179,7 +179,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.nc-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #020208; color: #f0f0f8; }
+.nc-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .nc-scroll-area { position: relative; }
 .nc-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .nc-panel {
@@ -189,13 +189,13 @@ onUnmounted(destroy)
 }
 .nc-slice-container { position: absolute; inset: 0; z-index: 0; }
 .nc-content { text-align: center; z-index: 2; position: relative; h2 { font-size: 6rem; font-weight: 900; margin: 0; text-shadow: 0 0 40px rgba(0,255,255,.25), 0 0 80px rgba(255,0,255,.15), 0 0 120px rgba(0,255,255,.08); letter-spacing: 6px; } }
-.nc-panel-0 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,255,255,0.06) 0%, transparent 70%), linear-gradient(135deg, #060a1c 0%, #101850 50%, #0a0e30 100%); }
-.nc-panel-1 { background: radial-gradient(ellipse 50% 50% at 30% 60%, rgba(0,200,200,0.06) 0%, transparent 65%), linear-gradient(135deg, #081418 0%, #0e3050 50%, #082028 100%); }
-.nc-panel-2 { background: radial-gradient(ellipse 50% 50% at 70% 30%, rgba(200,0,255,0.06) 0%, transparent 65%), linear-gradient(135deg, #120820 0%, #301050 50%, #1a0830 100%); }
-.nc-panel-3 { background: radial-gradient(ellipse 50% 50% at 40% 60%, rgba(0,255,180,0.06) 0%, transparent 65%), linear-gradient(135deg, #081a12 0%, #0e4830 50%, #082818 100%); }
-.nc-panel-4 { background: radial-gradient(ellipse 50% 50% at 60% 40%, rgba(255,150,0,0.05) 0%, transparent 65%), linear-gradient(135deg, #181008 0%, #483010 50%, #281808 100%); }
-.nc-panel-5 { background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,0,80,0.06) 0%, transparent 65%), linear-gradient(135deg, #140808 0%, #481018 50%, #280810 100%); }
-.nc-panel-6 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,100,255,0.06) 0%, transparent 70%), linear-gradient(135deg, #06081c 0%, #101850 50%, #080c28 100%); }
+.nc-panel-0 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,255,255,0.06) 0%, transparent 70%), linear-gradient(135deg, #f0f1f8 0%, #e0e4f2 50%, #eceef4 100%); }
+.nc-panel-1 { background: radial-gradient(ellipse 50% 50% at 30% 60%, rgba(0,200,200,0.06) 0%, transparent 65%), linear-gradient(135deg, #f0f4f5 0%, #e0eaf2 50%, #eef2f4 100%); }
+.nc-panel-2 { background: radial-gradient(ellipse 50% 50% at 70% 30%, rgba(200,0,255,0.06) 0%, transparent 65%), linear-gradient(135deg, #f0eef8 0%, #e4e2f2 50%, #ece8f4 100%); }
+.nc-panel-3 { background: radial-gradient(ellipse 50% 50% at 40% 60%, rgba(0,255,180,0.06) 0%, transparent 65%), linear-gradient(135deg, #eef6f2 0%, #e0f0e8 50%, #eef4f0 100%); }
+.nc-panel-4 { background: radial-gradient(ellipse 50% 50% at 60% 40%, rgba(255,150,0,0.05) 0%, transparent 65%), linear-gradient(135deg, #f4f0ee 0%, #eee8e0 50%, #f2eee8 100%); }
+.nc-panel-5 { background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,0,80,0.06) 0%, transparent 65%), linear-gradient(135deg, #f4f0f0 0%, #f0e4e6 50%, #f2ecee 100%); }
+.nc-panel-6 { background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,100,255,0.06) 0%, transparent 70%), linear-gradient(135deg, #f0f2f8 0%, #e0e4f2 50%, #f0f2f6 100%); }
 @media (max-width: 768px) { .nc-content { h2 { font-size: 3.5rem; } } }
 </style>
 
@@ -207,6 +207,6 @@ onUnmounted(destroy)
 }
 .nc-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #0ff, #f0f, #0ff); background-size: 200% 100%; animation: ncShine 1.5s linear infinite; box-shadow: 0 0 15px rgba(0,255,255,.5); }
 @keyframes ncShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-.nc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(0,255,255,.2); color: rgba(255,255,255,.8); }
+.nc-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(0,255,255,.2); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .nc-nav-dots { gap: 10px; } .nc-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

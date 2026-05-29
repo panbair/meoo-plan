@@ -172,7 +172,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.fu-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0a0a12; color: #fff; }
+.fu-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .fu-scroll-area { position: relative; }
 .fu-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1800px; }
 .fu-panel {
@@ -181,12 +181,12 @@ onUnmounted(destroy)
   &::before { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(255,255,255,.08); border-radius: 20px; pointer-events: none; }
 }
 .fu-content { text-align: center; z-index: 2; h2 { font-size: 6rem; font-weight: 900; margin: 0; letter-spacing: 4px; opacity: .85; } }
-.fu-panel-0 { background: linear-gradient(135deg, #1a1a2e, #16213e); }
-.fu-panel-1 { background: linear-gradient(135deg, #0f3460, #1a1a2e); }
-.fu-panel-2 { background: linear-gradient(135deg, #16213e, #0f3460); }
-.fu-panel-3 { background: linear-gradient(135deg, #1a1a2e, #533483); }
-.fu-panel-4 { background: linear-gradient(135deg, #16213e, #1a1a2e); }
-.fu-panel-5 { background: linear-gradient(135deg, #0f3460, #533483); }
+.fu-panel-0 { background: linear-gradient(135deg, #dcdff0, #16213e); }
+.fu-panel-1 { background: linear-gradient(135deg, #d0ddf0, #dcdff0); }
+.fu-panel-2 { background: linear-gradient(135deg, #16213e, #d0ddf0); }
+.fu-panel-3 { background: linear-gradient(135deg, #dcdff0, #533483); }
+.fu-panel-4 { background: linear-gradient(135deg, #16213e, #dcdff0); }
+.fu-panel-5 { background: linear-gradient(135deg, #d0ddf0, #533483); }
 .fu-panel-6 { background: linear-gradient(135deg, #533483, #16213e); }
 @media (max-width: 768px) { .fu-content { h2 { font-size: 3.5rem; } } }
 </style>
@@ -198,6 +198,6 @@ onUnmounted(destroy)
   &.fu-active { background: #c8b4ff; border-color: rgba(200,180,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(200,180,255,.5); }
 }
 .fu-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #c8b4ff, #a78bfa, #7c3aed); box-shadow: 0 0 10px rgba(200,180,255,.4); }
-.fu-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(0,0,0,.4); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.fu-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }
 @media (max-width: 768px) { .fu-nav-dots { gap: 10px; } .fu-page-indicator { top: 16px; right: 14px; font-size: .8rem; padding: 6px 16px; } }
 </style>

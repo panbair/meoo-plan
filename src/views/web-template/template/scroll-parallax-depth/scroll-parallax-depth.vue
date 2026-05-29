@@ -125,8 +125,8 @@ onUnmounted(destroy)
         <div v-for="n in TOTAL" :key="n" class="pdp-group">
           <!-- 背景层(最慢到达) -->
           <div class="pdp-layer pdp-back"
-            :style="{ background: `radial-gradient(circle at 50% 50%, hsl(${(n-1)*44}, 45%, 24%), hsl(${(n-1)*44+20}, 32%, 8%))` }">
-            <div class="pdp-ring" :style="{ borderColor: `hsla(${(n-1)*44}, 40%, 35%, 0.06)` }"></div>
+            :style="{ background: `radial-gradient(circle at 50% 50%, hsl(${(n-1)*44}, 45%, 24%), hsl(${(n-1)*44+20}, 32%, 92%))` }">
+            <div class="pdp-ring" :style="{ borderColor: `hsla(${(n-1)*44}, 40%, 70%,0.06)` }"></div>
           </div>
           <!-- 内容层 -->
           <div class="pdp-layer pdp-content">
@@ -134,7 +134,7 @@ onUnmounted(destroy)
           </div>
           <!-- 前景层(最快到达) -->
           <div class="pdp-layer pdp-front">
-            <div class="pdp-glass" :style="{ borderColor: `hsla(${(n-1)*44+10}, 50%, 40%, 0.05)` }"></div>
+            <div class="pdp-glass" :style="{ borderColor: `hsla(${(n-1)*44+10}, 50%, 75%,0.05)` }"></div>
           </div>
         </div>
       </div>
@@ -143,14 +143,14 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.pdp-page { font-family: system-ui, sans-serif; background: #020206; color: #fff; }
+.pdp-page { font-family: system-ui, sans-serif; background: #020206; color: #1a1a2e; }
 .pdp-scroll-area { position: relative; }
 .pdp-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 
 .pdp-group { position: absolute; inset: 0; }
 .pdp-layer { position: absolute; inset: 0; will-change: transform, opacity, filter; display: flex; align-items: center; justify-content: center; }
 
-.pdp-num { font-size: clamp(5rem, 14vw, 12rem); font-weight: 900; color: rgba(255,255,255,0.06); user-select: none; pointer-events: none; }
+.pdp-num { font-size: clamp(5rem, 14vw, 12rem); font-weight: 900; color: rgba(26, 26, 46,0.06); user-select: none; pointer-events: none; }
 
 .pdp-ring {
   width: 60vw; height: 60vw; max-width: 600px; max-height: 600px;
@@ -168,13 +168,13 @@ $accent: #22c55e;
 .pdp-progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, $accent, #86efac); z-index: 1001; }
 .pdp-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
 .pdp-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
-  &:hover { background: rgba(255,255,255,0.4); transform: scale(1.3); }
-  &.pdp-active { background: $accent; border-color: rgba(255,255,255,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,0.15); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all 0.3s;
+  &:hover { background: rgba(26, 26, 46,0.4); transform: scale(1.3); }
+  &.pdp-active { background: $accent; border-color: rgba(26, 26, 46,0.35); transform: scale(1.5); box-shadow: 0 0 14px rgba($accent, 0.5); }
 }
 .pdp-indicator {
-  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
-  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75);
+  position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+  padding: 8px 20px; border-radius: 24px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); color: rgba(26, 26, 46,0.75);
   .pdp-cur { color: $accent; font-weight: 700; }
 }
 </style>

@@ -136,7 +136,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.sd-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060610; color: #fff; }
+.sd-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .sd-scroll-area { position: relative; }
 .sd-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .sd-track { display: flex; will-change: transform; height: 100vh; gap: 15vw; }
@@ -169,10 +169,10 @@ onUnmounted(destroy)
 
 <style lang="scss">
 .sd-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 12px; }
-.sd-nav-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.12); cursor: pointer; transition: all .3s; border: none;
-  &:hover { background: rgba(255,255,255,.35); }
+.sd-nav-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(26, 26, 46,.12); cursor: pointer; transition: all .3s; border: none;
+  &:hover { background: rgba(26, 26, 46,.35); }
   &.sd-active { background: #e060a0; transform: scale(1.5); box-shadow: 0 0 16px rgba(224,96,160,.5); }
 }
 .sd-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #c060e0, #e060a0); }
-.sd-indicator { position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.sd-indicator { position: fixed; top: 28px; right: 28px; z-index: 1000; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 20px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.75); }
 </style>
