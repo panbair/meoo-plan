@@ -466,9 +466,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
-// 鎼滅储妗?鈥?寰厜杈撳叆鍖?
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+/* ======================== */
+// 搜索框 — 微光输入区
+/* ======================== */
 .menu-search-box {
   display: flex;
   align-items: center;
@@ -525,9 +525,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
-// 鏃犵粨鏋?
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+/* ======================== */
+// 无结果
+/* ======================== */
 .menu-no-result {
   display: flex;
   flex-direction: column;
@@ -538,9 +538,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   font-size: 0.85rem;
 }
 
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
-// 鍒嗙被鍖哄潡
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+/* ======================== */
+// 分类区块
+/* ======================== */
 .menu-category {
   display: flex;
   flex-direction: column;
@@ -556,7 +556,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   padding: 4px 2px;
 }
 
-// 涓夎壊鍒嗙被鎸囩ず鐐?
+// 三色分类指示点
 .menu-cat-dot {
   width: 8px;
   height: 8px;
@@ -607,9 +607,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   gap: 6px;
 }
 
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
-// 妯℃澘鍗＄墖 鈥?绮惧灞傜骇
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+/* ======================== */
+// 模板卡片 — 精妙层级
+/* ======================== */
 .showcase-item {
   padding: 9px 12px;
   background: rgba(255, 255, 255, 0.022);
@@ -649,9 +649,9 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   }
 }
 
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
-// 寮瑰嚭鍔ㄧ敾
-// 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+/* ======================== */
+// 弹出动画
+/* ======================== */
 .menu-pop-enter-active {
   transition:
     opacity 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -671,7 +671,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   transform: translateX(-50%) translateY(-8px) scale(0.95);
 }
 
-// 閬僵鐙珛杩囨浮
+// 遮罩独立过渡
 .menu-backdrop.menu-pop-enter-active,
 .menu-backdrop.menu-pop-leave-active {
   transition: opacity 0.22s ease;
