@@ -170,6 +170,7 @@ const LABEL_MAP: Record<string, string> = {
   'scroll-u-turn': 'U型转弯',
   'scroll-v-h-v': '纵横纵',
   'scroll-v-then-h': '先纵后横',
+  'scroll-vortex-whirl': '漩涡吸入',
   'scroll-zigzag-drift': '之字漂移',
   'scroll-zoom-lane': '变焦车道'
 }
@@ -221,4 +222,4 @@ for (const [path, mod] of Object.entries(modules)) {
 export const templates: ReadonlyArray<TemplateItem> = rawTemplates
 
 /** 第一个模板的 key（用于默认选中） */
-export const firstKey: string = rawTemplates[0]?.key ?? ''
+export const firstKey: string = ('scroll-h-then-v' || rawTemplates[0]?.key) ?? ''
