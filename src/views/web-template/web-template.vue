@@ -2,12 +2,96 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { templates, firstKey } from './template/registry'
 
+// ── 原始源码（?raw 返回 .vue 源码字符串，非编译产物）──
+const rawSources = import.meta.glob('./template/*/*.vue', { query: '?raw', eager: true, import: 'default' })
+
+const STORAGE_KEY = 'template-favorites'
+const copiedKey = ref<string | null>(null)
+
 const activeKey = ref(firstKey)
 const overlayOpen = ref(false)
 const searchQuery = ref('')
 const activeSideCat = ref('scrollBasic')
 const searchInputRef = ref<HTMLInputElement | null>(null)
 const contentRef = ref<HTMLElement | null>(null)
+
+// ── 收藏系统 ──
+const favoriteKeys = ref<Set<string>>(loadFavorites())
+
+function loadFavorites(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const arr = JSON.parse(raw)
+      if (Array.isArray(arr)) return new Set(arr)
+    }
+  } catch { /* ignore corrupt data */ }
+  return new Set()
+}
+
+function saveFavorites() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...favoriteKeys.value]))
+}
+
+function toggleFavorite(key: string) {
+  const s = favoriteKeys.value
+  if (s.has(key)) { s.delete(key) } else { s.add(key) }
+  // 触发响应式更新
+  favoriteKeys.value = new Set(s)
+  saveFavorites()
+}
+
+function isFavorite(key: string) {
+  return favoriteKeys.value.has(key)
+}
+
+// ── 复制源码（参考 web-list 兼容方案）──
+async function copyToClipboard(text: string): Promise<boolean> {
+  // 方法1: document.execCommand（兼容性最好，支持 HTTP）
+  try {
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-9999px'
+    textArea.style.top = '-9999px'
+    textArea.style.opacity = '0'
+    textArea.setAttribute('readonly', '')
+    document.body.appendChild(textArea)
+    textArea.select()
+    textArea.setSelectionRange(0, textArea.value.length)
+    const successful = document.execCommand('copy')
+    document.body.removeChild(textArea)
+    if (successful) return true
+  } catch { /* 降级到 Clipboard API */ }
+
+  // 方法2: 现代 Clipboard API（需 HTTPS）
+  try {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch { /* 放弃 */ }
+  return false
+}
+
+async function copyTemplateCode(key: string) {
+  // 使用 ?raw 导出的原始 .vue 源码（参照 web-list 方案，非编译产物）
+  const srcPath = `./template/${key}/${key}.vue`
+  const code: string | undefined = rawSources[srcPath]
+  if (!code) {
+    copiedKey.value = key + '_fail'
+    setTimeout(() => { if (copiedKey.value === key + '_fail') copiedKey.value = null }, 1500)
+    return
+  }
+  const ok = await copyToClipboard(code)
+  if (ok) {
+    copiedKey.value = key
+    setTimeout(() => { if (copiedKey.value === key) copiedKey.value = null }, 1800)
+  } else {
+    copiedKey.value = key + '_fail'
+    setTimeout(() => { if (copiedKey.value === key + '_fail') copiedKey.value = null }, 1500)
+  }
+}
 
 // ── 分类分组 ──
 const SCROLL_EFFECT_KEYS = new Set([
@@ -79,6 +163,13 @@ const categories = computed(() => {
     }
   }
   const list = Object.values(map).filter((c) => c.items.length > 0)
+
+  // 收藏分类置顶
+  const favTemplates = templates.filter(t => favoriteKeys.value.has(t.key))
+  if (favTemplates.length > 0) {
+    list.unshift({ key: 'favorites', label: '⭐ 收藏', items: favTemplates })
+  }
+
   if (!activeSideCat.value || !list.find(c => c.key === activeSideCat.value)) {
     activeSideCat.value = list[0]?.key ?? 'scrollBasic'
   }
@@ -99,8 +190,9 @@ const activeCom = computed(() => {
   return t?.com ?? null
 })
 
-const dotColors = ['#FF6B9D', '#4FC3F7', '#FFD54F', '#69F0AE', '#B388FF'] as const
+const dotColors = ['#FFD54F', '#FF6B9D', '#4FC3F7', '#69F0AE', '#B388FF'] as const
 const catEmojis: Record<string, string> = {
+  favorites: '⭐',
   scrollBasic: '📜',
   scrollEffect: '✨',
   transitionBasic: '🔄',
@@ -280,6 +372,30 @@ onUnmounted(() => {
                 >
                   <span class="tpl-name">{{ t.label }}</span>
                   <span class="tpl-key">{{ t.key }}</span>
+                  <button
+                    class="tpl-fav"
+                    :class="{ favorited: isFavorite(t.key) }"
+                    :title="isFavorite(t.key) ? '取消收藏' : '收藏'"
+                    @click.stop="toggleFavorite(t.key)"
+                  >
+                    <svg viewBox="0 0 24 24" :fill="isFavorite(t.key) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" width="14" height="14">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                  <button
+                    class="tpl-copy"
+                    :class="{ copied: copiedKey === t.key, fail: copiedKey === t.key + '_fail' }"
+                    :title="copiedKey === t.key ? '已复制!' : '复制源码'"
+                    @click.stop="copyTemplateCode(t.key)"
+                  >
+                    <svg v-if="copiedKey === t.key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                      <rect x="9" y="9" width="13" height="13" rx="2" />
+                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                    </svg>
+                  </button>
                 </button>
               </div>
             </section>
@@ -861,6 +977,108 @@ $text-muted: rgba(26, 26, 46, 0.35);
   max-width: 100%;
 
   .tpl-card.selected & { color: rgba(26, 26, 46, 0.35); }
+}
+
+/* ═══════════ 收藏按钮 ═══════════ */
+.tpl-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(26, 26, 46, 0.18);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0;
+  transform: scale(0.7);
+  z-index: 1;
+
+  .tpl-card:hover &,
+  &.favorited {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &:hover {
+    background: rgba(255, 213, 79, 0.2);
+    color: #FFD54F;
+    transform: scale(1.18) !important;
+  }
+
+  &:active {
+    transform: scale(0.85) !important;
+    transition: all 0.08s;
+  }
+
+  &.favorited {
+    color: #FFD54F;
+    background: rgba(255, 213, 79, 0.15);
+    box-shadow: 0 0 12px rgba(255, 213, 79, 0.2);
+  }
+
+  &.favorited:hover {
+    background: rgba(255, 107, 157, 0.18);
+    color: #FF6B9D;
+    box-shadow: 0 0 14px rgba(255, 107, 157, 0.25);
+  }
+}
+
+/* ═══════════ 复制按钮 ═══════════ */
+.tpl-copy {
+  position: absolute;
+  top: 10px;
+  right: 42px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(26, 26, 46, 0.18);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0;
+  transform: scale(0.7);
+  z-index: 1;
+
+  .tpl-card:hover &,
+  &.copied,
+  &.fail {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &:hover {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4FC3F7;
+    transform: scale(1.18) !important;
+  }
+
+  &:active {
+    transform: scale(0.85) !important;
+    transition: all 0.08s;
+  }
+
+  &.copied {
+    color: #69F0AE;
+    background: rgba(105, 240, 174, 0.15);
+    box-shadow: 0 0 12px rgba(105, 240, 174, 0.2);
+  }
+
+  &.fail {
+    color: #FF6B9D;
+    background: rgba(255, 107, 157, 0.12);
+  }
 }
 
 /* ═══════════ 动画 — 弹性入场 ═══════════ */
