@@ -1,6 +1,7 @@
 ﻿<script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { templates, firstKey } from './template/registry'
+import { useTemplateRecommender } from '@/composables/useTemplateRecommender'
 
 // ── 原始源码（?raw 返回 .vue 源码字符串，非编译产物）──
 const rawSources = import.meta.glob('./template/*/*.vue', { query: '?raw', eager: true, import: 'default' })
@@ -14,6 +15,11 @@ const searchQuery = ref('')
 const activeSideCat = ref('scrollBasic')
 const searchInputRef = ref<HTMLInputElement | null>(null)
 const contentRef = ref<HTMLElement | null>(null)
+
+// ── AI 模板推荐 ──
+const { isRecommending, recommendation, error: recommendError, recommend, clear: clearRecommend } = useTemplateRecommender()
+const showRecommendPanel = ref(false)
+const recommendTargetKey = ref('')
 
 // ── 收藏系统 ──
 const favoriteKeys = ref<Set<string>>(loadFavorites())
@@ -204,6 +210,46 @@ function selectTemplate(key: string) {
   // 先更新模板，让 FAB 按钮标签立刻切换
   activeKey.value = key
   closeOverlay()
+  // 关闭推荐面板
+  closeRecommendPanel()
+}
+
+function closeRecommendPanel() {
+  showRecommendPanel.value = false
+  recommendTargetKey.value = ''
+}
+
+async function triggerRecommend() {
+  const key = activeKey.value
+  const t = templates.find(t => t.key === key)
+  if (!t) return
+
+  showRecommendPanel.value = true
+  recommendTargetKey.value = key
+
+  const srcPath = `./template/${key}/${key}.vue`
+  const source = rawSources[srcPath] as string
+  if (!source) {
+    recommendError.value = '模板源码加载失败'
+    return
+  }
+
+  // 尝试加载 README
+  let readme: string | undefined
+  try {
+    const readmePath = `./template/${key}/README.md`
+    const mod = await import(/* @vite-ignore */ readmePath + '?raw')
+    readme = (mod as any).default
+  } catch {
+    // README 不存在
+  }
+
+  await recommend({
+    key,
+    label: t.label,
+    source,
+    readme
+  })
 }
 
 function closeOverlay() {
@@ -400,6 +446,91 @@ onUnmounted(() => {
               </div>
             </section>
           </main>
+        </div>
+      </transition>
+    </Teleport>
+
+    <!-- AI 推荐按钮 (浮动) -->
+    <div
+      v-if="!showRecommendPanel"
+      class="ai-recommend-fab"
+      :class="{ loading: isRecommending }"
+      @click="triggerRecommend"
+    >
+      <span class="ai-fab-icon">🤖</span>
+      <span class="ai-fab-label">{{ isRecommending ? '分析中...' : 'AI推荐组件' }}</span>
+    </div>
+
+    <!-- AI 推荐结果面板 -->
+    <Teleport to="body">
+      <transition name="slide-right">
+        <div v-if="showRecommendPanel" class="ai-recommend-panel">
+          <div class="ai-panel-header">
+            <h3>🤖 AI 组件推荐</h3>
+            <p class="ai-panel-sub">
+              模板: {{ templates.find(t => t.key === recommendTargetKey)?.label || recommendTargetKey }}
+            </p>
+            <button class="ai-panel-close" @click="closeRecommendPanel">✕</button>
+          </div>
+
+          <div class="ai-panel-body">
+            <!-- 加载中 -->
+            <div v-if="isRecommending" class="ai-loading">
+              <div class="ai-spinner"></div>
+              <p>AI 正在分析模板结构与滚动模式...</p>
+            </div>
+
+            <!-- 错误 -->
+            <div v-else-if="recommendError" class="ai-error">
+              <p>⚠️ {{ recommendError }}</p>
+            </div>
+
+            <!-- 结果 -->
+            <div v-else-if="recommendation" class="ai-result">
+              <!-- 模板分析摘要 -->
+              <div class="ai-analysis-card">
+                <div class="ai-analysis-row">
+                  <span class="ai-tag">📜 {{ recommendation.scrollPattern }}</span>
+                  <span class="ai-tag">🎨 {{ recommendation.visualStyle }}</span>
+                </div>
+                <p class="ai-analysis-text">{{ recommendation.analysis }}</p>
+                <div class="ai-scenes">
+                  <span v-for="s in recommendation.targetScenes" :key="s" class="ai-scene-tag">{{ s }}</span>
+                </div>
+              </div>
+
+              <!-- 各面板推荐 -->
+              <div
+                v-for="panel in recommendation.panels"
+                :key="panel.panelIndex"
+                class="ai-panel-card"
+              >
+                <div class="ai-panel-card-header">
+                  <span class="ai-panel-num">面板 {{ panel.panelIndex + 1 }}</span>
+                  <span class="ai-panel-name">{{ panel.panelName }}</span>
+                  <span class="ai-panel-purpose">{{ panel.panelPurpose }}</span>
+                </div>
+                <div class="ai-panel-components">
+                  <div
+                    v-for="comp in panel.recommendedComponents"
+                    :key="comp.name"
+                    class="ai-comp-item"
+                  >
+                    <div class="ai-comp-top">
+                      <span class="ai-comp-name">{{ comp.name }}</span>
+                      <span class="ai-comp-category">{{ comp.category }}</span>
+                      <span class="ai-comp-confidence">{{ Math.round(comp.confidence * 100) }}%</span>
+                    </div>
+                    <p class="ai-comp-reason">{{ comp.reason }}</p>
+                    <div v-if="comp.alternatives.length" class="ai-comp-alt">
+                      <span class="ai-alt-label">备选:</span>
+                      <span v-for="a in comp.alternatives" :key="a" class="ai-alt-item">{{ a }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </transition>
     </Teleport>
@@ -1130,5 +1261,319 @@ $text-muted: rgba(26, 26, 46, 0.35);
   .overlay-sidebar { width: 220px; min-width: 220px; }
   .section-grid { grid-template-columns: repeat(2, 1fr); }
   .overlay-content { padding: 24px 20px 60px; }
+}
+
+/* ═══════════ AI 推荐面板 ═══════════ */
+.ai-recommend-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 96px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(118, 75, 162, 0.35);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+
+  .ai-fab-icon { font-size: 1.2rem; }
+  .ai-fab-label { letter-spacing: 0.3px; }
+
+  &:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 8px 28px rgba(118, 75, 162, 0.45);
+  }
+
+  &.loading {
+    opacity: 0.85;
+    pointer-events: none;
+    animation: ai-fab-pulse 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes ai-fab-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(118, 75, 162, 0.35); }
+  50% { box-shadow: 0 8px 32px rgba(118, 75, 162, 0.55); }
+}
+
+.ai-recommend-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 90vw;
+  height: 100vh;
+  z-index: 100001;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: -4px 0 40px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+}
+
+.ai-panel-header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: #1A1A2E;
+  }
+
+  .ai-panel-sub {
+    font-size: 0.78rem;
+    color: rgba(26, 26, 46, 0.5);
+    margin: 0;
+  }
+
+  .ai-panel-close {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    font-size: 1rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover { background: rgba(255, 107, 157, 0.15); color: #FF6B9D; }
+  }
+}
+
+.ai-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px;
+}
+
+.ai-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  gap: 16px;
+  color: rgba(26, 26, 46, 0.5);
+  font-size: 0.85rem;
+}
+
+.ai-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: ai-spin 0.8s linear infinite;
+}
+
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+
+.ai-error {
+  padding: 24px;
+  background: rgba(255, 107, 157, 0.08);
+  border-radius: 12px;
+  color: #FF6B9D;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.ai-analysis-card {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.06), rgba(118, 75, 162, 0.06));
+  border: 1px solid rgba(102, 126, 234, 0.12);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+
+  .ai-analysis-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .ai-tag {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    font-weight: 600;
+  }
+
+  .ai-analysis-text {
+    font-size: 0.8rem;
+    color: rgba(26, 26, 46, 0.65);
+    margin: 0 0 8px;
+    line-height: 1.5;
+  }
+
+  .ai-scenes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .ai-scene-tag {
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(105, 240, 174, 0.12);
+    color: #2e7d5b;
+  }
+}
+
+.ai-panel-card {
+  margin-bottom: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ai-panel-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  .ai-panel-num {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .ai-panel-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1A1A2E;
+  }
+
+  .ai-panel-purpose {
+    font-size: 0.68rem;
+    color: rgba(26, 26, 46, 0.4);
+    margin-left: auto;
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+  }
+}
+
+.ai-panel-components {
+  padding: 8px 12px;
+}
+
+.ai-comp-item {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+
+  &:last-child { border-bottom: none; }
+}
+
+.ai-comp-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+
+  .ai-comp-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1A1A2E;
+  }
+
+  .ai-comp-category {
+    font-size: 0.64rem;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(79, 195, 247, 0.12);
+    color: #0288d1;
+  }
+
+  .ai-comp-confidence {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: #69F0AE;
+    margin-left: auto;
+  }
+}
+
+.ai-comp-reason {
+  font-size: 0.74rem;
+  color: rgba(26, 26, 46, 0.55);
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+
+.ai-comp-alt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+
+  .ai-alt-label {
+    font-size: 0.65rem;
+    color: rgba(26, 26, 46, 0.35);
+  }
+
+  .ai-alt-item {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.04);
+    color: rgba(26, 26, 46, 0.45);
+  }
+}
+
+/* 滑入动画 */
+.slide-right-enter-active {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+.slide-right-leave-active {
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.slide-right-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-right-leave-to {
+  transform: translateX(60%);
+  opacity: 0;
+}
+
+@media (max-width: 500px) {
+  .ai-recommend-panel {
+    width: 100vw;
+    max-width: 100vw;
+  }
+  .ai-recommend-fab {
+    right: 20px;
+    bottom: 80px;
+    padding: 8px 14px;
+    .ai-fab-label { display: none; }
+  }
 }
 </style>

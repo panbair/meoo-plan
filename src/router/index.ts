@@ -67,6 +67,12 @@ const staticRoutes: RouteRecordRaw[] = [
     name: 'SolutionGenerator',
     component: () => import('@/views/solution-generator/index.vue'),
     meta: { title: '智能方案生成器', icon: 'MagicStick', noCache: false }
+  },
+  {
+    path: '/web-e2e',
+    name: 'WebE2E',
+    component: () => import('@/views/web-e2e/index.vue'),
+    meta: { title: 'E2E代码生成', icon: 'Lightning', noCache: false }
   }
 ]
 

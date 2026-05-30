@@ -15,6 +15,8 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import NProgress from 'nprogress'
 import { componentsList } from '@/views/web-list/config.ts'
+import { useComponentSearch } from '@/composables/useComponentSearch'
+import type { SearchResult } from '@/api/ai/component-search'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -53,6 +55,60 @@ const LAZY_MODE = true // 设为 false 可关闭懒加载
 // ==================== 分类筛选 ====================
 // 当前选中的分类（默认全部）
 const activeCategory = ref('all')
+
+// ==================== V2.0 语义搜索 (方案四) ====================
+const {
+  query: searchQuery,
+  results: searchResults,
+  isSearching,
+  searchMode,
+  reasoning,
+  suggestedTags,
+  activeMode: searchActiveMode,
+  error: searchError,
+  hasResults: hasSearchResults,
+  isAIMode,
+  topResults,
+  search,
+  searchImmediate,
+  setMode,
+  searchByTag,
+  clear: clearSearch
+} = useComponentSearch()
+
+/** 搜索是否激活（有查询词且有结果时） */
+const isSearchActive = computed(() => searchQuery.value.trim().length >= 2 && hasSearchResults.value)
+/** 搜索命中的组件名集合 */
+const searchMatchedNames = computed(() => new Set(searchResults.value.map(r => r.name)))
+/** 搜索下拉显示 */
+const showSearchDropdown = ref(false)
+
+/** 搜索结果分数样式 */
+const getScoreClass = (score: number) => {
+  if (score >= 90) return 'score-high'
+  if (score >= 70) return 'score-mid'
+  return 'score-low'
+}
+
+/** 获取类别中文标签 */
+const getCategoryLabel = (cat: string) => {
+  const found = categories.find(c => c.key === cat)
+  return found?.label || cat
+}
+
+/** 滚动到指定组件 */
+const scrollToComponent = (dirName: string) => {
+  nextTick(() => {
+    // 找到目标组件的 page 索引
+    const index = filteredComponents.value.findIndex(c => c.dirName === dirName)
+    if (index >= 0) {
+      const el = pageRefs.value.get(index)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+  })
+}
 
 // ==================== GSAP 动画管理 ====================
 // 存储所有 GSAP 动画上下文，用于批量清理
@@ -2500,18 +2556,26 @@ const cardComponents = computed(() => {
 
 // ==================== 分类筛选后的组件列表 ====================
 const filteredComponents = computed(() => {
+  // 先按分类筛选
+  let list: typeof cardComponents.value = []
+
   if (activeCategory.value === 'all') {
-    return cardComponents.value
-  }
-  if (activeCategory.value === 'favorite') {
-    return cardComponents.value.filter((comp) => isFavorite(comp.dirName))
-  }
-  if (activeCategory.value === 'selected') {
-    // 只显示已选中的组件，基于 selectedComponents 的 dirName 过滤
+    list = cardComponents.value
+  } else if (activeCategory.value === 'favorite') {
+    list = cardComponents.value.filter((comp) => isFavorite(comp.dirName))
+  } else if (activeCategory.value === 'selected') {
     const selectedNames = new Set(selectedComponents.value.map((c) => c.dirName))
-    return cardComponents.value.filter((comp) => selectedNames.has(comp.dirName))
+    list = cardComponents.value.filter((comp) => selectedNames.has(comp.dirName))
+  } else {
+    list = cardComponents.value.filter((comp) => comp.type === activeCategory.value)
   }
-  return cardComponents.value.filter((comp) => comp.type === activeCategory.value)
+
+  // 如果语义搜索激活：只显示搜索结果中的组件
+  if (isSearchActive.value) {
+    return list.filter(comp => searchMatchedNames.value.has(comp.dirName))
+  }
+
+  return list
 })
 
 // ==================== 模板引用 ====================
@@ -2950,6 +3014,96 @@ const initPage1Animations = () => {
   </Teleport>
 
   <div class="web-list">
+    <!-- V2.0 语义搜索框 (方案四) -->
+    <div class="search-bar" :class="{ active: isSearchActive, 'ai-mode': isAIMode }">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="search-input"
+          placeholder="描述你想要的效果，如：粒子像水流一样的Hero背景..."
+          @input="search(); showSearchDropdown = true"
+          @focus="showSearchDropdown = true"
+          @blur="showSearchDropdown = false"
+          @keydown.escape="clearSearch(); showSearchDropdown = false"
+          @keydown.enter="searchImmediate(); showSearchDropdown = true"
+        />
+        <button
+          v-if="searchQuery"
+          class="search-clear-btn"
+          @click="clearSearch(); showSearchDropdown = false"
+          title="清除搜索"
+        >✕</button>
+        <span v-if="isSearching" class="search-spinner"></span>
+        <span v-if="isAIMode" class="ai-badge" title="AI 深度语义搜索">🤖AI</span>
+      </div>
+
+      <!-- 搜索模式切换 -->
+      <div class="search-mode-toggles">
+        <button
+          :class="['mode-toggle', { active: searchMode === 'auto' }]"
+          @click="setMode('auto')"
+          title="智能切换（短词本地、长句AI）"
+        >⚡智能</button>
+        <button
+          :class="['mode-toggle', { active: searchMode === 'local' }]"
+          @click="setMode('local')"
+          title="本地标签搜索（快速）"
+        >🏷️快速</button>
+        <button
+          :class="['mode-toggle', { active: searchMode === 'ai' }]"
+          @click="setMode('ai')"
+          title="AI 语义深度搜索"
+        >🤖深度</button>
+      </div>
+
+      <!-- 搜索结果下拉面板 -->
+      <div v-if="showSearchDropdown && hasSearchResults" class="search-dropdown" @mousedown.prevent>
+        <!-- AI 推理说明 -->
+        <div v-if="reasoning" class="search-reasoning">
+          💭 {{ reasoning }}
+        </div>
+
+        <!-- 推荐标签 -->
+        <div v-if="suggestedTags.length > 0" class="search-suggested-tags">
+          <button
+            v-for="tag in suggestedTags.slice(0, 6)"
+            :key="tag"
+            class="suggested-tag"
+            @click="searchByTag(tag); showSearchDropdown = true"
+          >{{ tag }}</button>
+        </div>
+
+        <!-- 结果列表 -->
+        <div class="search-results-list" v-if="topResults.length > 0">
+          <div class="results-header">
+            找到 {{ searchResults.length }} 个匹配组件
+            <span v-if="isAIMode" class="header-ai-tag">🤖 AI 语义匹配</span>
+          </div>
+          <button
+            v-for="result in topResults"
+            :key="result.name"
+            class="search-result-item"
+            @click="activeCategory = result.category; clearSearch(); showSearchDropdown = false; scrollToComponent(result.name)"
+          >
+            <span class="result-score" :class="getScoreClass(result.score)">
+              {{ result.score }}
+            </span>
+            <span class="result-name">{{ result.name }}</span>
+            <span class="result-category">{{ getCategoryLabel(result.category) }}</span>
+            <span v-if="result.matchReason" class="result-reason" :title="result.matchReason">
+              💡
+            </span>
+          </button>
+        </div>
+
+        <div v-else-if="!isSearching" class="search-empty">
+          没有找到匹配的组件，试试其他描述吧
+        </div>
+      </div>
+    </div>
+
     <!-- 顶部悬浮分类选项卡 -->
     <div class="category-tabs">
       <button
@@ -3763,6 +3917,283 @@ const initPage1Animations = () => {
           background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
           transform: scale(1.05);
         }
+      }
+    }
+  }
+
+  // ==================== V2.0 语义搜索框 (方案四) ====================
+  .search-bar {
+    position: fixed;
+    top: 85px; // 在 category-tabs 下方
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999998;
+    width: 600px;
+    max-width: 90vw;
+
+    .search-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50px;
+      padding: 6px 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+      .search-icon {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+
+      .search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-size: 0.95rem;
+        padding: 8px 0;
+        min-width: 0;
+        letter-spacing: 0.3px;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.4);
+          font-size: 0.9rem;
+        }
+      }
+
+      .search-clear-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.2s;
+
+        &:hover {
+          background: rgba(255, 80, 80, 0.3);
+          color: #ff6b6b;
+        }
+      }
+
+      .search-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        flex-shrink: 0;
+      }
+
+      .ai-badge {
+        font-size: 0.75rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        animation: pulse-badge 2s ease-in-out infinite;
+      }
+    }
+
+    &.active .search-input-wrapper {
+      border-color: rgba(102, 126, 234, 0.5);
+      box-shadow: 0 4px 24px rgba(102, 126, 234, 0.25);
+    }
+
+    &.ai-mode .search-input-wrapper {
+      border-color: rgba(240, 147, 251, 0.5);
+      box-shadow: 0 4px 24px rgba(240, 147, 251, 0.25);
+    }
+
+    // 搜索模式切换按钮
+    .search-mode-toggles {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 6px;
+
+      .mode-toggle {
+        padding: 3px 10px;
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.72rem;
+        cursor: pointer;
+        transition: all 0.25s;
+        white-space: nowrap;
+
+        &:hover {
+          color: rgba(255, 255, 255, 0.8);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        &.active {
+          color: #fff;
+          background: rgba(102, 126, 234, 0.3);
+          border-color: rgba(102, 126, 234, 0.5);
+        }
+      }
+    }
+
+    // 搜索结果下拉面板
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.97);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      max-height: 420px;
+      overflow-y: auto;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+      padding: 12px;
+      animation: dropdownSlideIn 0.2s ease;
+
+      .search-reasoning {
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        background: rgba(102, 126, 234, 0.12);
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.8rem;
+        line-height: 1.5;
+        border-left: 3px solid rgba(102, 126, 234, 0.5);
+      }
+
+      .search-suggested-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+        padding: 0 4px;
+
+        .suggested-tag {
+          padding: 4px 12px;
+          background: rgba(102, 126, 234, 0.2);
+          border: 1px solid rgba(102, 126, 234, 0.3);
+          border-radius: 15px;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.75rem;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background: rgba(102, 126, 234, 0.4);
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-1px);
+          }
+        }
+      }
+
+      .search-results-list {
+        .results-header {
+          padding: 6px 8px 10px;
+          font-size: 0.75rem;
+          color: rgba(255, 255, 255, 0.5);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          margin-bottom: 6px;
+
+          .header-ai-tag {
+            margin-left: 6px;
+            font-size: 0.65rem;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+        }
+
+        .search-result-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 10px 12px;
+          background: transparent;
+          border: none;
+          border-radius: 10px;
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: left;
+
+          &:hover {
+            background: rgba(102, 126, 234, 0.15);
+          }
+
+          .result-score {
+            width: 32px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            flex-shrink: 0;
+
+            &.score-high {
+              background: rgba(67, 233, 123, 0.25);
+              color: #43e97b;
+            }
+            &.score-mid {
+              background: rgba(250, 176, 5, 0.25);
+              color: #fab005;
+            }
+            &.score-low {
+              background: rgba(255, 255, 255, 0.1);
+              color: rgba(255, 255, 255, 0.5);
+            }
+          }
+
+          .result-name {
+            flex: 1;
+            font-size: 0.85rem;
+            font-weight: 500;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .result-category {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 8px;
+            border-radius: 8px;
+            flex-shrink: 0;
+          }
+
+          .result-reason {
+            font-size: 0.8rem;
+            flex-shrink: 0;
+          }
+        }
+      }
+
+      .search-empty {
+        padding: 24px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.85rem;
       }
     }
   }
@@ -6478,6 +6909,26 @@ const initPage1Animations = () => {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
