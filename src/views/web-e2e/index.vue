@@ -4,7 +4,7 @@
     <header class="e2e-header">
       <div class="e2e-header-left">
         <span class="e2e-logo">🚀 E2E Code Gen</span>
-        <span class="e2e-badge">V2.0 方案一</span>
+        <span class="e2e-badge">V3.0 重构</span>
       </div>
       <div class="e2e-header-right">
         <label class="e2e-framework-switch">
@@ -248,10 +248,7 @@
                   <span class="chat-role">{{ msg.role === 'user' ? '👤' : '🤖' }}</span>
                   <span class="chat-content">{{ msg.content }}</span>
                 </div>
-                <div v-if="isModifying" class="e2e-chat-msg assistant typing">
-                  <span class="chat-role">🤖</span>
-                  <span class="chat-content"><span class="typing-dots">思考中<span>.</span><span>.</span><span>.</span></span></span>
-                </div>
+
               </div>
               <!-- 输入栏 -->
               <div class="e2e-chat-input-row">
@@ -271,7 +268,7 @@
                   {{ isModifying ? '⏳' : '→' }}
                 </button>
                 <button
-                  v-if="chatHistory.length > 0"
+                  v-if="chatHistory.length > 0 && !isModifying"
                   class="e2e-chat-undo-btn"
                   @click="undoLastModify"
                   title="撤销上次修改"
@@ -302,7 +299,9 @@
             <template v-if="qualityReport">质量: <span :style="{ color: qualityReport.score >= 80 ? '#4ade80' : qualityReport.score >= 60 ? '#fbbf24' : '#f87171' }">{{ qualityReport.score }}/100</span> |</template>
             {{ generationTime ? `耗时: ${generationTime}s` : '' }}
           </span>
-          <span v-else-if="isGenerating" class="status-generating">⚡ 生成中...</span>
+          <span v-else-if="isGenerating" class="status-generating">
+            🌊 流式生成中... {{ generatedCode.length ? `(${generatedCode.length.toLocaleString()} 字符)` : '' }} | {{ generationTime }}s
+          </span>
           <span v-else>就绪 — 输入需求后点击"生成网站"</span>
         </div>
       </div>
@@ -378,10 +377,44 @@ const chatHistoryRef = ref<HTMLElement | null>(null)
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  /** 此轮修改前的代码快照（仅 user 消息携带，用于构建 AI 上下文） */
+  codeSnapshot?: string
 }
 const chatHistory = ref<ChatMessage[]>([])
 // 保存历史快照用于撤销（每次修改前的代码）
 const codeSnapshots = ref<string[]>([])
+
+/** 从代码中提取紧凑摘要信息，注入历史消息中给 AI 参考 */
+function extractCodeSummary(code: string): string {
+  const lines = code.split('\n').length
+  const panels = (code.match(/<section\b/gi) || []).length
+  const cards = (code.match(/class="[^"]*card[^"]*"/gi) || []).length
+  const rootMatch = code.match(/:root\s*\{([^}]+)\}/)
+  let theme = ''
+  if (rootMatch) {
+    const vars = rootMatch[1]
+    const bg = vars.match(/--bg[^:]*:\s*([^;]+)/)
+    const primary = vars.match(/--primary[^:]*:\s*([^;]+)/)
+    if (bg || primary) theme = `配色:${bg ? bg[1].trim() : '?'}/${primary ? primary[1].trim() : '?'}`
+  }
+  return `[代码 ${lines}行, ${panels}面板, ${cards}卡片${theme ? ', ' + theme : ''}]`
+}
+
+/** 构建发送给 AI 的修改历史（注入代码上下文） */
+function buildModifyHistory(chats: ChatMessage[]): Array<{ role: 'user' | 'assistant'; content: string }> {
+  const result: Array<{ role: 'user' | 'assistant'; content: string }> = []
+  for (const msg of chats) {
+    if (msg.role === 'user' && msg.codeSnapshot) {
+      result.push({
+        role: 'user',
+        content: `${extractCodeSummary(msg.codeSnapshot)}\n用户指令：${msg.content}`
+      })
+    } else {
+      result.push({ role: msg.role, content: msg.content })
+    }
+  }
+  return result
+}
 
 // ====== 生成结果 ======
 const generatedCode = ref('')
@@ -475,6 +508,7 @@ async function selectTemplate(key: string, label: string) {
 
 // ====== 生成 ======
 let generationTimer: ReturnType<typeof setInterval> | null = null
+let _lastStreamRender = 0 // 流式渲染节流
 
 async function handleGenerate() {
   if (!description.value.trim() || isGenerating.value) return
@@ -483,6 +517,7 @@ async function handleGenerate() {
   generatedCode.value = ''
   selectedComponents.value = []
   aiReasoning.value = ''
+  qualityReport.value = null
   clearPreview()
   activeTab.value = 'preview'
 
@@ -492,41 +527,60 @@ async function handleGenerate() {
   }, 1000)
 
   try {
-    const result = await aiService.generateWebsiteE2E({
-      description: description.value,
-      companyInfo: {
-        name: companyName.value || undefined,
-        industry: companyIndustry.value || undefined,
-        description: companyDesc.value || undefined
+    // 🚀 流式生成：实时显示代码写入过程
+    let streamedCode = ''
+
+    const result = await aiService.generateWebsiteE2E(
+      {
+        description: description.value,
+        companyInfo: {
+          name: companyName.value || undefined,
+          industry: companyIndustry.value || undefined,
+          description: companyDesc.value || undefined
+        },
+        visualStyle: visualStyle.value || undefined,
+        colorPreference: colorPreference.value || undefined,
+        templateKey: selectedTemplate.value || undefined,
+        templatePanels: templateRecommendation.value?.panels?.map(p => ({
+          index: p.panelIndex,
+          name: p.panelName,
+          purpose: p.panelPurpose
+        })),
+        recommendedComponents: templateRecommendation.value || undefined,
+        framework: framework.value,
+        mode: outputMode.value
       },
-      visualStyle: visualStyle.value || undefined,
-      colorPreference: colorPreference.value || undefined,
-      templateKey: selectedTemplate.value || undefined,
-      templatePanels: templateRecommendation.value?.panels?.map(p => ({
-        index: p.panelIndex,
-        name: p.panelName,
-        purpose: p.panelPurpose
-      })),
-      recommendedComponents: templateRecommendation.value || undefined,
-      framework: framework.value,
-      mode: outputMode.value
-    })
+      // 🌊 流式回调：实时推送进度
+      (chunk) => {
+        if (chunk.type === 'components' && chunk.data) {
+          selectedComponents.value = chunk.data.selectedComponents || []
+          aiReasoning.value = chunk.data.reasoning || ''
+        }
+        if (chunk.type === 'code' && chunk.content) {
+          streamedCode = chunk.content
+          generatedCode.value = streamedCode
+          // 节流渲染：每 300ms 更新一次 iframe 预览
+          const now = Date.now()
+          if (!_lastStreamRender || now - _lastStreamRender > 300) {
+            _lastStreamRender = now
+            setCode(streamedCode)
+          }
+        }
+      }
+    )
 
+    // 最终赋值
     generatedCode.value = result.html || result.files?.[0]?.content || ''
-    selectedComponents.value = result.selectedComponents
-    aiReasoning.value = result.reasoning
+    selectedComponents.value = result.selectedComponents || selectedComponents.value
+    aiReasoning.value = result.reasoning || aiReasoning.value
 
-    // 质量校验
-    if (result.html) {
-      qualityReport.value = aiService.validateGeneratedCode(result.html)
-    } else {
-      qualityReport.value = null
-    }
-
-    // 渲染预览
+    // 完成时做最终渲染（V3.0 引擎自带质量报告，无需重复计算）
     if (result.html) {
       await nextTick()
       setCode(result.html)
+      qualityReport.value = result.qualityReport || aiService.validateGeneratedCode(result.html)
+    } else {
+      qualityReport.value = null
     }
 
     // 保存历史
@@ -550,7 +604,7 @@ async function handleGenerate() {
   }
 }
 
-// ====== AI 对话修改 ======
+// ====== AI 对话修改（流式 + 代码上下文） ======
 async function handleModify() {
   const instruction = chatInput.value.trim()
   if (!instruction || isModifying.value || !generatedCode.value) return
@@ -558,9 +612,18 @@ async function handleModify() {
   // 保存快照（用于撤销）
   codeSnapshots.value.push(generatedCode.value)
 
-  chatHistory.value.push({ role: 'user', content: instruction })
+  // 用户消息携带修改前的代码快照（用于构建 AI 上下文）
+  chatHistory.value.push({
+    role: 'user',
+    content: instruction,
+    codeSnapshot: generatedCode.value
+  })
   chatInput.value = ''
   isModifying.value = true
+
+  // 添加流式占位消息（后续实时更新内容）
+  chatHistory.value.push({ role: 'assistant', content: '⏳ 正在思考...' })
+  const streamingIdx = chatHistory.value.length - 1
 
   // 滚动到底部
   await nextTick()
@@ -569,31 +632,54 @@ async function handleModify() {
   }
 
   try {
-    const result = await aiService.modifyCode({
-      currentCode: generatedCode.value,
-      instruction,
-      history: chatHistory.value.slice(0, -1), // 不含刚发的这条
-      mode: outputMode.value
-    })
+    let streamText = ''
 
+    const historyForAI = buildModifyHistory(chatHistory.value.slice(0, -2)) // 不含刚发的 user + streaming placeholder
+
+    const result = await aiService.modifyCode(
+      {
+        currentCode: generatedCode.value,
+        instruction,
+        history: historyForAI,
+        mode: outputMode.value
+      },
+      // 🌊 流式回调
+      (chunk) => {
+        if (chunk.type === 'text' && chunk.content) {
+          streamText += chunk.content
+          chatHistory.value[streamingIdx].content = streamText.length > 500
+            ? streamText.substring(0, 500) + '...'
+            : streamText
+        }
+        if (chunk.type === 'code' && chunk.content) {
+          generatedCode.value = chunk.content
+          const now = Date.now()
+          if (!_lastStreamRender || now - _lastStreamRender > 300) {
+            _lastStreamRender = now
+            setCode(chunk.content)
+          }
+        }
+        if (chatHistoryRef.value) {
+          chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
+        }
+      }
+    )
+
+    // 最终代码赋值 + 预览
     if (result.html) {
       generatedCode.value = result.html
       await nextTick()
       setCode(result.html)
     }
 
-    const aiMsg = result.explanation
+    // 替换流式占位消息为最终结果
+    chatHistory.value[streamingIdx].content = result.explanation
       ? `✅ ${result.explanation}`
       : '✅ 已按要求修改代码'
-    chatHistory.value.push({ role: 'assistant', content: aiMsg })
 
   } catch (e: any) {
-    // 撤销快照
     codeSnapshots.value.pop()
-    chatHistory.value.push({
-      role: 'assistant',
-      content: '❌ 修改失败: ' + (e.message || '未知错误')
-    })
+    chatHistory.value[streamingIdx].content = '❌ 修改失败: ' + (e.message || '未知错误')
   } finally {
     isModifying.value = false
     await nextTick()
@@ -604,7 +690,7 @@ async function handleModify() {
 }
 
 function undoLastModify() {
-  if (codeSnapshots.value.length === 0) return
+  if (isModifying.value || codeSnapshots.value.length === 0) return
 
   const prevCode = codeSnapshots.value.pop()!
   generatedCode.value = prevCode

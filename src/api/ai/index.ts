@@ -2,6 +2,14 @@
  * AI API 服务
  * 支持多种AI提供商：通义千问、DeepSeek、OpenAI等
  *
+ * V3.0 更新：
+ * - E2E 代码生成引擎全面重构 (E2EGenerator)
+ *   - 流式原生 HTML 输出，废除 JSON 包裹反模式
+ *   - 分阶段生成：Plan → Generate → Assemble → Validate
+ *   - System Prompt < 8000 tokens (从 54000 大幅缩减)
+ *   - 加权质量评分：内容40% + 结构30% + 动画20% + 加分10%
+ *   - 智能风格匹配 + 面板级并行生成
+ *
  * V2.0 更新：
  * - 集成动态组件知识库引擎 (ComponentKnowledgeBuilder)
  * - 替换硬编码组件列表为动态扫描的完整 276+ 组件知识
@@ -16,6 +24,46 @@ import {
   estimateTokens,
   type ComponentKnowledge
 } from './component-knowledge-builder'
+import { E2EGenerator, type GenerateResult, type QualityReport } from './e2e-generator'
+
+// ==================== 模板源码自动加载 ====================
+// 使用 Vite import.meta.glob 预加载所有模板 .vue 源文件（raw 模式）
+// 格式: { 'infinite-scroll/infinite-scroll.vue': 'raw source code' }
+const templateSources: Record<string, () => Promise<string>> = import.meta.glob(
+  '../web-template/template/*/*.vue',
+  { query: '?raw', import: 'default' }
+)
+
+/** 模板源码缓存（异步加载后缓存） */
+const templateSourceCache = new Map<string, string>()
+
+/** 加载指定模板的源码 */
+async function loadTemplateSource(templateKey: string): Promise<string | null> {
+  if (templateSourceCache.has(templateKey)) {
+    return templateSourceCache.get(templateKey)!
+  }
+
+  // 匹配路径: ../web-template/template/{key}/{key}.vue
+  const matchKey = `../web-template/template/${templateKey}/${templateKey}.vue`
+  const loader = templateSources[matchKey]
+  if (!loader) {
+    // 尝试匹配任意 .vue 文件（部分旧模板命名不规范）
+    for (const [path, fn] of Object.entries(templateSources)) {
+      const folder = path.split('/').slice(-2)[0]
+      if (folder === templateKey || path.includes(`/${templateKey}/`)) {
+        const source = await fn()
+        templateSourceCache.set(templateKey, source)
+        return source
+      }
+    }
+    console.warn(`⚠️ 模板源码未找到: ${templateKey}`)
+    return null
+  }
+
+  const source = await loader()
+  templateSourceCache.set(templateKey, source)
+  return source
+}
 
 // AI提供商类型
 export type AIProvider = 'qwen' | 'deepseek' | 'openai' | 'custom'
@@ -47,6 +95,8 @@ export interface AIRequestParams {
   stream?: boolean
   timeout?: number // 自定义超时时间(ms)
   model?: string // 覆盖默认模型（E2E生成用 reasoning 模型等）
+  /** JSON Schema 结构化输出（DeepSeek/OpenAI 兼容） */
+  responseFormat?: { type: 'json_object' } | { type: 'json_schema'; json_schema: { name: string; schema: object } }
 }
 
 // AI响应结构
@@ -276,6 +326,8 @@ export interface WebsiteE2EResponse {
   selectedComponents: string[]
   /** AI 解释（为什么选这些组件） */
   reasoning: string
+  /** V3.0 质量报告 */
+  qualityReport?: { score: number; passed: boolean; issues: string[]; warnings: string[] }
 }
 
 /** 流式回调 */
@@ -285,11 +337,116 @@ export type E2EStreamCallback = (chunk: {
   data?: any
 }) => void
 
+/** System Prompt 缓存条目 */
+interface SystemPromptCache {
+  /** 静态模块的 hash */
+  staticHash: string
+  /** 缓存时间 */
+  timestamp: number
+  /** 静态部分的 prompt 文本 */
+  staticPrompt: string
+}
+
+/** 计算简单字符串 hash */
+function simpleHash(str: string): string {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash |= 0
+  }
+  return hash.toString(36)
+}
+
+// 用 fromCharCode(96) 构建反引号，避免 esbuild 将连续反引号误解析为模板字符串
+var _BT = String.fromCharCode(96)
+var _TB = _BT + _BT + _BT
+
+/** 从 markdown 文本中提取指定语言的代码块内容 */
+function extractMdBlock(content: string, tag?: string): string | null {
+  var openMark = _TB + (tag || '')
+  var closeMark = _TB
+  var startIdx = content.indexOf(openMark)
+  if (startIdx === -1) return null
+  var codeStart = startIdx + openMark.length
+  var idx = codeStart
+  while (idx < content.length && (content[idx] === '\n' || content[idx] === '\r')) idx++
+  var endIdx = content.indexOf(closeMark, idx)
+  if (endIdx === -1) return null
+  return content.substring(idx, endIdx).trim()
+}
+
+/**
+ * 解析 AI 返回的结构化 JSON 响应
+ * 支持：纯 JSON / markdown json 块 / 首尾有大括号的 JSON
+ */
+function parseStructuredResponse(content: string): Record<string, any> | null {
+  const trimmed = content.trim()
+
+  // 1. 尝试直接解析（最佳情况：纯 JSON）
+  try {
+    return JSON.parse(trimmed)
+  } catch { /* not pure JSON */ }
+
+  // 2. 尝试提取 ```json ... ``` 块
+  const jsonBlockStr = extractMdBlock(trimmed, 'json')
+  if (jsonBlockStr) {
+    try {
+      return JSON.parse(jsonBlockStr)
+    } catch { /* ignore */ }
+  }
+
+  // 3. 尝试提取首尾大括号（AI 有时会前后加说明文字）
+  const firstBrace = trimmed.indexOf('{')
+  const lastBrace = trimmed.lastIndexOf('}')
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    try {
+      return JSON.parse(trimmed.substring(firstBrace, lastBrace + 1))
+    } catch { /* ignore */ }
+  }
+
+  return null
+}
+
+/**
+ * 在流式输出中查找 JSON 对象的结束位置
+ * 通过计数大括号匹配来定位
+ */
+function tryFindJsonEnd(text: string): number {
+  let depth = 0
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+
+    if (escaped) { escaped = false; continue }
+
+    if (ch === '\\' && inString) { escaped = true; continue }
+
+    if (ch === '"' && !escaped) { inString = !inString; continue }
+
+    if (inString) continue
+
+    if (ch === '{') depth++
+    else if (ch === '}') {
+      depth--
+      if (depth === 0) return i + 1
+    }
+  }
+
+  return 0 // JSON 未闭合
+}
+
 class AIService {
   private client: AxiosInstance
   private config: AIConfig | null = null
   private knowledgeBase: ComponentKnowledge[] | null = null
   private knowledgeBasePromise: Promise<ComponentKnowledge[]> | null = null
+  /** Prompt 缓存（静态模块可跨请求复用，节省 ~60% tokens） */
+  private promptCache: Map<string, SystemPromptCache> = new Map()
+  /** V3.0 E2E 生成引擎（懒初始化） */
+  private e2eGenerator: E2EGenerator | null = null
 
   constructor() {
     this.client = axios.create({
@@ -382,110 +539,389 @@ gsap.to(window, { duration: 1.5, scrollTo: { y: targetSection, offsetY: 80 }, ea
   }
 
   /**
-   * 生成紧凑的 Few-Shot 范例骨架（~2K tokens）
-   * 给 AI 看真实可用的高质量网站结构模板
+   * 专业级 Few-Shot 范例（完整可运行，1100+ 行，10面板完整网站）
+   *
+   * 设计策略：深色调宠物/消费品牌风格的完整企业官网。
+   * 此范例强制展示了 Footer、Team、FAQ、Testimonials 等"容易被省略"的面板，
+   * 以及 DRY 的 Canvas 粒子封装、FAQ 折叠交互、团队社交卡片、证言轮播等高级模式。
+   * AI 必须学习此完整度，而不是输出 6 面板的简化版。
    */
   getFewShotExample(): string {
-    return `## Few-Shot 范例：一个完整的高质量 GSAP 多面板网站
-
-以下是参考结构（基于真实可运行的 demo26 星夜幻境模板精简）：
+    return `## Few-Shot 范例：专业级企业官网（1100+ 行完整参考，必学此标准）
 
 \`\`\`html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【公司名】- 品牌官网</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-  <!-- Tailwind CDN + GSAP CDN -->
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="企业官网">
+  <title>【品牌名】- 企业官网</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
   <style>
-    /* ===== CSS变量 + 全局样式 ===== */
     :root {
-      --bg: #030308; --accent: #00f5ff; --accent2: #bf00ff;
-      --text: #f0f0ff; --text-dim: #8888aa;
+      --bg-primary: #0a1410; --bg-secondary: #0f1f18;
+      --accent-primary: #22c55e; --accent-secondary: #a3e635;
+      --text-primary: #e8f5e9; --text-secondary: #81a889;
+      --card-bg: rgba(34,197,94,0.05); --card-border: rgba(34,197,94,0.1);
+      --gradient-hero: linear-gradient(135deg, #0a1410 0%, #0d1f16 50%, #0a1410 100%);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Orbitron', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-    /* ===== 全屏面板容器 ===== */
-    .panel { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .panel-inner { max-width: 1200px; width: 100%; margin: 0 auto; padding: 80px 40px; position: relative; z-index: 1; }
-    /* ===== 导航栏 ===== */
-    .navbar { position: fixed; top: 0; width: 100%; z-index: 100; padding: 20px 60px; transition: all 0.3s; display: flex; justify-content: space-between; align-items: center; }
-    .navbar.scrolled { background: rgba(3,3,8,0.9); backdrop-filter: blur(10px); padding: 12px 60px; }
-    /* ===== 玻璃卡片 ===== */
-    .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; backdrop-filter: blur(10px); }
-    /* ===== 渐变文字 ===== */
-    .gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    /* ===== 响应式 ===== */
-    @media (max-width: 768px) { .navbar { padding: 16px 20px; } .panel-inner { padding: 60px 20px; } }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-primary); color:var(--text-primary); overflow-x:hidden; }
+    .panel { min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+    .panel-inner { max-width:1200px; width:100%; margin:0 auto; padding:80px 40px; position:relative; z-index:1; }
+    .navbar { position:fixed; top:0; width:100%; z-index:100; padding:20px 60px; transition:all 0.35s; display:flex; justify-content:space-between; align-items:center; }
+    .navbar.scrolled { background:rgba(10,20,16,0.92); backdrop-filter:blur(12px); padding:12px 60px; box-shadow:0 2px 24px rgba(0,0,0,0.3); }
+    .glass-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; backdrop-filter:blur(10px); transition:all 0.35s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .glass-card:hover { transform:translateY(-6px); box-shadow:0 24px 48px rgba(0,0,0,0.4); border-color:var(--accent-primary); }
+    .gradient-text { background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .btn-primary { background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary)); color:white; padding:14px 36px; border-radius:50px; font-weight:700; border:none; cursor:pointer; transition:all 0.3s; box-shadow:0 4px 16px rgba(34,197,94,0.3); }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(34,197,94,0.45); }
+    .btn-outline { background:transparent; color:var(--accent-primary); padding:13px 34px; border-radius:50px; font-weight:700; border:2px solid var(--accent-primary); cursor:pointer; transition:all 0.3s; }
+    .btn-outline:hover { background:var(--accent-primary); color:white; }
+    .scroll-indicator { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); animation:bounce 2s infinite; cursor:pointer; z-index:2; }
+    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(12px);} }
+    .section-title { font-size:2.5rem; font-weight:700; margin-bottom:1rem; }
+    .section-subtitle { font-size:1.1rem; color:var(--text-secondary); max-width:600px; }
+    .form-input { width:100%; padding:14px 18px; border-radius:12px; border:1.5px solid #2d4a3e; background:#0f1f18; color:var(--text-primary); font-size:1rem; transition:all 0.3s; outline:none; font-family:inherit; }
+    .form-input:focus { border-color:var(--accent-primary); box-shadow:0 0 0 3px rgba(34,197,94,0.1); }
+    .canvas-bg { position:absolute; inset:0; pointer-events:none; z-index:0; }
+    /* FAQ折叠 */
+    .faq-item { border-bottom:1px solid #1a3a25; overflow:hidden; }
+    .faq-question { padding:20px 0; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:600; transition:color 0.3s; }
+    .faq-question:hover { color:var(--accent-primary); }
+    .faq-answer { max-height:0; overflow:hidden; transition:max-height 0.4s ease, padding 0.4s; color:var(--text-secondary); line-height:1.7; }
+    .faq-answer.open { max-height:300px; padding-bottom:20px; }
+    .faq-icon { transition:transform 0.3s; font-size:1.2rem; }
+    .faq-icon.open { transform:rotate(45deg); }
+    /* Footer */
+    .footer { background:var(--bg-secondary); border-top:1px solid #1a3a25; padding:64px 40px 32px; }
+    .footer a { color:var(--text-secondary); transition:color 0.3s; text-decoration:none; }
+    .footer a:hover { color:var(--accent-primary); }
+    @media (max-width:768px) {
+      .navbar { padding:16px 20px; flex-wrap:wrap; }
+      .navbar .hidden { display:none; }
+      .panel-inner { padding:60px 20px; }
+      .section-title { font-size:2rem; }
+      .footer { padding:40px 20px 24px; }
+    }
   </style>
 </head>
 <body>
-  <!-- 加载动画 ⚡ 0.5s进场 可选 -->
-  <div class="loader" id="loader">...</div>
-
-  <!-- 导航栏 -->
   <nav class="navbar" id="navbar">
-    <div class="text-xl font-bold gradient-text">LOGO</div>
-    <div class="flex gap-8"><a class="nav-link" href="#hero">首页</a><a class="nav-link" href="#about">关于</a><a class="nav-link" href="#contact">联系</a></div>
+    <div class="text-2xl font-black gradient-text">LOGO</div>
+    <div class="flex gap-8 font-semibold text-sm">
+      <a class="nav-link" href="#hero">首页</a><a class="nav-link" href="#about">品牌故事</a><a class="nav-link" href="#products">产品服务</a><a class="nav-link" href="#team">专业团队</a><a class="nav-link" href="#testimonials">客户心声</a><a class="nav-link" href="#faq">常见问题</a><a class="nav-link" href="#stats">数据见证</a><a class="nav-link" href="#contact">联系我们</a>
+    </div>
   </nav>
 
-  <!-- Panel 1: Hero 全屏首屏 -->
-  <section class="panel" id="hero" style="background: radial-gradient(ellipse at center, #0a0a2e 0%, #030308 70%);">
-    <div class="absolute inset-0 pointer-events-none">
-      <!-- 背景装饰：星星/粒子/光晕用多个 div -->
-    </div>
+  <!-- ===== Hero ===== -->
+  <section class="panel" id="hero" style="background:var(--gradient-hero);">
+    <canvas class="canvas-bg" id="heroCanvas"></canvas>
     <div class="panel-inner text-center">
-      <h1 class="hero-title text-6xl md:text-8xl font-black gradient-text mb-6">震撼标题</h1>
-      <p class="hero-subtitle text-xl text-gray-400 mb-10 max-w-2xl mx-auto">副标题描述</p>
-      <div class="flex gap-4 justify-center">
-        <button class="px-8 py-3 rounded-lg font-bold text-white" style="background:linear-gradient(135deg, var(--accent), var(--accent2))">开始体验</button>
-        <button class="px-8 py-3 rounded-lg border border-white/20">了解更多</button>
+      <span class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-6" style="background:rgba(34,197,94,0.1);color:var(--accent-primary)">行业领先解决方案</span>
+      <h1 class="hero-title text-5xl md:text-7xl font-black mb-6 leading-tight gradient-text">让创新驱动<br>业务持续增长</h1>
+      <p class="hero-desc text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">我们专注为企业提供卓越的解决方案，服务覆盖全球500+客户，98%客户满意度，10年深耕行业经验。</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button class="btn-primary" onclick="document.querySelector('#products').scrollIntoView({behavior:'smooth'})">探索产品服务</button>
+        <button class="btn-outline" onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})">预约演示</button>
+      </div>
+      <div class="scroll-indicator" onclick="document.querySelector('#about').scrollIntoView({behavior:'smooth'})">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round"><path d="M7 13l5 5 5-5"/><path d="M7 6l5 5 5-5"/></svg>
       </div>
     </div>
   </section>
 
-  <!-- Panel 2-N: 各类内容面板（用相同 .panel 容器 + 不同渐变背景区分） -->
-  <!-- 每个面板：section.panel > div.panel-inner > h2.section-title + 内容网格 -->
+  <!-- ===== About Story 左右分栏 ===== -->
+  <section class="panel" id="about" style="background:var(--bg-primary);">
+    <div class="panel-inner">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&q=80" alt="团队" class="rounded-2xl shadow-2xl w-full" style="aspect-ratio:4/3;object-fit:cover;">
+          <div class="absolute -bottom-6 -right-6 glass-card p-6 rounded-2xl shadow-xl" style="background:rgba(15,31,24,0.9)">
+            <div class="text-3xl font-black gradient-text">10+</div><div class="text-sm text-gray-400">年行业深耕</div>
+          </div>
+        </div>
+        <div>
+          <span class="text-sm font-semibold tracking-wider uppercase" style="color:var(--accent-primary)">Brand Story</span>
+          <h2 class="section-title mt-2">用专业与热情<br>成就每一个梦想</h2>
+          <p class="text-gray-400 leading-relaxed mb-6">我们成立于2015年，从一个小型工作室起步，如今已成为行业领先的服务提供商。我们始终坚持"品质第一"的理念，为每一位客户创造真正的价值。</p>
+          <p class="text-gray-400 leading-relaxed mb-8">团队由来自顶尖公司的资深专家组成，平均从业经验超过8年。我们相信，好的产品和服务应该让复杂变得简单，让专业触手可及。</p>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="glass-card p-4 text-center" style="background:rgba(15,31,24,0.8)"><div class="text-2xl mb-1">🏆</div><div class="text-xs font-semibold">500+客户</div></div>
+            <div class="glass-card p-4 text-center" style="background:rgba(15,31,24,0.8)"><div class="text-2xl mb-1">🌍</div><div class="text-xs font-semibold">30+国家</div></div>
+            <div class="glass-card p-4 text-center" style="background:rgba(15,31,24,0.8)"><div class="text-2xl mb-1">⭐</div><div class="text-xs font-semibold">98%满意度</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Products 4列网格 ===== -->
+  <section class="panel" id="products" style="background:var(--bg-secondary);">
+    <div class="panel-inner text-center">
+      <span class="text-sm font-semibold tracking-wider uppercase" style="color:var(--accent-primary)">Products & Services</span>
+      <h2 class="section-title mt-2 mx-auto">全栈能力覆盖，一站式交付</h2>
+      <p class="section-subtitle mx-auto mt-4">从战略规划到执行落地，我们提供端到端的完整解决方案</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+        <div class="glass-card p-8 text-left" style="background:rgba(15,31,24,0.8)">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6" style="background:rgba(34,197,94,0.1)">⚡</div>
+          <h3 class="text-xl font-bold mb-3">核心产品A</h3>
+          <p class="text-gray-400 leading-relaxed mb-4 text-sm">基于前沿技术打造的产品，帮助企业实现效率提升与成本优化。</p>
+          <a href="#" class="text-sm font-semibold" style="color:var(--accent-primary)">了解详情 →</a>
+        </div>
+        <div class="glass-card p-8 text-left" style="background:rgba(15,31,24,0.8)">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6" style="background:rgba(34,197,94,0.1)">📊</div>
+          <h3 class="text-xl font-bold mb-3">数据分析平台</h3>
+          <p class="text-gray-400 leading-relaxed mb-4 text-sm">深度挖掘数据价值，提供可视化洞察报告与预测分析能力。</p>
+          <a href="#" class="text-sm font-semibold" style="color:var(--accent-primary)">了解详情 →</a>
+        </div>
+        <div class="glass-card p-8 text-left" style="background:rgba(15,31,24,0.8)">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6" style="background:rgba(34,197,94,0.1)">🔒</div>
+          <h3 class="text-xl font-bold mb-3">安全合规服务</h3>
+          <p class="text-gray-400 leading-relaxed mb-4 text-sm">全面的信息安全评估与合规咨询，确保系统满足行业标准。</p>
+          <a href="#" class="text-sm font-semibold" style="color:var(--accent-primary)">了解详情 →</a>
+        </div>
+        <div class="glass-card p-8 text-left" style="background:rgba(15,31,24,0.8)">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6" style="background:rgba(34,197,94,0.1)">🎯</div>
+          <h3 class="text-xl font-bold mb-3">战略咨询服务</h3>
+          <p class="text-gray-400 leading-relaxed mb-4 text-sm">资深顾问团队提供定制化战略规划，助力企业把握行业机遇。</p>
+          <a href="#" class="text-sm font-semibold" style="color:var(--accent-primary)">了解详情 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Team 4列人物卡片（差异化面板） ===== -->
+  <section class="panel" id="team" style="background:var(--bg-primary);">
+    <canvas class="canvas-bg" id="teamCanvas"></canvas>
+    <div class="panel-inner text-center">
+      <span class="text-sm font-semibold tracking-wider uppercase" style="color:var(--accent-primary)">Our Team</span>
+      <h2 class="section-title mt-2 mx-auto">专业团队，匠心服务</h2>
+      <p class="section-subtitle mx-auto mt-4">汇聚行业顶尖人才，用心成就每一个项目</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-14">
+        <div class="glass-card p-6 text-center" style="background:rgba(15,31,24,0.8)">
+          <div class="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="CEO" class="w-full h-full object-cover"></div>
+          <h3 class="text-lg font-bold">张伟</h3><p class="text-sm text-gray-400 mb-3">CEO & 创始人</p>
+          <p class="text-xs text-gray-400 leading-relaxed">15年行业经验，连续创业者，专注于技术创新与商业落地。</p>
+          <div class="flex gap-3 justify-center mt-4 text-xs"><a href="#" style="color:var(--accent-primary)">LinkedIn</a><a href="#" style="color:var(--accent-primary)">Twitter</a></div>
+        </div>
+        <div class="glass-card p-6 text-center" style="background:rgba(15,31,24,0.8)">
+          <div class="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" alt="CTO" class="w-full h-full object-cover"></div>
+          <h3 class="text-lg font-bold">李娜</h3><p class="text-sm text-gray-400 mb-3">CTO</p>
+          <p class="text-xs text-gray-400 leading-relaxed">前大厂技术总监，10年架构设计经验，开源社区活跃贡献者。</p>
+          <div class="flex gap-3 justify-center mt-4 text-xs"><a href="#" style="color:var(--accent-primary)">LinkedIn</a><a href="#" style="color:var(--accent-primary)">GitHub</a></div>
+        </div>
+        <div class="glass-card p-6 text-center" style="background:rgba(15,31,24,0.8)">
+          <div class="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80" alt="Design" class="w-full h-full object-cover"></div>
+          <h3 class="text-lg font-bold">王磊</h3><p class="text-sm text-gray-400 mb-3">设计总监</p>
+          <p class="text-xs text-gray-400 leading-relaxed">国际获奖设计师，曾服务多家世界500强企业品牌重塑项目。</p>
+          <div class="flex gap-3 justify-center mt-4 text-xs"><a href="#" style="color:var(--accent-primary)">Dribbble</a><a href="#" style="color:var(--accent-primary)">Behance</a></div>
+        </div>
+        <div class="glass-card p-6 text-center" style="background:rgba(15,31,24,0.8)">
+          <div class="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" alt="COO" class="w-full h-full object-cover"></div>
+          <h3 class="text-lg font-bold">陈晓</h3><p class="text-sm text-gray-400 mb-3">运营总监</p>
+          <p class="text-xs text-gray-400 leading-relaxed">供应链管理专家，主导过数十个大型项目从0到1的商业化落地。</p>
+          <div class="flex gap-3 justify-center mt-4 text-xs"><a href="#" style="color:var(--accent-primary)">LinkedIn</a><a href="#" style="color:var(--accent-primary)">Twitter</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Testimonials 证言轮播（差异化面板） ===== -->
+  <section class="panel" id="testimonials" style="background:var(--bg-secondary);">
+    <div class="panel-inner text-center">
+      <span class="text-sm font-semibold tracking-wider uppercase" style="color:var(--accent-primary)">Testimonials</span>
+      <h2 class="section-title mt-2 mx-auto">客户怎么说</h2>
+      <p class="section-subtitle mx-auto mt-4">来自各行业客户的真实评价</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+        <div class="glass-card p-8 text-left" style="background:rgba(15,31,24,0.8)">
+          <div class="flex gap-0.5 mb-4" style="color:var(--accent-secondary)">★★★★★</div>
+          <p class="text-gray-300 leading-relaxed mb-6 text-sm">"专业团队的服务远超预期，项目交付质量和效率都非常出色。已经成为我们的长期合作伙伴。"</p>
+          <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full overflow-hidden"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&q=80" alt="客户" class="w-full h-full object-cover"></div><div><div class="font-semibold text-sm">赵总</div><div class="text-xs text-gray-400">某集团公司CEO</div></div></div>
+        </div>
+        <div class="glass-card p-8 text-left" style="background:rgba(15,31,24,0.8)">
+          <div class="flex gap-0.5 mb-4" style="color:var(--accent-secondary)">★★★★★</div>
+          <p class="text-gray-300 leading-relaxed mb-6 text-sm">"从需求沟通到最终交付，每个环节都体现了极高的专业水准。强烈推荐给所有需要的企业。"</p>
+          <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full overflow-hidden"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80" alt="客户" class="w-full h-full object-cover"></div><div><div class="font-semibold text-sm">孙总监</div><div class="text-xs text-gray-400">某上市企业技术总监</div></div></div>
+        </div>
+        <div class="glass-card p-8 text-left" style="background:rgba(15,31,24,0.8)">
+          <div class="flex gap-0.5 mb-4" style="color:var(--accent-secondary)">★★★★★</div>
+          <p class="text-gray-300 leading-relaxed mb-6 text-sm">"合作三年来，他们始终保持着高度的责任心和创新精神，帮助我们实现了多个关键业务目标。"</p>
+          <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full overflow-hidden"><img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&q=80" alt="客户" class="w-full h-full object-cover"></div><div><div class="font-semibold text-sm">周经理</div><div class="text-xs text-gray-400">某金融集团项目经理</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ 折叠面板（差异化面板） ===== -->
+  <section class="panel" id="faq" style="background:var(--bg-primary);">
+    <div class="panel-inner" style="max-width:800px">
+      <div class="text-center mb-12">
+        <span class="text-sm font-semibold tracking-wider uppercase" style="color:var(--accent-primary)">FAQ</span>
+        <h2 class="section-title mt-2 mx-auto">常见问题</h2>
+        <p class="section-subtitle mx-auto mt-4">您关心的问题，这里都有答案</p>
+      </div>
+      <div class="space-y-0">
+        <div class="faq-item"><div class="faq-question" onclick="var a=this.nextElementSibling;var i=this.querySelector('.faq-icon');a.classList.toggle('open');i.classList.toggle('open')"><span>你们的服务流程是怎样的？</span><span class="faq-icon">+</span></div><div class="faq-answer"><p>我们的服务分为四个阶段：需求沟通（1-3天）→ 方案设计（5-7天）→ 开发执行（按项目规模）→ 交付验收与持续优化。全程有专属项目经理一对一跟进。</p></div></div>
+        <div class="faq-item"><div class="faq-question" onclick="var a=this.nextElementSibling;var i=this.querySelector('.faq-icon');a.classList.toggle('open');i.classList.toggle('open')"><span>项目周期一般是多久？</span><span class="faq-icon">+</span></div><div class="faq-answer"><p>标准项目周期为2-6个月，具体取决于项目规模和复杂度。我们会在需求评估阶段给出详细的时间规划，确保每个里程碑按时交付。</p></div></div>
+        <div class="faq-item"><div class="faq-question" onclick="var a=this.nextElementSibling;var i=this.querySelector('.faq-icon');a.classList.toggle('open');i.classList.toggle('open')"><span>是否提供售后服务和技术支持？</span><span class="faq-icon">+</span></div><div class="faq-answer"><p>是的，我们提供完善的售后服务体系。包括7×24小时技术支持、定期系统巡检、免费升级维护，以及专属客户成功经理持续跟进。</p></div></div>
+        <div class="faq-item"><div class="faq-question" onclick="var a=this.nextElementSibling;var i=this.querySelector('.faq-icon');a.classList.toggle('open');i.classList.toggle('open')"><span>如何开始合作？</span><span class="faq-icon">+</span></div><div class="faq-answer"><p>您可以通过下方联系表单提交需求，或直接拨打我们的咨询热线。商务团队会在24小时内与您取得联系，安排免费的需求评估会议。</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Stats 数据面板 ===== -->
+  <section class="panel" id="stats" style="background:var(--gradient-hero);">
+    <canvas class="canvas-bg" id="statsCanvas"></canvas>
+    <div class="panel-inner text-center">
+      <span class="text-sm font-semibold tracking-wider uppercase" style="color:var(--accent-primary)">By The Numbers</span>
+      <h2 class="section-title mt-2 mx-auto">数字见证实力</h2>
+      <p class="section-subtitle mx-auto mt-4">每一个数字背后，都是我们对品质的坚守与客户的信任</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-14">
+        <div class="glass-card p-8" style="background:rgba(15,31,24,0.8)"><div class="text-5xl font-black gradient-text counter-num" data-target="500">0</div><div class="text-sm text-gray-400 mt-3 font-medium">服务企业客户</div></div>
+        <div class="glass-card p-8" style="background:rgba(15,31,24,0.8)"><div class="text-5xl font-black gradient-text counter-num" data-target="99">0</div><div class="text-sm text-gray-400 mt-3 font-medium">客户满意度%</div></div>
+        <div class="glass-card p-8" style="background:rgba(15,31,24,0.8)"><div class="text-5xl font-black gradient-text counter-num" data-target="30">0</div><div class="text-sm text-gray-400 mt-3 font-medium">覆盖国家地区</div></div>
+        <div class="glass-card p-8" style="background:rgba(15,31,24,0.8)"><div class="text-5xl font-black gradient-text counter-num" data-target="10">0</div><div class="text-sm text-gray-400 mt-3 font-medium">年行业深耕</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Contact 联系表单 ===== -->
+  <section class="panel" id="contact" style="background:var(--bg-secondary);">
+    <div class="panel-inner">
+      <div class="text-center mb-12">
+        <span class="text-sm font-semibold tracking-wider uppercase" style="color:var(--accent-primary)">Get In Touch</span>
+        <h2 class="section-title mt-2 mx-auto">开启合作之旅</h2>
+        <p class="section-subtitle mx-auto mt-4">留下联系方式，我们的专家将在24小时内与您联系</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 max-w-5xl mx-auto">
+        <form class="lg:col-span-3 glass-card p-8" style="background:rgba(15,31,24,0.8)" id="contactForm">
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="block text-sm font-semibold mb-1.5">姓名 *</label><input type="text" class="form-input" placeholder="您的称呼" required></div>
+            <div><label class="block text-sm font-semibold mb-1.5">手机 *</label><input type="tel" class="form-input" placeholder="手机号码" required></div>
+          </div>
+          <div class="mb-4"><label class="block text-sm font-semibold mb-1.5">电子邮箱</label><input type="email" class="form-input" placeholder="you@company.com"></div>
+          <div class="mb-4"><label class="block text-sm font-semibold mb-1.5">咨询方向</label>
+            <select class="form-input"><option>产品咨询</option><option>预约演示</option><option>商务合作</option><option>其他</option></select>
+          </div>
+          <div class="mb-5"><label class="block text-sm font-semibold mb-1.5">需求描述</label><textarea rows="4" class="form-input" placeholder="请简要描述您的需求..."></textarea></div>
+          <button type="submit" class="btn-primary w-full">提交咨询</button>
+          <p id="formSuccess" class="text-green-400 text-sm mt-3 text-center hidden">✓ 已提交成功！我们会尽快联系您。</p>
+        </form>
+        <div class="lg:col-span-2 space-y-6">
+          <div class="glass-card p-6" style="background:rgba(15,31,24,0.8)"><div class="text-2xl mb-2">📍</div><h3 class="font-bold mb-1">总部地址</h3><p class="text-sm text-gray-400">深圳市南山区科技园创新大厦28F</p></div>
+          <div class="glass-card p-6" style="background:rgba(15,31,24,0.8)"><div class="text-2xl mb-2">📞</div><h3 class="font-bold mb-1">咨询热线</h3><p class="text-sm text-gray-400">400-888-9999</p></div>
+          <div class="glass-card p-6" style="background:rgba(15,31,24,0.8)"><div class="text-2xl mb-2">📧</div><h3 class="font-bold mb-1">电子邮箱</h3><p class="text-sm text-gray-400">hello@company.com</p></div>
+          <div class="glass-card p-6" style="background:rgba(15,31,24,0.8)"><div class="text-2xl mb-2">🕐</div><h3 class="font-bold mb-1">工作时间</h3><p class="text-sm text-gray-400">周一至周五 09:00-18:00</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer（必有的面板） ===== -->
+  <footer class="footer">
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <h3 class="text-xl font-black gradient-text mb-4">LOGO</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">用专业与创新为企业赋能，持续创造商业价值。</p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">产品服务</h4>
+        <div class="space-y-2 text-sm"><div><a href="#">核心产品A</a></div><div><a href="#">数据分析平台</a></div><div><a href="#">安全合规服务</a></div><div><a href="#">战略咨询</a></div></div>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">关于我们</h4>
+        <div class="space-y-2 text-sm"><div><a href="#">品牌故事</a></div><div><a href="#">专业团队</a></div><div><a href="#">客户心声</a></div><div><a href="#">联系我们</a></div></div>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">联系方式</h4>
+        <div class="space-y-2 text-sm text-gray-400"><div>📍 深圳南山区科技园</div><div>📞 400-888-9999</div><div>📧 hello@company.com</div></div>
+        <div class="flex gap-3 mt-4 text-sm"><a href="#">微</a><a href="#">博</a><a href="#">领</a><a href="#">邮</a></div>
+      </div>
+    </div>
+    <div class="max-w-6xl mx-auto border-t pt-6 text-center text-xs text-gray-400" style="border-color:#1a3a25">
+      © 2025 Company Name. All rights reserved. | 粤ICP备XXXXXXXX号 | <a href="#">隐私政策</a> | <a href="#">服务条款</a>
+    </div>
+  </footer>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+    document.addEventListener('DOMContentLoaded', function() {
+      // ★ DRY：可重用的 Canvas 粒子工厂函数
+      function createParticleCanvas(canvasId, count, color, mode) {
+        var c = document.getElementById(canvasId); if (!c) return;
+        var ctx = c.getContext('2d');
+        function resize() { c.width = window.innerWidth; c.height = window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        var pts = [];
+        if (mode === 'float') {
+          for (var i = 0; i < count; i++) pts.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*3+1,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5,o:Math.random()*0.4+0.15});
+        } else if (mode === 'rise') {
+          for (var i = 0; i < count; i++) pts.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2+0.5,vy:Math.random()*0.3+0.1,o:Math.random()*0.3+0.1});
+        }
+        (function draw() {
+          ctx.clearRect(0,0,c.width,c.height);
+          for (var j = 0; j < pts.length; j++) {
+            var p = pts[j];
+            if (mode === 'float') { p.x += p.vx; p.y += p.vy; if(p.x<0||p.x>c.width)p.vx*=-1; if(p.y<0||p.y>c.height)p.vy*=-1; }
+            else if (mode === 'rise') { p.y -= p.vy; if(p.y < -10) { p.y = c.height + 10; p.x = Math.random() * c.width; } }
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(' + color + ',' + p.o + ')'; ctx.fill();
+          }
+          requestAnimationFrame(draw);
+        })();
+      }
+      createParticleCanvas('heroCanvas', 50, '34,197,94', 'float');
+      createParticleCanvas('teamCanvas', 30, '34,197,94', 'rise');
+      createParticleCanvas('statsCanvas', 40, '34,197,94', 'float');
+
+      // Hero入场
+      var tl = gsap.timeline();
+      tl.fromTo('.hero-title',{y:100,opacity:0},{y:0,opacity:1,duration:1,ease:'power3.out'})
+        .fromTo('.hero-desc',{y:60,opacity:0},{y:0,opacity:1,duration:0.8,ease:'power3.out'},'-=0.5')
+        .fromTo('.btn-primary,.btn-outline',{y:40,opacity:0},{y:0,opacity:1,duration:0.6,stagger:0.15,ease:'power3.out'},'-=0.3');
+
+      // 导航栏滚动
+      ScrollTrigger.create({start:100,onUpdate:function(s){document.getElementById('navbar').classList.toggle('scrolled',s.scroll()>100)}});
+
+      // 导航平滑跳转
+      document.querySelectorAll('.nav-link').forEach(function(l){l.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t)gsap.to(window,{duration:1.2,scrollTo:{y:t,offsetY:80},ease:'power3.inOut'})})});
+
+      // 面板标题逐组入场
+      gsap.utils.toArray('.section-title').forEach(function(t,i){gsap.fromTo(t,{y:80,opacity:0},{y:0,opacity:1,duration:0.8,ease:'power3.out',scrollTrigger:{trigger:t,start:'top 85%',toggleActions:'play none none reverse'}})});
+
+      // 卡片 stagger（所有 glass-card 共用一套逻辑）
+      gsap.utils.toArray('.glass-card').forEach(function(c,i){gsap.fromTo(c,{y:100,opacity:0,scale:0.92},{y:0,opacity:1,scale:1,duration:0.7,delay:i*0.08,ease:'power3.out',scrollTrigger:{trigger:c,start:'top 90%',toggleActions:'play none none reverse'}})});
+
+      // 数字递增
+      gsap.utils.toArray('.counter-num').forEach(function(el){var t=parseInt(el.dataset.target),o={v:0};gsap.to(o,{v:t,duration:2.5,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 75%',toggleActions:'play none none reverse'},onUpdate:function(){el.textContent=Math.round(o.v).toLocaleString()}})});
+
+      // 表单提交
+      document.getElementById('contactForm').addEventListener('submit',function(e){e.preventDefault();var s=document.getElementById('formSuccess');s.classList.remove('hidden');gsap.fromTo(s,{y:-10,opacity:0},{y:0,opacity:1,duration:0.4});setTimeout(function(){s.classList.add('hidden')},3000);this.reset()});
+
+      ScrollTrigger.refresh();
+    });
+  </script>
 </body>
-<script>
-  gsap.registerPlugin(ScrollTrigger)
-
-  document.addEventListener('DOMContentLoaded', () => {
-    // 加载动画 - 0.5s后消失
-    gsap.to('#loader', { opacity: 0, duration: 0.4, delay: 0.5, onComplete: () => { document.getElementById('loader').style.display = 'none' } })
-
-    // Hero 入场（无 ScrollTrigger）
-    gsap.fromTo('.hero-title', { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out' })
-    gsap.fromTo('.hero-subtitle', { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.3, ease: 'power3.out' })
-
-    // 面板标题从下飞入（通用模式）
-    gsap.utils.toArray('.section-title').forEach(title => {
-      gsap.fromTo(title, { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: { trigger: title, start: 'top 85%', toggleActions: 'play none none reverse' }
-      })
-    })
-
-    // 卡片序列入场（每个面板独立处理）
-    // ... 参考组件实现模式中的 stagger 写法 ...
-
-    // ScrollTrigger.refresh() 在动画定义后调用，确保计算正确
-    ScrollTrigger.refresh()
-  })
-</script>
 </html>
 \`\`\`
 
-**关键要点：**
-- 每面板一个 \`<section class="panel">\` 保持结构清晰
-- CSS 变量驱动配色，便于整体换色
-- Hero 用绝对定位的装饰元素做视觉增强
-- 导航栏固定定位 + ScrollTrigger 控制背景显隐
-- 所有动画类名加唯一后缀避免冲突`
+**专业要点（基线标准，缺一不可）：**
+- ★ 10 个面板：Hero → Story → Products(4列) → Team → Testimonials → FAQ → Stats → Contact → **Footer**
+- ★ **Footer 是必须的**（网站地图 + 版权 + ICP备案 + 隐私/条款链接）
+- ★ Canvas 粒子用 **DRY 工厂函数**（createParticleCanvas），一个函数支持多种模式，代码不重复
+- ★ 至少 3 种差异化面板（Team 人物卡片 / Testimonials 证言 / FAQ 折叠）
+- ★ FAQ 用纯 CSS + classList 折叠动画（不用 GSAP 以免过度复杂）
+- ★ ScrollToPlugin 平滑导航跳转
+- ★ 表单 5 字段 + submit 事件 + GSAP 成功动画
+- ★ 数字递增用 GSAP 对象属性驱动
+- ★ 联系信息 4 项完整（地址/电话/邮箱/工作时间）
+- ★ 导航栏 8 个链接（体现完整网站结构），不是只有 4-5 个
+- ★ 移动端 @media 响应式完整覆盖`
   }
 
   /**
@@ -660,37 +1096,348 @@ gsap.killTweensOf('*')
    * 生成质量自检清单（注入 system prompt，让 AI 自我审查）
    */
   getQualityChecklist(): string {
-    return `## 质量自检清单（输出代码前必须逐项确认）
+    return `## 质量自检清单（输出代码前必须逐项确认，遗漏任一项即为不专业）
 
 ### 结构完整性
 - [ ] 以 \`<!DOCTYPE html>\` 开头
-- [ ] \`<head>\` 包含 GSAP 3.12.5 + ScrollTrigger + Tailwind CDN 三个标签
-- [ ] 代码总量 >= 500 行（完整多面板网站不能太简短）
+- [ ] \`<head>\` 包含 GSAP 3.12.5 + ScrollTrigger + **ScrollToPlugin** + Tailwind CDN 四个标签
 - [ ] 无任何 \`// ... 省略 ...\` 或占位符
+- [ ] 无 HTML 标签闭合错误（如 \`</   div>\`）
+- [ ] 所有 \`<img>\` 标签有 \`alt\` 属性
 
 ### GSAP 动画规范
-- [ ] 第一行 JS: \`gsap.registerPlugin(ScrollTrigger)\`
+- [ ] 第一行 JS: \`gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)\`
 - [ ] Hero 入场动画在 \`DOMContentLoaded\` 中立即执行（不用 ScrollTrigger）
 - [ ] 后续面板用 ScrollTrigger + \`toggleActions: 'play none none reverse'\`
 - [ ] 所有动画用 \`gsap.fromTo\` 精确控制起止状态
 - [ ] 最后调用 \`ScrollTrigger.refresh()\`
 
-### 面板规范
-- [ ] 5-8 个 \`<section class="panel">\` 全屏面板
+### 导航与交互（专业级必须，缺一不可）
+- [ ] 所有导航链接有 click 事件，用 \`gsap.to(window, {scrollTo:...})\` 实现平滑跳转
+- [ ] 导航栏至少 7 个链接（体现完整网站结构，不是只 4-5 个）
+- [ ] 至少 2 个 CTA 按钮有实际 click 行为（滚动到目标面板）
+- [ ] Hero 面板有向下滚动指示器（箭头图标 + bounce 动画）
+- [ ] 每个 \`.glass-card\` 有 hover 微交互（translateY + box-shadow + border-color）
+
+### 面板完整度（专业标准，缺一不可）
+- [ ] **Hero**：品牌标语 + Canvas粒子 + 2 CTA + 滚动指示器 ✓
+- [ ] **About/Story**：左右分栏（大图+文字+3个小卡片）✓
+- [ ] **Product/Service**：4 个卡片（不是 3 个），各有图标+标题+描述+链接 ✓
+- [ ] **至少 1 个差异化面板**：Team人物 / Testimonials证言 / FAQ折叠（选2个以上更好）✓
+- [ ] **Stats**：4 个数字 + 递增动画 ✓
+- [ ] **Contact**：5 字段表单 + 4 项联系信息（地址/电话/邮箱/时间）✓
+- [ ] ★ **Footer**：4列站点地图 + 版权©️年份 + ICP备案号 + 隐私/条款链接 ✓（必须！）
+- [ ] 面板顺序有逻辑叙事线：品牌引入 → 价值展示 → 信任建立 → 行动号召
+
+### 面板设计规范（高质量标准）
+- [ ] 至少 7 个 \`<section class="panel">\` 全屏面板（含 Footer 至少 8 个区块）
 - [ ] 每个面板有独立渐变背景区分章节
-- [ ] Hero(首屏) → About/Feature(介绍) → Service/Product(内容) → Gallery(案例) → Stats(数据) → Team(团队) → Contact(联系)
-- [ ] 每个面板中文标题用 \`<h2>\` 包装，英文用 \`text-sm uppercase tracking-wider\` 作为 subtitle
+- [ ] 每个面板标题用 \`<h2>\` 包装，英文用 \`text-sm uppercase tracking-wider\` 作为 subtitle
+- [ ] ★ 至少 3 种不同面板布局（居中/左右/网格/图文卡片/表单双栏/FAQ折叠 — 不能全部相同）
 
 ### 视觉质量
-- [ ] CSS 变量定义为配色: \`:root { --bg; --accent; --text; }\`
-- [ ] Hero 有背景装饰（粒子/星空/光晕/网格 — 至少1种）
-- [ ] 有玻璃拟态卡片: \`background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border-radius: 16px;\`
+- [ ] CSS 变量严格从上方的11套风格模板中选择，不自定义随意配色
+- [ ] ★ Hero 有 Canvas 粒子背景（50个粒子 + requestAnimationFrame 循环）— 不能是空div
+- [ ] ★ Canvas 粒子用 DRY 工厂函数（一个函数参数化 canvasId/color/mode），不重复粘贴相同代码
+- [ ] 有玻璃拟态卡片: \`background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 16px;\`
 - [ ] 至少一处渐变文字标题: \`background: linear-gradient(); -webkit-background-clip: text;\`
 - [ ] 导航栏固定定位 + ScrollTrigger 控制 scrolled 状态
 
+### 代码质量（专业标准）
+- [ ] 重复元素（粒子/社交图标/风格统一的卡片）用 JS 循环动态生成，禁止 HTML 硬编码 >3 个相同结构
+- [ ] 相同的 SVG 图标不重复内联——定义一次或抽成函数重用
+- [ ] Canvas 粒子代码不重复——用一个参数化函数搞定所有 Canvas
+- [ ] 不使用 \`...\` 或 \`// 省略\` 等占位符
+- [ ] 无死链接——所有 href 用 \`#\` 或合理的锚点且有对应的事件处理
+
+### 表单与功能
+- [ ] Contact 面板有完整表单（5个字段：姓名/手机/邮箱/主题/留言 + 提交按钮）
+- [ ] 表单有 submit 事件处理（e.preventDefault + 成功提示 GSAP 动画）
+- [ ] 表单输入框有 focus 高亮样式（border-color + box-shadow）
+- [ ] Contact 面板有联系信息（地址/电话/邮箱/工作时间 4 项）
+
 ### 响应式
 - [ ] \`@media (max-width: 768px)\` 适配移动端
-- [ ] 移动端面板内边距缩小，字号缩小，网格列数减少`
+- [ ] 移动端面板内边距缩小，字号缩小，网格列数减少
+
+=== 数据分析自检（统计数字） ===
+- [ ] 全文 >= 700 行代码（CSS约100行 + HTML约400行 + JS约150行 + 内容约50行）
+- [ ] 中文内容 >= 600 字（不含代码注释）
+- [ ] 至少 6 张 Unsplash 图片，风格统一、色调协调
+- [ ] 至少 10 个交互元素（按钮+链接 >= 10 个）
+- [ ] Footer 完整（4列链接 + 版权 + ICP + 隐私/条款）`
+  }
+
+  /**
+   * 设计风格知识库（~4K tokens）
+   * 注入专业设计方法论，让 AI 按品牌人格自动匹配风格模板
+   */
+  getDesignStyleKB(): string {
+    return `## 专业设计风格知识库
+
+### 配色科学铁则
+1. **60-30-10 法则**：60% 主背景色、30% 辅助色、10% 强调色
+2. **HSL 调色**：用 HSL 色彩空间，H(色相) 换颜色，S(饱和度) 控鲜艳度，L(明度) 控亮度
+3. **对比度**：文字与背景 >= 4.5:1，大标题 >= 3:1
+4. **色相环**：邻近色(±30°)和谐、互补色(±180°)冲击、三角色(±120°)丰富
+
+---
+
+### 11套专业设计风格模板
+根据用户品牌/行业匹配最合适的风格，用 CSS 变量实现。
+
+#### 1. 高端黑金（金融/奢侈/企业官网）
+\`\`\`css
+:root {
+  --bg-primary: #0a0a0a;       --bg-secondary: #111111;
+  --accent-primary: #d4a853;   --accent-secondary: #b8960c;
+  --text-primary: #f5f0e8;     --text-secondary: #a89878;
+  --card-bg: rgba(212,168,83,0.04); --card-border: rgba(212,168,83,0.12);
+  --gradient-hero: linear-gradient(135deg, #0a0a0a 0%, #1a1410 50%, #0a0a0a 100%);
+}
+\`\`\`
+特征：金属光泽、暗场底、金线分隔、极简排版、留白大方
+
+#### 2. 赛博紫电（游戏/科技/Web3/区块链）
+\`\`\`css
+:root {
+  --bg-primary: #050510;       --bg-secondary: #0a0a1a;
+  --accent-primary: #a855f7;   --accent-secondary: #06b6d4;
+  --text-primary: #e8e0ff;     --text-secondary: #9484c8;
+  --card-bg: rgba(168,85,247,0.05); --card-border: rgba(168,85,247,0.15);
+  --gradient-hero: linear-gradient(135deg, #050510 0%, #0d0d2b 50%, #050510 100%);
+}
+\`\`\`
+特征：霓虹发光、深色炫彩、电光描边、渐变文字紫→蓝
+
+#### 3. 清爽科技蓝（SaaS/企业服务/云平台）
+\`\`\`css
+:root {
+  --bg-primary: #0f172a;       --bg-secondary: #1e293b;
+  --accent-primary: #3b82f6;   --accent-secondary: #06b6d4;
+  --text-primary: #f1f5f9;     --text-secondary: #94a3b8;
+  --card-bg: rgba(59,130,246,0.06); --card-border: rgba(59,130,246,0.1);
+  --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+}
+\`\`\`
+特征：极简主义、大留白、几何图表、数据可视化感
+
+#### 4. 自然有机绿（环保/农业/健康/教育）
+\`\`\`css
+:root {
+  --bg-primary: #0a1410;       --bg-secondary: #0f1f18;
+  --accent-primary: #22c55e;   --accent-secondary: #a3e635;
+  --text-primary: #e8f5e9;     --text-secondary: #81a889;
+  --card-bg: rgba(34,197,94,0.05); --card-border: rgba(34,197,94,0.1);
+  --gradient-hero: linear-gradient(135deg, #0a1410 0%, #0d1f16 50%, #0a1410 100%);
+}
+\`\`\`
+特征：柔和自然、圆角设计、有机曲线、大量留白
+
+#### 5. 极简白灰（设计/创意/作品集）
+\`\`\`css
+:root {
+  --bg-primary: #ffffff;       --bg-secondary: #f8fafc;
+  --accent-primary: #0f172a;   --accent-secondary: #6366f1;
+  --text-primary: #1e293b;     --text-secondary: #64748b;
+  --card-bg: rgba(15,23,42,0.03); --card-border: rgba(15,23,42,0.06);
+  --gradient-hero: linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #ffffff 100%);
+}
+\`\`\`
+特征：日式侘寂美学、不对称布局、大量负空间、点缀色极克制
+
+#### 6. 温暖日落橙（电商/消费品牌/餐饮/社交）
+\`\`\`css
+:root {
+  --bg-primary: #1c1917;       --bg-secondary: #292524;
+  --accent-primary: #f97316;   --accent-secondary: #fbbf24;
+  --text-primary: #fef3c7;     --text-secondary: #b8a68e;
+  --card-bg: rgba(249,115,22,0.06); --card-border: rgba(249,115,22,0.12);
+  --gradient-hero: linear-gradient(135deg, #1c1917 0%, #2d2010 50%, #1c1917 100%);
+}
+\`\`\`
+特征：温暖亲切、圆润卡片、大图+文字叠加、CTA 明亮突出
+
+#### 7. 动感渐变多色（创意/娱乐/音乐/活动）
+\`\`\`css
+:root {
+  --bg-primary: #0f0f1a;       --bg-secondary: #1a1a2e;
+  --accent-primary: #ec4899;   --accent-secondary: #8b5cf6;
+  --accent-tertiary: #06b6d4;
+  --text-primary: #f5f3ff;     --text-secondary: #b4a8d4;
+  --card-bg: rgba(236,72,153,0.05); --card-border: rgba(236,72,153,0.12);
+  --gradient-hero: linear-gradient(135deg, #0f0f1a 0%, #1a0f2e 30%, #0f1a2e 60%, #0f0f1a 100%);
+}
+\`\`\`
+特征：丰富渐变、色彩碰撞、动态图案背景、霓虹描边
+
+#### 8. 纯净白 + 渐变点缀（医疗/美容/金融科技）
+\`\`\`css
+:root {
+  --bg-primary: #ffffff;       --bg-secondary: #f0f4ff;
+  --accent-primary: #6366f1;   --accent-secondary: #a78bfa;
+  --text-primary: #1e293b;     --text-secondary: #64748b;
+  --card-bg: rgba(99,102,241,0.04); --card-border: rgba(99,102,241,0.08);
+  --gradient-hero: linear-gradient(135deg, #ffffff 0%, #eef2ff 40%, #f5f3ff 100%);
+}
+\`\`\`
+特征：干净清新、柔和渐变色块、悬浮阴影、圆角统一12-16px
+
+#### 9. 暖白活力（宠物/母婴/生活服务/家庭品牌）
+\`\`\`css
+:root {
+  --bg-primary: #fef9f0;       --bg-secondary: #fff5e6;
+  --accent-primary: #f59e0b;   --accent-secondary: #f97316;
+  --text-primary: #1e293b;     --text-secondary: #64748b;
+  --card-bg: rgba(255,255,255,0.85); --card-border: rgba(245,158,11,0.15);
+  --gradient-hero: linear-gradient(135deg, #fef9f0 0%, #ffedd5 50%, #fef9f0 100%);
+}
+\`\`\`
+特征：明亮暖白底色、琥珀橙点缀、圆润卡片、温馨亲切、大图温暖色调
+
+#### 10. 北欧浅灰（极简/建筑/家具/高端设计工作室）
+\`\`\`css
+:root {
+  --bg-primary: #f5f2ed;       --bg-secondary: #ede8e0;
+  --accent-primary: #2d2d2d;   --accent-secondary: #8b7355;
+  --text-primary: #1a1a1a;     --text-secondary: #6b6b6b;
+  --card-bg: rgba(255,255,255,0.6); --card-border: rgba(0,0,0,0.06);
+  --gradient-hero: linear-gradient(135deg, #f5f2ed 0%, #e8e2d8 50%, #f5f2ed 100%);
+}
+\`\`\`
+特征：高级灰米色调、克制留白、木纹质感、建筑感排版、无多余装饰
+
+#### 11. 渐变活力多彩（运动/健身/潮流品牌/年轻人社区）
+\`\`\`css
+:root {
+  --bg-primary: #ffffff;       --bg-secondary: #faf5ff;
+  --accent-primary: #ec4899;   --accent-secondary: #8b5cf6;
+  --accent-tertiary: #f59e0b;
+  --text-primary: #1e293b;     --text-secondary: #64748b;
+  --card-bg: rgba(255,255,255,0.9); --card-border: rgba(236,72,153,0.12);
+  --gradient-hero: linear-gradient(135deg, #ffffff 0%, #fdf2f8 30%, #f5f3ff 60%, #ffffff 100%);
+}
+\`\`\`
+特征：白底多彩、粉紫渐变点缀、大胆色块碰撞、圆角Card、高饱和度CTA
+
+---
+
+### 风格匹配指南
+
+| 关键词 | 推荐 | 备选 |
+|---|---|---|
+| 高端/奢侈/金融/企业/总裁 | ①黑金 | ⑤极简白灰 |
+| 游戏/科技/Web3/区块链/AI | ②赛博紫电 | ③清爽科技蓝 |
+| SaaS/API/云/企业服务 | ③清爽科技蓝 | ⑧白底渐变 |
+| 环保/自然/健康/农业 | ④自然有机绿 | ⑥温暖日落 |
+| 设计/创意/作品集/个人 | ⑤极简白灰 | ⑩北欧浅灰 |
+| 电商/消费/餐饮/社媒 | ⑥温暖日落 | ⑨暖白活力 |
+| 音乐/活动/娱乐/节日 | ⑦动感渐变 | ⑪渐变活力 |
+| 医疗/美容/教育/金融科技 | ⑧白底渐变 | ③清爽科技蓝 |
+| 宠物/母婴/生活服务/家庭 | ⑨暖白活力 | ⑤极简白灰 |
+| 建筑/家具/高端设计/极简 | ⑩北欧浅灰 | ⑤极简白灰 |
+| 运动/健身/潮流/年轻人品牌 | ⑪渐变活力 | ⑦动感渐变 |
+
+---
+
+### 排版层级规范
+\`\`\`
+H1(Hero):  56-88px / fw700-900 / ls-1px
+H2(面板):  36-52px / fw600-700 / ls-0.5px
+H3(卡片):  20-28px / fw600
+Body:      16-18px / lh1.7
+Caption:   13-14px / opacity0.6 / uppercase / ls1px
+\`\`\`
+
+### 间距系统（8pt grid）
+margin: 8/16/24/32/48/64/96
+padding: 16/20/24/32 (卡片) / 64/80/120 (面板)
+
+### 动画节奏
+Hero:0.8-1.2s / Stagger:0.08-0.15s / Scrub:1.2-2.0s / Hover:<220ms / 面板:1.2-2.4s / 微动:4-12s
+
+### 卡片设计
+\`\`\`css
+.card-glass {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+}
+.card-glass:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+\`\`\``
+  }
+
+  /**
+   * 内容密度标准（~3K tokens）
+   * 强制每个面板类型的最小子元素数量，解决"内容不够丰富"的问题
+   * 每个面板必须包含的具体元素类型和数量，不可偷懒
+   */
+  getContentDensityStandard(): string {
+    return `## 设计质量原则（替代数量清单，追求品质而非凑数）
+
+### 设计核心理念
+数量达标≠质量好。以下原则指导你做出"看起来值 5 万块"而非"看起来像模板"的设计。
+
+### 1. 面板叙事节奏
+- 每个网站有明确的叙事线：品牌引入 → 价值展示 → 信任建立 → 行动号召
+- 4-8 个面板，不需要凑满 7 个——5 个高质量面板 > 7 个凑数面板
+- 相邻面板必须有设计节奏变化：深/浅、密/疏、图文/纯文字、网格/自由布局
+- ★ 必须有至少 1 个"差异化面板"——不是 About/Service/Stats 老三样，而是品牌特有的内容类型
+
+### 2. Hero 面板质量标准
+- 标题 + 副标题 + 品牌主视觉（图片/插画/品牌符号）三者缺一不可
+- CTA 按钮 1-2 个，主次分明
+- 背景装饰用 Canvas 或 JS 动画循环（粒子/光晕/几何图形），不用 \<div\> 堆砌
+- 有向下滚动引导元素
+- ★ Hero 必须让用户在 3 秒内理解这个网站是做什么的
+
+### 3. 卡片设计标准
+- 特性/服务卡片 3-6 个（按实际内容需要，不强制 4 或 6）
+- 每个卡片：图标 + 标题 + 1-2 句描述 + 可选的链接
+- 卡片有 hover 微交互（上浮 + 阴影/边框变色）
+- ★ 同一面板的卡片风格统一但内容有层次（如 3 个核心服务 + 1 个特色服务 = 4 张卡片就用不同大小）
+
+### 4. 图片使用标准
+- 案例/产品面板必须有真实场景图片（Unsplash URL）
+- 人物面板用统一风格的头像（同一 Unsplash 摄影师系列）
+- ★ 图片色调与网站配色协调（暖色网站选暖色调图片，冷色网站选冷色调图片）
+- 不强制 4 张——有 3 张好图就放 3 张
+
+### 5. 数据/信任面板标准
+- 统计数据 3-4 个（有意义的数字，不编造荒谬数据）
+- 数字递增动画
+- 客户标识/合作伙伴 logo 行（如有）
+- 真实感 > 数字大
+
+### 6. 联系表单标准
+- 4-5 个字段（姓名/邮箱/主题/消息 + 提交按钮）
+- 联系信息（地址/电话/邮箱/工作时间）
+- 社交图标 4 个（不要每组重复内联 SVG，用 JS 循环生成或定义模板函数）
+- 表单输入框有 focus 高亮样式
+
+---
+
+### 通用质量规则
+1. **文字真实感**：用中文写有业务场景感的文字，不要空洞套话
+2. **图片风格统一**：同一网站选同一 Unsplash 摄影师/主题的图片
+3. **图标不重复硬编码**：相同图标用 JS 循环或函数生成
+4. **布局有变化**：不要让所有面板都是"标题+4列网格卡片"——至少 2 种不同布局模式
+5. **每个面板至少 1 个交互元素**（按钮/链接/hover 效果）
+6. **全文 >= 500 字中文内容**
+
+### 面板数量建议
+- 最少 4 个，最多 8 个，推荐 5-6 个精炼面板
+- 根据行业灵活组合，不强制固定模板`
   }
 
   /**
@@ -759,8 +1506,8 @@ gsap.killTweensOf('*')
     this.knowledgeBasePromise = null
 
     console.log(
-      `📚 知识库就绪: ${this.knowledgeBase.length} 个组件, ` +
-      `约 ${estimateTokens(this.knowledgeBase)} tokens`
+      '\uD83D\uDCDA 知识库就绪: ' + this.knowledgeBase.length + ' 个组件, ' +
+      '约 ' + estimateTokens(this.knowledgeBase) + ' tokens'
     )
     return this.knowledgeBase
   }
@@ -878,13 +1625,18 @@ ${componentCatalog}
       console.log('Temperature:', params.temperature || 0.7)
       console.log('Max Tokens:', params.maxTokens || 2000)
       
-      const response = await this.client.post('/chat/completions', {
+      const payload: Record<string, any> = {
         model,
         messages: params.messages,
         temperature: params.temperature || 0.7,
         max_tokens: params.maxTokens || 2000,
         stream: params.stream || false
-      }, {
+      }
+      if (params.responseFormat) {
+        payload.response_format = params.responseFormat
+      }
+
+      const response = await this.client.post('/chat/completions', payload, {
         timeout: params.timeout || 300000 // 支持单次请求自定义超时
       })
 
@@ -909,6 +1661,115 @@ ${componentCatalog}
         success: false,
         error: error.response?.data?.error?.message || error.message || '请求失败'
       }
+    }
+  }
+
+  /**
+   * 流式聊天（SSE Streaming）
+   * 使用 fetch + ReadableStream 实现逐 token 推送
+   */
+  async chatStream(
+    params: AIRequestParams,
+    onChunk: (chunk: { content: string; finishReason?: string }) => void
+  ): Promise<AIResponse> {
+    if (!this.config) {
+      return { success: false, error: 'AI服务未配置，请先调用configure()方法' }
+    }
+
+    const model = params.model || this.config.model || this.getDefaultModel()
+    const baseUrl = this.client.defaults.baseURL || 'https://api.deepseek.com/v1'
+    const url = baseUrl.endsWith('/') ? `${baseUrl}chat/completions` : `${baseUrl}/chat/completions`
+
+    console.log('🌊 流式请求:', { model, baseUrl })
+
+    try {
+      const bodyPayload: Record<string, any> = {
+        model,
+        messages: params.messages,
+        temperature: params.temperature ?? 0.7,
+        max_tokens: params.maxTokens ?? 2000,
+        stream: true
+      }
+      if (params.responseFormat) {
+        bodyPayload.response_format = params.responseFormat
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`
+        },
+        body: JSON.stringify(bodyPayload),
+        signal: AbortSignal.timeout(params.timeout || 600000)
+      })
+
+      if (!response.ok) {
+        const errText = await response.text()
+        console.error('❌ 流式请求失败:', response.status, errText)
+        return { success: false, error: `HTTP ${response.status}: ${errText.substring(0, 200)}` }
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) {
+        return { success: false, error: '无法读取响应流' }
+      }
+
+      const decoder = new TextDecoder()
+      let fullContent = ''
+      let finishReason = ''
+      let promptTokens = 0
+      let completionTokens = 0
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const text = decoder.decode(value, { stream: true })
+        const lines = text.split('\n').filter(line => line.startsWith('data: '))
+
+        for (const line of lines) {
+          const data = line.slice(6).trim()
+          if (data === '[DONE]') break
+
+          try {
+            const parsed = JSON.parse(data)
+            const delta = parsed.choices?.[0]?.delta
+            if (delta?.content) {
+              fullContent += delta.content
+              onChunk({ content: delta.content })
+            }
+            if (parsed.choices?.[0]?.finish_reason) {
+              finishReason = parsed.choices[0].finish_reason
+            }
+            if (parsed.usage) {
+              promptTokens = parsed.usage.prompt_tokens || 0
+              completionTokens = parsed.usage.completion_tokens || 0
+            }
+          } catch { /* 跳过解析失败的行 */ }
+        }
+      }
+
+      console.log('\u2705 流式完成: ' + fullContent.length + ' 字符, 结束原因: ' + (finishReason || 'N/A'))
+
+      return {
+        success: true,
+        data: {
+          role: 'assistant',
+          content: fullContent
+        },
+        usage: {
+          promptTokens,
+          completionTokens,
+          totalTokens: promptTokens + completionTokens
+        }
+      }
+    } catch (error: any) {
+      if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+        return { success: false, error: '请求超时' }
+      }
+      console.error('❌ 流式请求异常:', error.message)
+      return { success: false, error: error.message || '流式请求失败' }
     }
   }
 
@@ -1362,7 +2223,7 @@ ${sourceSummary}
     templates: Array<{ key: string; label: string; source: string; readme?: string }>,
     concurrency = 3
   ): Promise<Map<string, TemplateComponentMapResult>> {
-    console.log(`\n📊 ========== 批量模板分析 (共 ${templates.length} 个) ==========`)
+    console.log('\n\uD83D\uDCCA ========== 批量模板分析 (共 ' + templates.length + ' 个) ==========')
 
     const results = new Map<string, TemplateComponentMapResult>()
     const queue = [...templates]
@@ -1378,9 +2239,9 @@ ${sourceSummary}
           readme: tmpl.readme
         })
         results.set(tmpl.key, result)
-        console.log(`  ✅ ${tmpl.label}: ${result.panels.length} 个面板, ${result.panels.reduce((s, p) => s + p.recommendedComponents.length, 0)} 个推荐`)
+        console.log('  \u2705 ' + tmpl.label + ': ' + result.panels.length + ' 个面板, ' + result.panels.reduce(function(s, p) { return s + p.recommendedComponents.length; }, 0) + ' 个推荐')
       } catch (e) {
-        console.error(`  ❌ ${tmpl.label}:`, e)
+        console.error('  \u274C ' + tmpl.label + ':', e)
       }
     }
 
@@ -1388,269 +2249,168 @@ ${sourceSummary}
     const workers = Array.from({ length: concurrency }, () => processNext.call(this))
     await Promise.all(workers)
 
-    console.log(`📊 批量分析完成: ${results.size}/${templates.length}`)
+    console.log('\uD83D\uDCCA 批量分析完成: ' + results.size + '/' + templates.length)
     return results
   }
 
   /**
-   * V2.0 方案一：端到端代码生成引擎
+   * V3.0 端到端代码生成引擎（全面重构）
    *
-   * 输入自然语言描述 → AI 自动选组件 → 生成完整网站代码 → 可预览的 HTML
-   *
-   * 两种模式：
-   * - 'single-html': 生成包含 CDN 依赖的单文件 HTML，可直接在 iframe 预览
-   * - 'multi-file': 生成 React/Vue 项目多文件代码
+   * 架构：Plan(规划) → Generate(面板级流式生成) → Assemble(组装) → Validate(加权评分)
+   * 核心改进：
+   *   - 流式原生 HTML 输出，废除 JSON 包裹反模式
+   *   - System Prompt < 8000 tokens (从 54000 大幅缩减)
+   *   - 面板级分段生成，每个面板独立调用 AI
+   *   - 加权质量评分 (内容40% + 结构30% + 动画20% + 加分10%)
+   *   - 智能风格匹配 + 行业定制面板结构
    *
    * @example
    * const result = await aiService.generateWebsiteE2E({
-   *   description: '做一个赛博朋克风格的游戏公司官网',
-   *   visualStyle: 'cyber',
+   *   description: '开发宠物为主题的企业官网，要酷炫，大气',
    *   mode: 'single-html'
+   * }, (chunk) => {
+   *   if (chunk.type === 'code') previewCode.value = chunk.content
+   *   if (chunk.type === 'panel') console.log(`生成面板: ${chunk.panelName}`)
    * })
-   * // result.html 可直接放入 iframe srcdoc
    */
   async generateWebsiteE2E(
     request: WebsiteE2ERequest,
     onStream?: E2EStreamCallback
   ): Promise<WebsiteE2EResponse> {
-    console.log('\n🚀 ========== 端到端代码生成 (V2.0 方案一) ==========')
-    console.log('需求描述:', request.description)
-    console.log('模式:', request.mode || 'single-html')
-
-    const kb = await this.initKnowledgeBase()
-    const componentCatalog = formatKnowledgeForAI(kb)
-    const framework = request.framework || 'react'
     const mode = request.mode || 'single-html'
 
-    // 构建组件知识库摘要（紧凑格式）
-    const componentSummary = kb.map(k =>
-      `|${k.name}|${k.category}|${k.complexity}|${k.visualTags}|${k.sceneTags}|${k.summary}|`
-    ).join('\n')
-
-    // === 模板结构信息 ===
-    let templateContext = ''
-    if (request.recommendedComponents?.panels?.length) {
-      const compMap = request.recommendedComponents
-      templateContext = `
-## 模板结构（${compMap.templateLabel}）
-- 滚动模式: ${compMap.scrollPattern}
-- 视觉风格: ${compMap.visualStyle}
-- 适用场景: ${compMap.targetScenes.join('、')}
-
-### 面板与推荐组件：
-${compMap.panels.map(p =>
-  `**面板${p.panelIndex + 1} - ${p.panelName}** (${p.panelPurpose})
-  推荐: ${p.recommendedComponents.map(c => `${c.name}(匹配度${Math.round(c.confidence * 100)}%)`).join('、')}
-  备选: ${p.recommendedComponents.flatMap(c => c.alternatives).join('、')}`
-).join('\n\n')}`
-    }
-
-    // === System Prompt（强化版 V2：Few-Shot×2 + 代码模式 + 真实组件 JS + 质量自检清单）===
-    const componentCodePatterns = this.getComponentCodePatterns()
-    const fewShotExample = this.getFewShotExample()
-    const fewShotExample2 = this.getFewShotExample2()
-    const componentJSPatterns = this.getComponentJSPatterns()
-    const qualityChecklist = this.getQualityChecklist()
-
-    const systemPrompt = `你是顶级全栈前端开发专家 + GSAP 动画大师。你的任务是：根据用户需求，生成一个完整的、视觉震撼、可直接运行的网站。
-
----
-
-${fewShotExample}
-
----
-
-${fewShotExample2}
-
----
-
-${componentCodePatterns}
-
----
-
-${componentJSPatterns}
-
----
-
-## 组件知识库（全部${kb.length}个GSAP动画组件参考）
-
-|组件名|类别|复杂度|视觉标签|场景标签|简介|
-|---|---|---|---|---|---|
-${componentSummary}
-
-> 上面组件库供你参考组件名和场景。实际生成时，你需要用原生 JS + GSAP 手写实现这些动画效果。
-
----
-
-${templateContext}
-
----
-
-## 核心生成要求
-
-### 技术栈（single-html 模式）
-- 单文件 HTML，开头 \`<!DOCTYPE html>\`
-- CDN: \`<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>\`
-- CDN: \`<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>\`
-- CDN: \`<script src="https://cdn.tailwindcss.com"></script>\`
-- 所有 CSS/JS 内联，不使用 React/Vue
-
-### GSAP 铁律
-- 第一行必须 \`gsap.registerPlugin(ScrollTrigger)\`
-- Hero 动画在 DOMContentLoaded 中立即执行，**不用 ScrollTrigger**
-- 后续面板用 ScrollTrigger + toggleActions: 'play none none reverse'
-- 动画用 gsap.fromTo 而非 from/to（精确控制起止状态）
-- 大规模卡片用 gsap.utils.toArray + stagger delay
-
-### 结构规范
-- 每面板一个 \`<section class="panel"\` 容器，min-height: 100vh
-- 面板内用 flex/grid 居中内容
-- CSS 变量定义配色: \`:root { --bg; --accent; --text; }\`
-- 所有动画元素类名加唯一后缀（如 -271）
-- 5-7 个面板：Hero → Feature/About/Service → Gallery/Cases → Stats → Team → Contact/Footer
-
-### 视觉震撼要点
-- Hero 背景加粒子/星空/光晕装饰（绝对定位 + CSS animation）
-- 每面板不同渐变背景区分章节
-- 玻璃拟态卡片: \`background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08);\`
-- 渐变文字标题: \`background: linear-gradient(); -webkit-background-clip: text;\`
-- 导航栏固定定位 + ScrollTrigger 控制背景透明度
-
-### 图片资源
-- 使用 Unsplash: https://images.unsplash.com/photo-XXXX?w=1920&q=80
-- 随机 ID 用 realistic 的（如 photo-1517245386807-bb43f82c33c4）
-
-### 代码完整性
-- **绝不**使用 \`// ... 省略 ...\` 或占位符
-- HTML 结构必须完整可渲染
-- JS 动画逻辑必须完整可执行
-- 输出代码总量至少 500 行（结构性完整网站不能太简短）
-
----
-
-${qualityChecklist}
-
----
-
-## 输出格式
-
-首先输出组件选择 JSON（用 \`\`\`json 标记）：
-{
-  "selectedComponents": ["组件名1", "组件名2"],
-  "reasoning": "为什么选这些组件（30-60字）",
-  "panelStructure": "面板规划：Hero→About→Service→Stats→Contact"
-}
-
-然后输出完整代码（用 \`\`\`html 标记）。
-
-**重要：在输出代码前，逐项检查上述质量自检清单，确保全部通过后再输出。不要输出任何额外解释文字（除了 JSON 块），直接输出可运行代码。**`
-
-    // === User Prompt ===
-    const userPrompt = `请根据以下需求生成完整网站代码：
-
-## 项目信息
-- 需求描述: ${request.description}
-- 公司名称: ${request.companyInfo?.name || '未指定'}
-- 行业: ${request.companyInfo?.industry || '未指定'}
-- 业务描述: ${request.companyInfo?.description || '未指定'}
-- 视觉风格: ${request.visualStyle || '由AI根据描述自行判断'}
-- 配色偏好: ${request.colorPreference || '由AI自行设计'}
-
-## 生成指令
-1. 先输出组件选择 JSON
-2. 再输出${mode === 'single-html' ? '完整单文件HTML代码' : `${framework}项目代码`}\`
-3. ${request.templateKey ? `参考模板结构"${request.templateKey}"的面板布局` : '自行规划面板结构（4-8个全屏面板）'}
-4. 确保代码完整可直接运行，不使用占位符`
-
-    // === 调用 AI（使用 E2E 推理模型，质量更高）===
-    const e2eModel = this.config?.e2eModel || undefined
-    if (e2eModel) {
-      console.log('🤖 E2E 专用模型:', e2eModel)
-    }
-    const response = await this.chat({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.3,
-      maxTokens: mode === 'single-html' ? 24000 : 32000,
-      stream: request.stream || false,
-      timeout: 600000, // E2E生成耗时较长，10分钟超时
-      model: e2eModel // 使用 E2E 推理模型（如 deepseek-reasoner）
-    })
-
-    if (!response.success || !response.data) {
-      throw new Error(response.error || '代码生成失败')
-    }
-
-    const content = response.data.content
-
-    // === 解析响应 ===
-    // 1. 提取组件选择 JSON
-    let selectedComponents: string[] = []
-    let reasoning = ''
-
-    const jsonMatch = content.match(/```json\s*\n?([\s\S]*?)```/)
-    if (jsonMatch) {
-      try {
-        const parsed = JSON.parse(jsonMatch[1])
-        selectedComponents = parsed.selectedComponents || []
-        reasoning = parsed.reasoning || ''
-      } catch { /* ignore */ }
-    }
-
-    // 2. 提取代码（从 JSON 块之后的内容中提取）
-    let code = ''
-    const afterJson = content.replace(/```json[\s\S]*?```/, '').trim()
-
-    // 优先匹配带语言标签的代码块
-    const codeMatch = afterJson.match(/```(?:html|tsx|jsx|vue|javascript|js|css|scss)\s*\n?([\s\S]*?)```/)
-    if (codeMatch) {
-      code = codeMatch[1].trim()
+    // 初始化 E2E 引擎（懒加载知识库）
+    if (!this.e2eGenerator) {
+      const kb = await this.initKnowledgeBase()
+      this.e2eGenerator = new E2EGenerator(
+        // 非流式 chat
+        async (params) => this.chat({
+          messages: params.messages.map(m => ({ role: m.role as MessageRole, content: m.content })),
+          temperature: params.temperature,
+          maxTokens: params.maxTokens,
+          stream: false,
+          timeout: params.timeout,
+          model: params.model
+        }),
+        // 流式 stream
+        async (params, onChunk) => this.chatStream(
+          {
+            messages: params.messages.map(m => ({ role: m.role as MessageRole, content: m.content })),
+            temperature: params.temperature,
+            maxTokens: params.maxTokens,
+            timeout: params.timeout,
+            model: params.model
+          },
+          onChunk
+        ),
+        {
+          knowledgeBase: kb,
+          e2eModel: this.config?.e2eModel
+        }
+      )
     } else {
-      // 兜底：匹配第一个无标签代码块
-      const fallbackMatch = afterJson.match(/```\s*\n?([\s\S]*?)```/)
-      if (fallbackMatch) {
-        code = fallbackMatch[1].trim()
-      } else {
-        code = afterJson
+      // 刷新知识库（组件可能有更新）
+      const freshKb = await this.initKnowledgeBase()
+      this.e2eGenerator.setKnowledgeBase(freshKb)
+    }
+
+    // 🆕 加载模板源码（选择模板时自动加载对应 .vue 文件）
+    let templateSource: string | undefined
+    if (request.templateKey) {
+      templateSource = await loadTemplateSource(request.templateKey) || undefined
+      if (templateSource) {
+        console.log(`📦 已加载模板源码: ${request.templateKey} (${templateSource.length} 字符)`)
       }
     }
 
-    console.log('✅ 组件选择:', selectedComponents.length, '个')
-    console.log('代码长度:', code.length, '字符')
-
-    // === 质量校验 ===
-    const validation = this.validateGeneratedCode(code)
-    if (validation.issues.length > 0) {
-      console.warn('⚠️ 代码质量校验未通过:', validation.issues)
-    }
-    if (validation.warnings.length > 0) {
-      console.warn('⚡ 代码质量建议:', validation.warnings)
-    }
-    console.log(`📊 质量评分: ${validation.score}/100 (${validation.passed ? '✅ 通过' : '❌ 不通过'})`)
+    // === 流式适配：V3.0 回调 → V2.0 回调兼容 ===
+    const result = await this.e2eGenerator.generate(
+      {
+        description: request.description,
+        companyInfo: request.companyInfo,
+        visualStyle: request.visualStyle,
+        colorPreference: request.colorPreference,
+        templateKey: request.templateKey,
+        templatePanels: request.templatePanels,
+        templateSource,
+        recommendedComponents: request.recommendedComponents ? {
+          scrollPattern: request.recommendedComponents.scrollPattern,
+          visualStyle: request.recommendedComponents.visualStyle,
+          targetScenes: request.recommendedComponents.targetScenes,
+          panels: request.recommendedComponents.panels?.map(p => ({
+            panelIndex: p.panelIndex,
+            panelName: p.panelName,
+            panelPurpose: p.panelPurpose
+          }))
+        } : undefined,
+        framework: request.framework,
+        mode
+      },
+      onStream ? (chunk) => {
+        switch (chunk.type) {
+          case 'code':
+            onStream({ type: 'code', content: chunk.content! })
+            break
+          case 'components':
+            onStream({
+              type: 'components',
+              data: {
+                selectedComponents: [],
+                reasoning: `面板规划: ${chunk.data?.panels?.map((p: any) => p.name).join('→') || ''}`
+              }
+            })
+            break
+          case 'panel':
+            // 推送面板进度
+            onStream({ type: 'reasoning', content: `📄 ${chunk.panelName}` })
+            break
+          case 'done':
+            onStream({ type: 'done' })
+            break
+          case 'error':
+            onStream({ type: 'error', content: chunk.content })
+            break
+        }
+      } : undefined
+    )
 
     if (mode === 'single-html') {
       return {
         mode: 'single-html',
-        html: code,
-        selectedComponents,
-        reasoning
+        html: result.html,
+        selectedComponents: result.selectedComponents,
+        reasoning: result.reasoning,
+        qualityReport: {
+          score: result.qualityReport.score,
+          passed: result.qualityReport.passed,
+          issues: result.qualityReport.issues,
+          warnings: result.qualityReport.warnings
+        }
       }
     } else {
-      const files = extractFilesFromResponse(content)
       return {
         mode: 'multi-file',
-        files,
-        selectedComponents,
-        reasoning
+        files: [{ path: 'index.html', content: result.html, description: '主页面' }],
+        selectedComponents: result.selectedComponents,
+        reasoning: result.reasoning,
+        qualityReport: {
+          score: result.qualityReport.score,
+          passed: result.qualityReport.passed,
+          issues: result.qualityReport.issues,
+          warnings: result.qualityReport.warnings
+        }
       }
     }
   }
 
   /**
-   * V2.0: AI 对话修改代码
+   * V2.0: AI 对话修改代码（流式）
    * 基于当前代码 + 用户修改指令，生成更新后的完整代码
+   *
+   * onChunk 回调：
+   * - { type: 'text', content } — AI 解释文字（逐 token 实时推送，用于聊天显示）
+   * - { type: 'code', content } — 当前提取到的完整代码（实时预览刷新）
+   * - { type: 'done' } — 流式完成
    */
   async modifyCode(
     request: {
@@ -1662,12 +2422,13 @@ ${qualityChecklist}
       history?: Array<{ role: 'user' | 'assistant'; content: string }>
       /** 生成模式 */
       mode?: 'single-html' | 'multi-file'
-    }
+    },
+    onChunk?: (chunk: { type: 'text' | 'code' | 'done'; content?: string }) => void
   ): Promise<{
     html?: string
     explanation?: string
   }> {
-    console.log('\n🔧 ========== AI 修改代码 ==========')
+    console.log('\n🔧 ========== AI 修改代码（流式）==========')
     console.log('修改指令:', request.instruction)
     console.log('当前代码长度:', request.currentCode.length, '字符')
 
@@ -1711,17 +2472,50 @@ ${componentSummary}
       content: h.content
     }))
 
-    const response = await this.chat({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...historyMessages,
-        { role: 'user', content: `## 当前代码\n\n\`\`\`html\n${request.currentCode.substring(0, 60000)}\n\`\`\`\n\n## 修改需求\n\n${request.instruction}\n\n请输出修改后的完整代码。` }
-      ],
-      temperature: 0.2,
-      maxTokens: 24000,
-      stream: false,
-      timeout: 600000
-    })
+    let fullContent = ''
+    let lastCodePushed = ''
+    // 用 fromCharCode(96) 避免 esbuild 误解析反引号
+    const TB = String.fromCharCode(96) + String.fromCharCode(96) + String.fromCharCode(96)
+
+    // 🌊 流式调用
+    const response = await this.chatStream(
+      {
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...historyMessages,
+          { role: 'user', content: `## 当前代码\n\n\`\`\`html\n${request.currentCode.substring(0, 60000)}\n\`\`\`\n\n## 修改需求\n\n${request.instruction}\n\n请输出修改后的完整代码。` }
+        ],
+        temperature: 0.2,
+        maxTokens: 24000,
+        timeout: 600000
+      },
+      (chunk) => {
+        fullContent += chunk.content
+
+        // 实时推送文本内容（用于聊天对话展示）
+        onChunk?.({ type: 'text', content: chunk.content })
+
+        // 尝试提取代码块中的代码（用于实时预览刷新）
+        const htmlStartIdx = fullContent.indexOf(TB + 'html')
+        if (htmlStartIdx >= 0) {
+          const afterStart = fullContent.substring(htmlStartIdx + 7)
+          const newlineIdx = afterStart.indexOf('\n')
+          const codeTextStart = newlineIdx >= 0 ? htmlStartIdx + 7 + newlineIdx + 1 : htmlStartIdx + 7
+          let codePart = fullContent.substring(codeTextStart)
+          // 去掉尾部可能的 ``` 结束标记
+          const endMarker = codePart.lastIndexOf(TB)
+          if (endMarker >= 0) {
+            codePart = codePart.substring(0, endMarker)
+          }
+          codePart = codePart.trim()
+          // 代码至少 200 字符才推送到预览（避免推送不完整片段闪屏）
+          if (codePart.length > 200 && codePart.length > lastCodePushed.length) {
+            lastCodePushed = codePart
+            onChunk?.({ type: 'code', content: codePart })
+          }
+        }
+      }
+    )
 
     if (!response.success || !response.data) {
       throw new Error(response.error || '代码修改失败')
@@ -1731,28 +2525,28 @@ ${componentSummary}
 
     // 提取解释（代码块之前的内容）
     let explanation = ''
-    const codeBlockIdx = content.indexOf('```html')
+    const codeBlockIdx = content.indexOf(TB + 'html')
     if (codeBlockIdx > 0) {
       explanation = content.substring(0, codeBlockIdx).trim()
     } else {
-      const codeBlockIdx2 = content.indexOf('```')
+      const codeBlockIdx2 = content.indexOf(TB)
       if (codeBlockIdx2 > 0) {
         explanation = content.substring(0, codeBlockIdx2).trim()
       }
     }
     if (!explanation) {
-      explanation = content.split('\n').filter(l => l.trim() && !l.startsWith('```')).slice(0, 2).join(' ')
+      explanation = content.split('\n').filter(l => l.trim() && !l.startsWith(TB)).slice(0, 2).join(' ')
     }
 
     // 提取代码块
-    const codeMatch = content.match(/```html\s*\n?([\s\S]*?)```/)
-    let code = ''
-    if (codeMatch) {
-      code = codeMatch[1].trim()
-    } else {
-      const fallbackMatch = content.match(/```\s*\n?([\s\S]*?)```/)
-      code = fallbackMatch ? fallbackMatch[1].trim() : content.trim()
+    let code = extractMdBlock(content, 'html')
+    if (!code) {
+      const fallbackStr = extractMdBlock(content)
+      code = fallbackStr || content.trim()
     }
+
+    // 流式完成通知
+    onChunk?.({ type: 'done' })
 
     console.log('✅ 修改完成，代码长度:', code.length, '字符')
 
@@ -1766,70 +2560,130 @@ ${componentSummary}
    * 质量校验：检测生成代码是否满足最低标准
    * 返回校验报告，供日志和 UI 展示
    */
+  /**
+   * V3.0 加权质量校验 (向后兼容，V2.0 调用方无需修改)
+   *
+   * 评分体系 (100分制):
+   *   内容完整性 40分: lines≥600(10) + 中文≥500(10) + sections≥7(10) + images≥6(10)
+   *   结构规范 30分: registerPlugin(8) + footer(8) + 闭合(5) + refresh(5) + 响应式(4)
+   *   动画质量 20分: canvas+RAF(8) + fromTo(6) + submit(3) + FAQtoggle(3)
+   *   额外加分 10分: ScrollToPlugin(4) + 导航链接≥7(3) + 联系信息3项(3)
+   *
+   * 致命问题 (直接 score=0): 代码为空 / 无 / DOCTYPE / 无GSAP
+   */
   validateGeneratedCode(code: string): {
     passed: boolean
-    score: number // 0-100
+    score: number
     issues: string[]
     warnings: string[]
   } {
     const issues: string[] = []
     const warnings: string[] = []
-    let checks = 0
-    let passed = 0
 
-    // 1. DOCTYPE
-    checks++; if (/<!DOCTYPE\s+html/i.test(code)) passed++
-    else issues.push('缺少 <!DOCTYPE html> 声明')
+    // 致命检查
+    if (!code || code.length < 100) {
+      issues.push('代码为空或极短(<100字符)，无法校验')
+      return { passed: false, score: 0, issues, warnings }
+    }
+    if (!/<!DOCTYPE\s+html/i.test(code)) {
+      issues.push('缺少 <!DOCTYPE html> 声明')
+      return { passed: false, score: 5, issues, warnings }
+    }
+    if (!code.includes('gsap.min.js')) {
+      issues.push('缺少 GSAP CDN 引入 — 无 GSAP 的企业官网等于普通网页')
+      return { passed: false, score: 10, issues, warnings }
+    }
 
-    // 2. GSAP CDN 三件套
-    checks++; if (code.includes('gsap.min.js')) passed++
-    else issues.push('缺少 GSAP CDN 引入')
+    const lines = code.split('\n').length
+    const sectionCount = (code.match(/<section\b/gi) || []).length
+    const chineseChars = (code.match(/[\u4e00-\u9fff]/g) || []).length
+    const imgCount = (code.match(/<img\b/gi) || []).length
 
-    // 3. ScrollTrigger
-    checks++; if (code.includes('ScrollTrigger.min.js')) passed++
-    else issues.push('缺少 ScrollTrigger CDN 引入')
+    // === 内容完整性 (40分) ===
+    let contentScore = 0
 
-    // 4. Tailwind CDN
-    checks++; if (code.includes('tailwindcss')) passed++
-    else issues.push('缺少 Tailwind CSS CDN 引入')
+    if (lines >= 600) contentScore += 10
+    else if (lines >= 450) { contentScore += 6; warnings.push(`代码${lines}行(建议>=600行)`) }
+    else { issues.push(`代码仅${lines}行 — 一个完整企业官网不可能少于600行`) }
 
-    // 5. registerPlugin ScrollTrigger
-    checks++; if (/gsap\.registerPlugin\s*\(\s*ScrollTrigger\s*\)/.test(code)) passed++
+    if (chineseChars >= 500) contentScore += 10
+    else if (chineseChars >= 300) { contentScore += 6; warnings.push(`中文${chineseChars}字(建议>=500字)`) }
+    else { issues.push(`中文仅${chineseChars}字 — 至少需要500字中文内容`) }
+
+    if (sectionCount >= 7) contentScore += 10
+    else if (sectionCount >= 5) { contentScore += 6; warnings.push(`仅${sectionCount}个面板(建议>=7个)`) }
+    else if (sectionCount >= 4) { contentScore += 3; warnings.push(`仅${sectionCount}个面板(最少需4个)`) }
+    else { issues.push(`仅${sectionCount}个面板 — 最少需要4个`) }
+
+    if (imgCount >= 6) contentScore += 10
+    else if (imgCount >= 3) { contentScore += 5; warnings.push(`仅${imgCount}张图片`) }
+    else { warnings.push(`仅${imgCount}张图片 — 缺少视觉内容`) }
+
+    // === 结构规范 (30分) ===
+    let structureScore = 0
+
+    if (/gsap\.registerPlugin\s*\(\s*ScrollTrigger\s*(?:,\s*ScrollToPlugin\s*)?\s*\)/.test(code)) structureScore += 8
     else issues.push('未调用 gsap.registerPlugin(ScrollTrigger)')
 
-    // 6. 代码量 >= 500 行
-    const lines = code.split('\n').length
-    checks++
-    if (lines >= 500) passed++
-    else if (lines >= 300) { passed++; warnings.push(`代码仅 ${lines} 行，建议 >= 500 行以包含完整多面板内容`) }
-    else { issues.push(`代码仅 ${lines} 行，远低于 500 行最低标准`) }
+    if (/<footer\b/i.test(code)) structureScore += 8
+    else warnings.push('缺少 <footer> 标签 — 企业官网必备')
 
-    // 7. 至少 5 个全屏面板
-    const sectionCount = (code.match(/<section\b/gi) || []).length
-    checks++
-    if (sectionCount >= 5) passed++
-    else if (sectionCount >= 3) { passed++; warnings.push(`仅 ${sectionCount} 个 <section> 面板，建议 >= 5 个`) }
-    else { issues.push(`仅 ${sectionCount} 个 <section> 面板，最少需要 5 个`) }
-
-    // 8. ScrollTrigger.refresh()
-    checks++; if (/ScrollTrigger\.refresh\s*\(\)/.test(code)) passed++
-    else warnings.push('未调用 ScrollTrigger.refresh()，可能在动态内容后需要刷新')
-
-    // 9. 无省略号/占位符
-    checks++; if (!/\/\/\s*\.{3}/.test(code) && !/<!--\s*\.{3}/.test(code)) passed++
-    else issues.push('存在省略号或占位符 (...)，代码不完整')
-
-    // 10. HTML 闭合检查
-    const openHtml = (code.match(/<html/gi) || []).length
-    const closeHtml = (code.match(/<\/html>/gi) || []).length
-    checks++; if (closeHtml > 0) passed++
+    if (/\/html>/i.test(code)) structureScore += 5
     else warnings.push('缺少 </html> 闭合标签')
 
-    const score = Math.round((passed / checks) * 100)
+    if (/ScrollTrigger\.refresh\s*\(\)/.test(code)) structureScore += 5
+    else warnings.push('缺少 ScrollTrigger.refresh()')
+
+    if (/@media/.test(code)) structureScore += 4
+    else warnings.push('缺少响应式 @media — 移动端体验差')
+
+    // === 动画质量 (20分) ===
+    let animationScore = 0
+
+    if (/<canvas\b/i.test(code) && /requestAnimationFrame/i.test(code)) animationScore += 8
+    else if (/<canvas\b/i.test(code)) { animationScore += 4; warnings.push('Canvas存在但无requestAnimationFrame') }
+    else warnings.push('缺少 Canvas 粒子背景')
+
+    if (/gsap\.fromTo/.test(code)) animationScore += 6
+    else warnings.push('未使用 gsap.fromTo (推荐用fromTo精确控制动画)')
+
+    if (/addEventListener\s*\(\s*['"]submit['"]/.test(code)) animationScore += 3
+    else warnings.push('表单缺少 submit 事件处理')
+
+    if (/classList\.toggle/.test(code) || /toggle\s*\(\s*['"]open['"]/.test(code)) animationScore += 3
+
+    // === 额外加分 (10分) ===
+    let bonusScore = 0
+
+    if (/ScrollToPlugin/.test(code)) bonusScore += 4
+    else warnings.push('缺少 ScrollToPlugin CDN — 导航跳转不平滑')
+
+    const navCount = (code.match(/nav-link/gi) || []).length
+    if (navCount >= 7) bonusScore += 3
+    else if (navCount >= 5) bonusScore += 1
+
+    const contactAddr = /地址/.test(code)
+    const contactPhone = /电话|热线|400-/.test(code) || /\d{3}-\d{4}/.test(code)
+    const contactEmail = /邮箱/.test(code) || /@/.test(code)
+    const contactItems = [contactAddr, contactPhone, contactEmail].filter(Boolean).length
+    if (contactItems >= 3) bonusScore += 3
+    else if (contactItems >= 2) bonusScore += 1
+
+    // 无省略号检查
+    if (/\/\/\s*\.{3}|<!--\s*\.{3}/.test(code)) {
+      issues.push('存在省略号或占位符 — 代码不完整')
+    }
+
+    // Tailwind CDN
+    if (!code.includes('tailwindcss')) {
+      warnings.push('缺少 Tailwind CSS CDN')
+    }
+
+    const totalScore = contentScore + structureScore + animationScore + bonusScore
 
     return {
       passed: issues.length === 0,
-      score,
+      score: totalScore,
       issues,
       warnings
     }
@@ -2256,17 +3110,32 @@ function extractTemplateSummary(source: string): string {
  */
 function extractFilesFromResponse(content: string): GeneratedFile[] {
   const files: GeneratedFile[] = []
-  const regex = /```(?:tsx|jsx|typescript|javascript|ts|js|css|scss|html)?\s*(?:\/\/\s*)?(.+?\.\w+)?\n([\s\S]*?)```/g
-  let match
-
-  while ((match = regex.exec(content)) !== null) {
-    const path = match[1]?.trim() || `component_${files.length + 1}.tsx`
-    const code = match[2].trim()
+  var pos = 0
+  while (true) {
+    var openIdx = content.indexOf(_TB, pos)
+    if (openIdx === -1) break
+    var headerEnd = content.indexOf('\n', openIdx)
+    var header = headerEnd === -1 ? '' : content.substring(openIdx + 3, headerEnd).trim()
+    var codeStart = headerEnd === -1 ? openIdx + 3 : headerEnd + 1
+    var closeIdx = content.indexOf(_TB, codeStart)
+    if (closeIdx === -1) break
+    var code = content.substring(codeStart, closeIdx).trim()
+    // 解析文件路径：格式如 "tsx // path/file.tsx" 或 "path/file.tsx"
+    var filePath = ''
+    var pathMatch = header.match(/\/\/\s*(.+?\.\w+)\s*$/)
+    if (pathMatch) {
+      filePath = pathMatch[1]
+    } else {
+      var pathMatch2 = header.match(/([^\s]+\.\w+)\s*$/)
+      if (pathMatch2) filePath = pathMatch2[1]
+    }
+    if (!filePath) filePath = 'component_' + (files.length + 1) + '.tsx'
     files.push({
-      path,
+      path: filePath,
       content: code,
       description: ''
     })
+    pos = closeIdx + 3
   }
 
   // 如果没有匹配到代码块，整个内容作为单个文件

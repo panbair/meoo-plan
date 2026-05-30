@@ -29,7 +29,7 @@ export function useComponentSearch() {
   /** 是否正在搜索 */
   const isSearching = ref(false)
   /** 当前搜索模式 */
-  const searchMode = ref<SearchMode>('auto')
+  const searchMode = ref<SearchMode>('local')
   /** AI 推理说明 */
   const reasoning = ref('')
   /** 建议标签 */

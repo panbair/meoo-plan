@@ -17,11 +17,18 @@ import NProgress from 'nprogress'
 import { componentsList } from '@/views/web-list/config.ts'
 import { useComponentSearch } from '@/composables/useComponentSearch'
 import type { SearchResult } from '@/api/ai/component-search'
+import { templates as templateList } from '@/views/web-template/template/registry'
 
 gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用，按需加载）====================
 const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other}/*/*.vue', {
+  query: '?raw',
+  import: 'default'
+})
+
+// 动态导入所有模板源码
+const templateRawModules = import.meta.glob('../web-template/template/*/*.vue', {
   query: '?raw',
   import: 'default'
 })
@@ -62,17 +69,9 @@ const {
   results: searchResults,
   isSearching,
   searchMode,
-  reasoning,
-  suggestedTags,
-  activeMode: searchActiveMode,
-  error: searchError,
   hasResults: hasSearchResults,
-  isAIMode,
   topResults,
-  search,
   searchImmediate,
-  setMode,
-  searchByTag,
   clear: clearSearch
 } = useComponentSearch()
 
@@ -632,6 +631,60 @@ function toggleSelectionList() {
   selectionListCollapsed.value = !selectionListCollapsed.value
 }
 
+// ==================== 模板选择功能 ====================
+const TEMPLATE_STORAGE_KEY = 'web-list-selected-template'
+
+const loadSelectedTemplate = (): string => {
+  try {
+    const saved = localStorage.getItem(TEMPLATE_STORAGE_KEY)
+    return saved || ''
+  } catch {
+    return ''
+  }
+}
+
+const saveSelectedTemplate = (key: string) => {
+  localStorage.setItem(TEMPLATE_STORAGE_KEY, key)
+}
+
+const selectedTemplateKey = ref(loadSelectedTemplate())
+const showTemplateModal = ref(false)
+const templateSearchQuery = ref('')
+
+// 过滤后的模板列表（搜索 label 和 key）
+const filteredTemplateList = computed(() => {
+  const q = templateSearchQuery.value.trim().toLowerCase()
+  if (!q) return templateList
+  return templateList.filter(
+    (t) => t.label.toLowerCase().includes(q) || t.key.toLowerCase().includes(q)
+  )
+})
+
+// 获取当前选中模板的信息
+const selectedTemplateInfo = computed(() => {
+  if (!selectedTemplateKey.value) return null
+  return templateList.find((t) => t.key === selectedTemplateKey.value) || null
+})
+
+// 模板选择
+const selectTemplate = (key: string) => {
+  selectedTemplateKey.value = key
+  saveSelectedTemplate(selectedTemplateKey.value)
+  showTemplateModal.value = false
+}
+
+// 打开模板选择弹窗
+const openTemplateModal = () => {
+  templateSearchQuery.value = ''
+  showTemplateModal.value = true
+}
+
+// 关闭模板选择弹窗
+const closeTemplateModal = () => {
+  templateSearchQuery.value = ''
+  showTemplateModal.value = false
+}
+
 // ============================================================
 // 构建复制内容 - 辅助函数
 // ============================================================
@@ -1084,6 +1137,38 @@ const buildCopyContent = (): string => {
     designConstraints.forEach((c) => lines.push(`   • ${c}`))
   }
   lines.push(blank())
+
+  // ===== 模板选择 =====
+  if (selectedTemplateKey.value) {
+    const template = selectedTemplateInfo.value
+    if (template) {
+      // 获取模板源码
+      const templateSrcPath = `../web-template/template/${template.key}/${template.key}.vue`
+      const templateSourceCode = templateRawModules[templateSrcPath] || ''
+
+      lines.push(
+        '🎭 所选模板（布局/滚动框架）',
+        sep('-'),
+        `模板名称: ${template.label}`,
+        `模板标识: ${template.key}`,
+        `⚠️ 生成的网站必须使用此模板作为整体的滚动/布局框架，在此框架内嵌入各模块组件`,
+        ''
+      )
+
+      if (templateSourceCode) {
+        lines.push(
+          `📄 模板源码（${template.key}.vue）：`,
+          '```vue',
+          templateSourceCode,
+          '```',
+          '⚠️ 以上模板源码必须完整保留，在其内部嵌入各模块组件。模板定义了整体滚动/布局结构，不可删除或替换。',
+          blank()
+        )
+      } else {
+        lines.push(blank())
+      }
+    }
+  }
 
   // ===== 模块组件规划 =====
   lines.push('🧩 模块组件规划（用户已指定，不可更改）', sep('-'))
@@ -1918,6 +2003,11 @@ function openCopyModal() {
   if (selectedComponents.value.length === 0) {
     errorMessage.value = '请至少选择一个组件'
     showCopyErrorModal('⚠️ 提示', '请至少选择一个组件后再复制')
+    return
+  }
+  if (!selectedTemplateKey.value) {
+    errorMessage.value = '请先选择页面模板'
+    showCopyErrorModal('⚠️ 提示', '请先在「选择模板」中选一个模板后再生成方案')
     return
   }
   if (!enterpriseInfo.name) {
@@ -3015,19 +3105,18 @@ const initPage1Animations = () => {
 
   <div class="web-list">
     <!-- V2.0 语义搜索框 (方案四) -->
-    <div class="search-bar" :class="{ active: isSearchActive, 'ai-mode': isAIMode }">
+    <div class="search-bar" :class="{ active: isSearchActive }">
       <div class="search-input-wrapper">
         <span class="search-icon">🔍</span>
         <input
           v-model="searchQuery"
           type="text"
           class="search-input"
-          placeholder="描述你想要的效果，如：粒子像水流一样的Hero背景..."
-          @input="search(); showSearchDropdown = true"
+          placeholder="输入关键词搜索，如：霓虹、粒子、首屏..."
+          @input="searchImmediate(); showSearchDropdown = true"
           @focus="showSearchDropdown = true"
           @blur="showSearchDropdown = false"
           @keydown.escape="clearSearch(); showSearchDropdown = false"
-          @keydown.enter="searchImmediate(); showSearchDropdown = true"
         />
         <button
           v-if="searchQuery"
@@ -3036,50 +3125,14 @@ const initPage1Animations = () => {
           title="清除搜索"
         >✕</button>
         <span v-if="isSearching" class="search-spinner"></span>
-        <span v-if="isAIMode" class="ai-badge" title="AI 深度语义搜索">🤖AI</span>
-      </div>
-
-      <!-- 搜索模式切换 -->
-      <div class="search-mode-toggles">
-        <button
-          :class="['mode-toggle', { active: searchMode === 'auto' }]"
-          @click="setMode('auto')"
-          title="智能切换（短词本地、长句AI）"
-        >⚡智能</button>
-        <button
-          :class="['mode-toggle', { active: searchMode === 'local' }]"
-          @click="setMode('local')"
-          title="本地标签搜索（快速）"
-        >🏷️快速</button>
-        <button
-          :class="['mode-toggle', { active: searchMode === 'ai' }]"
-          @click="setMode('ai')"
-          title="AI 语义深度搜索"
-        >🤖深度</button>
       </div>
 
       <!-- 搜索结果下拉面板 -->
       <div v-if="showSearchDropdown && hasSearchResults" class="search-dropdown" @mousedown.prevent>
-        <!-- AI 推理说明 -->
-        <div v-if="reasoning" class="search-reasoning">
-          💭 {{ reasoning }}
-        </div>
-
-        <!-- 推荐标签 -->
-        <div v-if="suggestedTags.length > 0" class="search-suggested-tags">
-          <button
-            v-for="tag in suggestedTags.slice(0, 6)"
-            :key="tag"
-            class="suggested-tag"
-            @click="searchByTag(tag); showSearchDropdown = true"
-          >{{ tag }}</button>
-        </div>
-
         <!-- 结果列表 -->
         <div class="search-results-list" v-if="topResults.length > 0">
           <div class="results-header">
             找到 {{ searchResults.length }} 个匹配组件
-            <span v-if="isAIMode" class="header-ai-tag">🤖 AI 语义匹配</span>
           </div>
           <button
             v-for="result in topResults"
@@ -3092,14 +3145,11 @@ const initPage1Animations = () => {
             </span>
             <span class="result-name">{{ result.name }}</span>
             <span class="result-category">{{ getCategoryLabel(result.category) }}</span>
-            <span v-if="result.matchReason" class="result-reason" :title="result.matchReason">
-              💡
-            </span>
           </button>
         </div>
 
         <div v-else-if="!isSearching" class="search-empty">
-          没有找到匹配的组件，试试其他描述吧
+          没有找到匹配的组件，试试其他关键词吧
         </div>
       </div>
     </div>
@@ -3331,6 +3381,14 @@ const initPage1Animations = () => {
     <div v-if="selectedComponents.length > 0" class="selection-panel">
       <div class="selection-header">
         <div class="header-actions">
+          <!-- 模板选择按钮 -->
+          <button
+            :class="['selection-template-btn', { active: selectedTemplateKey }]"
+            title="选择页面模板"
+            @click="openTemplateModal"
+          >
+            {{ selectedTemplateKey ? selectedTemplateInfo?.label : '🎭 选择模板' }}
+          </button>
           <!-- 模块设置按钮 -->
           <button
             class="selection-module-btn"
@@ -3790,6 +3848,74 @@ const initPage1Animations = () => {
       </div>
     </Teleport>
 
+    <!-- 模板选择全屏弹窗 -->
+    <Teleport to="body">
+      <div
+        v-if="showTemplateModal"
+        class="template-modal-overlay"
+        @click.self="closeTemplateModal"
+      >
+        <div class="template-modal">
+          <div class="template-modal-header">
+            <div class="modal-title">
+              <h3>🎭 选择页面模板</h3>
+              <p>选择一个模板作为网站的滚动/布局框架，组件将嵌入此框架内展示</p>
+            </div>
+            <button class="close-btn" @click="closeTemplateModal">×</button>
+          </div>
+          <div class="template-modal-body">
+            <!-- 模板搜索框 -->
+            <div class="template-search-wrapper">
+              <span class="template-search-icon">🔍</span>
+              <input
+                v-model="templateSearchQuery"
+                type="text"
+                class="template-search-input"
+                placeholder="搜索模板名称或 key，如：无限滚动、parallax..."
+              />
+              <button
+                v-if="templateSearchQuery"
+                class="template-search-clear"
+                @click="templateSearchQuery = ''"
+              >✕</button>
+            </div>
+            <div class="template-grid">
+              <!-- 无模板选项（始终显示，不参与过滤） -->
+              <button
+                :class="['template-card', { active: !selectedTemplateKey }]"
+                @click="selectTemplate('')"
+              >
+                <div class="template-card-icon">🚫</div>
+                <div class="template-card-label">不使用模板</div>
+                <div class="template-card-desc">生成无框架基础页面</div>
+                <div class="template-card-check">{{ !selectedTemplateKey ? '✓' : '' }}</div>
+              </button>
+              <!-- 过滤后的模板列表 -->
+              <button
+                v-for="tpl in filteredTemplateList"
+                :key="tpl.key"
+                :class="['template-card', { active: selectedTemplateKey === tpl.key }]"
+                @click="selectTemplate(tpl.key)"
+              >
+                <div class="template-card-icon">📄</div>
+                <div class="template-card-label">{{ tpl.label }}</div>
+                <div class="template-card-key">{{ tpl.key }}</div>
+                <div class="template-card-check">{{ selectedTemplateKey === tpl.key ? '✓' : '' }}</div>
+              </button>
+              <!-- 无搜索结果 -->
+              <div v-if="filteredTemplateList.length === 0" class="template-empty">
+                <span class="empty-icon">🔍</span>
+                <span>没有找到匹配的模板，试试其他关键词</span>
+              </div>
+            </div>
+          </div>
+          <div class="template-modal-footer">
+            <button class="btn btn-primary" @click="closeTemplateModal">✓ 确认</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- 复制到 meoo AI 弹层 -->
     <Teleport to="body">
       <div v-if="showCopyModal" class="copy-modal-overlay" @click.self="closeCopyModal">
@@ -3807,6 +3933,10 @@ const initPage1Animations = () => {
             <div class="summary-item">
               <span class="summary-label">已选组件</span>
               <span class="summary-value">{{ selectedComponents.length }}个</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">页面模板</span>
+              <span class="summary-value">{{ selectedTemplateInfo?.label || '未选择' }}</span>
             </div>
             <div class="summary-item">
               <span class="summary-label">企业名称</span>
@@ -3928,7 +4058,7 @@ const initPage1Animations = () => {
     left: 50%;
     transform: translateX(-50%);
     z-index: 999998;
-    width: 600px;
+    width: 410px;
     max-width: 90vw;
 
     .search-input-wrapper {
@@ -3995,59 +4125,11 @@ const initPage1Animations = () => {
         animation: spin 0.6s linear infinite;
         flex-shrink: 0;
       }
-
-      .ai-badge {
-        font-size: 0.75rem;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: #fff;
-        padding: 2px 8px;
-        border-radius: 12px;
-        white-space: nowrap;
-        flex-shrink: 0;
-        animation: pulse-badge 2s ease-in-out infinite;
-      }
     }
 
     &.active .search-input-wrapper {
       border-color: rgba(102, 126, 234, 0.5);
       box-shadow: 0 4px 24px rgba(102, 126, 234, 0.25);
-    }
-
-    &.ai-mode .search-input-wrapper {
-      border-color: rgba(240, 147, 251, 0.5);
-      box-shadow: 0 4px 24px rgba(240, 147, 251, 0.25);
-    }
-
-    // 搜索模式切换按钮
-    .search-mode-toggles {
-      display: flex;
-      gap: 4px;
-      justify-content: center;
-      margin-top: 6px;
-
-      .mode-toggle {
-        padding: 3px 10px;
-        background: rgba(15, 23, 42, 0.8);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 0.72rem;
-        cursor: pointer;
-        transition: all 0.25s;
-        white-space: nowrap;
-
-        &:hover {
-          color: rgba(255, 255, 255, 0.8);
-          border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        &.active {
-          color: #fff;
-          background: rgba(102, 126, 234, 0.3);
-          border-color: rgba(102, 126, 234, 0.5);
-        }
-      }
     }
 
     // 搜索结果下拉面板
@@ -4066,42 +4148,6 @@ const initPage1Animations = () => {
       padding: 12px;
       animation: dropdownSlideIn 0.2s ease;
 
-      .search-reasoning {
-        padding: 10px 14px;
-        margin-bottom: 8px;
-        background: rgba(102, 126, 234, 0.12);
-        border-radius: 10px;
-        color: rgba(255, 255, 255, 0.75);
-        font-size: 0.8rem;
-        line-height: 1.5;
-        border-left: 3px solid rgba(102, 126, 234, 0.5);
-      }
-
-      .search-suggested-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 10px;
-        padding: 0 4px;
-
-        .suggested-tag {
-          padding: 4px 12px;
-          background: rgba(102, 126, 234, 0.2);
-          border: 1px solid rgba(102, 126, 234, 0.3);
-          border-radius: 15px;
-          color: rgba(255, 255, 255, 0.8);
-          font-size: 0.75rem;
-          cursor: pointer;
-          transition: all 0.2s;
-
-          &:hover {
-            background: rgba(102, 126, 234, 0.4);
-            border-color: rgba(102, 126, 234, 0.5);
-            transform: translateY(-1px);
-          }
-        }
-      }
-
       .search-results-list {
         .results-header {
           padding: 6px 8px 10px;
@@ -4109,15 +4155,6 @@ const initPage1Animations = () => {
           color: rgba(255, 255, 255, 0.5);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           margin-bottom: 6px;
-
-          .header-ai-tag {
-            margin-left: 6px;
-            font-size: 0.65rem;
-            background: linear-gradient(135deg, #667eea, #f093fb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
         }
 
         .search-result-item {
@@ -4179,11 +4216,6 @@ const initPage1Animations = () => {
             background: rgba(255, 255, 255, 0.06);
             padding: 2px 8px;
             border-radius: 8px;
-            flex-shrink: 0;
-          }
-
-          .result-reason {
-            font-size: 0.8rem;
             flex-shrink: 0;
           }
         }
@@ -5354,7 +5386,7 @@ const initPage1Animations = () => {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 380px;
+  width: 445px;
   //max-height: 60vh;
   background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
   backdrop-filter: blur(20px);
@@ -5385,6 +5417,303 @@ const initPage1Animations = () => {
   .header-actions {
     display: flex;
     gap: 8px;
+  }
+}
+
+// 模板选择按钮 + 全屏弹窗
+.selection-template-btn {
+  padding: 8px 14px;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  color: #ffc107;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    transform: scale(1.05);
+    background: rgba(255, 193, 7, 0.2);
+    border-color: rgba(255, 193, 7, 0.5);
+  }
+
+  &.active {
+    background: rgba(255, 193, 7, 0.25);
+    box-shadow: 0 0 12px rgba(255, 193, 7, 0.3);
+    border-color: rgba(255, 193, 7, 0.6);
+    color: #ffe082;
+  }
+}
+
+.template-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999999;
+  backdrop-filter: blur(12px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.template-modal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 24px;
+  width: 95%;
+  max-width: 860px;
+  max-height: 86vh;
+  min-height: 520px;
+  height: 800px;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.template-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 32px;
+  background: rgba(255, 193, 7, 0.08);
+  border-bottom: 1px solid rgba(255, 193, 7, 0.15);
+
+  .modal-title {
+    h3 {
+      color: #ffc107;
+      font-size: 1.4rem;
+      margin: 0 0 8px;
+    }
+    p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+  }
+
+  .close-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.3s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(255, 100, 100, 0.3);
+      color: #ff6b6b;
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.template-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+  min-height: 400px;
+}
+
+.template-search-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+
+  .template-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+  }
+
+  .template-search-input {
+    width: 100%;
+    padding: 12px 44px 12px 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: #e8eaff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:focus {
+      border-color: rgba(255, 193, 7, 0.4);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 16px rgba(255, 193, 7, 0.1);
+    }
+  }
+
+  .template-search-clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(255, 100, 100, 0.3);
+      color: #ff6b6b;
+    }
+  }
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 140px;
+  padding: 20px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  position: relative;
+
+  &:hover {
+    border-color: rgba(255, 193, 7, 0.4);
+    background: rgba(255, 193, 7, 0.06);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(255, 193, 7, 0.12);
+  }
+
+  &.active {
+    border-color: rgba(255, 193, 7, 0.6);
+    background: rgba(255, 193, 7, 0.12);
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.15);
+
+    .template-card-label {
+      color: #ffc107;
+    }
+  }
+
+  .template-card-icon {
+    font-size: 2rem;
+    margin-bottom: 4px;
+  }
+
+  .template-card-label {
+    color: #e8eaff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .template-card-key {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.7rem;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    word-break: break-all;
+  }
+
+  .template-card-desc {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+  }
+
+  .template-card-check {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 193, 7, 0.15);
+    border-radius: 50%;
+    color: #ffc107;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+}
+
+.template-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 20px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+
+  .empty-icon {
+    font-size: 2.5rem;
+    opacity: 0.5;
+  }
+}
+
+.template-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 32px;
+  background: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+// 模板弹窗响应式
+@media (max-width: 768px) {
+  .template-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .template-card {
+    height: 120px;
+    padding: 16px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .template-grid {
+    grid-template-columns: repeat(1, 1fr);
   }
 }
 
@@ -5662,7 +5991,7 @@ const initPage1Animations = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 99999;
+  z-index: 999999;
   backdrop-filter: blur(8px);
 }
 
@@ -5835,7 +6164,7 @@ const initPage1Animations = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 99999;
+  z-index: 999999;
   backdrop-filter: blur(8px);
 }
 
@@ -5844,7 +6173,7 @@ const initPage1Animations = () => {
   border-radius: 20px;
   max-width: 700px;
   width: 90%;
-  max-height: 85vh;
+  max-height: 86vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -5923,7 +6252,7 @@ const initPage1Animations = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 99999;
+  z-index: 999999;
   backdrop-filter: blur(12px);
   animation: fadeIn 0.2s ease-out;
 }
@@ -6691,7 +7020,7 @@ const initPage1Animations = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 99999;
+  z-index: 999999;
   backdrop-filter: blur(12px);
   animation: fadeIn 0.2s ease-out;
 }
@@ -6864,7 +7193,7 @@ const initPage1Animations = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 99999;
+  z-index: 999999;
   backdrop-filter: blur(10px);
 }
 
