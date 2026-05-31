@@ -651,11 +651,11 @@ const selectedTemplateKey = ref(loadSelectedTemplate())
 const showTemplateModal = ref(false)
 const templateSearchQuery = ref('')
 
-// 过滤后的模板列表（搜索 label 和 key）
+// 过滤后的模板列表（搜索 label 和 key，收藏置顶）
 const filteredTemplateList = computed(() => {
   const q = templateSearchQuery.value.trim().toLowerCase()
-  if (!q) return templateList
-  return templateList.filter(
+  if (!q) return sortedTemplateList.value
+  return sortedTemplateList.value.filter(
     (t) => t.label.toLowerCase().includes(q) || t.key.toLowerCase().includes(q)
   )
 })
@@ -684,6 +684,48 @@ const closeTemplateModal = () => {
   templateSearchQuery.value = ''
   showTemplateModal.value = false
 }
+
+const openTemplatePage = () => {
+  const url = router.resolve({ path: '/web-template' }).href
+  window.open(url, '_blank')
+}
+
+// ── 收藏系统（与 web-template 共享同一 localStorage key）──
+const TEMPLATE_FAV_STORAGE_KEY = 'template-favorites'
+const favoriteKeys = ref<Set<string>>(loadTemplateFavorites())
+
+function loadTemplateFavorites(): Set<string> {
+  try {
+    const raw = localStorage.getItem(TEMPLATE_FAV_STORAGE_KEY)
+    if (raw) {
+      const arr = JSON.parse(raw)
+      if (Array.isArray(arr)) return new Set(arr)
+    }
+  } catch { /* ignore corrupt data */ }
+  return new Set()
+}
+
+function saveTemplateFavorites() {
+  localStorage.setItem(TEMPLATE_FAV_STORAGE_KEY, JSON.stringify([...favoriteKeys.value]))
+}
+
+function toggleTemplateFavorite(key: string) {
+  const s = favoriteKeys.value
+  if (s.has(key)) { s.delete(key) } else { s.add(key) }
+  favoriteKeys.value = new Set(s)
+  saveTemplateFavorites()
+}
+
+function isTemplateFavorite(key: string) {
+  return favoriteKeys.value.has(key)
+}
+
+// 收藏优先排序的模板列表
+const sortedTemplateList = computed(() => {
+  const favTemplates = templateList.filter(t => favoriteKeys.value.has(t.key))
+  const otherTemplates = templateList.filter(t => !favoriteKeys.value.has(t.key))
+  return [...favTemplates, ...otherTemplates]
+})
 
 
 
@@ -2570,7 +2612,10 @@ const buildCopyContent =()=>{
               <h3>🎭 选择页面模板</h3>
               <p>选择一个模板作为网站的滚动/布局框架，组件将嵌入此框架内展示</p>
             </div>
-            <button class="close-btn" @click="closeTemplateModal">×</button>
+            <div class="header-actions">
+              <button class="template-nav-btn" @click="openTemplatePage">查看模板页面</button>
+              <button class="close-btn" @click="closeTemplateModal">×</button>
+            </div>
           </div>
           <div class="template-modal-body">
             <!-- 模板搜索框 -->
@@ -2603,12 +2648,22 @@ const buildCopyContent =()=>{
               <button
                 v-for="tpl in filteredTemplateList"
                 :key="tpl.key"
-                :class="['template-card', { active: selectedTemplateKey === tpl.key }]"
+                :class="['template-card', { active: selectedTemplateKey === tpl.key, favorited: isTemplateFavorite(tpl.key) }]"
                 @click="selectTemplate(tpl.key)"
               >
                 <div class="template-card-icon">📄</div>
                 <div class="template-card-label">{{ tpl.label }}</div>
                 <div class="template-card-key">{{ tpl.key }}</div>
+                <button
+                  class="template-fav-btn"
+                  :class="{ favorited: isTemplateFavorite(tpl.key) }"
+                  :title="isTemplateFavorite(tpl.key) ? '取消收藏' : '收藏'"
+                  @click.stop="toggleTemplateFavorite(tpl.key)"
+                >
+                  <svg viewBox="0 0 24 24" :fill="isTemplateFavorite(tpl.key) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                </button>
                 <div class="template-card-check">{{ selectedTemplateKey === tpl.key ? '✓' : '' }}</div>
               </button>
               <!-- 无搜索结果 -->
@@ -4213,6 +4268,32 @@ const buildCopyContent =()=>{
     }
   }
 
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .template-nav-btn {
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    border: none;
+    border-radius: 10px;
+    color: #1a1a2e;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.3s;
+    flex-shrink: 0;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255, 193, 7, 0.4);
+    }
+  }
+
   .close-btn {
     width: 40px;
     height: 40px;
@@ -4343,6 +4424,15 @@ const buildCopyContent =()=>{
     }
   }
 
+  &:hover .template-fav-btn:not(.favorited) {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &.favorited {
+    border-color: rgba(255, 193, 7, 0.25);
+  }
+
   .template-card-icon {
     font-size: 2rem;
     margin-bottom: 4px;
@@ -4381,6 +4471,52 @@ const buildCopyContent =()=>{
     color: #ffc107;
     font-size: 0.8rem;
     font-weight: 700;
+  }
+
+  .template-fav-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+    transform: scale(0.7);
+    z-index: 1;
+
+    &:hover {
+      background: rgba(255, 213, 79, 0.25);
+      color: #FFD54F;
+      transform: scale(1.18) !important;
+    }
+
+    &:active {
+      transform: scale(0.85) !important;
+      transition: all 0.08s;
+    }
+
+    &.favorited {
+      opacity: 1;
+      transform: scale(1);
+      color: #FFD54F;
+      background: rgba(255, 213, 79, 0.15);
+      box-shadow: 0 0 12px rgba(255, 213, 79, 0.2);
+    }
+
+    &.favorited:hover {
+      background: rgba(255, 107, 157, 0.18);
+      color: #FF6B9D;
+      box-shadow: 0 0 14px rgba(255, 107, 157, 0.25);
+    }
   }
 }
 
