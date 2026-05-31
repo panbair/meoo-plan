@@ -910,20 +910,21 @@ export const buildCopyContentStr = (
   }
   lines.push(blank())
 
-  // ===== 模板选择 =====
-  if (selectedTemplateKey.value) {
-    const template = selectedTemplateInfo.value
-    if (template) {
-      // 获取模板源码
+  // ===== 模板选择（多选） =====
+  const selectedTemplates = selectedTemplateInfo.value || []
+  if (selectedTemplates.length > 0) {
+    lines.push(
+      '🎭 所选模板（布局/滚动框架，共' + selectedTemplates.length + '个）',
+      sep('-'),
+    )
+
+    selectedTemplates.forEach((template, idx) => {
       const templateSrcPath = `../web-template/template/${template.key}/${template.key}.vue`
       const templateSourceCode = templateRawModules[templateSrcPath] || ''
 
       lines.push(
-        '🎭 所选模板（布局/滚动框架）',
-        sep('-'),
-        `模板名称: ${template.label}`,
-        `模板标识: ${template.key}`,
-        `⚠️ 生成的网站必须使用此模板作为整体的滚动/布局框架，在此框架内嵌入各模块组件`,
+        `模板${idx + 1}: ${template.label} (${template.key})`,
+        '⚠️ 生成的网站必须使用此模板作为整体的滚动/布局框架，在此框架内嵌入各模块组件',
         ''
       )
 
@@ -939,7 +940,7 @@ export const buildCopyContentStr = (
       } else {
         lines.push(blank())
       }
-    }
+    })
   }
 
   // ===== 模块组件规划 =====

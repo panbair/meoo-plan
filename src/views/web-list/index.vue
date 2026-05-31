@@ -634,54 +634,82 @@ function toggleSelectionList() {
 // ==================== 模板选择功能 ====================
 const TEMPLATE_STORAGE_KEY = 'web-list-selected-template'
 
-const loadSelectedTemplate = (): string => {
+const loadSelectedTemplate = (): string[] => {
   try {
     const saved = localStorage.getItem(TEMPLATE_STORAGE_KEY)
-    return saved || ''
+    if (saved) {
+      const arr = JSON.parse(saved)
+      if (Array.isArray(arr)) return arr
+    }
   } catch {
-    return ''
+    // 兼容旧版单字符串格式
+    try {
+      const saved = localStorage.getItem(TEMPLATE_STORAGE_KEY)
+      if (saved && saved.length > 0 && !saved.startsWith('[')) return [saved]
+    } catch { /* ignore */ }
   }
+  return []
 }
 
-const saveSelectedTemplate = (key: string) => {
-  localStorage.setItem(TEMPLATE_STORAGE_KEY, key)
+const saveSelectedTemplate = (keys: string[]) => {
+  localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(keys))
 }
 
-const selectedTemplateKey = ref(loadSelectedTemplate())
+const selectedTemplateKey = ref<string[]>(loadSelectedTemplate())
 const showTemplateModal = ref(false)
 const templateSearchQuery = ref('')
+const templateShowFavoritesOnly = ref(false)
 
-// 过滤后的模板列表（搜索 label 和 key，收藏置顶）
+// 过滤后的模板列表（搜索 label 和 key，收藏置顶，支持仅看收藏）
 const filteredTemplateList = computed(() => {
+  let list = sortedTemplateList.value
+  // 仅看收藏
+  if (templateShowFavoritesOnly.value) {
+    list = list.filter(t => favoriteKeys.value.has(t.key))
+  }
   const q = templateSearchQuery.value.trim().toLowerCase()
-  if (!q) return sortedTemplateList.value
-  return sortedTemplateList.value.filter(
+  if (!q) return list
+  return list.filter(
     (t) => t.label.toLowerCase().includes(q) || t.key.toLowerCase().includes(q)
   )
 })
 
 // 获取当前选中模板的信息
+// 获取当前选中的模板信息列表
 const selectedTemplateInfo = computed(() => {
-  if (!selectedTemplateKey.value) return null
-  return templateList.find((t) => t.key === selectedTemplateKey.value) || null
+  return selectedTemplateKey.value
+    .map((key) => templateList.find((t) => t.key === key))
+    .filter(Boolean) as typeof templateList
 })
 
-// 模板选择
-const selectTemplate = (key: string) => {
-  selectedTemplateKey.value = key
-  saveSelectedTemplate(selectedTemplateKey.value)
-  showTemplateModal.value = false
+// 模板选择（多选 toggle）
+const toggleTemplate = (key: string) => {
+  const idx = selectedTemplateKey.value.indexOf(key)
+  if (idx >= 0) {
+    selectedTemplateKey.value.splice(idx, 1)
+  } else {
+    selectedTemplateKey.value.push(key)
+  }
+  saveSelectedTemplate([...selectedTemplateKey.value])
+}
+
+// 清空模板选择
+const clearTemplates = () => {
+  selectedTemplateKey.value = []
+  saveSelectedTemplate([])
 }
 
 // 打开模板选择弹窗
 const openTemplateModal = () => {
   templateSearchQuery.value = ''
+  templateShowFavoritesOnly.value = false
   showTemplateModal.value = true
 }
 
 // 关闭模板选择弹窗
 const closeTemplateModal = () => {
   templateSearchQuery.value = ''
+  templateShowFavoritesOnly.value = false
   showTemplateModal.value = false
 }
 
@@ -720,11 +748,14 @@ function isTemplateFavorite(key: string) {
   return favoriteKeys.value.has(key)
 }
 
-// 收藏优先排序的模板列表
+// 排序的模板列表：选中排最前 → 收藏 → 其他
 const sortedTemplateList = computed(() => {
-  const favTemplates = templateList.filter(t => favoriteKeys.value.has(t.key))
-  const otherTemplates = templateList.filter(t => !favoriteKeys.value.has(t.key))
-  return [...favTemplates, ...otherTemplates]
+  const selected = selectedTemplateKey.value
+  const selectedSet = new Set(selected)
+  const selectedTemplates = templateList.filter(t => selectedSet.has(t.key))
+  const favTemplates = templateList.filter(t => !selectedSet.has(t.key) && favoriteKeys.value.has(t.key))
+  const otherTemplates = templateList.filter(t => !selectedSet.has(t.key) && !favoriteKeys.value.has(t.key))
+  return [...selectedTemplates, ...favTemplates, ...otherTemplates]
 })
 
 
@@ -740,9 +771,9 @@ function openCopyModal() {
     showCopyErrorModal('⚠️ 提示', '请至少选择一个组件后再复制')
     return
   }
-  if (!selectedTemplateKey.value) {
-    errorMessage.value = '请先选择页面模板'
-    showCopyErrorModal('⚠️ 提示', '请先在「选择模板」中选一个模板后再生成方案')
+  if (selectedTemplateKey.value.length === 0) {
+    errorMessage.value = '请至少选择一个页面模板'
+    showCopyErrorModal('⚠️ 提示', '请先在「选择模板」中至少选一个模板后再生成方案')
     return
   }
   if (!enterpriseInfo.name) {
@@ -2134,11 +2165,11 @@ const buildCopyContent =()=>{
         <div class="header-actions">
           <!-- 模板选择按钮 -->
           <button
-            :class="['selection-template-btn', { active: selectedTemplateKey }]"
+            :class="['selection-template-btn', { active: selectedTemplateKey.length > 0 }]"
             title="选择页面模板"
             @click="openTemplateModal"
           >
-            {{ selectedTemplateKey ? selectedTemplateInfo?.label : '🎭 选择模板' }}
+            {{ selectedTemplateKey.length > 0 ? `🎭 模板(${selectedTemplateKey.length})` : '🎭 选择模板' }}
           </button>
           <!-- 模块设置按钮 -->
           <button
@@ -2619,37 +2650,49 @@ const buildCopyContent =()=>{
           </div>
           <div class="template-modal-body">
             <!-- 模板搜索框 -->
-            <div class="template-search-wrapper">
-              <span class="template-search-icon">🔍</span>
-              <input
-                v-model="templateSearchQuery"
-                type="text"
-                class="template-search-input"
-                placeholder="搜索模板名称或 key，如：无限滚动、parallax..."
-              />
+            <div class="template-search-row">
+              <div class="template-search-wrapper">
+                <span class="template-search-icon">🔍</span>
+                <input
+                  v-model="templateSearchQuery"
+                  type="text"
+                  class="template-search-input"
+                  placeholder="搜索模板名称或 key，如：无限滚动、parallax..."
+                />
+                <button
+                  v-if="templateSearchQuery"
+                  class="template-search-clear"
+                  @click="templateSearchQuery = ''"
+                >✕</button>
+              </div>
               <button
-                v-if="templateSearchQuery"
-                class="template-search-clear"
-                @click="templateSearchQuery = ''"
-              >✕</button>
+                :class="['template-filter-btn', { active: templateShowFavoritesOnly }]"
+                :title="templateShowFavoritesOnly ? '显示全部' : '仅看收藏'"
+                @click="templateShowFavoritesOnly = !templateShowFavoritesOnly"
+              >
+                <svg viewBox="0 0 24 24" :fill="templateShowFavoritesOnly ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span>收藏</span>
+              </button>
             </div>
             <div class="template-grid">
               <!-- 无模板选项（始终显示，不参与过滤） -->
               <button
-                :class="['template-card', { active: !selectedTemplateKey }]"
-                @click="selectTemplate('')"
+                :class="['template-card', { active: selectedTemplateKey.length === 0 }]"
+                @click="clearTemplates"
               >
                 <div class="template-card-icon">🚫</div>
                 <div class="template-card-label">不使用模板</div>
                 <div class="template-card-desc">生成无框架基础页面</div>
-                <div class="template-card-check">{{ !selectedTemplateKey ? '✓' : '' }}</div>
+                <div class="template-card-check">{{ selectedTemplateKey.length === 0 ? '✓' : '' }}</div>
               </button>
               <!-- 过滤后的模板列表 -->
               <button
                 v-for="tpl in filteredTemplateList"
                 :key="tpl.key"
-                :class="['template-card', { active: selectedTemplateKey === tpl.key, favorited: isTemplateFavorite(tpl.key) }]"
-                @click="selectTemplate(tpl.key)"
+                :class="['template-card', { active: selectedTemplateKey.includes(tpl.key), favorited: isTemplateFavorite(tpl.key) }]"
+                @click="toggleTemplate(tpl.key)"
               >
                 <div class="template-card-icon">📄</div>
                 <div class="template-card-label">{{ tpl.label }}</div>
@@ -2664,7 +2707,7 @@ const buildCopyContent =()=>{
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 </button>
-                <div class="template-card-check">{{ selectedTemplateKey === tpl.key ? '✓' : '' }}</div>
+                <div class="template-card-check">{{ selectedTemplateKey.includes(tpl.key) ? '✓' : '' }}</div>
               </button>
               <!-- 无搜索结果 -->
               <div v-if="filteredTemplateList.length === 0" class="template-empty">
@@ -2700,7 +2743,7 @@ const buildCopyContent =()=>{
             </div>
             <div class="summary-item">
               <span class="summary-label">页面模板</span>
-              <span class="summary-value">{{ selectedTemplateInfo?.label || '未选择' }}</span>
+              <span class="summary-value">{{ selectedTemplateKey.length > 0 ? `${selectedTemplateKey.length}个` : '未选择' }}</span>
             </div>
             <div class="summary-item">
               <span class="summary-label">企业名称</span>
@@ -4324,9 +4367,16 @@ const buildCopyContent =()=>{
   min-height: 400px;
 }
 
+.template-search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 .template-search-wrapper {
   position: relative;
-  margin-bottom: 20px;
+  flex: 1;
 
   .template-search-icon {
     position: absolute;
@@ -4382,6 +4432,42 @@ const buildCopyContent =()=>{
       background: rgba(255, 100, 100, 0.3);
       color: #ff6b6b;
     }
+  }
+}
+
+.template-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.3s;
+  flex-shrink: 0;
+
+  svg {
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  &:hover {
+    background: rgba(255, 213, 79, 0.1);
+    border-color: rgba(255, 213, 79, 0.25);
+    color: rgba(255, 213, 79, 0.7);
+  }
+
+  &.active {
+    background: rgba(255, 213, 79, 0.15);
+    border-color: rgba(255, 213, 79, 0.4);
+    color: #FFD54F;
+    box-shadow: 0 0 16px rgba(255, 213, 79, 0.15);
   }
 }
 
