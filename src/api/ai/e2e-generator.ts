@@ -46,7 +46,7 @@ export type GenerationPhase =
 
 /** 流式回调 */
 export type E2EStreamCallback = (chunk: {
-  type: 'phase' | 'code' | 'panel' | 'components' | 'done' | 'error'
+  type: 'phase' | 'code' | 'panel' | 'components' | 'telemetry' | 'done' | 'error'
   phase?: GenerationPhase
   content?: string
   panelIndex?: number
@@ -100,6 +100,25 @@ export interface QualityReport {
   }
 }
 
+interface SanitizationHit {
+  ruleId: string
+  replacements: number
+}
+
+interface SanitizationReport {
+  totalFixes: number
+  rootInjected: boolean
+  hits: SanitizationHit[]
+}
+
+interface HtmlMetrics {
+  lines: number
+  chineseChars: number
+  sectionCount: number
+  imgCount: number
+  unsplashCount: number
+}
+
 /** AI 调用函数类型 */
 export type ChatFunction = (params: {
   messages: Array<{ role: string; content: string }>
@@ -120,6 +139,65 @@ export type StreamFunction = (
   },
   onChunk: (chunk: { content: string; finishReason?: string }) => void
 ) => Promise<{ success: boolean; data?: { content: string }; error?: string; usage?: any }>
+
+interface HtmlSanitizeRule {
+  id: string
+  pattern: RegExp
+  replacement: string | ((substring: string, ...args: any[]) => string)
+}
+
+const HTML_SANITIZE_RULES: HtmlSanitizeRule[] = [
+  { id: 'fix-classicon-quoted', pattern: /classicon"\s*>/gi, replacement: 'class="icon">' },
+  { id: 'fix-classicon-bare', pattern: /\bclassicon\b/gi, replacement: 'class="icon"' },
+  {
+    id: 'fix-invalid-style-rgba',
+    pattern: /style\s*=\s*(["'])\s*:rgba\(/gi,
+    replacement: (_m: string, quote: string) => `style=${quote}background:rgba(`
+  },
+  { id: 'fix-margin-top-missing-value', pattern: /margin-top\s*:\s*px\b/gi, replacement: 'margin-top:4px' },
+  { id: 'fix-double-quote-class', pattern: /class="icon""\s*>/gi, replacement: 'class="icon">' }
+]
+
+function applyHtmlSanitizationRules(input: string, cssVariables: string): { html: string; report: SanitizationReport } {
+  let out = input
+  const hits: SanitizationHit[] = []
+
+  for (const rule of HTML_SANITIZE_RULES) {
+    let replacements = 0
+    out = out.replace(rule.pattern, (...args) => {
+      replacements += 1
+      return typeof rule.replacement === 'function'
+        ? rule.replacement(args[0], ...args.slice(1))
+        : rule.replacement
+    })
+    if (replacements > 0) {
+      hits.push({ ruleId: rule.id, replacements })
+    }
+  }
+
+  const usesCssVars = /var\(--[a-z0-9-]+\)/i.test(out)
+  const hasRootVars = /:root\s*\{[\s\S]*?\}/i.test(out)
+  let rootInjected = false
+  if (usesCssVars && !hasRootVars) {
+    const rootBlock = `${cssVariables}\n`
+    if (/<style[^>]*>/i.test(out)) {
+      out = out.replace(/<style[^>]*>/i, (m) => `${m}\n${rootBlock}`)
+      rootInjected = true
+    } else if (/<\/head>/i.test(out)) {
+      out = out.replace(/<\/head>/i, `  <style>\n${rootBlock}</style>\n</head>`)
+      rootInjected = true
+    }
+  }
+
+  return {
+    html: out,
+    report: {
+      totalFixes: hits.reduce((sum, h) => sum + h.replacements, 0) + (rootInjected ? 1 : 0),
+      rootInjected,
+      hits
+    }
+  }
+}
 
 // ====================== 设计风格库（紧凑版，仅注入匹配的） ======================
 
@@ -185,6 +263,76 @@ const DESIGN_STYLES: Record<number, {
   }
 }
 
+const INDUSTRY_IMAGE_POOLS: Array<{ id: string; keywords: string[]; urls: string[] }> = [
+  {
+    id: 'pet',
+    keywords: ['宠物', '猫', '狗', '萌宠', '动物', 'pet', 'cat', 'dog'],
+    urls: [
+      'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=1400&auto=format&fit=crop'
+    ]
+  },
+  {
+    id: 'tech',
+    keywords: ['科技', 'ai', 'saas', '云', '数据', 'web3', '软件', '平台', 'tech'],
+    urls: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1400&auto=format&fit=crop'
+    ]
+  },
+  {
+    id: 'corporate',
+    keywords: ['企业', '咨询', '品牌', '公司', '团队', 'business', 'corporate'],
+    urls: [
+      'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1551434678-e076c223a692?w=1400&auto=format&fit=crop'
+    ]
+  },
+  {
+    id: 'healthcare',
+    keywords: ['医疗', '健康', '美容', '康复', 'health', 'clinic'],
+    urls: [
+      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1581595219315-a187dd40c322?w=1400&auto=format&fit=crop'
+    ]
+  },
+  {
+    id: 'food',
+    keywords: ['餐饮', '咖啡', '美食', '烘焙', 'food', 'coffee'],
+    urls: [
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=1400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1421622548261-c45bfe178854?w=1400&auto=format&fit=crop'
+    ]
+  }
+]
+
+const DEFAULT_IMAGE_POOL = [
+  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=1400&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=1400&auto=format&fit=crop'
+]
+
 // ====================== GSAP 代码模式（紧凑版） ======================
 
 const GSAP_PATTERNS = `
@@ -220,6 +368,16 @@ function createParticles(canvasId,count,color){var c=document.getElementById(can
 - .glass-card:hover { transform:translateY(-6px); box-shadow:0 24px 48px rgba(0,0,0,0.4); }
 - FAQ 折叠用 classList.toggle('open') + max-height 动画
 - 表单 submit: e.preventDefault() + 显示成功 + 3秒后隐藏 + form.reset()
+`
+
+const GSAP_PATTERNS_COMPACT = `
+### GSAP简版规则
+- 先注册: gsap.registerPlugin(ScrollTrigger[, ScrollToPlugin])
+- 统一用 gsap.fromTo，避免 from/to 混用导致状态漂移
+- 面板动画必须带 ScrollTrigger + toggleActions: 'play none none reverse'
+- 卡片序列统一: gsap.utils.toArray(...).forEach((el,i)=>...delay:i*0.1)
+- 数字递增统一: data-target + onUpdate 写回 textContent
+- Canvas 动画统一 requestAnimationFrame + resize 监听
 `
 
 // ====================== 模板模式：源码直接注入 ======================
@@ -282,6 +440,7 @@ export class E2EGenerator {
 
     for (let i = 0; i < panelPlans.length; i++) {
       const panel = panelPlans[i]
+      const panelStart = Date.now()
       console.log(`📄 生成面板 ${i + 1}/${panelPlans.length}: ${panel.name}`)
       onStream?.({ type: 'panel', panelIndex: i, panelName: panel.name, content: '' })
 
@@ -300,25 +459,67 @@ export class E2EGenerator {
       htmlChunks.push(chunk.html)
       selectedComps = [...selectedComps, ...chunk.componentNames]
 
+      const panelDuration = Date.now() - panelStart
+      console.log(`⏱️ 面板完成 ${panel.name}: ${chunk.html.length} 字符, ${panelDuration}ms`)
+      onStream?.({
+        type: 'telemetry',
+        data: {
+          kind: 'panel-metric',
+          panelName: panel.name,
+          panelIndex: i,
+          outputLength: chunk.html.length,
+          durationMs: panelDuration,
+          retries: retryCount
+        }
+      })
+
       // 流式推送
       onStream?.({ type: 'code', content: htmlChunks.join('\n') })
     }
 
     // ===== Phase 3: Assemble =====
     this.emitPhase('assembling', onStream)
-    const fullHtml = this.phaseAssemble(ctx, htmlChunks)
+    const assembled = this.phaseAssemble(ctx, htmlChunks)
 
     // ===== Phase 4: Validate =====
     this.emitPhase('validating', onStream)
-    const quality = this.phaseValidate(fullHtml)
+    let finalHtml = assembled.html
+    let quality = this.phaseValidate(finalHtml, assembled.report)
+    const initialMetrics = this.inspectHtmlMetrics(finalHtml)
+
+    if (this.shouldRunRichContentPass(initialMetrics, quality)) {
+      const enhancedHtml = await this.tryEnhanceRichContent(ctx, finalHtml)
+      if (enhancedHtml) {
+        const enhancedQuality = this.phaseValidate(enhancedHtml, assembled.report)
+        if (enhancedQuality.score >= quality.score) {
+          finalHtml = enhancedHtml
+          quality = enhancedQuality
+        }
+      }
+    }
 
     console.log(`📊 质量评分: ${quality.score}/100 (${quality.passed ? '✅' : '❌'})`)
     if (quality.issues.length) console.warn('⚠️ 问题:', quality.issues)
+    if (assembled.report.totalFixes > 0) {
+      console.log(`🧹 自动修复: ${assembled.report.totalFixes} 处`)
+    }
+    onStream?.({
+      type: 'telemetry',
+      data: {
+        kind: 'validation',
+        score: quality.score,
+        passed: quality.passed,
+        sanitizeFixes: assembled.report.totalFixes,
+        sanitizeRules: assembled.report.hits,
+        issueCount: quality.issues.length,
+        warningCount: quality.warnings.length
+      }
+    })
 
     onStream?.({ type: 'done' })
 
     return {
-      html: fullHtml,
+      html: finalHtml,
       selectedComponents: [...new Set(selectedComps)],
       reasoning: `基于"${request.description}"自动选用${panelPlans.length}面板结构: ${panelPlans.map(p => p.name).join('→')}`,
       panelStructure: panelPlans.map(p => `${p.name}(${p.purpose})`).join(' → '),
@@ -366,6 +567,10 @@ export class E2EGenerator {
 ${ctx.style.cssVariables}
 - 占位文本 → 真实品牌内容
 - 占位图（emoji/纯色/Unsplash默认） → 贴合行业的 Unsplash 图片或 CSS 渐变
+- 成品图片总数 >= 6，其中至少 4 张为行业相关 Unsplash 图片
+- 每个主要内容面板（非纯统计）至少 1 张图片，且每个 <img> 必须有 alt
+
+${this.buildImagePoolHint(ctx)}
 
 ## 📤 输出格式
 - 完整的独立 HTML 文件（<!DOCTYPE html> → </html>）
@@ -411,14 +616,40 @@ ${templateSource}
           '</head>\n<body>\n' + rawHtml + '\n</body>\n</html>'
       }
 
-      onStream?.({ type: 'code', content: rawHtml })
+      const sanitized = this.sanitizeFinalHtml(rawHtml, ctx)
+      let finalHtml = sanitized.html
+      let quality = this.phaseValidate(finalHtml, sanitized.report)
+      const metrics = this.inspectHtmlMetrics(finalHtml)
+      if (this.shouldRunRichContentPass(metrics, quality)) {
+        const enhancedHtml = await this.tryEnhanceRichContent(ctx, finalHtml)
+        if (enhancedHtml) {
+          const enhancedQuality = this.phaseValidate(enhancedHtml, sanitized.report)
+          if (enhancedQuality.score >= quality.score) {
+            finalHtml = enhancedHtml
+            quality = enhancedQuality
+          }
+        }
+      }
+
+      onStream?.({ type: 'code', content: finalHtml })
       onStream?.({ type: 'done' })
 
-      const quality = this.phaseValidate(rawHtml)
       console.log(`📊 质量评分: ${quality.score}/100 (${quality.passed ? '✅' : '❌'})`)
+      onStream?.({
+        type: 'telemetry',
+        data: {
+          kind: 'validation',
+          score: quality.score,
+          passed: quality.passed,
+          sanitizeFixes: sanitized.report.totalFixes,
+          sanitizeRules: sanitized.report.hits,
+          issueCount: quality.issues.length,
+          warningCount: quality.warnings.length
+        }
+      })
 
       return {
-        html: rawHtml,
+        html: finalHtml,
         selectedComponents: [],
         reasoning: `基于模板 ${ctx.templateKey || 'unknown'} 源码转换而成`,
         panelStructure: ctx.templatePanels?.map(p => p.name || p.purpose).join(' → ') || '模板结构',
@@ -447,12 +678,36 @@ ${templateSource}
       selectedComps = [...selectedComps, ...chunk.componentNames]
     }
 
-    const fullHtml = this.phaseAssemble(ctx, htmlChunks)
-    const quality = this.phaseValidate(fullHtml)
+    const assembled = this.phaseAssemble(ctx, htmlChunks)
+    let finalHtml = assembled.html
+    let quality = this.phaseValidate(finalHtml, assembled.report)
+    const metrics = this.inspectHtmlMetrics(finalHtml)
+    if (this.shouldRunRichContentPass(metrics, quality)) {
+      const enhancedHtml = await this.tryEnhanceRichContent(ctx, finalHtml)
+      if (enhancedHtml) {
+        const enhancedQuality = this.phaseValidate(enhancedHtml, assembled.report)
+        if (enhancedQuality.score >= quality.score) {
+          finalHtml = enhancedHtml
+          quality = enhancedQuality
+        }
+      }
+    }
+    onStream?.({
+      type: 'telemetry',
+      data: {
+        kind: 'validation',
+        score: quality.score,
+        passed: quality.passed,
+        sanitizeFixes: assembled.report.totalFixes,
+        sanitizeRules: assembled.report.hits,
+        issueCount: quality.issues.length,
+        warningCount: quality.warnings.length
+      }
+    })
     onStream?.({ type: 'done' })
 
     return {
-      html: fullHtml,
+      html: finalHtml,
       selectedComponents: [...new Set(selectedComps)],
       reasoning: `回退到标准生成`,
       panelStructure: panelPlans.map(p => p.name).join(' → '),
@@ -474,7 +729,7 @@ ${templateSource}
     )
 
     // 组件摘要（紧凑）
-    const compSummary = this.buildComponentSummary(desc, 15)
+    const compSummary = this.buildComponentSummary(desc, 8)
 
     const templateKey = request.templateKey || ''
 
@@ -555,8 +810,29 @@ ${templateSource}
 
     if (top.length === 0) return ''
 
-    return '### 参考组件 (按场景匹配度排序)\n' +
-      top.map(k => `- **${k.name}** [${k.complexity || '?'}] ${k.summary || ''}`).join('\n')
+    return '参考组件摘要:\n' +
+      top
+        .map(k => `${k.name}|${k.complexity || '?'}|${(k.summary || '').replace(/\s+/g, ' ').slice(0, 72)}`)
+        .join('\n')
+  }
+
+  private buildImagePoolHint(ctx: ReturnType<typeof this.buildContext>): string {
+    const sourceText = `${ctx.description} ${ctx.industry} ${ctx.bizDesc}`.toLowerCase()
+    const picked: string[] = []
+
+    for (const pool of INDUSTRY_IMAGE_POOLS) {
+      if (pool.keywords.some((kw) => sourceText.includes(kw.toLowerCase()))) {
+        picked.push(...pool.urls)
+      }
+    }
+
+    const merged = [...new Set([...picked, ...DEFAULT_IMAGE_POOL])].slice(0, 8)
+
+    return [
+      '### 推荐图片池（优先复用以下URL，保证风格稳定）',
+      '- 要求：全站>=6张图片，主内容面板至少1张，所有<img>必须含alt',
+      ...merged.map((url, idx) => `- 图${idx + 1}: ${url}`)
+    ].join('\n')
   }
 
   // ==================== Phase 1: Plan ====================
@@ -698,6 +974,12 @@ Hero / About(Story) / Products(Services) / Features / Team / Testimonials / FAQ 
     const nextPanels = allPanels.slice(index + 1)
     const totalPanels = allPanels.length
 
+    const patternBlock = isFirstPanel ? GSAP_PATTERNS : GSAP_PATTERNS_COMPACT
+    const summaryBlock = isFirstPanel && ctx.compSummary
+      ? `${ctx.compSummary}\n\n> 以上组件供参考效果，用原生JS+GSAP实现。`
+      : ''
+    const imagePoolHint = this.buildImagePoolHint(ctx)
+
     // 紧凑 System Prompt (核心约束)
     const systemPrompt = `你是顶级GSAP动画全栈开发者。直接输出面板HTML/CSS/JS片段，**严格只输出body内的面板内容**。
 
@@ -720,9 +1002,14 @@ Hero / About(Story) / Products(Services) / Features / Team / Testimonials / FAQ 
 - 卡片stagger: gsap.utils.toArray + forEach + delay
 - 禁止使用Tailwind类名，用内联style或<style>块
 - 导航/布局用flex/grid + 内联style
-${GSAP_PATTERNS}
+- 全站必须有 >= 6 张真实图片（优先 Unsplash），禁止空 src、禁止只用 emoji 充当主视觉
+- 文案必须具体可读，避免“这里是xxx/待补充/lorem ipsum/示例文本”
 
-${ctx.compSummary ? ctx.compSummary + '\n\n> 以上组件供参考效果，用原生JS+GSAP实现。' : ''}
+${patternBlock}
+
+${summaryBlock}
+
+${imagePoolHint}
 
 ## 输出格式
 直接输出面板HTML，不要markdown，不要JSON，不要DOCTYPE。`
@@ -784,6 +1071,7 @@ body { font-family:'Inter',system-ui,sans-serif; background:var(--bg-primary); c
 - 类型: ${panel.name}
 - 用途: ${panel.purpose}
 - Canvas粒子背景 (id="heroCanvas", 50个粒子)
+- Hero 主视觉图至少 1 张（行业相关 Unsplash，必须有 alt）
 - 徽章标签 (例: "🏆 ${ctx.companyName}")
 - H1标题 (<h1 class="gradient-text">)
 - 描述: 2-3句
@@ -847,6 +1135,12 @@ ${isLast ? '\n**注意**: 这是最后一个内容面板，之后是Footer。输
 - 所有数字用 data-target 属性标记，JS会统一做递增动画`)
     }
 
+    if (panel.name === 'Services' || panel.name === 'Products' || panel.name === 'Features') {
+      contextParts.push(`### 服务/产品内容密度要求:
+- 每张卡片包含: 图片(或图标) + 标题 + 1-2句真实描述 + 行动链接
+- 本面板至少2张图片，优先使用行业相关 Unsplash 图片`)
+    }
+
     // FAQ
     if (panel.name === 'FAQ') {
       contextParts.push(`### FAQ 折叠面板:
@@ -869,7 +1163,15 @@ ${isLast ? '\n**注意**: 这是最后一个内容面板，之后是Footer。输
       contextParts.push(`### Testimonials 证言面板:
 - 3列评价卡片 (mobile 1列)
 - 3条评价: 星级(★★★★★)+评价文字+头像+姓名+职位
-- 文案真实感: 体现客户受益的具体描述`)
+- 文案真实感: 体现客户受益的具体描述
+- 每条评价附人物头像图片（alt必填）`)
+    }
+
+    if (panel.name !== 'Footer') {
+      contextParts.push(`### 图片与文案硬性要求:
+- 当前面板如果是内容面板（非纯统计），至少包含1张真实图片
+- <img> 必须有 src + alt，src 不能为 "#"、""、"about:blank"
+- 文案避免模板话术，至少包含1个具体业务细节（数据/场景/结果）`)
     }
 
     // 最后如果是最后一个内容面板且后面没有Footer，强制添加
@@ -978,7 +1280,7 @@ ${isLast ? '\n**注意**: 这是最后一个内容面板，之后是Footer。输
 
   // ==================== Phase 3: Assemble ====================
 
-  private phaseAssemble(ctx: ReturnType<typeof this.buildContext>, chunks: string[]): string {
+  private phaseAssemble(ctx: ReturnType<typeof this.buildContext>, chunks: string[]): { html: string; report: SanitizationReport } {
     // 预清理: 剥离每个chunk中的 DOCTYPE/html/head/body/CDN 垃圾
     const cleanedChunks = chunks.map(c => {
       let cleaned = c
@@ -1021,23 +1323,32 @@ ${isLast ? '\n**注意**: 这是最后一个内容面板，之后是Footer。输
       '</html>'
     ].join('\n')
 
-    return fullHtml
+    return this.sanitizeFinalHtml(fullHtml, ctx)
+  }
+
+  /**
+   * 组装后兜底清理：修复模型偶发输出瑕疵，降低前端运行时报错概率。
+   */
+  private sanitizeFinalHtml(
+    html: string,
+    ctx: ReturnType<typeof this.buildContext>
+  ): { html: string; report: SanitizationReport } {
+    return applyHtmlSanitizationRules(html, ctx.style.cssVariables)
   }
 
   // ==================== Phase 4: Validate ====================
 
-  private phaseValidate(html: string): QualityReport {
+  private phaseValidate(html: string, sanitizeReport?: SanitizationReport): QualityReport {
     const issues: string[] = []
     const warnings: string[] = []
 
     // === 内容完整性 (40分) ===
     let contentScore = 0
-    const lines = html.split('\n').length
-    const chineseChars = (html.match(/[\u4e00-\u9fff]/g) || []).length
-    // 用 id="panel-数字" 计数面板 (兼容 section/div 等各种标签)
-    const panelIdMatches = html.match(/id\s*=\s*["']panel-\d+["']/gi) || []
-    const sectionCount = panelIdMatches.length
-    const imgCount = (html.match(/<img\b/gi) || []).length
+    const metrics = this.inspectHtmlMetrics(html)
+    const { lines, chineseChars, sectionCount, imgCount, unsplashCount } = metrics
+    const invalidSrcCount = (html.match(/<img\b[^>]*\bsrc\s*=\s*["'](?:\s*|#|about:blank)["'][^>]*>/gi) || []).length
+    const noSrcImgCount = (html.match(/<img\b(?![^>]*\bsrc\s*=)[^>]*>/gi) || []).length
+    const placeholderTextCount = (html.match(/lorem ipsum|待补充|示例文本|这里是|TODO|to be filled/gi) || []).length
 
     if (lines >= 600) contentScore += 10
     else if (lines >= 400) { contentScore += 6; warnings.push(`代码${lines}行，建议>=600行`) }
@@ -1052,14 +1363,57 @@ ${isLast ? '\n**注意**: 这是最后一个内容面板，之后是Footer。输
     else issues.push(`仅${sectionCount}个面板(需>=5个)`)
 
     if (imgCount >= 6) contentScore += 10
-    else if (imgCount >= 3) { contentScore += 5; warnings.push(`仅${imgCount}张图片`) }
-    else warnings.push(`仅${imgCount}张图片，缺少视觉内容`)
+    else if (imgCount >= 4) { contentScore += 7; warnings.push(`仅${imgCount}张图片，建议>=6张`) }
+    else if (imgCount >= 2) { contentScore += 3; warnings.push(`仅${imgCount}张图片，视觉内容偏少`) }
+    else issues.push(`仅${imgCount}张图片(需>=2张，建议>=6张)`)
+
+    if (imgCount >= 3 && unsplashCount === 0) {
+      warnings.push('检测到图片但未使用 Unsplash 实景图，建议替换为真实场景图片')
+    }
+    if (invalidSrcCount > 0 || noSrcImgCount > 0) {
+      issues.push(`检测到无效图片src: 空/占位${invalidSrcCount}处, 缺失src${noSrcImgCount}处`)
+    }
+    if (placeholderTextCount >= 2) {
+      issues.push(`检测到模板占位文案 ${placeholderTextCount} 处，内容不够真实`)
+    }
 
     // === 结构规范 (30分) ===
     let structureScore = 0
 
     if (/gsap\.registerPlugin\s*\(\s*ScrollTrigger\s*(?:,\s*ScrollToPlugin\s*)?\s*\)/.test(html)) structureScore += 8
     else issues.push('缺少 gsap.registerPlugin(ScrollTrigger)')
+
+    const registerPluginCount = (html.match(/gsap\.registerPlugin\s*\(/g) || []).length
+    if (registerPluginCount > 3) {
+      warnings.push(`gsap.registerPlugin 出现 ${registerPluginCount} 次，建议去重到 1-2 次`)
+    }
+
+    if (/\bclassicon\b/i.test(html)) {
+      issues.push('检测到非法属性 classicon，可能导致 DOM 结构异常')
+    }
+
+    if (/style\s*=\s*["']\s*:[^"']+/i.test(html)) {
+      issues.push('检测到非法 style 声明（以冒号开头）')
+    }
+
+    if (/margin-top\s*:\s*px\b/i.test(html)) {
+      warnings.push('检测到无效样式值 margin-top:px，建议补齐数值')
+    }
+
+    if (/var\(--[a-z0-9-]+\)/i.test(html) && !/:root\s*\{[\s\S]*?\}/i.test(html)) {
+      issues.push('检测到 CSS 变量引用但缺少 :root 变量定义')
+    }
+
+    if (sanitizeReport && sanitizeReport.totalFixes > 0) {
+      warnings.push(`自动修复输出问题 ${sanitizeReport.totalFixes} 处`)
+      if (sanitizeReport.rootInjected) {
+        warnings.push('自动注入了 :root 变量定义以修复 CSS 变量缺失')
+      }
+      const topRules = sanitizeReport.hits.slice(0, 3).map((h) => `${h.ruleId}(${h.replacements})`).join(', ')
+      if (topRules) {
+        warnings.push(`修复命中规则: ${topRules}`)
+      }
+    }
 
     if (/<footer\b/i.test(html)) structureScore += 8
     else warnings.push('缺少<footer>标签')
@@ -1109,6 +1463,74 @@ ${isLast ? '\n**注意**: 这是最后一个内容面板，之后是Footer。输
       issues,
       warnings,
       details: { contentScore, structureScore, animationScore, bonusScore }
+    }
+  }
+
+  private inspectHtmlMetrics(html: string): HtmlMetrics {
+    const lines = html.split('\n').length
+    const chineseChars = (html.match(/[\u4e00-\u9fff]/g) || []).length
+    const panelIdMatches = html.match(/id\s*=\s*["']panel-\d+["']/gi) || []
+    const imgCount = (html.match(/<img\b/gi) || []).length
+    const unsplashCount = (html.match(/images\.unsplash\.com/gi) || []).length
+    return {
+      lines,
+      chineseChars,
+      sectionCount: panelIdMatches.length,
+      imgCount,
+      unsplashCount
+    }
+  }
+
+  private shouldRunRichContentPass(metrics: HtmlMetrics, quality: QualityReport): boolean {
+    return metrics.imgCount < 4 || metrics.chineseChars < 360 || quality.score < 72
+  }
+
+  private async tryEnhanceRichContent(ctx: ReturnType<typeof this.buildContext>, html: string): Promise<string | null> {
+    try {
+      const prompt = `你是资深前端设计师。请在不破坏现有结构和动画逻辑的前提下，增强以下HTML网站的内容丰富度：
+
+硬性目标：
+1) 图片总数 >= 6，优先使用行业相关 Unsplash 实景图
+2) 每个主要内容面板（非纯统计）至少1张图片
+3) 文案替换为真实业务语气，不允许占位文本
+4) 所有 <img> 必须有有效 src 和 alt
+
+限制：
+- 保持现有 id/class 不变，不删除原有 GSAP 动画逻辑
+- 只做“补充图片+丰富文案+轻量样式微调”
+- 输出完整HTML，不要markdown
+
+品牌信息：公司=${ctx.companyName} 行业=${ctx.industry || '通用'} 业务=${ctx.bizDesc || ctx.description}
+
+${this.buildImagePoolHint(ctx)}
+
+待增强HTML如下：
+${html}`
+
+      const resp = await this.chatFn({
+        messages: [
+          { role: 'system', content: '你是网站内容增强器。仅输出完整HTML代码。' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.3,
+        maxTokens: 16000,
+        timeout: 300000,
+        model: this.e2eModel
+      })
+
+      if (!resp.success || !resp.data?.content) {
+        return null
+      }
+
+      let enhanced = resp.data.content.trim()
+      enhanced = enhanced.replace(/^```html?\s*/i, '').replace(/```\s*$/i, '').trim()
+      if (!/<!DOCTYPE\s+html/i.test(enhanced)) {
+        return null
+      }
+
+      return this.sanitizeFinalHtml(enhanced, ctx).html
+    } catch {
+      return null
     }
   }
 

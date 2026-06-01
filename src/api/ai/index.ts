@@ -28,9 +28,9 @@ import { E2EGenerator, type GenerateResult, type QualityReport } from './e2e-gen
 
 // ==================== 模板源码自动加载 ====================
 // 使用 Vite import.meta.glob 预加载所有模板 .vue 源文件（raw 模式）
-// 格式: { 'infinite-scroll/infinite-scroll.vue': 'raw source code' }
+// 注意: 当前文件位于 src/api/ai，模板实际在 src/views/web-template/template
 const templateSources: Record<string, () => Promise<string>> = import.meta.glob(
-  '../web-template/template/*/*.vue',
+  '../../views/web-template/template/*/*.vue',
   { query: '?raw', import: 'default' }
 )
 
@@ -43,8 +43,8 @@ async function loadTemplateSource(templateKey: string): Promise<string | null> {
     return templateSourceCache.get(templateKey)!
   }
 
-  // 匹配路径: ../web-template/template/{key}/{key}.vue
-  const matchKey = `../web-template/template/${templateKey}/${templateKey}.vue`
+  // 匹配路径: ../../views/web-template/template/{key}/{key}.vue
+  const matchKey = `../../views/web-template/template/${templateKey}/${templateKey}.vue`
   const loader = templateSources[matchKey]
   if (!loader) {
     // 尝试匹配任意 .vue 文件（部分旧模板命名不规范）
@@ -332,7 +332,7 @@ export interface WebsiteE2EResponse {
 
 /** 流式回调 */
 export type E2EStreamCallback = (chunk: {
-  type: 'reasoning' | 'code' | 'components' | 'done' | 'error'
+  type: 'reasoning' | 'code' | 'components' | 'telemetry' | 'done' | 'error'
   content?: string
   data?: any
 }) => void
@@ -1445,14 +1445,14 @@ Hero:0.8-1.2s / Stagger:0.08-0.15s / Scrub:1.2-2.0s / Hover:<220ms / 面板:1.2-
    */
   configure(config: AIConfig) {
     this.config = config
-    
+
     // 设置基础URL
     let baseUrl = ''
     switch (config.provider) {
       case 'qwen':
         // 开发环境使用代理，生产环境使用直连
         // 通义千问兼容OpenAI格式的API端点
-        baseUrl = config.baseUrl || 
+        baseUrl = config.baseUrl ||
           (import.meta.env.DEV ? '/ai-proxy' : 'https://dashscope.aliyuncs.com/compatible-mode/v1')
         break
       case 'deepseek':
@@ -1465,7 +1465,7 @@ Hero:0.8-1.2s / Stagger:0.08-0.15s / Scrub:1.2-2.0s / Hover:<220ms / 面板:1.2-
         baseUrl = config.baseUrl || ''
         break
     }
-    
+
     console.log('🔧 配置AI服务:', {
       provider: config.provider,
       baseUrl,
@@ -1473,9 +1473,9 @@ Hero:0.8-1.2s / Stagger:0.08-0.15s / Scrub:1.2-2.0s / Hover:<220ms / 面板:1.2-
       usingProxy: baseUrl.includes('/ai-proxy'),
       fullUrl: import.meta.env.DEV ? `http://localhost:5173${baseUrl}/chat/completions` : `${baseUrl}/chat/completions`
     })
-    
+
     this.client.defaults.baseURL = baseUrl
-    
+
     // 设置认证头
     this.client.interceptors.request.use((request) => {
       if (this.config?.apiKey) {
@@ -1618,13 +1618,13 @@ ${componentCatalog}
 
     try {
       const model = params.model || this.config.model || this.getDefaultModel()
-      
+
       console.log('📤 发送AI请求...')
       console.log('模型:', model)
       console.log('消息数量:', params.messages.length)
       console.log('Temperature:', params.temperature || 0.7)
       console.log('Max Tokens:', params.maxTokens || 2000)
-      
+
       const payload: Record<string, any> = {
         model,
         messages: params.messages,
@@ -1779,7 +1779,7 @@ ${componentCatalog}
   async generateSolution(request: SolutionGenerationRequest): Promise<SolutionGenerationResponse> {
     console.log('\n🎯 ========== 开始生成网站方案 (V2.0 动态知识库) ==========')
     console.log('用户需求:', request)
-    
+
     const systemPrompt = await this.buildDynamicSystemPrompt()
     const userPrompt = this.buildUserPrompt(request)
 
@@ -1807,19 +1807,19 @@ ${componentCatalog}
     try {
       const content = response.data.content
       console.log('\n🔍 开始解析AI响应...')
-      
+
       // 尝试提取JSON（AI可能返回markdown格式）
       const jsonMatch = content.match(/\{[\s\S]*\}/)
       const jsonStr = jsonMatch ? jsonMatch[0] : content
-      
+
       console.log('提取的JSON字符串长度:', jsonStr.length, '字符')
-      
+
       const parsed = JSON.parse(jsonStr)
-      
+
       console.log('✅ JSON解析成功')
       console.log('方案数量:', parsed.solutions?.length || 0)
       console.log('分析内容:', parsed.analysis?.substring(0, 100) + '...')
-      
+
       return {
         solutions: parsed.solutions || [],
         analysis: parsed.analysis || '',
@@ -1851,7 +1851,7 @@ ${componentCatalog}
   private buildUserPrompt(request: SolutionGenerationRequest): string {
     const moduleNames = this.getModuleNames(request.selectedModules)
     const emotionNames = request.emotions.map(e => this.getEmotionName(e)).filter(Boolean)
-    
+
     return `请为以下企业网站生成3套设计方案：
 
 ## 基本信息
@@ -2320,6 +2320,11 @@ ${sourceSummary}
       templateSource = await loadTemplateSource(request.templateKey) || undefined
       if (templateSource) {
         console.log(`📦 已加载模板源码: ${request.templateKey} (${templateSource.length} 字符)`)
+      } else {
+        const msg = `模板源码加载失败: ${request.templateKey}`
+        console.error(`❌ ${msg}`)
+        onStream?.({ type: 'error', content: msg })
+        throw new Error(msg)
       }
     }
 
@@ -2363,6 +2368,9 @@ ${sourceSummary}
           case 'panel':
             // 推送面板进度
             onStream({ type: 'reasoning', content: `📄 ${chunk.panelName}` })
+            break
+          case 'telemetry':
+            onStream({ type: 'telemetry', data: chunk.data })
             break
           case 'done':
             onStream({ type: 'done' })

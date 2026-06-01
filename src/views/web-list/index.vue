@@ -27,10 +27,11 @@ const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other}/
   import: 'default'
 })
 
-// 动态导入所有模板源码
+// 动态导入所有模板源码（eager 确保生成方案时能直接获取源码字符串）
 const templateRawModules = import.meta.glob('../web-template/template/*/*.vue', {
   query: '?raw',
-  import: 'default'
+  import: 'default',
+  eager: true
 })
 
 // 动态导入所有README
@@ -4193,7 +4194,7 @@ const buildCopyContent =()=>{
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 445px;
+  width: 455px;
   //max-height: 60vh;
   background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
   backdrop-filter: blur(20px);

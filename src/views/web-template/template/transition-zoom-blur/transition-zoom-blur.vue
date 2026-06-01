@@ -70,6 +70,10 @@ function onTouchEnd(e: TouchEvent) {
 function buildTimeline(): gsap.core.Timeline {
   gsap.set(panels, { clearProps: 'all' })
   gsap.set(panels, { position: 'absolute', width: '100vw', height: '100vh' })
+  // Keep the first panel on top; subsequent panels are progressively revealed.
+  panels.forEach((panel, i) => {
+    panel.style.zIndex = String(totalPanels - i)
+  })
 
   const tl = gsap.timeline({ paused: true })
   const segments = totalPanels - 1

@@ -148,6 +148,16 @@
                 <span class="score-label">代码质量</span>
                 <span class="score-value">{{ qualityReport.score }}/100</span>
               </div>
+              <div class="quality-score" style="margin-top:4px;">
+                <span class="score-label">内容丰富度</span>
+                <span class="score-value">{{ contentRichness.score }}/100</span>
+              </div>
+              <p class="info-text" style="margin-top:4px;">
+                面板 {{ contentRichness.panelCount }} · 图片 {{ contentRichness.imageCount }} (Unsplash {{ contentRichness.unsplashCount }}) · 文案 {{ contentRichness.chineseChars }}字
+              </p>
+              <div v-if="contentRichness.details.length" class="quality-warnings">
+                <div v-for="d in contentRichness.details" :key="d" class="quality-warn">📌 {{ d }}</div>
+              </div>
               <div v-if="qualityReport.issues.length" class="quality-issues">
                 <div v-for="issue in qualityReport.issues" :key="issue" class="quality-issue">❌ {{ issue }}</div>
               </div>
@@ -155,6 +165,34 @@
                 <div v-for="w in qualityReport.warnings" :key="w" class="quality-warn">⚡ {{ w }}</div>
               </div>
             </div>
+
+            <details v-if="diagnostics.panelMetrics.length > 0" class="e2e-details" style="margin-top:8px;">
+              <summary class="e2e-summary">🧪 生成诊断（第10波）</summary>
+              <div class="e2e-details-body">
+                <p class="info-text">
+                  面板: {{ diagnostics.panelMetrics.length }}
+                  | 总耗时: {{ Math.round(diagnostics.totalPanelDurationMs / 1000 * 10) / 10 }}s
+                  | 最慢: {{ slowestPanelMetric?.panelName || '-' }} ({{ slowestPanelMetric?.durationMs || 0 }}ms)
+                </p>
+                <p class="info-text">
+                  自动修复: {{ diagnostics.sanitizeFixes }}
+                  | 问题: {{ diagnostics.issueCount }}
+                  | 警告: {{ diagnostics.warningCount }}
+                </p>
+                <div
+                  v-for="m in sortedPanelMetrics"
+                  :key="m.panelIndex"
+                  class="history-meta"
+                  style="display:flex;justify-content:space-between;"
+                >
+                  <span>#{{ m.panelIndex + 1 }} {{ m.panelName }}</span>
+                  <span>{{ m.durationMs }}ms · {{ m.outputLength }}字 · retry{{ m.retries }}</span>
+                </div>
+                <div v-if="diagnostics.sanitizeRuleHits.length > 0" class="quality-warnings">
+                  <div v-for="r in diagnostics.sanitizeRuleHits" :key="r.ruleId" class="quality-warn">🛠 {{ r.ruleId }} × {{ r.replacements }}</div>
+                </div>
+              </div>
+            </details>
           </div>
         </div>
       </aside>
@@ -297,7 +335,13 @@
             代码: {{ generatedCode.length.toLocaleString() }} 字符 |
             组件: {{ selectedComponents.length }} 个 |
             <template v-if="qualityReport">质量: <span :style="{ color: qualityReport.score >= 80 ? '#4ade80' : qualityReport.score >= 60 ? '#fbbf24' : '#f87171' }">{{ qualityReport.score }}/100</span> |</template>
+            内容: {{ contentRichness.score }}/100 |
             {{ generationTime ? `耗时: ${generationTime}s` : '' }}
+            <template v-if="diagnostics.panelMetrics.length">
+              | 诊断: {{ diagnostics.panelMetrics.length }}面板 / {{ avgPanelMs }}ms均耗
+              <template v-if="diagnostics.sanitizeFixes > 0"> / 修复{{ diagnostics.sanitizeFixes }}处</template>
+              | <button class="e2e-toolbar-btn" style="padding:2px 8px;font-size:0.65rem;" @click="handleDownloadDiagnostics">导出诊断</button>
+            </template>
           </span>
           <span v-else-if="isGenerating" class="status-generating">
             🌊 流式生成中... {{ generatedCode.length ? `(${generatedCode.length.toLocaleString()} 字符)` : '' }} | {{ generationTime }}s
@@ -341,7 +385,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onUnmounted } from 'vue'
+import { computed, ref, watch, nextTick, onUnmounted } from 'vue'
 import '@/api/ai/ai.config' // 自动配置 AI 服务
 import { aiService } from '@/api/ai'
 import type { TemplateComponentMapResult } from '@/api/ai'
@@ -384,6 +428,70 @@ const chatHistory = ref<ChatMessage[]>([])
 // 保存历史快照用于撤销（每次修改前的代码）
 const codeSnapshots = ref<string[]>([])
 
+interface PanelMetric {
+  panelName: string
+  panelIndex: number
+  outputLength: number
+  durationMs: number
+  retries: number
+}
+
+interface GenerationDiagnostics {
+  panelMetrics: PanelMetric[]
+  totalPanelDurationMs: number
+  sanitizeFixes: number
+  sanitizeRuleHits: Array<{ ruleId: string; replacements: number }>
+  qualityScore: number | null
+  qualityPassed: boolean | null
+  issueCount: number
+  warningCount: number
+}
+
+interface ContentRichness {
+  score: number
+  lines: number
+  chineseChars: number
+  panelCount: number
+  imageCount: number
+  unsplashCount: number
+  details: string[]
+}
+
+const diagnostics = ref<GenerationDiagnostics>({
+  panelMetrics: [],
+  totalPanelDurationMs: 0,
+  sanitizeFixes: 0,
+  sanitizeRuleHits: [],
+  qualityScore: null,
+  qualityPassed: null,
+  issueCount: 0,
+  warningCount: 0
+})
+
+const contentRichness = ref<ContentRichness>({
+  score: 0,
+  lines: 0,
+  chineseChars: 0,
+  panelCount: 0,
+  imageCount: 0,
+  unsplashCount: 0,
+  details: []
+})
+
+const sortedPanelMetrics = computed(() => {
+  return [...diagnostics.value.panelMetrics].sort((a, b) => a.panelIndex - b.panelIndex)
+})
+
+const slowestPanelMetric = computed(() => {
+  if (diagnostics.value.panelMetrics.length === 0) return null
+  return [...diagnostics.value.panelMetrics].sort((a, b) => b.durationMs - a.durationMs)[0]
+})
+
+const avgPanelMs = computed(() => {
+  if (diagnostics.value.panelMetrics.length === 0) return 0
+  return Math.round(diagnostics.value.totalPanelDurationMs / diagnostics.value.panelMetrics.length)
+})
+
 /** 从代码中提取紧凑摘要信息，注入历史消息中给 AI 参考 */
 function extractCodeSummary(code: string): string {
   const lines = code.split('\n').length
@@ -414,6 +522,70 @@ function buildModifyHistory(chats: ChatMessage[]): Array<{ role: 'user' | 'assis
     }
   }
   return result
+}
+
+function analyzeContentRichness(code: string): ContentRichness {
+  if (!code.trim()) {
+    return {
+      score: 0,
+      lines: 0,
+      chineseChars: 0,
+      panelCount: 0,
+      imageCount: 0,
+      unsplashCount: 0,
+      details: []
+    }
+  }
+
+  const lines = code.split('\n').length
+  const chineseChars = (code.match(/[\u4e00-\u9fff]/g) || []).length
+  const panelCount = (code.match(/id\s*=\s*["']panel-\d+["']/gi) || []).length
+  const imageCount = (code.match(/<img\b/gi) || []).length
+  const unsplashCount = (code.match(/images\.unsplash\.com/gi) || []).length
+
+  let score = 0
+  const details: string[] = []
+
+  if (lines >= 650) score += 20
+  else if (lines >= 450) score += 14
+  else score += 8
+
+  if (chineseChars >= 650) score += 25
+  else if (chineseChars >= 450) score += 18
+  else score += 10
+
+  if (panelCount >= 8) score += 20
+  else if (panelCount >= 6) score += 14
+  else score += 8
+
+  if (imageCount >= 6) score += 20
+  else if (imageCount >= 4) score += 14
+  else if (imageCount >= 2) score += 8
+  else score += 2
+
+  if (unsplashCount >= 4) score += 15
+  else if (unsplashCount >= 2) score += 10
+  else if (unsplashCount >= 1) score += 6
+  else score += 2
+
+  if (imageCount < 4) details.push(`图片偏少（${imageCount}）`)
+  if (chineseChars < 450) details.push(`文案偏少（${chineseChars}字）`)
+  if (panelCount < 6) details.push(`面板偏少（${panelCount}）`)
+  if (unsplashCount < 2) details.push(`实景图偏少（Unsplash ${unsplashCount}）`)
+
+  return {
+    score: Math.min(100, score),
+    lines,
+    chineseChars,
+    panelCount,
+    imageCount,
+    unsplashCount,
+    details
+  }
+}
+
+function refreshContentRichness(code: string) {
+  contentRichness.value = analyzeContentRichness(code)
 }
 
 // ====== 生成结果 ======
@@ -515,9 +687,20 @@ async function handleGenerate() {
 
   isGenerating.value = true
   generatedCode.value = ''
+  refreshContentRichness('')
   selectedComponents.value = []
   aiReasoning.value = ''
   qualityReport.value = null
+  diagnostics.value = {
+    panelMetrics: [],
+    totalPanelDurationMs: 0,
+    sanitizeFixes: 0,
+    sanitizeRuleHits: [],
+    qualityScore: null,
+    qualityPassed: null,
+    issueCount: 0,
+    warningCount: 0
+  }
   clearPreview()
   activeTab.value = 'preview'
 
@@ -566,11 +749,43 @@ async function handleGenerate() {
             setCode(streamedCode)
           }
         }
+        if (chunk.type === 'telemetry' && chunk.data) {
+          if (chunk.data.kind === 'panel-metric') {
+            const metric: PanelMetric = {
+              panelName: chunk.data.panelName || `Panel-${chunk.data.panelIndex ?? 0}`,
+              panelIndex: Number(chunk.data.panelIndex || 0),
+              outputLength: Number(chunk.data.outputLength || 0),
+              durationMs: Number(chunk.data.durationMs || 0),
+              retries: Number(chunk.data.retries || 0)
+            }
+            const existingIndex = diagnostics.value.panelMetrics.findIndex((m) => m.panelIndex === metric.panelIndex)
+            if (existingIndex >= 0) {
+              diagnostics.value.panelMetrics[existingIndex] = metric
+            } else {
+              diagnostics.value.panelMetrics.push(metric)
+            }
+            diagnostics.value.totalPanelDurationMs = diagnostics.value.panelMetrics.reduce((sum, m) => sum + m.durationMs, 0)
+          }
+          if (chunk.data.kind === 'validation') {
+            diagnostics.value.sanitizeFixes = Number(chunk.data.sanitizeFixes || 0)
+            diagnostics.value.sanitizeRuleHits = Array.isArray(chunk.data.sanitizeRules)
+              ? chunk.data.sanitizeRules.map((r: any) => ({
+                  ruleId: String(r.ruleId || 'unknown'),
+                  replacements: Number(r.replacements || 0)
+                }))
+              : []
+            diagnostics.value.qualityScore = typeof chunk.data.score === 'number' ? chunk.data.score : null
+            diagnostics.value.qualityPassed = typeof chunk.data.passed === 'boolean' ? chunk.data.passed : null
+            diagnostics.value.issueCount = Number(chunk.data.issueCount || 0)
+            diagnostics.value.warningCount = Number(chunk.data.warningCount || 0)
+          }
+        }
       }
     )
 
     // 最终赋值
     generatedCode.value = result.html || result.files?.[0]?.content || ''
+    refreshContentRichness(generatedCode.value)
     selectedComponents.value = result.selectedComponents || selectedComponents.value
     aiReasoning.value = result.reasoning || aiReasoning.value
 
@@ -602,6 +817,21 @@ async function handleGenerate() {
     if (generationTimer) clearInterval(generationTimer)
     generationTime.value = Math.round((Date.now() - startTime) / 1000)
   }
+}
+
+function handleDownloadDiagnostics() {
+  const payload = {
+    generatedAt: new Date().toISOString(),
+    qualityReport: qualityReport.value,
+    diagnostics: diagnostics.value
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `e2e-diagnostics-${Date.now()}.json`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 // ====== AI 对话修改（流式 + 代码上下文） ======
@@ -668,6 +898,7 @@ async function handleModify() {
     // 最终代码赋值 + 预览
     if (result.html) {
       generatedCode.value = result.html
+      refreshContentRichness(result.html)
       await nextTick()
       setCode(result.html)
     }
@@ -694,6 +925,7 @@ function undoLastModify() {
 
   const prevCode = codeSnapshots.value.pop()!
   generatedCode.value = prevCode
+  refreshContentRichness(prevCode)
   nextTick(() => setCode(prevCode))
 
   // 移除最后两条对话（用户指令 + AI 回复）
@@ -735,6 +967,7 @@ async function handleCopyCode() {
 // ====== 历史加载 ======
 function loadHistory(item: HistoryItem) {
   generatedCode.value = item.code
+  refreshContentRichness(item.code)
   selectedComponents.value = item.components
   aiReasoning.value = item.reasoning
   description.value = item.description
