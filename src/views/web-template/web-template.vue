@@ -310,7 +310,7 @@ onUnmounted(() => {
               <svg class="ss-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15">
                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
               </svg>
-              <input ref="searchInputRef" v-model="searchQuery" class="ss-input" type="text" placeholder="搜索 131 个模板..." />
+              <input ref="searchInputRef" v-model="searchQuery" class="ss-input" type="text" :placeholder="`搜索 ${templates.length} 个模板...`" />
               <button v-if="searchQuery" class="ss-clear" @click="searchQuery = ''; searchInputRef?.focus()">Esc</button>
             </div>
 
