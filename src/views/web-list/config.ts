@@ -8,10 +8,64 @@ export const componentsList = [
   // 'CardImageCosmicDrift',
   /* 'CardImageFilmStrip',
   'CardImage3DAlbum',*/
-  'Card3dConstellationMap', 'Card3dStarArchive','CardTextThunder',
-  'CardImage3DAlbum', 'CardImage3DHelix', 'CardImageCorridor3D', 'CardImageCosmicDrift', 'CardImageDeepSea', 'CardImageFilmStrip', 'CardImageHoverReveal',
-  'scroll-accordion-depth', 'scroll-domino-chain', 'scroll-radar-sweep', 'scroll-ripple-grid', 'scroll-shutter-roll', 'scroll-typewriter-cascade',
-  'CardTextDreamscape', 'CardTextEcho', 'CardTextFractal', 'CardTextMatrix', 'CardTextMeltdown', 'CardTextMirage', 'CardTextPlasma', 'CardTextRippleWave', 'CardTextSandstorm',
+  'CardImageConstellationMap',
+  'CardImageElasticBounce',
+  'CardImageKineticMobile',
+  'CardImageMagneticFloat',
+  'CardImageMosaicCascade',
+  'CardImageOrigamiUnfold',
+  'CardImagePrismSpectrum',
+  'CardImageRainWindow',
+  'CardImageTheaterCurtain',
+  'CardImageCircleGallery',
+  'CardImageGalleryWall',
+  'CardImageSpiralTower',
+  'CardImageStaircase',
+  'CardImageTunnelPassage',
+  'CardImageWaveGallery',
+  'CardImage3DGalleryFloor',
+  'CardImage3DMask',
+  'CardImage3DOrbit',
+  'CardImageDroneSweep',
+  'CardImageFireflySwarm',
+  'CardImageFlipBook',
+  'CardImageGravityCollapse',
+  'CardImageLightTrail',
+  'CardImageLiquidMorph',
+  'CardImagePolaroidScatter',
+  'CardImageQuantumLeap',
+  'CardImageShadowGallery',
+  'CardImageSolarFlare',
+  'CardImageSparkStorm',
+  'CardImageVerticalInfiniteZoom',
+  'CardImageVinylRecord',
+  'CardImageWhipCrash',
+  'CardImageZoomBurst',
+  'Card3dConstellationMap',
+  'Card3dStarArchive',
+  'CardTextThunder',
+  'CardImage3DAlbum',
+  'CardImage3DHelix',
+  'CardImageCorridor3D',
+  'CardImageCosmicDrift',
+  'CardImageDeepSea',
+  'CardImageFilmStrip',
+  'CardImageHoverReveal',
+  'scroll-accordion-depth',
+  'scroll-domino-chain',
+  'scroll-radar-sweep',
+  'scroll-ripple-grid',
+  'scroll-shutter-roll',
+  'scroll-typewriter-cascade',
+  'CardTextDreamscape',
+  'CardTextEcho',
+  'CardTextFractal',
+  'CardTextMatrix',
+  'CardTextMeltdown',
+  'CardTextMirage',
+  'CardTextPlasma',
+  'CardTextRippleWave',
+  'CardTextSandstorm',
   'CardImageCrossfadeMosaic',
   'CardImageGridDissolve',
   'CardImageHolographicPrism',
@@ -414,9 +468,6 @@ export const componentsList = [
   'CardWave'
 ]
 
-
-
-
 // 已选择组件的模块位置
 interface ComponentSelectInfo {
   dirName: string
@@ -429,7 +480,6 @@ interface ComponentSelectInfo {
   readme?: string | null // README内容
 }
 
-
 // ==================== 企业信息功能（从 web-ai 迁移） ====================
 interface EnterpriseInfo {
   name: string
@@ -441,16 +491,11 @@ interface EnterpriseInfo {
   designPhilosophy: string
 }
 
-
-
 /** 空行 */
 const blank = () => ''
 
-
-
 /** 分隔线生成 */
 const sep = (char: string, len: number = 80) => char.repeat(len)
-
 
 /** Vue → React 转换规则 */
 const vueToReactRules = [
@@ -464,8 +509,6 @@ const vueToReactRules = [
     react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}'
   }
 ]
-
-
 
 /** 技术要求清单 - 带序号 */
 const techRequirements = [
@@ -505,7 +548,6 @@ const techRequirements = [
   }
 ]
 
-
 /** 企业信息字段配置 */
 const enterpriseInfoFields = [
   { key: 'name', label: '企业名称' },
@@ -525,15 +567,12 @@ const mainColorConstraints = [
   '渐变色使用 `tint()` 或 `shade()` 派生辅助色'
 ]
 
-
-
 /** 设计理念约束 */
 const designConstraints = [
   '排版间距、圆角大小、阴影强度需统一',
   '动画曲线(ease)选择应匹配设计调性',
   '图片风格、图标粗细保持一致'
 ]
-
 
 /** 代码要求清单 */
 const codeRequirements = [
@@ -563,7 +602,6 @@ const outputFiles = [
 // ============================================================
 // 构建复制内容 - 辅助函数
 // ============================================================
-
 
 /**
  * 分析组件源码中的 ScrollTrigger 模式
@@ -762,7 +800,6 @@ function extractPropsInfo(sourceCode: string): string | null {
   return null
 }
 
-
 /**
  * 构建复制内容 - 供 meoo AI 使用的完整信息
  */
@@ -773,7 +810,7 @@ export const buildCopyContentStr = (
   selectedTemplateKey,
   selectedTemplateInfo,
   templateRawModules
-                                    ): string => {
+): string => {
   if (selectedComponents.value.length === 0) {
     return ''
   }
@@ -917,10 +954,7 @@ export const buildCopyContentStr = (
   // ===== 模板选择（多选） =====
   const selectedTemplates = selectedTemplateInfo.value || []
   if (selectedTemplates.length > 0) {
-    lines.push(
-      '🎭 所选模板（布局/滚动框架，共' + selectedTemplates.length + '个）',
-      sep('-'),
-    )
+    lines.push('🎭 所选模板（布局/滚动框架，共' + selectedTemplates.length + '个）', sep('-'))
 
     selectedTemplates.forEach((template, idx) => {
       const templateSrcPath = `../web-template/template/${template.key}/${template.key}.vue`
@@ -1772,29 +1806,3 @@ export const buildCopyContentStr = (
 
   return lines.join('\n')
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
