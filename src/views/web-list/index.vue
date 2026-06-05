@@ -1392,13 +1392,13 @@ const cardComponents = computed(() => {
     })
     .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
-/*  console.log(imageComponents.map((item) => item.dirName))
+  console.log(imageComponents.map((item) => item.dirName))
   console.log(imgComponents.map((item) => item.dirName))
   console.log(textComponents.map((item) => item.dirName))
   console.log(d3dComponents.map((item) => item.dirName))
   console.log(timeComponents.map((item) => item.dirName))
   console.log(listComponents.map((item) => item.dirName))
-  console.log(otherComponents.map((item) => item.dirName))*/
+  console.log(otherComponents.map((item) => item.dirName))
   // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后，card-other 最后
   return [
     ...imageComponents,

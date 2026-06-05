@@ -1,13 +1,17 @@
-export const componentsList = []
+// export const componentsList = []
 
-/*export const componentsList = [
+export const componentsList = [
   // 'CardImageCorridor3D',
   // 'CardImage3DHelix',
   // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
   // 'CardImageCosmicDrift',
-  /!* 'CardImageFilmStrip',
-  'CardImage3DAlbum',*!/
+  /* 'CardImageFilmStrip',
+  'CardImage3DAlbum',*/
+  'Card3dConstellationMap', 'Card3dStarArchive','CardTextThunder',
+  'CardImage3DAlbum', 'CardImage3DHelix', 'CardImageCorridor3D', 'CardImageCosmicDrift', 'CardImageDeepSea', 'CardImageFilmStrip', 'CardImageHoverReveal',
+  'scroll-accordion-depth', 'scroll-domino-chain', 'scroll-radar-sweep', 'scroll-ripple-grid', 'scroll-shutter-roll', 'scroll-typewriter-cascade',
+  'CardTextDreamscape', 'CardTextEcho', 'CardTextFractal', 'CardTextMatrix', 'CardTextMeltdown', 'CardTextMirage', 'CardTextPlasma', 'CardTextRippleWave', 'CardTextSandstorm',
   'CardImageCrossfadeMosaic',
   'CardImageGridDissolve',
   'CardImageHolographicPrism',
@@ -342,8 +346,8 @@ export const componentsList = []
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /!*'Card3DFlipGallery',
-  'CardAbstractGeometry',*!/
+  /*'Card3DFlipGallery',
+  'CardAbstractGeometry',*/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -408,7 +412,7 @@ export const componentsList = []
   'CardVoid',
   'CardVortex',
   'CardWave'
-]*/
+]
 
 
 
