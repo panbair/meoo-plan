@@ -1,13 +1,13 @@
-// export const componentsList = []
+export const componentsList = []
 
-export const componentsList = [
+/*export const componentsList = [
   // 'CardImageCorridor3D',
   // 'CardImage3DHelix',
   // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
   // 'CardImageCosmicDrift',
-  /* 'CardImageFilmStrip',
-  'CardImage3DAlbum',*/
+  /!* 'CardImageFilmStrip',
+  'CardImage3DAlbum',*!/
   'CardImage3DAlgorithmic',
   'CardImage3DAnchor',
   'CardImage3DDepthStack',
@@ -510,8 +510,8 @@ export const componentsList = [
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /*'Card3DFlipGallery',
-  'CardAbstractGeometry',*/
+  /!*'Card3DFlipGallery',
+  'CardAbstractGeometry',*!/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -576,7 +576,7 @@ export const componentsList = [
   'CardVoid',
   'CardVortex',
   'CardWave'
-]
+]*/
 
 // 已选择组件的模块位置
 interface ComponentSelectInfo {

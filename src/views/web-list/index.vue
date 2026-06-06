@@ -60,6 +60,38 @@ const VISIBLE_BUFFER = 2 // 视口下方预加载数量
 // ==================== 懒加载模式 ====================
 const LAZY_MODE = true // 设为 false 可关闭懒加载
 
+// ==================== 分页加载配置 ====================
+const PAGE_SIZE = 5 // 每页加载组件数
+const currentPage = ref(1) // 当前页码
+const isLoadingMore = ref(false) // 加载更多中
+const hasMoreComponents = computed(() => currentPage.value * PAGE_SIZE < filteredComponents.value.length)
+
+// 当前显示的组件列表（分页切片）
+const paginatedComponents = computed(() => {
+  return filteredComponents.value.slice(0, currentPage.value * PAGE_SIZE)
+})
+
+// 加载更多
+const loadMore = () => {
+  if (isLoadingMore.value || !hasMoreComponents.value) return
+  isLoadingMore.value = true
+  // 短暂延迟让加载动画可见，同时给浏览器喘息时间
+  setTimeout(() => {
+    currentPage.value++
+    isLoadingMore.value = false
+    // 等待DOM更新后初始化新组件的Observer
+    nextTick(() => {
+      observeNewPages()
+    })
+  }, 300)
+}
+
+// 重置分页（分类切换时调用）
+const resetPagination = () => {
+  currentPage.value = 1
+  isLoadingMore.value = false
+}
+
 // ==================== 分类筛选 ====================
 // 当前选中的分类（默认全部）
 const activeCategory = ref('all')
@@ -180,81 +212,39 @@ let categorySwitchTimer: ReturnType<typeof setTimeout> | null = null
 
 // 监听分类变化，滚动到顶部并清理动画
 watch(activeCategory, () => {
-  // 防止重复切换
-  if (isCategorySwitching) {
-    return
-  }
+  if (isCategorySwitching) return
   isCategorySwitching = true
 
-  // 先清理所有组件动画，避免内存泄漏
+  // 清理所有组件动画
   cleanupAllAnimations()
 
-  // 清空可见卡片集合，触发旧组件 v-if 卸载
+  // 清空可见卡片 + 页面引用
   visibleCards.value.clear()
-
-  // 清空页面引用
   pageRefs.value.clear()
 
-  // 断开旧的 observer
-  if (observer) {
-    observer.disconnect()
-    observer = null
-  }
+  // 断开旧 observer
+  if (observer) { observer.disconnect(); observer = null }
 
-  // 临时移除滚动监听，避免切换过程中触发多余计算
-  window.removeEventListener('scroll', handleScroll)
+  // 重置分页
+  resetPagination()
 
-  // 立即强制滚动到顶部（同步方式，兼容性最好）
+  // 强制滚回顶部
   document.documentElement.scrollTop = 0
-  document.body.scrollTop = 0
   window.scrollTo(0, 0)
 
-  // 使用 nextTick 确保旧组件 DOM 清理完成
   nextTick(() => {
-    // 再次滚动到顶部，防止新 DOM 渲染后位置偏移
     document.documentElement.scrollTop = 0
-    document.body.scrollTop = 0
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
 
-    // 延迟初始化，给浏览器时间完成 GC 和重排
     setTimeout(() => {
-      // 重新初始化 Intersection Observer
-      initIntersectionObserver()
-
-      // 分批预加载首屏组件，避免一次性挂载过多导致卡顿
-      const batchLoad = (startIndex: number, count: number) => {
-        for (
-          let i = startIndex;
-          i < Math.min(startIndex + count, filteredComponents.value.length);
-          i++
-        ) {
-          visibleCards.value.add(i)
-        }
-        // 每批加载后重新强制滚回顶部，防止新组件挂载导致页面下移
-        requestAnimationFrame(() => {
-          document.documentElement.scrollTop = 0
-          document.body.scrollTop = 0
-        })
-        // 下一批
-        const nextIndex = startIndex + count
-        if (nextIndex < filteredComponents.value.length && nextIndex < 8) {
-          categorySwitchTimer = setTimeout(() => batchLoad(nextIndex, count), 150)
-        }
+      // 简化：只加载首屏 PAGE_SIZE 个
+      for (let i = 0; i < Math.min(PAGE_SIZE, filteredComponents.value.length); i++) {
+        visibleCards.value.add(i)
       }
-
-      // 首屏先加载 2 个，然后每 150ms 加载 2 个，共预加载 8 个
-      setTimeout(() => {
-        batchLoad(0, 2)
-      }, 50)
-
-      // 恢复滚动监听
-      window.addEventListener('scroll', handleScroll, { passive: true })
-
-      // 解除切换锁
-      setTimeout(() => {
-        isCategorySwitching = false
-      }, 800)
-    }, 150)
+      // 初始化新 Observer
+      initIntersectionObserver()
+      isCategorySwitching = false
+    }, 200)
   })
 })
 
@@ -890,9 +880,6 @@ onMounted(async () => {
   // 初始化 Intersection Observer
   initIntersectionObserver()
 
-  // 监听滚动事件
-  window.addEventListener('scroll', handleScroll, { passive: true })
-
   // 先显示页面，延迟加载源码
   setTimeout(() => {
     isLoading.value = false
@@ -930,15 +917,6 @@ onUnmounted(() => {
   if (gsapContext) {
     gsapContext.revert()
     gsapContext = null
-  }
-
-  // 移除滚动监听
-  window.removeEventListener('scroll', handleScroll)
-
-  // 取消 rAF
-  if (handleScrollRafId !== null) {
-    cancelAnimationFrame(handleScrollRafId)
-    handleScrollRafId = null
   }
 
   // 清除分类切换定时器
@@ -1445,125 +1423,44 @@ const setPageRef = (el: Element | ComponentPublicInstance | null, index: number)
   }
 }
 
-// ==================== Intersection Observer ====================
+// ==================== Intersection Observer (轻量化) ====================
 const initIntersectionObserver = () => {
   if (!LAZY_MODE) {
-    // 非懒加载模式：预加载前 N 个
-    filteredComponents.value.forEach((_, index) => {
-      if (index < PRELOAD_COUNT) {
-        visibleCards.value.add(index)
-      }
-    })
+    paginatedComponents.value.forEach((_, i) => visibleCards.value.add(i))
     return
   }
 
-  // 节流控制：避免 Observer 回调一次性触发过多组件挂载
-  const observerPendingIndices = new Set<number>()
-  let observerRafId: number | null = null
+  if (observer) { observer.disconnect(); observer = null }
 
-  // 先创建 observer 实例（避免 setTimeout 中 observer 为 null）
   observer = new IntersectionObserver(
     (entries) => {
-      if (!visibleCards.value || isCategorySwitching) {
-        return
-      }
-
+      if (!visibleCards.value || isCategorySwitching) return
       entries.forEach((entry) => {
         const index = parseInt((entry.target as HTMLElement).dataset.index || '0')
-
         if (entry.isIntersecting) {
-          // 收集需要加载的索引
-          observerPendingIndices.add(index)
-          for (let i = 1; i <= VISIBLE_BUFFER; i++) {
-            const nextIndex = index + i
-            if (nextIndex < filteredComponents.value.length) {
-              observerPendingIndices.add(nextIndex)
-            }
-          }
-        } else {
-          // 离开视口较远时卸载（节省内存）
-          const viewportHeight = window.innerHeight
-          const rect = entry.boundingClientRect
-          if (rect.top < -viewportHeight * 2 || rect.top > viewportHeight * 3) {
-            visibleCards.value.delete(index)
-          }
+          visibleCards.value.add(index)
         }
       })
-
-      // 使用 rAF 批量写入，避免短时间内大量组件挂载
-      if (observerRafId === null && observerPendingIndices.size > 0) {
-        observerRafId = requestAnimationFrame(() => {
-          observerPendingIndices.forEach((idx) => {
-            visibleCards.value?.add(idx)
-          })
-          observerPendingIndices.clear()
-          observerRafId = null
-        })
-      }
     },
-    {
-      root: null,
-      rootMargin: '0px 0px -20% 0px', // 视口下方 20% 开始加载
-      threshold: 0
-    }
+    { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0 }
   )
 
-  // 等待 DOM 渲染后再 observe 元素
+  observeNewPages()
+}
+
+// 观察新加载的页面元素
+const observeNewPages = () => {
+  if (!observer) return
   setTimeout(() => {
-    // 重新从 DOM 中获取所有页面元素
     const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
     pageEls.forEach((el, index) => {
       el.setAttribute('data-index', String(index))
-      if (observer) {
-        observer.observe(el)
-      }
+      observer?.observe(el)
     })
-
-    // 触发初始可见性检查
-    handleScroll()
-  }, 50)
+  }, 100)
 }
 
-// ==================== 滚动监听（备用 + 节流） ====================
-let handleScrollRafId: number | null = null
-
-const handleScroll = () => {
-  // 如果正在分类切换中，跳过
-  if (isCategorySwitching) {
-    return
-  }
-
-  if (!LAZY_MODE) {
-    return
-  }
-
-  // 使用 rAF 节流，避免每帧触发多次 querySelectorAll
-  if (handleScrollRafId !== null) {
-    return
-  }
-
-  handleScrollRafId = requestAnimationFrame(() => {
-    handleScrollRafId = null
-
-    const viewportHeight = window.innerHeight
-    const scrollTop = window.scrollY
-
-    // 直接从 DOM 获取所有卡片页面元素
-    const pageEls = document.querySelectorAll('.page:not(.page1):not(.page-footer)')
-    pageEls.forEach((el, index) => {
-      const rect = el.getBoundingClientRect()
-      const pageTop = rect.top + scrollTop
-
-      // 在视口范围内或预加载范围内
-      const inView = rect.top < viewportHeight && rect.bottom > 0
-      const inPreload = pageTop < scrollTop + viewportHeight * (1 + PRELOAD_COUNT * 0.5)
-
-      if (inView || inPreload) {
-        visibleCards.value.add(index)
-      }
-    })
-  })
-}
+// 滚动监听已由 IntersectionObserver 接管，无需额外 scroll handler
 
 // ==================== 气泡粒子系统 ====================
 const createExtraBubbles = () => {
@@ -2092,7 +1989,7 @@ const buildCopyContent =()=>{
     </div>
 
     <div
-      v-for="(cardInfo, index) in filteredComponents"
+      v-for="(cardInfo, index) in paginatedComponents"
       :key="cardInfo.dirName"
       :ref="(el) => setPageRef(el, index)"
       :class="['page', `page-card-${index + 1}`]"
@@ -2153,6 +2050,22 @@ const buildCopyContent =()=>{
           📦
         </button>
       </div>
+    </div>
+
+    <!-- 🔑 加载更多按钮 -->
+    <div v-if="hasMoreComponents" class="load-more-container">
+      <button
+        class="load-more-btn"
+        :class="{ loading: isLoadingMore }"
+        :disabled="isLoadingMore"
+        @click="loadMore"
+      >
+        <span v-if="isLoadingMore" class="load-more-spinner"></span>
+        <span v-else>↓ 加载更多</span>
+        <span class="load-more-count">
+          ({{ currentPage * PAGE_SIZE }}/{{ filteredComponents.length }})
+        </span>
+      </button>
     </div>
 
     <div class="page page-footer">
@@ -4134,6 +4047,75 @@ const buildCopyContent =()=>{
 
 .page-card-5 {
   background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+/* ═══════════════ 🔑 加载更多按钮 ═══════════════ */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0 20px;
+  z-index: 30;
+  position: relative;
+  // 与页面深色背景融合
+  background: transparent;
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 40px;
+  border-radius: 50px;
+  // 🔑 与 category-tabs 主题一致
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  color: rgba(200, 210, 230, 0.85);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  &:hover:not(:disabled) {
+    background: rgba(20, 30, 50, 0.9);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(100, 150, 220, 0.1);
+    color: rgba(220, 235, 255, 0.95);
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    transition: transform 0.1s ease;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.load-more-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(180, 200, 230, 0.7);
+  border-radius: 50%;
+  animation: loadMoreSpin 0.6s linear infinite;
+}
+
+@keyframes loadMoreSpin {
+  to { transform: rotate(360deg); }
+}
+
+.load-more-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(180, 195, 220, 0.45);
+  font-family: 'Courier New', monospace;
 }
 
 .page-footer {
