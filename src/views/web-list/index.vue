@@ -1157,6 +1157,7 @@ const showReferenceExample = ref(false)
 const categories = [
   { key: 'all', label: '全部' },
   { key: 'card-image', label: '图片' },
+  { key: 'card-video', label: '视频' },
   { key: 'card-img', label: '图像' },
   { key: 'card-text', label: '文字' },
   { key: 'card-3d', label: '3D' },
@@ -1186,6 +1187,8 @@ const modules3d = import.meta.glob('./card-3d/*/[^/]*.vue')
 const modulesImg = import.meta.glob('./card-img/*/[^/]*.vue')
 // card-image 目录组件
 const modulesImage = import.meta.glob('./card-image/*/[^/]*.vue')
+// card-video 目录组件
+const modulesVideo = import.meta.glob('./card-video/*/[^/]*.vue')
 // card-text 目录组件
 const modulesText = import.meta.glob('./card-text/*/[^/]*.vue')
 // card-other 目录组件
@@ -1346,6 +1349,30 @@ const cardComponents = computed(() => {
     })
     .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
+  // 处理 card-video 目录组件
+  const videoComponents = Object.entries(modulesVideo)
+    .map(([path, module]) => {
+      const match = path.match(/\/card-video\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/Video/g, ' Video')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
+
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-video'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+
   // 处理 card-other 目录组件
   const otherComponents = Object.entries(modulesOther)
     .map(([path, module]) => {
@@ -1377,9 +1404,11 @@ const cardComponents = computed(() => {
   console.log(timeComponents.map((item) => item.dirName))
   console.log(listComponents.map((item) => item.dirName))
   console.log(otherComponents.map((item) => item.dirName))
-  // 合并数组：card-image 组件在最前，card-img 其次，card-3d 再次，card-time 再次，card-list 最后，card-other 最后
+  console.log(videoComponents.map((item) => item.dirName))
+  // 合并数组：card-image > card-video > card-img > card-text > card-3d > card-time > card-list > card-other
   return [
     ...imageComponents,
+    ...videoComponents,
     ...imgComponents,
     ...textComponents,
     ...d3dComponents,

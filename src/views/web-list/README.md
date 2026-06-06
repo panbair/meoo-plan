@@ -3,9 +3,9 @@
 
 #  深入分析需求，发挥你的创造力和想象力，开发出酷炫的图片组件，震撼图片组件，具有强烈视觉冲击力的图片组件。
 
-# 在这个文件（meoo-plan/src/views/web-list/card-image）里面开发图片组件，酷炫的图片组件，震撼图片组件
+# 在这个文件（meoo-plan/src/views/web-list/card-video）里面开发图片组件，酷炫的图片组件，震撼图片组件
 
-# 开发前，重点检查这个文件（meoo-plan/src/views/web-list/card-image）里面的组件，不要创建重复了，不能覆盖已经有的组件。
+# 开发前，重点检查这个文件（meoo-plan/src/views/web-list/card-video）里面的组件，不要创建重复了，不能覆盖已经有的组件。
 
 ## 代码严格符合vue3组件开源规范
 
@@ -13,8 +13,7 @@
 # gsap获取元素要用vue3的方式，如果直接用classname,有重复classname可能会造成冲突， 比如：tl.fromTo('.header-badge'）,tl.to('.header-badge'）等，都是不行的
 
 
-#  图片地址到这里取：https://images.unsplash.com
-## 比如：https://images.unsplash.com/photo-1498579150354-977475b7ea0b?w=1920&q=80
+#  视频地址到这里取：public/video/1.mp4
 
 ## 组件宽高都是:
 height: 100vh;
@@ -38,9 +37,9 @@ width: 100vw;
 ### 文件结构
 
 ```
-card-image/
-└── CardImageXxxx/
-    └── CardImageXxxx.vue          # 组件源码
+card-video/
+└── CardVideoXxxx/
+    └── CardVideoXxxx.vue          # 组件源码
     └── README.md            # 本文档
 ```
 
@@ -50,8 +49,7 @@ card-image/
 ### 每张卡片滚动控制动画ScrollTrigger一定要用
 
 
-# 动画效果：图片在动
-用户竖滚，图片视觉差效果
+# 动画效果：参考苹果挂网
 
 
 
