@@ -15,8 +15,6 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import NProgress from 'nprogress'
 import { buildCopyContentStr, componentsList } from '@/views/web-list/config.ts'
-import { useComponentSearch } from '@/composables/useComponentSearch'
-import type { SearchResult } from '@/api/ai/component-search'
 import { templates as templateList } from '@/views/web-template/template/registry'
 import AIPlanPanel from './components/AIPlanPanel.vue'
 
@@ -97,31 +95,12 @@ const resetPagination = () => {
 // 当前选中的分类（默认全部）
 const activeCategory = ref('all')
 
-// ==================== V2.0 语义搜索 (方案四) ====================
-const {
-  query: searchQuery,
-  results: searchResults,
-  isSearching,
-  searchMode,
-  hasResults: hasSearchResults,
-  topResults,
-  searchImmediate,
-  clear: clearSearch
-} = useComponentSearch()
+// ==================== 本地搜索 ====================
+const searchQuery = ref('')
+function clearSearch() { searchQuery.value = '' }
 
-/** 搜索是否激活（有查询词且有结果时） */
-const isSearchActive = computed(() => searchQuery.value.trim().length >= 2 && hasSearchResults.value)
-/** 搜索命中的组件名集合 */
-const searchMatchedNames = computed(() => new Set(searchResults.value.map(r => r.name)))
 /** 搜索下拉显示 */
 const showSearchDropdown = ref(false)
-
-/** 搜索结果分数样式 */
-const getScoreClass = (score: number) => {
-  if (score >= 90) return 'score-high'
-  if (score >= 70) return 'score-mid'
-  return 'score-low'
-}
 
 /** 获取类别中文标签 */
 const getCategoryLabel = (cat: string) => {
@@ -1448,12 +1427,32 @@ const filteredComponents = computed(() => {
     list = cardComponents.value.filter((comp) => comp.type === activeCategory.value)
   }
 
-  // 如果语义搜索激活：只显示搜索结果中的组件
-  if (isSearchActive.value) {
-    return list.filter(comp => searchMatchedNames.value.has(comp.dirName))
+  // 本地搜索过滤
+  const query = searchQuery.value.trim().toLowerCase()
+  if (query.length >= 1) {
+    return list.filter(comp =>
+      comp.name.toLowerCase().includes(query) ||
+      comp.dirName.toLowerCase().includes(query) ||
+      comp.type.toLowerCase().includes(query) ||
+      comp.path.toLowerCase().includes(query)
+    )
   }
 
   return list
+})
+
+// 搜索时重置分页并预加载首屏
+watch(searchQuery, () => {
+  currentPage.value = 1
+  visibleCards.value.clear()
+  // 预填充首屏可见卡片，避免 Observer 的鸡生蛋问题
+  nextTick(() => {
+    const count = Math.min(PAGE_SIZE, filteredComponents.value.length)
+    for (let i = 0; i < count; i++) {
+      visibleCards.value.add(i)
+    }
+    observeNewPages()
+  })
 })
 
 // ==================== 模板引用 ====================
@@ -1827,53 +1826,22 @@ const buildCopyContent =()=>{
   </Teleport>
 
   <div class="web-list">
-    <!-- V2.0 语义搜索框 (方案四) -->
-    <div class="search-bar" :class="{ active: isSearchActive }">
+    <!-- 本地搜索框 -->
+    <div class="search-bar" :class="{ active: searchQuery.length > 0 }">
       <div class="search-input-wrapper">
         <span class="search-icon">🔍</span>
         <input
           v-model="searchQuery"
           type="text"
           class="search-input"
-          placeholder="输入关键词搜索，如：霓虹、粒子、首屏..."
-          @input="searchImmediate(); showSearchDropdown = true"
-          @focus="showSearchDropdown = true"
-          @blur="showSearchDropdown = false"
-          @keydown.escape="clearSearch(); showSearchDropdown = false"
+          placeholder="搜索组件名称..."
         />
         <button
           v-if="searchQuery"
           class="search-clear-btn"
-          @click="clearSearch(); showSearchDropdown = false"
+          @click="clearSearch()"
           title="清除搜索"
         >✕</button>
-        <span v-if="isSearching" class="search-spinner"></span>
-      </div>
-
-      <!-- 搜索结果下拉面板 -->
-      <div v-if="showSearchDropdown && hasSearchResults" class="search-dropdown" @mousedown.prevent>
-        <!-- 结果列表 -->
-        <div class="search-results-list" v-if="topResults.length > 0">
-          <div class="results-header">
-            找到 {{ searchResults.length }} 个匹配组件
-          </div>
-          <button
-            v-for="result in topResults"
-            :key="result.name"
-            class="search-result-item"
-            @click="activeCategory = result.category; clearSearch(); showSearchDropdown = false; scrollToComponent(result.name)"
-          >
-            <span class="result-score" :class="getScoreClass(result.score)">
-              {{ result.score }}
-            </span>
-            <span class="result-name">{{ result.name }}</span>
-            <span class="result-category">{{ getCategoryLabel(result.category) }}</span>
-          </button>
-        </div>
-
-        <div v-else-if="!isSearching" class="search-empty">
-          没有找到匹配的组件，试试其他关键词吧
-        </div>
       </div>
     </div>
 
