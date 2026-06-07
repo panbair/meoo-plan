@@ -18,6 +18,7 @@ import { buildCopyContentStr, componentsList } from '@/views/web-list/config.ts'
 import { useComponentSearch } from '@/composables/useComponentSearch'
 import type { SearchResult } from '@/api/ai/component-search'
 import { templates as templateList } from '@/views/web-template/template/registry'
+import AIPlanPanel from './components/AIPlanPanel.vue'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -622,6 +623,12 @@ function toggleSelectionList() {
   selectionListCollapsed.value = !selectionListCollapsed.value
 }
 
+// 隐藏/显示整个选择面板
+const selectionPanelVisible = ref(true)
+function toggleSelectionPanel() {
+  selectionPanelVisible.value = !selectionPanelVisible.value
+}
+
 // ==================== 模板选择功能 ====================
 const TEMPLATE_STORAGE_KEY = 'web-list-selected-template'
 
@@ -1148,6 +1155,13 @@ const closeEnterpriseModal = () => {
 // 企业信息是否已填写
 const hasEnterpriseInfo = computed(() => {
   return enterpriseInfo.name.trim().length > 0
+})
+
+// 模板标签映射（供 AI 面板使用）
+const templateLabels = computed(() => {
+  const map: Record<string, string> = {}
+  templateList.forEach(t => { map[t.key] = t.label })
+  return map
 })
 
 // 参考示例展开状态
@@ -2103,7 +2117,7 @@ const buildCopyContent =()=>{
     </div>
 
     <!-- 已选组件预览面板 -->
-    <div v-if="selectedComponents.length > 0" class="selection-panel">
+    <div v-if="selectedComponents.length > 0 && selectionPanelVisible" class="selection-panel">
       <div class="selection-header">
         <div class="header-actions">
           <!-- 模板选择按钮 -->
@@ -2135,6 +2149,22 @@ const buildCopyContent =()=>{
             {{ copySuccess ? '✅ 已生成方案' : '📋 生成方案' }}
           </button>
         </div>
+        <!-- 关闭面板按钮 -->
+        <button class="selection-panel-close" @click="toggleSelectionPanel" title="关闭面板">
+          ✕
+        </button>
+        <!-- AI 方案面板（触发按钮 + 侧边栏） -->
+        <AIPlanPanel
+          :component-count="selectedComponents.length"
+          :template-count="selectedTemplateKey.length"
+          :has-enterprise="hasEnterpriseInfo"
+          :selected-components="selectedComponents"
+          :selected-template-keys="selectedTemplateKey"
+          :template-labels="templateLabels"
+          :enterprise-info="enterpriseInfo"
+          :module-positions="modulePositions"
+          :get-components-by-position="getComponentsByPosition"
+        />
       </div>
       <!-- 已选组件标题 -->
       <div class="selection-title">
@@ -2215,6 +2245,17 @@ const buildCopyContent =()=>{
         </div>
       </div>
     </div>
+
+    <!-- 面板关闭时的浮动恢复按钮 -->
+    <button
+      v-if="selectedComponents.length > 0 && !selectionPanelVisible"
+      class="selection-panel-float-btn"
+      @click="toggleSelectionPanel"
+      title="展开选择面板"
+    >
+      <span class="float-icon">📋</span>
+      <span class="float-badge">{{ selectedComponents.length }}</span>
+    </button>
 
     <!-- 模块选择器弹窗 -->
     <Teleport to="body">
@@ -4205,7 +4246,7 @@ const buildCopyContent =()=>{
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 455px;
+  width: 610px;
   //max-height: 60vh;
   background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
   backdrop-filter: blur(20px);
@@ -4236,6 +4277,97 @@ const buildCopyContent =()=>{
   .header-actions {
     display: flex;
     gap: 8px;
+    align-items: center;
+  }
+}
+
+// 关闭面板按钮
+.selection-panel-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+  line-height: 1;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+  }
+}
+
+// 面板关闭时的浮动恢复按钮
+.selection-panel-float-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(102, 126, 234, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 9997;
+  animation: float-btn-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  .float-icon {
+    font-size: 1.3rem;
+  }
+
+  .float-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &:hover {
+    transform: scale(1.12);
+    border-color: rgba(102, 126, 234, 0.6);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      0 0 30px rgba(102, 126, 234, 0.3);
+  }
+}
+
+@keyframes float-btn-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
