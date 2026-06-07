@@ -587,10 +587,17 @@ function downloadPlan() {
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.04);
   color: #e2e8f0;
+  color-scheme: dark;
   font-size: 0.78rem;
   outline: none;
+  cursor: pointer;
 
   &:focus { border-color: rgba(99,102,241,0.4); }
+
+  option {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
 }
 
 .gen-btn {
