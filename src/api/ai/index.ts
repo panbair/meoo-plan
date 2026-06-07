@@ -3025,6 +3025,139 @@ ${componentSummary}
     }
     return map[priority] || '平衡模式'
   }
+
+  // ==================== 组件编排方案生成 ====================
+
+  /** 编排方案生成请求 */
+  async generateOrchestrationPlan(request: {
+    selectedComponents: Array<{ name: string; category: string; complexity: string; summary: string }>
+    selectedTemplate: { key: string; label: string; panelCount: number; architecture: string } | null
+    panelMappings: Array<{ name: string; purpose: string; components: string[] }>
+    userNotes?: string
+  }): Promise<string> {
+    console.log('\n🎯 ========== 组件编排方案生成 ==========')
+    console.log('组件数量:', request.selectedComponents.length)
+    console.log('模板:', request.selectedTemplate?.label || '无')
+
+    const systemPrompt = `你是一位资深企业网站架构师和 GSAP 动画专家。
+
+## 你的任务
+基于用户手动挑选的 GSAP 动画组件和页面模板，生成一份详尽、可执行的企业网站制作方案。
+
+## 输出格式（Markdown）
+
+请严格按以下结构输出：
+
+# 🌐 企业网站制作方案
+
+## 📋 一、项目概览
+- 基于组件风格推断行业定位
+- 整体设计风格描述
+- 推荐技术栈
+- 项目定位与核心目标
+
+## 🎨 二、视觉设计系统
+- 配色方案（主色、辅色、背景、强调色，给出具体色值）
+- 字体层次（H1-H4, Body, Caption 的字号/字重/行高）
+- 间距系统（基于 8px 网格）
+- 图标风格建议
+
+## 🏗️ 三、页面结构设计
+- 基于模板的完整面板布局图（ASCII 图）
+- 每个面板的内容策略
+- 面板间的视觉叙事线
+
+## 📦 四、组件集成方案
+- 每个面板的组件配置（Props 数据模型、关键参数）
+- 组件间的数据流设计
+- 可复用工具函数建议
+
+## 🎬 五、动画编排计划
+- GSAP Timeline 完整时序图
+- 每个组件的 ScrollTrigger 配置（start/end/scrub/toggleActions）
+- 组件间动画协调策略（避免冲突）
+- Hero 入场动画方案
+
+## 📱 六、响应式适配策略
+- 移动端降级方案（哪些动画在移动端简化或禁用）
+- 断点设置：Mobile(<768px) / Tablet(768-1024px) / Desktop(>1024px)
+- 触摸交互优化
+
+## ⚡ 七、性能优化建议
+- 懒加载策略（defineAsyncComponent 使用建议）
+- Canvas/WebGL 组件的性能预算
+- 首屏加载优化（LCP/FID/CLS 目标值）
+- 图片资源优化方案
+
+## 📅 八、开发排期估算
+- 按阶段拆分（环境搭建/模板集成/组件集成/动画调优/联调测试/部署上线）
+- 每阶段预估工时
+
+## 💰 九、资源需求清单
+- 图片素材规格（Unsplash 搜索关键词）
+- GSAP 插件版本要求
+- 第三方依赖清单
+- 浏览器兼容性要求
+
+## 🎯 十、验收标准
+- 视觉效果检查清单
+- 性能指标要求
+- 功能完整性要求
+
+---
+> 📝 本方案由 Meoo Plan 智能组件编排工作台生成`
+
+    const componentListStr = request.selectedComponents.map(c =>
+      `- **${c.name}** — ${c.summary || '动画组件'} (${c.category}, ${c.complexity}复杂度)`
+    ).join('\n')
+
+    const panelMappingStr = request.panelMappings.map(p =>
+      `- **${p.name}** (${p.purpose}): ${p.components.length > 0 ? p.components.join(', ') : '(待分配)'}`
+    ).join('\n')
+
+    const userPrompt = `请基于以下用户选择生成企业网站制作方案：
+
+## 选择的模板
+${request.selectedTemplate
+  ? `- 名称: **${request.selectedTemplate.label}** (key: ${request.selectedTemplate.key})
+- 面板数量: ${request.selectedTemplate.panelCount}
+- 动画架构: ${request.selectedTemplate.architecture === 'A' ? 'ScrollTrigger.onUpdate (连续scrub)' : request.selectedTemplate.architecture === 'B' ? 'gsap.timeline (分阶段编排)' : '混合'}
+- 模板负责页面间过渡，定义整体滚动叙事节奏`
+  : '- 未选择模板（请基于组件推断合适的页面结构）'}
+
+## 选择的组件 (${request.selectedComponents.length} 个)
+${componentListStr || '(未选择)'}
+
+## 面板-组件映射
+${panelMappingStr || '(未分配)'}
+
+${request.userNotes ? `## 补充说明\n${request.userNotes}\n` : ''}
+
+## 生成要求
+1. 所有建议必须具体可执行，不泛泛而谈
+2. 配色方案给出具体 CSS 变量或色值
+3. GSAP 动画配置给出具体参数（duration/ease/scrub/start/end）
+4. 组件集成给出数据模型示例
+5. 方案需要自洽：组件风格、配色、动画节奏应协调统一`
+
+    const response = await this.chat({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.7,
+      maxTokens: 8000,
+      timeout: 120000
+    })
+
+    if (!response.success || !response.data?.content) {
+      console.error('❌ 编排方案生成失败:', response.error)
+      throw new Error(response.error || '方案生成失败')
+    }
+
+    console.log('✅ 编排方案生成成功，长度:', response.data.content.length)
+    return response.data.content
+  }
 }
 
 // ==================== 辅助函数 ====================

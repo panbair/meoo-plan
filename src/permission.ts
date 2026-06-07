@@ -34,7 +34,8 @@ const whiteList = [
   '/web-list',
   '/web-ai',
   '/web-template',
-  "/web-e2e"
+  '/web-e2e',
+  '/orchestration-workbench'
 ]
 
 /**
@@ -128,7 +129,13 @@ router.beforeEach(async (to, _from, next) => {
   // 白名单路由，直接通过（但保持进度条显示）
   if (whiteList.includes(to.path)) {
     // 对于 web-list 等需要预加载的页面，延迟关闭进度条
-    if (to.path === '/web-e2e' ||to.path === '/web-template' || to.path === '/web-list' || to.path === '/web-ai') {
+    if (
+      to.path === '/orchestration-workbench' ||
+      to.path === '/web-e2e' ||
+      to.path === '/web-template' ||
+      to.path === '/web-list' ||
+      to.path === '/web-ai'
+    ) {
       // 进度条会持续显示，直到页面完全加载
       next()
       return

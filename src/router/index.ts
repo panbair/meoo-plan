@@ -73,6 +73,12 @@ const staticRoutes: RouteRecordRaw[] = [
     name: 'WebE2E',
     component: () => import('@/views/web-e2e/index.vue'),
     meta: { title: 'E2E代码生成', icon: 'Lightning', noCache: false }
+  },
+  {
+    path: '/orchestration-workbench',
+    name: 'OrchestrationWorkbench',
+    component: () => import('@/views/orchestration-workbench/index.vue'),
+    meta: { title: '智能组件编排工作台', icon: 'MagicStick', noCache: false }
   }
 ]
 
