@@ -388,6 +388,7 @@ function onPhotoLeave(idx: number) {
 
 // ==================== 主动画 ====================
 let mainTimeline: gsap.core.Timeline | null = null
+let breatheTween: gsap.core.Tween | null = null
 let scrollTriggers: ScrollTrigger[] = []
 
 function initAnimations() {
@@ -448,7 +449,7 @@ function initAnimations() {
   }, '-=0.3')
 
   // 阶段3：悬浮呼吸（改用独立tween + 触发时暂停，避免与scrub冲突）
-  const breatheTween = gsap.to(photos, {
+  breatheTween = gsap.to(photos, {
     y: '+=12',
     z: '+=20',
     rotateZ: '+=3',
@@ -540,7 +541,7 @@ onUnmounted(() => {
   scrollTriggers.forEach(st => st.kill())
   scrollTriggers = []
   if (mainTimeline) { mainTimeline.kill(); mainTimeline = null }
-  if (breatheTween) { breatheTween.kill(); (breatheTween as any) = null }
+  if (breatheTween) { breatheTween.kill(); breatheTween = null }
   killParticles()
   ScrollTrigger.getAll().forEach(st => st.kill())
   gsap.killTweensOf('*')

@@ -64,6 +64,49 @@ const PAGE_SIZE = 5 // 每页加载组件数
 const currentPage = ref(1) // 当前页码
 const isLoadingMore = ref(false) // 加载更多中
 const hasMoreComponents = computed(() => currentPage.value * PAGE_SIZE < filteredComponents.value.length)
+const totalPages = computed(() => Math.ceil(filteredComponents.value.length / PAGE_SIZE) || 1)
+const jumpPageInput = ref('')
+
+// 同步输入框：当页码通过其他方式改变时（← → 加载更多），更新输入框显示
+watch(currentPage, (p) => { jumpPageInput.value = String(p) }, { immediate: true })
+
+// 滚动到指定页的第一项
+const scrollToPage = (page: number) => {
+  const targetIndex = (page - 1) * PAGE_SIZE
+  // 激活目标页所有卡片的可见性（懒加载）
+  const endIndex = page * PAGE_SIZE
+  for (let i = targetIndex; i < endIndex && i < filteredComponents.value.length; i++) {
+    visibleCards.value.add(i)
+  }
+  nextTick(() => {
+    const el = pageRefs.value.get(targetIndex)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    observeNewPages()
+  })
+}
+
+// 跳转到指定页
+const jumpToPage = () => {
+  const page = Number(jumpPageInput.value)
+  if (!Number.isInteger(page) || page < 1 || page > totalPages.value) {
+    jumpPageInput.value = ''
+    return
+  }
+  currentPage.value = page
+  jumpPageInput.value = ''
+  isLoadingMore.value = false
+  scrollToPage(page)
+}
+
+// 上一页 / 下一页
+const prevPage = () => {
+  if (currentPage.value <= 1) return
+  currentPage.value--
+  scrollToPage(currentPage.value)
+}
+const nextPage = () => { if (hasMoreComponents.value) { loadMore() } }
 
 // 当前显示的组件列表（分页切片）
 const paginatedComponents = computed(() => {
@@ -89,6 +132,7 @@ const loadMore = () => {
 const resetPagination = () => {
   currentPage.value = 1
   isLoadingMore.value = false
+  jumpPageInput.value = ''
 }
 
 // ==================== 分类筛选 ====================
@@ -2063,20 +2107,51 @@ const buildCopyContent =()=>{
       </div>
     </div>
 
-    <!-- 🔑 加载更多按钮 -->
-    <div v-if="hasMoreComponents" class="load-more-container">
-      <button
-        class="load-more-btn"
-        :class="{ loading: isLoadingMore }"
-        :disabled="isLoadingMore"
-        @click="loadMore"
-      >
-        <span v-if="isLoadingMore" class="load-more-spinner"></span>
-        <span v-else>↓ 加载更多</span>
-        <span class="load-more-count">
-          ({{ currentPage * PAGE_SIZE }}/{{ filteredComponents.length }})
-        </span>
-      </button>
+    <!-- 🔑 分页控件 + 加载更多 -->
+    <div v-if="filteredComponents.length > 0" class="load-more-container">
+      <div class="pagination-row">
+        <!-- 上一页 -->
+        <button
+          class="page-nav-btn"
+          :disabled="currentPage <= 1"
+          @click="prevPage"
+          title="上一页"
+        >←</button>
+
+        <!-- 页码显示 + 跳转 -->
+        <span class="page-info">第</span>
+        <input
+          v-model="jumpPageInput"
+          class="page-jump-input"
+          type="number"
+          :min="1"
+          :max="totalPages"
+          placeholder="1"
+          @keyup.enter="jumpToPage"
+          @blur="jumpToPage"
+        />
+        <span class="page-info">/ {{ totalPages }} 页</span>
+
+        <!-- 下一页 -->
+        <button
+          class="page-nav-btn"
+          :disabled="!hasMoreComponents"
+          @click="nextPage"
+          title="下一页"
+        >→</button>
+
+        <!-- 加载更多 -->
+        <button
+          v-if="hasMoreComponents"
+          class="load-more-btn"
+          :class="{ loading: isLoadingMore }"
+          :disabled="isLoadingMore"
+          @click="loadMore"
+        >
+          <span v-if="isLoadingMore" class="load-more-spinner"></span>
+          <span v-else>↓ 加载更多</span>
+        </button>
+      </div>
     </div>
 
     <div class="page page-footer">
@@ -4087,7 +4162,7 @@ const buildCopyContent =()=>{
   background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
-/* ═══════════════ 🔑 加载更多按钮 ═══════════════ */
+/* ═══════════════ 🔑 分页控件 + 加载更多按钮 ═══════════════ */
 .load-more-container {
   display: flex;
   justify-content: center;
@@ -4095,7 +4170,84 @@ const buildCopyContent =()=>{
   z-index: 30;
   position: relative;
   // 与页面深色背景融合
-  background: transparent;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.pagination-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  color: rgba(200, 210, 230, 0.85);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+
+  &:hover:not(:disabled) {
+    background: rgba(20, 30, 50, 0.9);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: rgba(220, 235, 255, 0.95);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.page-info {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(180, 195, 220, 0.55);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.page-jump-input {
+  width: 52px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  color: rgba(210, 225, 250, 0.9);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  // 隐藏 number 输入框的上下箭头
+  -moz-appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus {
+    border-color: rgba(130, 170, 220, 0.5);
+    box-shadow: 0 0 12px rgba(100, 150, 220, 0.15);
+  }
+
+  &::placeholder {
+    color: rgba(150, 165, 190, 0.35);
+    font-weight: 400;
+  }
 }
 
 .load-more-btn {
