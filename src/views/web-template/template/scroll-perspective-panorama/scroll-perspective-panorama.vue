@@ -1,59 +1,42 @@
 <script setup lang="ts">import { onMounted, onUnmounted, nextTick } from 'vue'; import gsap from 'gsap'; import { ScrollTrigger } from 'gsap/ScrollTrigger'; import { ScrollToPlugin } from 'gsap/ScrollToPlugin'; gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
-const TOTAL = 7; let currentIndex = 0; let scrollArea: HTMLElement | null = null; let progressBar: HTMLElement | null = null; let navDots: HTMLElement | null = null
-function createNavDots() { if (!navDots) return; navDots.innerHTML = ''; for (let i = 0; i < TOTAL; i++) { const dot = document.createElement('button'); dot.className = 'ppn-dot' + (i === 0 ? ' ppn-active' : ''); dot.addEventListener('click', () => goTo(i)); navDots.appendChild(dot) } }
-function updateUI(index: number) { document.querySelectorAll('.ppn-dot').forEach((d, i) => d.classList.toggle('ppn-active', i === index)); const el = document.querySelector('.ppn-cur'); if (el) el.textContent = String(index + 1); if (progressBar) progressBar.style.width = ((index + 1) / TOTAL) * 100 + '%' }
-function goTo(index: number) { index = Math.max(0, Math.min(index, TOTAL - 1)); gsap.to(window, { scrollTo: { y: index * window.innerHeight, autoKill: false }, duration: 0.6, ease: 'power2.inOut' }) }
-function onKeydown(e: KeyboardEvent) { if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); goTo(currentIndex + 1) } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); goTo(currentIndex - 1) } }
-
-function init() {
-  scrollArea = document.getElementById('ppnArea') as HTMLElement; progressBar = document.getElementById('ppnProgress'); navDots = document.getElementById('ppnNav')
-  if (!scrollArea) return; scrollArea.style.height = TOTAL * 100 + 'vh'; const track = document.getElementById('ppnTrack') as HTMLElement; const panels = gsap.utils.toArray('.ppn-panel') as HTMLElement[]
-
-  ScrollTrigger.create({
-    trigger: scrollArea, start: 'top top', end: 'bottom bottom', scrub: 0.5,
-    onUpdate: (self) => {
-      const progress = self.progress; const focus = progress * (TOTAL - 1); const idx = Math.floor(focus); const frac = focus - idx
-      const translateX = -progress * 100 * (TOTAL - 1) / TOTAL; const tiltX = Math.sin(progress * Math.PI) * 20
-      if (track) track.style.transform = `translateX(${translateX}vw) rotateX(${tiltX}deg)`
-      panels.forEach((panel, i) => { const dist = Math.abs(i - focus); if (dist < .15) { panel.style.opacity = '1'; panel.style.filter = 'brightness(1) blur(0px)' } else if (dist < 1.5) { panel.style.opacity = String(1 - dist * .7); panel.style.filter = `brightness(${1 - dist * .6}) blur(${dist*4}px)` } else { panel.style.opacity = '0'; panel.style.filter = 'brightness(0.2) blur(8px)' } })
-      if (idx !== currentIndex) { currentIndex = idx; updateUI(idx) }
-    }
-  })
-  document.addEventListener('keydown', onKeydown); createNavDots(); updateUI(0)
-}
-function destroy() { ScrollTrigger.getAll().forEach(st => st.kill()); document.removeEventListener('keydown', onKeydown) }
-onMounted(() => nextTick(init)); onUnmounted(destroy)
+const T=7;let c=0,sa:HTMLElement|null=null,pb:HTMLElement|null=null,nd:HTMLElement|null=null
+function cd(){if(!nd)return;nd.innerHTML='';for(let i=0;i<T;i++){const d=document.createElement('button');d.className='ppn-dot'+(i===0?' ppn-active':'');d.addEventListener('click',()=>go(i));nd.appendChild(d)}}
+function uu(i:number){document.querySelectorAll('.ppn-dot').forEach((d,j)=>d.classList.toggle('ppn-active',j===i));const el=document.querySelector('.ppn-cur');if(el)el.textContent=String(i+1);if(pb)pb.style.width=((i+1)/T)*100+'%'}
+function go(i:number){i=Math.max(0,Math.min(i,T-1));gsap.to(window,{scrollTo:{y:i*innerHeight,autoKill:false},duration:.6,ease:'power2.inOut'})}
+function kd(e:KeyboardEvent){if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();go(c+1)}else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();go(c-1)}}
+function init(){sa=document.getElementById('ppnArea')as HTMLElement;pb=document.getElementById('ppnProgress');nd=document.getElementById('ppnNav');if(!sa)return;sa.style.height=T*100+'vh';const track=document.getElementById('ppnTrack')as HTMLElement;const panels=gsap.utils.toArray('.ppn-panel')as HTMLElement[]
+  ScrollTrigger.create({trigger:sa,start:'top top',end:'bottom bottom',scrub:.5,onUpdate:(self)=>{const p=self.progress;const f=p*(T-1);const idx=Math.floor(f);const frac=f-idx;const tx=-p*100*(T-1)/T;const tilt=Math.sin(p*Math.PI)*18;if(track)track.style.transform=`translateX(${tx}vw) rotateX(${tilt}deg)`
+      panels.forEach((panel,i)=>{const d=Math.abs(i-f);if(d<.15){panel.style.opacity='1';panel.style.filter='brightness(1)'}else if(d<1.5){panel.style.opacity=String(1-d*.7);panel.style.filter=`brightness(${1-d*.5}) blur(${d*3}px)`}else{panel.style.opacity='0';panel.style.filter='brightness(.2) blur(6px)'}});if(idx!==c){c=idx;uu(idx)}}});document.addEventListener('keydown',kd);cd();uu(0)}
+function destroy(){ScrollTrigger.getAll().forEach(st=>st.kill());document.removeEventListener('keydown',kd)}
+onMounted(()=>nextTick(init));onUnmounted(destroy)
 </script>
 
 <template>
-  <div id="ppnArea" class="ppn-page">
-    <div id="ppnProgress" class="ppn-progress-bar"></div><nav id="ppnNav" class="ppn-nav-dots"></nav>
-    <div class="ppn-indicator"><span class="ppn-cur">1</span> / {{ TOTAL }}</div>
+  <div id="ppnArea" class="ppn-page"><div id="ppnProgress" class="ppn-progress-bar"></div><nav id="ppnNav" class="ppn-nav-dots"></nav>
+    <div class="ppn-indicator"><span class="ppn-cur">1</span> / {{ T }}</div>
     <div class="ppn-viewport"><div id="ppnTrack" class="ppn-track">
-      <section v-for="n in TOTAL" :key="n" class="ppn-panel" :class="`ppn-panel-${n}`"><div class="ppn-content"><span class="ppn-num">{{ String(n).padStart(2, '0') }}</span><div class="ppn-bar"></div></div></section>
+      <section v-for="n in T" :key="n" class="ppn-panel" :style="{ background: `radial-gradient(ellipse at 50% 50%, hsl(${n*50+210},42%,82%), hsl(${(n-1)*52}, 52%,92%))` }"><div class="ppn-content"><span class="ppn-num">{{ String(n).padStart(2, '0') }}</span></div></section>
     </div></div>
-    <div class="ppn-gradient-l"></div><div class="ppn-gradient-r"></div>
+    <div class="ppn-edge-l"></div><div class="ppn-edge-r"></div>
   </div>
 </template>
 
 <style scoped>
-.ppn-page { width: 100vw; height: 100vh; overflow: hidden; position: relative; background: radial-gradient(ellipse at 50% 40%, #0e1428 0%, #080c1a 40%, #040610 100%); perspective: 2000px; }
+.ppn-page { font-family: system-ui, -apple-system, sans-serif; background: #f3f5f8; perspective: 2000px; }
 .ppn-viewport { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; perspective: 2000px; perspective-origin: 50% 50%; }
 .ppn-track { display: flex; height: 100vh; transform-style: preserve-3d; will-change: transform; }
 .ppn-panel { min-width: 85vw; height: 100vh; flex-shrink: 0; display: flex; align-items: center; justify-content: center; will-change: opacity, filter; }
-.ppn-panel:nth-child(odd) { background: radial-gradient(ellipse at 50% 50%, #122048 0%, #0a142e 50%, #040a18 100%); }
-.ppn-panel:nth-child(even) { background: radial-gradient(ellipse at 50% 50%, #162048 0%, #0a142e 50%, #040a18 100%); }
+.ppn-panel::before { content: ''; position: absolute; inset: 24px; border: 1px solid rgba(26,26,46,.04); border-radius: 20px; pointer-events: none; }
 .ppn-content { text-align: center; }
-.ppn-num { font-family: 'Orbitron', monospace; font-size: clamp(5rem, 14vw, 10rem); font-weight: 900; color: rgba(255,255,255,.85); text-shadow: 0 0 30px rgba(59,130,246,.5), 0 0 60px rgba(37,99,235,.3); display: block; }
-.ppn-bar { width: 100px; height: 2px; background: linear-gradient(90deg, transparent, rgba(59,130,246,.4), transparent); margin: 16px auto 0; }
-.ppn-gradient-l { position: fixed; left: 0; top: 0; width: 20vw; height: 100vh; z-index: 5; pointer-events: none; background: linear-gradient(90deg, rgba(4,6,16,.8), transparent); }
-.ppn-gradient-r { position: fixed; right: 0; top: 0; width: 20vw; height: 100vh; z-index: 5; pointer-events: none; background: linear-gradient(270deg, rgba(4,6,16,.8), transparent); }
+.ppn-num { font-size: clamp(5rem, 14vw, 10rem); font-weight: 900; color: rgba(26,26,46,.025); user-select: none; }
+.ppn-edge-l { position: fixed; left: 0; top: 0; width: 15vw; height: 100vh; z-index: 5; pointer-events: none; background: linear-gradient(90deg, rgba(243,245,248,.9), transparent); }
+.ppn-edge-r { position: fixed; right: 0; top: 0; width: 15vw; height: 100vh; z-index: 5; pointer-events: none; background: linear-gradient(270deg, rgba(243,245,248,.9), transparent); }
 </style>
 
 <style>
-.ppn-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 14px; z-index: 1000; }
-.ppn-nav-dot { width: 6px; height: 28px; border-radius: 3px; background: rgba(255,255,255,.06); border: none; cursor: pointer; transition: all .3s; }
-.ppn-nav-dot.ppn-active { background: #3b82f6; box-shadow: 0 0 18px rgba(59,130,246,.5); height: 38px; }
-.ppn-progress-bar { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa); z-index: 1001; transition: width .3s; }
-.ppn-indicator { position: fixed; top: 24px; right: 32px; font-family: 'Orbitron', monospace; font-size: 14px; color: rgba(255,255,255,.35); z-index: 1002; }
+.ppn-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+.ppn-nav-dot { width: 5px; height: 24px; border-radius: 3px; background: rgba(26,26,46,.08); cursor: pointer; border: none; padding: 0; transition: all .3s; }
+.ppn-nav-dot.ppn-active { background: #3b82f6; height: 34px; box-shadow: 0 0 12px rgba(59,130,246,.4); }
+.ppn-progress-bar { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd); z-index: 1001; }
+.ppn-indicator { position: fixed; top: 28px; right: 60px; z-index: 1000; background: rgba(255,255,255,.75); backdrop-filter: blur(12px); padding: 8px 20px; border-radius: 24px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26,26,46,.7); }
 </style>

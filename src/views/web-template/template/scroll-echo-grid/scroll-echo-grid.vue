@@ -140,7 +140,7 @@ onUnmounted(() => { st?.kill() })
 .seg-scrollArea { position: relative; }
 .seg-viewport {
   position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden;
-  background: #0a0a14;
+  background: #f5f0f8;
 }
 .seg-grid {
   display: grid;

@@ -158,7 +158,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.orw-page { font-family: system-ui, -apple-system, sans-serif; background: #0a0a18; color: #1a1a2e; }
+.orw-page { font-family: system-ui, -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .orw-scroll-area { position: relative; }
 .orw-viewport {
   position: sticky; top: 0; width: 100vw; height: 100vh;

@@ -127,7 +127,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.sp-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #060512; color: #1a1a2e; }
+.sp-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .sp-scroll-area { position: relative; }
 .sp-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .sp-track { position: relative; height: 100vh; will-change: transform; }

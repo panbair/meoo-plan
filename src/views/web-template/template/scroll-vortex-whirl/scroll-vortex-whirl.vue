@@ -201,7 +201,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .svw-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #040810;
+  background: #f5f0f8;
   color: #e0e8ff;
 }
 .svw-scroll-area {
@@ -339,7 +339,7 @@ $accent2: #6450ff;
   }
   &.svw-active {
     background: $accent;
-    border-color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(26, 26, 46, 0.5);
     transform: scale(1.6);
     box-shadow: 0 0 22px rgba($accent, 0.7), 0 0 40px rgba($accent, 0.3);
   }

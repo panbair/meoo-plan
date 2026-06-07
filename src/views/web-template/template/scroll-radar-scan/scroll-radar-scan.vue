@@ -145,7 +145,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.rdr-page { font-family: 'Courier New', monospace; background: #020a04; color: #0f0; }
+.rdr-page { font-family: 'Courier New', monospace; background: #f2f8f2; color: #1a3a1a; }
 .rdr-scroll-area { position: relative; }
 .rdr-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .rdr-panel {

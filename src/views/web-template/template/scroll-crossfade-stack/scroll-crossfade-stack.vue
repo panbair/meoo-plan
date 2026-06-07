@@ -139,7 +139,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.cfs-page { font-family: system-ui, -apple-system, sans-serif; background: #0a0a14; color: #1a1a2e; }
+.cfs-page { font-family: system-ui, -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .cfs-scroll-area { position: relative; }
 .cfs-viewport {
   position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden;

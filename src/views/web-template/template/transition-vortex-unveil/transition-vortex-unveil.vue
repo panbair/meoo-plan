@@ -131,7 +131,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tvu-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #020210; color: #1a1a2e; perspective: 1800px; }
+.tvu-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; perspective: 1800px; }
 .tvu-scroll-area { position: relative; }
 .tvu-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1800px; transform-style: preserve-3d; }
 .tvu-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;

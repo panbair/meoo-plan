@@ -96,7 +96,7 @@ onUnmounted(destroy)
     <div id="shgArea" class="shg-scroll-area">
       <div class="shg-viewport">
         <section v-for="n in TOTAL" :key="n" class="shg-panel"
-          :style="{ background: `linear-gradient(180deg, hsl(${(n-1)*44+30}, 45%, 28%), hsl(${(n-1)*44+50}, 35%, 86%))` }">
+          :style="{ background: `linear-gradient(180deg, hsl(${(n-1)*44+30}, 52%, 68%), hsl(${(n-1)*44+50}, 45%, 82%))` }">
           <span class="shg-num">{{ String(n).padStart(2, '0') }}</span>
         </section>
       </div>
@@ -105,7 +105,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.shg-page { font-family: system-ui, sans-serif; background: #0a0808; color: #1a1a2e; }
+.shg-page { font-family: system-ui, sans-serif; background: #f5f3f0; color: #1a1a2e; }
 .shg-scroll-area { position: relative; }
 .shg-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 .shg-panel {

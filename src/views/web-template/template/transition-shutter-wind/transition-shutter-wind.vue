@@ -169,7 +169,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tsw-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a14; color: #1a1a2e; perspective: 1200px; }
+.tsw-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; perspective: 1200px; }
 .tsw-scroll-area { position: relative; }
 .tsw-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1200px; transform-style: preserve-3d; }
 .tsw-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;

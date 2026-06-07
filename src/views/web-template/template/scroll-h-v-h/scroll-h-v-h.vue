@@ -235,7 +235,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .hvh-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #0a0a14;
+  background: #f5f0f8;
   color: #1a1a2e;
 }
 

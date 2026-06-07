@@ -207,7 +207,7 @@ onUnmounted(destroy)
   height: 100vh;
   overflow: hidden;
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #050510;
+  background: #f5f0f8;
   color: #1a1a2e;
 }
 

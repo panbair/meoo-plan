@@ -143,7 +143,7 @@ onUnmounted(() => { st?.kill() })
 .sgd-scrollArea { position: relative; }
 .sgd-viewport {
   position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden;
-  background: #050510;
+  background: #f5f0f8;
 }
 .sgd-grid {
   display: grid;

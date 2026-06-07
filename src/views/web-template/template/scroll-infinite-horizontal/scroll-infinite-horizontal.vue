@@ -385,7 +385,7 @@ onUnmounted(destroy)
   height: 100vh;
   overflow: hidden;
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #08081a;
+  background: #f5f0f8;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -436,14 +436,14 @@ onUnmounted(destroy)
 
 .rih-sep {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(26, 26, 46, 0.3);
   margin: 0 1px;
 }
 
 .rih-total {
   font-size: 1rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(26, 26, 46, 0.35);
 }
 
 /* ========== 导航点 ========== */
@@ -577,7 +577,7 @@ onUnmounted(destroy)
 /* 描述 */
 .rih-desc {
   font-size: clamp(0.95rem, 1.5vw, 1.15rem);
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(26, 26, 46, 0.45);
   margin: 0;
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -613,7 +613,7 @@ onUnmounted(destroy)
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(26, 26, 46, 0.5);
   cursor: pointer;
   transition: all 0.3s ease;
   opacity: 0;
@@ -621,7 +621,7 @@ onUnmounted(destroy)
 
   &:hover {
     background: rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(26, 26, 46, 0.9);
     transform: translateY(-50%) scale(1.1);
     box-shadow: 0 0 24px rgba(139, 140, 255, 0.2);
   }

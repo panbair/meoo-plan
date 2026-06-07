@@ -145,7 +145,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.lt-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #080810; color: #1a1a2e; }
+.lt-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .lt-scroll-area { position: relative; }
 .lt-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .lt-panel {

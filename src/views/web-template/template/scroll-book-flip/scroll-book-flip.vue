@@ -173,7 +173,7 @@ onUnmounted(destroy)
             <div
               class="bkf-face bkf-front"
               :style="{
-                background: `linear-gradient(100deg, hsl(${(n - 1) * 40 + 20}, 25%, 18%) 0%, hsl(${(n - 1) * 40}, 35%, 25%) 5%, hsl(${(n - 1) * 40}, 30%, 80%) 100%)`,
+                background: `linear-gradient(100deg, hsl(${(n - 1) * 40 + 20}, 25%, 18%) 0%, hsl(${(n - 1) * 40}, 55%, 25%) 5%, hsl(${(n - 1) * 40}, 50%, 80%) 100%)`,
               }"
             >
               <span class="bkf-num">{{ String(n).padStart(2, '0') }}</span>
@@ -200,7 +200,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .bkf-wrapper {
   font-family: 'Georgia', 'Times New Roman', serif;
-  background: #0c0c14;
+  background: #f5f2f0;
   color: #1a1a2e;
 }
 

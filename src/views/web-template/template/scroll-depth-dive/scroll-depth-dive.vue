@@ -176,7 +176,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .ddv-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #080814;
+  background: #f5f0f8;
   color: #1a1a2e;
 }
 

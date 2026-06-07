@@ -128,7 +128,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.gw-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #080810; color: #1a1a2e; }
+.gw-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .gw-scroll-area { position: relative; }
 .gw-pinned { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .gw-track { display: flex; will-change: transform; align-items: center; }

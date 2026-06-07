@@ -143,7 +143,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.pdp-page { font-family: system-ui, sans-serif; background: #020206; color: #1a1a2e; }
+.pdp-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .pdp-scroll-area { position: relative; }
 .pdp-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; }
 

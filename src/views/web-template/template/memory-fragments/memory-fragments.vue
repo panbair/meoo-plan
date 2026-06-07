@@ -172,7 +172,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.mf-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0a0a14; color: #1a1a2e; }
+.mf-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .mf-scroll-area { position: relative; }
 .mf-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1500px; }
 .mf-panel {

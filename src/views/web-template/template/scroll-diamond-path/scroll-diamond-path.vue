@@ -199,7 +199,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .dmd-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #08080e;
+  background: #f5f0f8;
   color: #1a1a2e;
 }
 

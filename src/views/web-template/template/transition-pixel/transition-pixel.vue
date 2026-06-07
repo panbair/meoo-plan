@@ -241,7 +241,7 @@ onUnmounted(destroy)
   width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.2);
   cursor: pointer; border: 2px solid transparent; transition: all .3s;
   &:hover { background: rgba(26, 26, 46,.5); transform: scale(1.3); }
-  &.tpx-active { background: #00ff88; border-color: rgba(0,255,136,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(0,255,136,.5); }
+  &.tpx-active { background: #f5f0f8; border-color: rgba(0,255,136,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(0,255,136,.5); }
 }
 .tpx-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #00ff88, #a78bfa, #f472b6); box-shadow: 0 0 10px rgba(0,255,136,.4); }
 .tpx-page-indicator { position: fixed; top: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 8px 22px; border-radius: 25px; font-size: .9rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26, 26, 46,.8); }

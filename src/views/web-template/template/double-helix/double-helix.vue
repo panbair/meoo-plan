@@ -143,7 +143,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.dh-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; height: 100vh; overflow: hidden; background: #06060f; color: #1a1a2e; }
+.dh-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; height: 100vh; overflow: hidden; background: #f5f0f8; color: #1a1a2e; }
 .dh-outer { height: 100%; overflow-y: auto; overflow-x: hidden; }
 .dh-set { width: 100%; height: 100vh; display: flex; flex-direction: column; position: relative; flex-shrink: 0; overflow: hidden; }
 .dh-helix-zone { flex: 1; position: relative; overflow: hidden; }

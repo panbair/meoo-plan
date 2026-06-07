@@ -153,7 +153,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.se-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #020812; color: #1a1a2e; }
+.se-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .se-scroll-area { position: relative; }
 .se-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1500px; }
 .se-panel {

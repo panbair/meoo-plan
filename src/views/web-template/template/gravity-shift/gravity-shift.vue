@@ -145,7 +145,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.gs-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #0c0c14; color: #1a1a2e; }
+.gs-page { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .gs-scroll-area { position: relative; }
 .gs-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
 .gs-panel {

@@ -171,7 +171,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .zzd-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #0e0e18;
+  background: #f5f0f8;
   color: #1a1a2e;
 }
 

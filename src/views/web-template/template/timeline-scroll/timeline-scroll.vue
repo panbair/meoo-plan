@@ -209,7 +209,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .tl-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #050810;
+  background: #f5f0f8;
   color: #1a1a2e;
   position: relative;
   overflow-x: hidden;

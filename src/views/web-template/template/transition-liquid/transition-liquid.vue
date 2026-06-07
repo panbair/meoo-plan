@@ -288,7 +288,7 @@ onUnmounted(destroy)
   width: 12px; height: 12px; border-radius: 50%; background: rgba(26, 26, 46,.2);
   cursor: pointer; border: 2px solid transparent; transition: all .3s;
   &:hover { background: rgba(26, 26, 46,.5); transform: scale(1.3); }
-  &.tlq-active { background: #00d4ff; border-color: rgba(0,212,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(0,212,255,.5); }
+  &.tlq-active { background: #f5f0f8; border-color: rgba(0,212,255,.4); transform: scale(1.4); box-shadow: 0 0 20px rgba(0,212,255,.5); }
 }
 .tlq-progress-bar { position: fixed; top: 0; left: 0; height: 3px; z-index: 1001; width: 0%; background: linear-gradient(90deg, #00d4ff, #00ff88, #00d4ff); background-size: 200% 100%; animation: tlqProgressFlow 2s ease-in-out infinite; box-shadow: 0 0 10px rgba(0,212,255,.4); }
 @keyframes tlqProgressFlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }

@@ -224,7 +224,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.tns-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #050510; color: #1a1a2e; perspective: 1500px; }
+.tns-page { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f0f8; color: #1a1a2e; perspective: 1500px; }
 .tns-scroll-area { position: relative; }
 .tns-stage { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; perspective: 1500px; transform-style: preserve-3d; }
 .tns-panel { position: absolute; inset: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;

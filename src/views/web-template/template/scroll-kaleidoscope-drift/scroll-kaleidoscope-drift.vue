@@ -255,7 +255,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .kld-page {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #0d0d16;
+  background: #f5f0f8;
 }
 
 .kld-scroll-area { position: relative; }

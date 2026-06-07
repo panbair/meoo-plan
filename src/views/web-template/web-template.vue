@@ -103,16 +103,16 @@ async function copyTemplateCode(key: string) {
 const SCROLL_EFFECT_KEYS = new Set([
   'scroll-alternate-slide', 'scroll-blinds-reveal', 'scroll-book-flip',
   'scroll-bullet-screen', 'scroll-card-fan', 'scroll-carousel-ring',
-  'scroll-carousel-vortex', 'scroll-chess-flip', 'scroll-clock-wipe',
+  'scroll-carousel-snap', 'scroll-carousel-vortex', 'scroll-chess-flip', 'scroll-clock-wipe',
   'scroll-contrast-glitch', 'scroll-conveyor-belt',
-  'scroll-crossfade-stack', 'scroll-curtain-explode', 'scroll-curtain-peel', 'scroll-depth-dive',
+  'scroll-counter-vortex', 'scroll-crossfade-stack', 'scroll-curtain-explode', 'scroll-curtain-peel', 'scroll-depth-dive',
   'scroll-diagonal-slide', 'scroll-diamond-path', 'scroll-diamond-shatter',
   'scroll-door-open', 'scroll-drift-grid', 'scroll-echo-dissolve',
   'scroll-echo-grid', 'scroll-elastic-expand', 'scroll-elevator-ride',
-  'scroll-film-reel', 'scroll-fire-water-clash', 'scroll-flat-to-3d', 'scroll-gravity-depression',
+  'scroll-film-reel', 'scroll-fire-water-clash', 'scroll-flat-to-3d', 'scroll-glass-parallax', 'scroll-gravity-depression',
   'scroll-h-then-v', 'scroll-helix-tower', 'scroll-infinite-horizontal',
   'scroll-iris-open', 'scroll-kaleidoscope-clock', 'scroll-kaleidoscope-panorama', 'scroll-lens-focus', 'scroll-liquid-metal-morph', 'scroll-loop-conveyor',
-  'scroll-magnet-assemble', 'scroll-magnet-pull', 'scroll-magnetic-shuffle', 'scroll-matrix-rain',
+  'scroll-magnet-assemble', 'scroll-magnet-pull', 'scroll-magnetic-shuffle', 'scroll-masonry-expand', 'scroll-matrix-rain',
   'scroll-multi-direction', 'scroll-nebula-birth', 'scroll-orbit-grid', 'scroll-orbit-wheel',
   'scroll-origami-unfold', 'scroll-parallax-depth', 'scroll-parallax-layers', 'scroll-perspective-panorama',
   'scroll-parallax-split', 'scroll-pendulum-grid', 'scroll-pendulum-swing',
@@ -120,11 +120,11 @@ const SCROLL_EFFECT_KEYS = new Set([
   'scroll-radar-scan', 'scroll-ripple-mirror', 'scroll-ripple-reveal', 'scroll-rotate-reveal',
   'scroll-rubber-stretch', 'scroll-sand-hourglass', 'scroll-scan-reveal',
   'scroll-shutter-split', 'scroll-slot-machine', 'scroll-snake-path',
-  'scroll-spiral-implode', 'scroll-spiral-in', 'scroll-split-merge', 'scroll-spread-gather', 'scroll-stagger-vortex',
+  'scroll-spiral-implode', 'scroll-spiral-in', 'scroll-split-merge', 'scroll-split-parallax', 'scroll-spread-gather', 'scroll-stack-glitch', 'scroll-stagger-vortex',
   'scroll-strobe-freeze', 'scroll-telescope-zoom', 'scroll-timeline-split', 'scroll-typewriter',
   'scroll-typewriter-glitch', 'scroll-u-turn', 'scroll-v-h-v', 'scroll-v-then-h',
   'scroll-warp-fade', 'scroll-wave-grid',
-  'scroll-zigzag-drift', 'scroll-zigzag-elastic', 'scroll-zoom-lane'
+  'scroll-zigzag-drift', 'scroll-zigzag-elastic', 'scroll-zigzag-masonry', 'scroll-zoom-lane'
 ])
 
 const TRANSITION_BASIC_KEYS = new Set([

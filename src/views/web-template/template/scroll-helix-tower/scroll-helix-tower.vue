@@ -95,7 +95,7 @@ onUnmounted(destroy)
 </template>
 
 <style scoped lang="scss">
-.hlx-page { font-family: system-ui, sans-serif; background: #050510; color: #1a1a2e; }
+.hlx-page { font-family: system-ui, sans-serif; background: #f5f0f8; color: #1a1a2e; }
 .hlx-scroll-area { position: relative; }
 .hlx-viewport { position: sticky; top: 0; width: 100vw; height: 100vh; overflow: hidden; perspective: 1200px; perspective-origin: 50% 45%; display: flex; align-items: center; justify-content: center; }
 .hlx-tower { position: relative; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; }

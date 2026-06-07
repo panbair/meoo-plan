@@ -1,57 +1,38 @@
 <script setup lang="ts">import { onMounted, onUnmounted, nextTick } from 'vue'; import gsap from 'gsap'; import { ScrollTrigger } from 'gsap/ScrollTrigger'; import { ScrollToPlugin } from 'gsap/ScrollToPlugin'; gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
-const TOTAL = 7; let currentIndex = 0; let scrollArea: HTMLElement | null = null; let progressBar: HTMLElement | null = null; let navDots: HTMLElement | null = null
-function createNavDots() { if (!navDots) return; navDots.innerHTML = ''; for (let i = 0; i < TOTAL; i++) { const dot = document.createElement('button'); dot.className = 'eex-dot' + (i === 0 ? ' eex-active' : ''); dot.addEventListener('click', () => goTo(i)); navDots.appendChild(dot) } }
-function updateUI(index: number) { document.querySelectorAll('.eex-dot').forEach((d, i) => d.classList.toggle('eex-active', i === index)); const el = document.querySelector('.eex-cur'); if (el) el.textContent = String(index + 1); if (progressBar) progressBar.style.width = ((index + 1) / TOTAL) * 100 + '%' }
-function goTo(index: number) { index = Math.max(0, Math.min(index, TOTAL - 1)); gsap.to(window, { scrollTo: { y: index * window.innerHeight, autoKill: false }, duration: 0.6, ease: 'elastic.out(1, 0.5)' }) }
-function onKeydown(e: KeyboardEvent) { if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); goTo(currentIndex + 1) } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); goTo(currentIndex - 1) } }
-
-function init() {
-  scrollArea = document.getElementById('eexArea') as HTMLElement; progressBar = document.getElementById('eexProgress'); navDots = document.getElementById('eexNav')
-  if (!scrollArea) return; scrollArea.style.height = TOTAL * 100 + 'vh'; const panels = gsap.utils.toArray('.eex-panel') as HTMLElement[]
-  panels.forEach((p, i) => { if (i === 0) { p.style.transform = ''; p.style.opacity = '1'; p.style.filter = ''; p.style.clipPath = 'inset(0 0 0 0)'; p.style.zIndex = String(TOTAL + 10) } else { p.style.transform = 'scaleX(0.3)'; p.style.opacity = '0'; p.style.filter = 'blur(8px)'; p.style.clipPath = 'inset(0 0 0 100%)'; p.style.zIndex = String(TOTAL - i) } })
-
-  ScrollTrigger.create({
-    trigger: scrollArea, start: 'top top', end: 'bottom bottom', scrub: 0.3,
-    onUpdate: (self) => {
-      const focus = self.progress * (TOTAL - 1); const idx = Math.floor(focus); const frac = focus - idx
-      panels.forEach((panel, i) => {
-        if (i < idx) { panel.style.clipPath = 'inset(0 100% 0 0)'; panel.style.opacity = '0'; panel.style.zIndex = String(i) }
-        else if (i > idx + 1) { panel.style.clipPath = 'inset(0 0 0 100%)'; panel.style.opacity = '0'; panel.style.zIndex = String(TOTAL - i) }
-        else if (i === idx) { const stretchP = Math.min(1, frac * 1.8); const el = stretchP < .7 ? 1 + Math.sin(stretchP * Math.PI / .7) * .15 * (1 - stretchP / .7) : 1 - (stretchP - .7) * .3; const scaleX = Math.max(.05, el * (1 - stretchP * .9)); panel.style.transform = `scaleX(${scaleX}) scaleY(${1 + stretchP * .08})`; panel.style.clipPath = `inset(0 0 0 ${stretchP * 100}%)`; panel.style.opacity = String(1 - stretchP * .5); panel.style.filter = `blur(${stretchP*6}px) brightness(${1 + stretchP * .5})`; panel.style.zIndex = String(TOTAL + 10) }
-        else if (i === idx + 1) { const revealP = Math.max(0, frac - .3) / .7; const ei = 1 - Math.pow(1 - revealP, 3); const os = revealP > .7 ? 1 + Math.sin((revealP - .7) * Math.PI / .3) * .08 * (1 - revealP) : 1; const scaleX = .2 + ei * .8 * os; panel.style.transform = `scaleX(${Math.min(1.1, scaleX)})`; panel.style.clipPath = `inset(0 ${(1-revealP)*100}% 0 0)`; panel.style.opacity = String(revealP); panel.style.filter = `blur(${(1-revealP)*12}px) brightness(${.2 + revealP * .8})`; panel.style.zIndex = String(TOTAL + 5) }
-      })
-      if (idx !== currentIndex) { currentIndex = idx; updateUI(idx) }
-    }
-  })
-  document.addEventListener('keydown', onKeydown); createNavDots(); updateUI(0)
-}
-function destroy() { ScrollTrigger.getAll().forEach(st => st.kill()); document.removeEventListener('keydown', onKeydown) }
-onMounted(() => nextTick(init)); onUnmounted(destroy)
+const T=7;let c=0,sa:HTMLElement|null=null,pb:HTMLElement|null=null,nd:HTMLElement|null=null
+function cd(){if(!nd)return;nd.innerHTML='';for(let i=0;i<T;i++){const d=document.createElement('button');d.className='eex-dot'+(i===0?' eex-active':'');d.addEventListener('click',()=>go(i));nd.appendChild(d)}}
+function uu(i:number){document.querySelectorAll('.eex-dot').forEach((d,j)=>d.classList.toggle('eex-active',j===i));const el=document.querySelector('.eex-cur');if(el)el.textContent=String(i+1);if(pb)pb.style.width=((i+1)/T)*100+'%'}
+function go(i:number){i=Math.max(0,Math.min(i,T-1));gsap.to(window,{scrollTo:{y:i*innerHeight,autoKill:false},duration:.6,ease:'elastic.out(1,.5)'})}
+function kd(e:KeyboardEvent){if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();go(c+1)}else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();go(c-1)}}
+function init(){sa=document.getElementById('eexArea')as HTMLElement;pb=document.getElementById('eexProgress');nd=document.getElementById('eexNav');if(!sa)return;sa.style.height=T*100+'vh';const panels=gsap.utils.toArray('.eex-panel')as HTMLElement[]
+  panels.forEach((p,i)=>{if(i===0){p.style.transform='';p.style.opacity='1';p.style.clipPath='inset(0 0 0 0)';p.style.zIndex=String(T+10)}else{p.style.transform='scaleX(.3)';p.style.opacity='0';p.style.clipPath='inset(0 0 0 100%)';p.style.zIndex=String(T-i)}})
+  ScrollTrigger.create({trigger:sa,start:'top top',end:'bottom bottom',scrub:.3,onUpdate:(self)=>{const f=self.progress*(T-1);const idx=Math.floor(f);const frac=f-idx
+      panels.forEach((p,i)=>{if(i<idx){p.style.clipPath='inset(0 100% 0 0)';p.style.opacity='0';p.style.zIndex=String(i)}else if(i>idx+1){p.style.clipPath='inset(0 0 0 100%)';p.style.opacity='0';p.style.zIndex=String(T-i)}else if(i===idx){const sp=Math.min(1,frac*1.8);const el=sp<.7?1+Math.sin(sp*Math.PI/.7)*.15*(1-sp/.7):1-(sp-.7)*.3;const sx=Math.max(.05,el*(1-sp*.9));p.style.transform=`scaleX(${sx}) scaleY(${1+sp*.06})`;p.style.clipPath=`inset(0 0 0 ${sp*100}%)`;p.style.opacity=String(1-sp*.4);p.style.zIndex=String(T+10)}else if(i===idx+1){const rp=Math.max(0,frac-.3)/.7;const ei=1-Math.pow(1-rp,3);const os=rp>.7?1+Math.sin((rp-.7)*Math.PI/.3)*.06*(1-rp):1;const sx=.2+ei*.8*os;p.style.transform=`scaleX(${Math.min(1.1,sx)})`;p.style.clipPath=`inset(0 ${(1-rp)*100}% 0 0)`;p.style.opacity=String(rp);p.style.zIndex=String(T+5)}});if(idx!==c){c=idx;uu(idx)}}});document.addEventListener('keydown',kd);cd();uu(0)}
+function destroy(){ScrollTrigger.getAll().forEach(st=>st.kill());document.removeEventListener('keydown',kd)}
+onMounted(()=>nextTick(init));onUnmounted(destroy)
 </script>
 
 <template>
-  <div id="eexArea" class="eex-page">
-    <div id="eexProgress" class="eex-progress-bar"></div><nav id="eexNav" class="eex-nav-dots"></nav>
-    <div class="eex-indicator"><span class="eex-cur">1</span> / {{ TOTAL }}</div>
-    <div class="eex-glow"></div>
-    <section v-for="n in TOTAL" :key="n" class="eex-panel" :class="`eex-panel-${n}`"><div class="eex-content"><span class="eex-num">{{ String(n).padStart(2, '0') }}</span></div></section>
+  <div id="eexArea" class="eex-page"><div id="eexProgress" class="eex-progress-bar"></div><nav id="eexNav" class="eex-nav-dots"></nav>
+    <div class="eex-indicator"><span class="eex-cur">1</span> / {{ T }}</div>
+    <section v-for="n in T" :key="n" class="eex-panel" :style="{ background: `linear-gradient(90deg, hsl(${n*50+30},50%,76%), hsl(${(n-1)*52}, 52%,88%))` }">
+      <div class="eex-content"><span class="eex-num">{{ String(n).padStart(2, '0') }}</span></div>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.eex-page { width: 100vw; height: 100vh; overflow: hidden; position: relative; background: radial-gradient(ellipse at 50% 40%, #181028 0%, #0e0a1c 40%, #060410 100%); }
+.eex-page { font-family: system-ui, -apple-system, sans-serif; background: #f7f4f0; color: #1a1a2e; }
 .eex-panel { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; will-change: transform, clip-path, opacity, filter; }
-.eex-panel:nth-child(odd) { background: linear-gradient(90deg, #1c1238 0%, #2a1a52 50%, #1c1238 100%); }
-.eex-panel:nth-child(even) { background: linear-gradient(90deg, #122038 0%, #1a3052 50%, #122038 100%); }
+.eex-panel::before { content: ''; position: absolute; inset: 24px; border: 1px solid rgba(26,26,46,.04); border-radius: 20px; pointer-events: none; }
 .eex-content { text-align: center; }
-.eex-num { font-family: 'Orbitron', monospace; font-size: clamp(5rem, 16vw, 12rem); font-weight: 900; color: rgba(255,255,255,.9); text-shadow: 0 0 30px rgba(245,158,11,.4), 0 0 60px rgba(251,191,36,.2); }
-.eex-glow { position: fixed; width: 400px; height: 400px; border-radius: 50%; filter: blur(140px); top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 0; pointer-events: none; opacity: .12; background: radial-gradient(circle, rgba(245,158,11,.3), transparent); }
+.eex-num { font-size: clamp(5rem, 16vw, 12rem); font-weight: 900; color: rgba(26,26,46,.025); user-select: none; }
 </style>
 
 <style>
-.eex-nav-dots { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 14px; z-index: 1000; }
-.eex-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.08); border: 2px solid rgba(245,158,11,.15); cursor: pointer; transition: all .3s cubic-bezier(0.68,-0.55,0.265,1.55); }
-.eex-nav-dot.eex-active { background: #f59e0b; border-color: #f59e0b; box-shadow: 0 0 22px rgba(245,158,11,.5); transform: scale(1.3); }
-.eex-progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #fcd34d); z-index: 1001; transition: width .3s; }
-.eex-indicator { position: fixed; top: 24px; right: 32px; font-family: 'Orbitron', monospace; font-size: 14px; color: rgba(255,255,255,.35); z-index: 1002; }
+.eex-nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+.eex-nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(26,26,46,.1); cursor: pointer; border: 2px solid transparent; padding: 0; transition: all .3s cubic-bezier(.68,-.55,.265,1.55); }
+.eex-nav-dot.eex-active { background: #f59e0b; border-color: rgba(26,26,46,.2); transform: scale(1.4); box-shadow: 0 0 14px rgba(245,158,11,.4); }
+.eex-progress-bar { position: fixed; top: 0; left: 0; height: 4px; width: 0%; background: linear-gradient(90deg, #f59e0b, #fbbf24, #fcd34d); z-index: 1001; }
+.eex-indicator { position: fixed; top: 28px; right: 60px; z-index: 1000; background: rgba(255,255,255,.75); backdrop-filter: blur(12px); padding: 8px 20px; border-radius: 24px; font-size: .85rem; border: 1px solid rgba(255,255,255,.1); color: rgba(26,26,46,.7); }
 </style>

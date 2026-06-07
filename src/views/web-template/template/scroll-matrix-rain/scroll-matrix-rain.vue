@@ -184,7 +184,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .mxr-page {
   font-family: 'Courier New', monospace;
-  background: #020808;
+  background: #f5f0f8;
   color: #1a1a2e;
 }
 

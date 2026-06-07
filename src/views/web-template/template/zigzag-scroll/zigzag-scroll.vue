@@ -351,7 +351,7 @@ onUnmounted(destroy)
 <style scoped lang="scss">
 .zz-page {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #080c18;
+  background: #f5f0f8;
   color: #1a1a2e;
 }
 
