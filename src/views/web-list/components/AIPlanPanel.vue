@@ -23,6 +23,7 @@
             <p style="color:#4ade80;font-size:0.85rem;">AI 方案生成功能已就绪</p>
             <div class="api-dialog-actions">
               <button class="api-dialog-btn skip" @click="showApiDialog = false">取消</button>
+              <button class="api-dialog-btn change" @click="switchToInputMode">🔄 更换 Key</button>
               <button class="api-dialog-btn save" @click="openPanel">🚀 打开 AI 面板</button>
             </div>
           </template>
@@ -271,6 +272,14 @@ function openPanel() {
   visible.value = true
 }
 
+function switchToInputMode() {
+  // 清除旧配置，切回输入状态
+  localStorage.removeItem('ai-api-config')
+  aiConfigured.value = false
+  apiKeyInput.value = ''
+  nextTick(() => apiKeyInputRef.value?.focus())
+}
+
 async function saveApiKeyAndOpen() {
   const key = apiKeyInput.value.trim()
   if (!key) return
@@ -469,6 +478,7 @@ function downloadPlan() {
 .api-dialog-btn {
   padding: 10px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
   &.skip { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #64748b; &:hover { color: #94a3b8; background: rgba(255,255,255,0.03); } }
+  &.change { background: transparent; border: 1px solid rgba(239,68,68,0.25); color: #f87171; &:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); } }
   &.save { border: none; background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; &:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245,158,11,0.3); } &:disabled { opacity: 0.4; cursor: not-allowed; } }
 }
 
