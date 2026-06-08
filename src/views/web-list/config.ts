@@ -18,16 +18,17 @@ export const goodComponentsList = [
   'CardTimeMaterialAwakening'
 ]
 
-// export const componentsList = []
+export const componentsList = []
 
+/*
 export const componentsList = [
   // 'CardImageCorridor3D',
   // 'CardImage3DHelix',
   // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
   // 'CardImageCosmicDrift',
-  /* 'CardImageFilmStrip',
-  'CardImage3DAlbum',*/
+  /!* 'CardImageFilmStrip',
+  'CardImage3DAlbum',*!/
   'CardImage3DConstellationOrbit',
   'CardImage3DLayeredRealm',
   'CardImage3DSpotlightSweep',
@@ -544,8 +545,8 @@ export const componentsList = [
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /*'Card3DFlipGallery',
-  'CardAbstractGeometry',*/
+  /!*'Card3DFlipGallery',
+  'CardAbstractGeometry',*!/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -611,6 +612,7 @@ export const componentsList = [
   'CardVortex',
   'CardWave'
 ]
+*/
 
 // 已选择组件的模块位置
 interface ComponentSelectInfo {
