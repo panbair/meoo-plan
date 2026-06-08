@@ -145,7 +145,7 @@ const farImages: SpotImage[] = [
 
 const allImages = [...nearImages, ...midImages, ...farImages]
 const totalImages = allImages.length
-const trackHeight = `${(totalImages + 2) * 105}vh`
+const trackHeight = `${(totalImages + 2) * 52}vh`
 
 // ── 追光状态 ──
 const spotlightCount = ref('01')
