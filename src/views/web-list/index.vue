@@ -14,7 +14,7 @@ import { useRouter } from 'vue-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import NProgress from 'nprogress'
-import { buildCopyContentStr, componentsList } from '@/views/web-list/config.ts'
+import { buildCopyContentStr, componentsList, goodComponentsList } from '@/views/web-list/config.ts'
 import { templates as templateList } from '@/views/web-template/template/registry'
 import AIPlanPanel from './components/AIPlanPanel.vue'
 
@@ -137,7 +137,7 @@ const resetPagination = () => {
 
 // ==================== 分类筛选 ====================
 // 当前选中的分类（默认全部）
-const activeCategory = ref('all')
+const activeCategory = ref('good')
 
 // ==================== 本地搜索 ====================
 const searchQuery = ref('')
@@ -1201,6 +1201,7 @@ const categories = [
   { key: 'card-time', label: '时间' },
   { key: 'card-list', label: '基础' },
   { key: 'card-other', label: '其他' },
+  { key: 'good', label: '精品' },
   { key: 'favorite', label: '我的收藏' },
   { key: 'selected', label: '已选组件' }
 ]
@@ -1464,6 +1465,9 @@ const filteredComponents = computed(() => {
     list = cardComponents.value
   } else if (activeCategory.value === 'favorite') {
     list = cardComponents.value.filter((comp) => isFavorite(comp.dirName))
+  } else if (activeCategory.value === 'good') {
+    const goodSet = new Set(goodComponentsList)
+    list = cardComponents.value.filter((comp) => goodSet.has(comp.dirName))
   } else if (activeCategory.value === 'selected') {
     const selectedNames = new Set(selectedComponents.value.map((c) => c.dirName))
     list = cardComponents.value.filter((comp) => selectedNames.has(comp.dirName))

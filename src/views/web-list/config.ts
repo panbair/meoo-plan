@@ -1,13 +1,36 @@
-export const componentsList = []
+// 精品
+export const goodComponentsList = [
+  'CardImage3DAtmos',
+  'CardImage3DChineseLantern',
+  'CardImage3DGalleryFloor',
+  'CardImage3DSpotlightSweep',
+  'CardImage3DLayeredRealm',
+  'CardImage3DConstellationOrbit',
+  'CardImage3DInfinityTunnel',
+  'CardImage3DWaveGrid',
+  'CardImageCircleGallery',
+  'CardVideoScrubFlow',
+  'CardImgFlip',
+  'CardImgFlyingStones',
+  'CardTextBlur',
+  'CardTextBoiling',
+  'CardTextCorona',
+  'CardTimeMaterialAwakening'
+]
 
-/*export const componentsList = [
+// export const componentsList = []
+
+export const componentsList = [
   // 'CardImageCorridor3D',
   // 'CardImage3DHelix',
   // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
   // 'CardImageCosmicDrift',
-  /!* 'CardImageFilmStrip',
-  'CardImage3DAlbum',*!/
+  /* 'CardImageFilmStrip',
+  'CardImage3DAlbum',*/
+  'CardImage3DConstellationOrbit',
+  'CardImage3DLayeredRealm',
+  'CardImage3DSpotlightSweep',
   'CardVideoDepthParallax',
   'CardVideoGlitchReveal',
   'CardVideoKaleidoReveal',
@@ -93,7 +116,7 @@ export const componentsList = []
   'CardImage3DPapercutTheater',
   'CardImage3DRoom',
   'CardImage3DSpiralStaircase',
-  'CardImage3DWaveGrid',
+
   'CardImage3DWormhole',
   'CardImage3DBridge',
   'CardImage3DCone',
@@ -521,8 +544,8 @@ export const componentsList = []
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /!*'Card3DFlipGallery',
-  'CardAbstractGeometry',*!/
+  /*'Card3DFlipGallery',
+  'CardAbstractGeometry',*/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -587,7 +610,7 @@ export const componentsList = []
   'CardVoid',
   'CardVortex',
   'CardWave'
-]*/
+]
 
 // 已选择组件的模块位置
 interface ComponentSelectInfo {
