@@ -98,8 +98,8 @@ function setupDeckShuffle(){
   // 初始：两叠牌各在一边，叠好
   const allLeft=Object.entries(cardRefs.value).filter(([k])=>k.startsWith('L')).map(([,el])=>el!).filter(Boolean)
   const allRight=Object.entries(cardRefs.value).filter(([k])=>k.startsWith('R')).map(([,el])=>el!).filter(Boolean)
-  allLeft.forEach((el,i)=>{gsap.set(el,{x:-80,y:i*2-20,translateZ:i*1.5,rotateX:0,rotateY:0,rotateZ:0})})
-  allRight.forEach((el,i)=>{gsap.set(el,{x:80,y:i*2-20,translateZ:i*1.5,rotateX:0,rotateY:0,rotateZ:0})})
+  allLeft.forEach((el,i)=>{gsap.set(el,{x:-100,y:i*3-25,z:i*2})})
+  allRight.forEach((el,i)=>{gsap.set(el,{x:100,y:i*3-25,z:i*2})})
 
   const master=gsap.timeline({
     defaults:{ease:'none'},
@@ -116,19 +116,19 @@ function setupDeckShuffle(){
   // 🃏 洗牌动画：两叠向中间移动→拉起→交错→落下叠合
   allLeft.forEach((el,i)=>{
     // 向中间推开
-    master.to(el,{x:-30,rotateZ:-5,duration:.8,ease:'power2.inOut'},i*.04)
+    master.to(el,{x:-37,rotateZ:-5,duration:.8,ease:'power2.inOut'},i*.04)
     // 向上拉起
-    master.to(el,{y:-30-i*4,translateZ:60+i*3,rotateX:-15,duration:.8,ease:'power2.out'},1.2+i*.03)
+    master.to(el,{y:-37-i*5,z:75+i*4,rotateX:-15,duration:.8,ease:'power2.out'},1.2+i*.03)
     // 向右偏移（交错）
-    master.to(el,{x:15,rotateZ:3,duration:.6,ease:'power2.inOut'},2.5+i*.03)
+    master.to(el,{x:18,rotateZ:3,duration:.6,ease:'power2.inOut'},2.5+i*.03)
     // 落下叠合
-    master.to(el,{y:0,translateZ:0,rotateX:0,rotateZ:0,x:0,duration:1,ease:'power2.in'},3.5+i*.04)
+    master.to(el,{y:0,z:0,x:0,duration:1,ease:'power2.in'},3.5+i*.04)
   })
   allRight.forEach((el,i)=>{
-    master.to(el,{x:30,rotateZ:5,duration:.8,ease:'power2.inOut'},i*.04)
-    master.to(el,{y:-30-i*4,translateZ:60+i*3,rotateX:-15,duration:.8,ease:'power2.out'},1.2+i*.03)
-    master.to(el,{x:-15,rotateZ:-3,duration:.6,ease:'power2.inOut'},2.5+i*.03)
-    master.to(el,{y:0,translateZ:0,rotateX:0,rotateZ:0,x:0,duration:1,ease:'power2.in'},3.5+i*.04)
+    master.to(el,{x:37,rotateZ:5,duration:.8,ease:'power2.inOut'},i*.04)
+    master.to(el,{y:-37-i*5,z:75+i*4,rotateX:-15,duration:.8,ease:'power2.out'},1.2+i*.03)
+    master.to(el,{x:-18,rotateZ:-3,duration:.6,ease:'power2.inOut'},2.5+i*.03)
+    master.to(el,{y:0,z:0,x:0,duration:1,ease:'power2.in'},3.5+i*.04)
   })
 
   if(deckRef.value){master.to(deckRef.value,{rotateX:-5,duration:1},0);master.to(deckRef.value,{rotateY:20,duration:2.5,ease:'sine.inOut'},2);master.to(deckRef.value,{rotateY:-10,duration:2,ease:'sine.inOut'},5)}
@@ -157,7 +157,7 @@ onUnmounted(()=>{window.removeEventListener('resize',handleResize);ScrollTrigger
 .ds-scene{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);z-index:10;perspective:600px;perspective-origin:50% 50%;will-change:transform,opacity}
 .ds-deck{position:relative;width:0;height:0;transform-style:preserve-3d;will-change:transform}
 
-.ds-card{position:absolute;width:min(10vw,80px);height:min(14vw,112px);margin-left:calc(min(10vw,80px)/-2);margin-top:calc(min(14vw,112px)/-2);transform-style:preserve-3d;will-change:transform,opacity;border-radius:4px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.1);backface-visibility:hidden;
+.ds-card{position:absolute;width:min(12.5vw,100px);height:min(17.5vw,140px);margin-left:calc(min(12.5vw,100px)/-2);margin-top:calc(min(17.5vw,140px)/-2);transform-style:preserve-3d;will-change:transform,opacity;border-radius:4px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.1);backface-visibility:hidden;
   &__img{width:100%;height:100%;object-fit:cover;display:block}
 }
 

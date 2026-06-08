@@ -15,7 +15,9 @@ export const goodComponentsList = [
   'CardTextBlur',
   'CardTextBoiling',
   'CardTextCorona',
-  'CardTimeMaterialAwakening'
+  'CardTimeMaterialAwakening',
+  'CardImage3DDNAHelixTunnel',
+  'CardImage3DDeckShuffle'
 ]
 
 export const componentsList = []
