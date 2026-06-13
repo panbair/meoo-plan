@@ -164,12 +164,28 @@
             <div class="result-header">
               <span>📄 生成的方案</span>
               <div class="result-actions">
+                <button class="r-action-btn export-btn" @click="exportMeooProject">🚀 导出 Vue 项目</button>
                 <button class="r-action-btn" @click="copyPlan">📋 复制</button>
                 <button class="r-action-btn" @click="downloadPlan">📥 下载</button>
                 <button class="r-action-btn" @click="planContent = ''">🗑️ 清除</button>
               </div>
             </div>
             <div class="result-body">
+              <!-- meoo CLI 使用提示 -->
+              <div v-if="showCliTip" class="cli-tip-box">
+                <div class="cli-tip-header">
+                  <span>📦 {{ projectFileName }}</span>
+                  <button class="r-action-btn" @click="showCliTip = false">✕</button>
+                </div>
+                <p class="cli-tip-desc">项目已下载，解压后执行以下命令：</p>
+                <pre class="cli-code">cd {{ projectFileName.replace(/-meoo-project\.zip$/, '').replace(/-project-files\.json$/, '') || 'meoo-project' }}
+pnpm install
+pnpm dev                     # 本地预览 (http://localhost:3015)
+meoo projects create "我的企业网站"
+meoo sandbox push            # 推送代码到 Meoo 沙箱
+# 在 https://meoo.com 中打开项目继续 AI 编辑</pre>
+                <button class="r-action-btn copy-cli-btn" @click="copyCliCommands">📋 复制指令</button>
+              </div>
               <div class="markdown-content" v-html="renderedPlan"></div>
             </div>
           </div>
@@ -184,6 +200,7 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { aiService } from '@/api/ai'
 import { aiConfig } from '@/api/ai/ai.config'
 import { marked } from 'marked'
+import { buildCopyContent, type ComponentSelectInfo, type EnterpriseInfo, type ModulePosition } from '@/views/web-list/utils/buildCopyContent.ts'
 
 interface Props {
   componentCount: number
@@ -195,6 +212,11 @@ interface Props {
   enterpriseInfo: { name?: string; industry?: string; description?: string }
   modulePositions: Array<{ key: string; label: string; icon: string }>
   getComponentsByPosition: (pos: string) => any[]
+  // 本地增强模式所需
+  selectedComponentsRaw?: ComponentSelectInfo[]
+  vueModules?: Record<string, string>
+  readmeModules?: Record<string, string>
+  templateRawModules?: Record<string, string>
 }
 
 const props = defineProps<Props>()
@@ -343,15 +365,48 @@ async function handleGenerate() {
 }
 
 function buildLocalPlan(): string {
+  // 如果有完整组件数据，使用增强的 buildCopyContent
+  if (props.selectedComponentsRaw && props.selectedComponentsRaw.length > 0) {
+    try {
+      const config = {
+        selectedComponents: props.selectedComponentsRaw,
+        enterpriseInfo: {
+          name: props.enterpriseInfo.name || '',
+          industry: props.enterpriseInfo.industry || '',
+          description: props.enterpriseInfo.description || '',
+          targetAudience: '',
+          mainColors: '',
+          websiteType: '',
+          designPhilosophy: '',
+        } as EnterpriseInfo,
+        modulePositions: props.modulePositions.map(p => ({
+          key: p.key,
+          label: p.label,
+          icon: p.icon,
+          desc: '',
+        })) as ModulePosition[],
+        vueModules: props.vueModules || {},
+        readmeModules: props.readmeModules || {},
+        propsMap: new Map(),
+        cardComponents: [],
+      }
+      return buildCopyContent(config)
+    } catch (e) {
+      console.warn('buildCopyContent 失败，使用简化方案:', e)
+    }
+  }
+
+  // 降级：简化方案
   const panels = props.modulePositions
   const panelList = panels.map(p => {
     const cs = props.getComponentsByPosition(p.key)
     return `- **${p.icon} ${p.label}**: ${cs.length > 0 ? cs.map((c: any) => c.name).join(', ') : '(待分配)'}`
   }).join('\n')
 
-  return `# 🌐 企业网站制作方案
+  return `# 🌐 企业网站制作方案 (Vue 3)
 
 ## 📋 项目概览
+- **技术栈**: Vue 3 + TypeScript + Tailwind CSS + GSAP
 - **选择组件**: ${props.componentCount} 个
 - **选择模板**: ${props.selectedTemplateKeys.map(k => props.templateLabels[k] || k).join(', ') || '未选择'}
 - **企业**: ${props.enterpriseInfo.name || '未填写'}
@@ -411,6 +466,9 @@ async function sendChat() {
 function scrollChat() { nextTick(() => { if (chatRef.value) chatRef.value.scrollTop = chatRef.value.scrollHeight }) }
 
 // ==================== 导出 ====================
+const showCliTip = ref(false)
+const projectFileName = ref('')
+
 async function copyPlan() {
   try { await navigator.clipboard.writeText(planContent.value); alert('✅ 已复制') }
   catch { alert('❌ 复制失败') }
@@ -420,6 +478,447 @@ function downloadPlan() {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob)
   a.download = `website-plan-${Date.now()}.md`; document.body.appendChild(a); a.click()
   document.body.removeChild(a); URL.revokeObjectURL(a.href)
+}
+
+// ==================== meoo CLI 项目导出 ====================
+function generatePackageJson(projectName: string): string {
+  return JSON.stringify({
+    name: projectName,
+    private: true,
+    version: '1.0.0',
+    type: 'module',
+    scripts: {
+      dev: 'vite --port 3015 --strictPort --host 0.0.0.0',
+      build: 'vue-tsc && vite build',
+      preview: 'vite preview'
+    },
+    dependencies: {
+      'vue': '^3.4.0',
+      'vue-router': '^4.3.0',
+      'gsap': '^3.12.0',
+      'pinia': '^2.1.0'
+    },
+    devDependencies: {
+      '@vitejs/plugin-vue': '^5.0.0',
+      'typescript': '^5.3.0',
+      'vite': '^5.4.0',
+      'vue-tsc': '^2.0.0',
+      'tailwindcss': '^3.4.0',
+      'postcss': '^8.4.0',
+      'autoprefixer': '^10.4.0'
+    }
+  }, null, 2)
+}
+
+function generateViteConfig(): string {
+  return `import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: { '@': resolve(__dirname, 'src') }
+  },
+  base: './',
+  server: {
+    port: 3015,
+    strictPort: true,
+    host: '0.0.0.0'
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    assetsInlineLimit: 1048576
+  }
+})`
+}
+
+function generateMainTs(): string {
+  return `import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import App from './App.vue'
+import router from './router'
+import './style.css'
+
+// GSAP 全局注册
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+gsap.registerPlugin(ScrollTrigger)
+
+const app = createApp(App)
+app.use(createPinia())
+app.use(router)
+app.mount('#app')`
+}
+
+function generateRouterTs(): string {
+  return `import { createRouter, createWebHashHistory } from 'vue-router'
+import HomeView from '@/views/HomeView.vue'
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    { path: '/', name: 'home', component: HomeView }
+  ]
+})
+
+export default router`
+}
+
+function generateAppVue(): string {
+  return `<script setup lang="ts">
+import Navbar from '@/components/Navbar.vue'
+import Footer from '@/components/Footer.vue'
+import HomeView from '@/views/HomeView.vue'
+</scr' + 'ipt>
+
+<template>
+  <Navbar />
+  <main>
+    <HomeView />
+  </main>
+  <Footer />
+</template>`
+}
+
+function generateReadme(projectName: string): string {
+  return `# ${projectName}
+
+基于 Meoo 平台构建的 Vue 3 企业网站，使用 GSAP 动画组件库。
+
+## 本地开发
+
+\`\`\`bash
+pnpm install
+pnpm dev          # 启动开发服务器 (http://localhost:3015)
+\`\`\`
+
+## 部署到 Meoo 平台
+
+\`\`\`bash
+# 1. 在 meoo.com 创建项目
+meoo projects create "${projectName}"
+
+# 2. 推送代码到沙箱
+meoo sandbox push
+
+# 3. 在 https://meoo.com 中打开项目，AI 继续编辑
+
+# 4. 发布到 CDN
+meoo deploy
+\`\`\`
+
+## 技术栈
+
+- Vue 3 + TypeScript + Composition API
+- Vite 5
+- Tailwind CSS
+- GSAP (ScrollTrigger)
+- Vue Router (Hash 模式)
+- Pinia
+
+## 项目结构
+
+\`\`\`
+src/
+  components/     # 导航栏、页脚等通用组件
+  sections/       # 各页面模块组件
+  views/          # 页面视图
+  router/         # 路由配置
+  App.vue         # 根组件
+  main.ts         # 入口文件
+  style.css       # 全局样式
+\`\`\`
+`
+}
+
+async function exportMeooProject() {
+  if (!planContent.value) {
+    alert('⚠️ 请先生成方案')
+    return
+  }
+
+  const companyName = props.enterpriseInfo.name || '企业网站'
+  const projectName = companyName.replace(/[^a-zA-Z一-龥\s-]/g, '').trim() || 'meoo-project'
+  const safeName = projectName.replace(/\s+/g, '-').toLowerCase() || 'meoo-project'
+
+  const files: Record<string, string> = {
+    'package.json': generatePackageJson(safeName),
+    'vite.config.ts': generateViteConfig(),
+    'tsconfig.json': JSON.stringify({
+      compilerOptions: {
+        target: 'ES2020', module: 'ESNext', moduleResolution: 'bundler',
+        strict: true, jsx: 'preserve', resolveJsonModule: true, isolatedModules: true,
+        esModuleInterop: true, lib: ['ES2020', 'DOM', 'DOM.Iterable'],
+        skipLibCheck: true, noEmit: true, paths: { '@/*': ['./src/*'] },
+        baseUrl: '.', types: ['vite/client']
+      },
+      include: ['src/**/*.ts', 'src/**/*.d.ts', 'src/**/*.vue']
+    }, null, 2),
+    'tailwind.config.js': `/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  theme: { extend: {} },
+  plugins: []
+}`,
+    'postcss.config.js': `export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {}
+  }
+}`,
+    'index.html': `<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${companyName}</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></scr' + 'ipt>
+  </body>
+</html>`,
+    'README.md': generateReadme(companyName),
+    'src/main.ts': generateMainTs(),
+    'src/App.vue': generateAppVue(),
+    'src/style.css': `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #667eea;
+  --primary-dark: #5a67d8;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7fafc;
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* GSAP 动画降级 */
+.no-gsap .animated-element {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}`,
+    'src/router/index.ts': generateRouterTs(),
+    'src/views/HomeView.vue': `<script setup lang="ts">
+// 在此导入各 Section 组件
+// import HeroSection from '@/sections/HeroSection.vue'
+</scr' + 'ipt>
+
+<template>
+  <div class="home-view">
+    <!-- 模块将从方案内容中生成 -->
+    <section class="hero-placeholder min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 to-purple-900 text-white">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold mb-4">${companyName}</h1>
+        <p class="text-xl opacity-80">请根据生成的方案内容替换此占位模块</p>
+      </div>
+    </section>
+  </div>
+</template>`,
+    'src/components/Navbar.vue': `<script setup lang="ts">
+import { ref } from 'vue'
+
+const isOpen = ref(false)
+</scr' + 'ipt>
+
+<template>
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <a href="/" class="text-xl font-bold text-gray-900">${companyName}</a>
+        <button @click="isOpen = !isOpen" class="md:hidden p-2">
+          <span class="sr-only">菜单</span>
+          <div class="w-6 h-0.5 bg-gray-600 mb-1"></div>
+          <div class="w-6 h-0.5 bg-gray-600 mb-1"></div>
+          <div class="w-6 h-0.5 bg-gray-600"></div>
+        </button>
+        <div :class="['md:flex gap-6', isOpen ? 'flex flex-col absolute top-16 left-0 right-0 bg-white p-4 border-b' : 'hidden']">
+          <a href="#hero" class="text-gray-600 hover:text-gray-900 transition-colors">首页</a>
+          <a href="#about" class="text-gray-600 hover:text-gray-900 transition-colors">关于</a>
+          <a href="#products" class="text-gray-600 hover:text-gray-900 transition-colors">产品</a>
+          <a href="#contact" class="text-gray-600 hover:text-gray-900 transition-colors">联系</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</template>`,
+    'src/components/Footer.vue': `<script setup lang="ts">
+</scr' + 'ipt>
+
+<template>
+  <footer class="bg-gray-900 text-gray-400 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p>&copy; ${new Date().getFullYear()} ${companyName}. All rights reserved.</p>
+    </div>
+  </footer>
+</template>`,
+    'src/env.d.ts': `/// <reference types="vite/client" />
+
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}`,
+  }
+
+  // 构建 zip 文件（使用简单的 zip 格式，无需外部依赖）
+  try {
+    const zipParts: Uint8Array[] = []
+    const encoder = new TextEncoder()
+    const centralDir: Uint8Array[] = []
+    let offset = 0
+
+    const allFiles = { ...files, 'MEOO_PLAN.md': planContent.value }
+
+    for (const [path, content] of Object.entries(allFiles)) {
+      const encoded = encoder.encode(content)
+      const nameBytes = encoder.encode(path)
+
+      // Local file header
+      const localHeader = new Uint8Array(30 + nameBytes.length)
+      const view = new DataView(localHeader.buffer)
+      view.setUint32(0, 0x04034b50, true) // signature
+      view.setUint16(4, 20, true)          // version needed
+      view.setUint16(6, 0x0800, true)      // flags (UTF-8)
+      view.setUint16(8, 0, true)           // compression (store)
+      view.setUint16(10, 0, true)          // mod time
+      view.setUint16(12, 0, true)          // mod date
+      const crc = crc32(encoded)
+      view.setUint32(14, crc, true)        // CRC-32
+      view.setUint32(18, encoded.length, true) // compressed size
+      view.setUint32(22, encoded.length, true) // uncompressed size
+      view.setUint16(26, nameBytes.length, true)
+      view.setUint16(28, 0, true)          // extra field length
+      localHeader.set(nameBytes, 30)
+
+      zipParts.push(localHeader, encoded)
+      const entrySize = 30 + nameBytes.length + encoded.length
+
+      // Central directory entry
+      const cdEntry = new Uint8Array(46 + nameBytes.length)
+      const cdView = new DataView(cdEntry.buffer)
+      cdView.setUint32(0, 0x02014b50, true) // signature
+      cdView.setUint16(4, 20, true)          // version made by
+      cdView.setUint16(6, 20, true)          // version needed
+      cdView.setUint16(8, 0x0800, true)      // flags
+      cdView.setUint16(10, 0, true)          // compression
+      cdView.setUint16(12, 0, true)          // mod time
+      cdView.setUint16(14, 0, true)          // mod date
+      cdView.setUint32(16, crc, true)
+      cdView.setUint32(20, encoded.length, true)
+      cdView.setUint32(24, encoded.length, true)
+      cdView.setUint16(28, nameBytes.length, true)
+      cdView.setUint16(30, 0, true)          // extra
+      cdView.setUint16(32, 0, true)          // comment
+      cdView.setUint16(34, 0, true)          // disk start
+      cdView.setUint16(36, 0, true)          // internal attrs
+      cdView.setUint32(38, 0, true)          // external attrs
+      cdView.setUint32(42, offset, true)     // local header offset
+      cdEntry.set(nameBytes, 46)
+      centralDir.push(cdEntry)
+
+      offset += entrySize
+    }
+
+    const cdOffset = offset
+    const cdSize = centralDir.reduce((s, e) => s + e.length, 0)
+
+    // End of central directory
+    const eocd = new Uint8Array(22)
+    const eocdView = new DataView(eocd.buffer)
+    eocdView.setUint32(0, 0x06054b50, true)
+    eocdView.setUint16(4, 0, true)           // disk
+    eocdView.setUint16(6, 0, true)           // cd disk
+    eocdView.setUint16(8, Object.keys(allFiles).length, true) // entries
+    eocdView.setUint16(10, Object.keys(allFiles).length, true) // total entries
+    eocdView.setUint32(12, cdSize, true)
+    eocdView.setUint32(16, cdOffset, true)
+    eocdView.setUint16(20, 0, true)          // comment len
+
+    const allParts = [...zipParts, ...centralDir, eocd]
+    const totalLen = allParts.reduce((s, a) => s + a.length, 0)
+    const result = new Uint8Array(totalLen)
+    let pos = 0
+    for (const part of allParts) {
+      result.set(part, pos)
+      pos += part.length
+    }
+
+    const blob = new Blob([result], { type: 'application/zip' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${safeName}-meoo-project.zip`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    projectFileName.value = `${safeName}-meoo-project.zip`
+    showCliTip.value = true
+  } catch (e) {
+    console.error('Zip generation failed:', e)
+    // Fallback
+    const blob = new Blob([JSON.stringify(files, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${safeName}-project-files.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(a.href)
+
+    projectFileName.value = `${safeName}-project-files.json`
+    showCliTip.value = true
+  }
+}
+
+// Simple CRC-32 implementation for zip format
+function crc32(data: Uint8Array): number {
+  let crc = 0xFFFFFFFF
+  for (let i = 0; i < data.length; i++) {
+    crc ^= data[i]
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0)
+    }
+  }
+  return (crc ^ 0xFFFFFFFF) >>> 0
+}
+
+function copyCliCommands() {
+  const name = projectFileName.value.replace(/-meoo-project\.zip$/, '').replace(/-project-files\.json$/, '')
+  const commands = [
+    `# 解压项目并进入目录`,
+    `cd ${name || 'meoo-project'}`,
+    `pnpm install`,
+    `pnpm dev`,
+    '',
+    `# 部署到 Meoo 平台`,
+    `meoo projects create "我的企业网站"`,
+    `meoo sandbox push`,
+    `# 在 https://meoo.com 中打开项目继续 AI 编辑`,
+  ].join('\n')
+  navigator.clipboard.writeText(commands).then(() => alert('✅ CLI 指令已复制'))
 }
 </script>
 
@@ -540,6 +1039,12 @@ function downloadPlan() {
 .result-header { padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: #e2e8f0; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .result-actions { display: flex; gap: 4px; }
 .r-action-btn { padding: 4px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: #94a3b8; font-size: 0.68rem; cursor: pointer; &:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; } }
+.r-action-btn.export-btn { background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(118,75,162,0.15)); border-color: rgba(99,102,241,0.3); color: #a5b4fc; font-weight: 600; &:hover { background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(118,75,162,0.25)); color: #fff; transform: translateY(-1px); } }
+.cli-tip-box { padding: 12px 16px; margin: 0 0 12px; border-radius: 10px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); }
+.cli-tip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.8rem; color: #4ade80; font-weight: 600; }
+.cli-tip-desc { font-size: 0.72rem; color: #94a3b8; margin: 0 0 8px; }
+.cli-code { padding: 10px 14px; border-radius: 6px; background: rgba(0,0,0,0.3); color: #a5d6ff; font-family: monospace; font-size: 0.72rem; line-height: 1.6; margin: 0 0 8px; overflow-x: auto; white-space: pre; }
+.copy-cli-btn { font-size: 0.7rem; padding: 5px 12px; &:hover { color: #4ade80 !important; border-color: rgba(34,197,94,0.3) !important; } }
 .result-body { flex: 1; overflow-y: auto; padding: 12px 20px; &::-webkit-scrollbar { width: 4px; } &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; } }
 .markdown-content { font-size: 0.78rem; color: #cbd5e1; line-height: 1.6;
   :deep(h1) { font-size: 1.2rem; color: #e2e8f0; }

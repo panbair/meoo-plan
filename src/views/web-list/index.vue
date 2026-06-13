@@ -14,7 +14,7 @@ import { useRouter } from 'vue-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import NProgress from 'nprogress'
-import { buildCopyContentStr, componentsList, goodComponentsList } from '@/views/web-list/config.ts'
+import { componentsList, goodComponentsList } from '@/views/web-list/config.ts'
 import { templates as templateList } from '@/views/web-template/template/registry'
 import AIPlanPanel from './components/AIPlanPanel.vue'
 
@@ -648,14 +648,6 @@ const getComponentsByPosition = (position: string): ComponentSelectInfo[] => {
   return selectedComponents.value.filter((c) => c.modulePosition === position)
 }
 
-// 复制方案内容
-const copySuccess = ref(false)
-const errorMessage = ref('')
-
-// 复制弹层
-const showCopyModal = ref(false)
-const editablePlanContent = ref('')
-
 // 折叠/展开已选列表
 const selectionListCollapsed = ref(false)
 function toggleSelectionList() {
@@ -864,92 +856,9 @@ async function ensureAllSourcesLoaded(): Promise<boolean> {
   return stillMissing.length === 0
 }
 
-// 打开复制方案弹层
-async function openCopyModal() {
-  // 清除之前的错误消息
-  errorMessage.value = ''
-  if (selectedComponents.value.length === 0) {
-    errorMessage.value = '请至少选择一个组件'
-    showCopyErrorModal('⚠️ 提示', '请至少选择一个组件后再复制')
-    return
-  }
-  if (selectedTemplateKey.value.length === 0) {
-    errorMessage.value = '请至少选择一个页面模板'
-    showCopyErrorModal('⚠️ 提示', '请先在「选择模板」中至少选一个模板后再生成方案')
-    return
-  }
-  if (!enterpriseInfo.name) {
-    errorMessage.value = '请先填写企业信息'
-    showCopyErrorModal('⚠️ 提示', '请先填写企业信息后再复制')
-    return
-  }
-
-  // 确保所有源码已加载再生成方案
-  await ensureAllSourcesLoaded()
-  editablePlanContent.value = buildCopyContent()
-  showCopyModal.value = true
-}
-
-// 关闭复制弹层
-function closeCopyModal() {
-  showCopyModal.value = false
-  errorMessage.value = ''
-}
-
-// 实际复制内容到剪贴板
-async function copyContent() {
-  try {
-    // 使用兼容性复制函数
-    const success = await copyToClipboard(editablePlanContent.value)
-
-    if (success) {
-      copySuccess.value = true
-      setTimeout(() => {
-        copySuccess.value = false
-      }, 2000)
-    } else {
-      errorMessage.value = '复制失败，请手动复制'
-      showCopyErrorModal('❌ 复制失败', '浏览器不支持自动复制，请手动选择内容复制')
-    }
-  } catch (err) {
-    console.error('复制方案失败:', err)
-    errorMessage.value = '复制失败，请手动复制'
-    showCopyErrorModal('❌ 复制失败', '请手动复制内容')
-  }
-}
-
-// 下载方案为文件
-function downloadPlan() {
-  if (!editablePlanContent.value) {
-    showCopyErrorModal('⚠️ 提示', '没有可下载的内容')
-    return
-  }
-
-  // 创建 Blob 对象
-  const blob = new Blob([editablePlanContent.value], { type: 'text/plain;charset=utf-8' })
-
-  // 创建下载链接
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-
-  // 生成文件名：企业名称_时间戳.txt
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
-  const companyName = enterpriseInfo.name || '企业网站'
-  const fileName = `${companyName}_${timestamp}.txt`
-
-  link.download = fileName
-
-  // 触发下载
-  document.body.appendChild(link)
-  link.click()
-
-  // 清理
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-
-  // 显示成功提示
-  showCopyErrorModal('✅ 下载成功', `文件已保存：${fileName}`)
+// 打开 meoo AI
+function OpenMeoo() {
+  window.open('https://meoo.com/', '_blank')
 }
 
 // 错误弹窗
@@ -964,16 +873,6 @@ function showCopyErrorModal(title: string, message: string) {
   setTimeout(() => {
     showErrorModal.value = false
   }, 2500)
-}
-
-// 复制方案到剪贴板（兼容旧调用）
-async function copyPlanToClipboard() {
-  openCopyModal()
-}
-
-// 打开 meoo AI
-function OpenMeoo() {
-  window.open('https://meoo.com/', '_blank')
 }
 
 // ==================== 统一生命周期初始化 ====================
@@ -1933,16 +1832,6 @@ const initPage1Animations = () => {
  * 构建复制内容 - 供 meoo AI 使用的完整信息
  */
 
-const buildCopyContent =()=>{
-  return buildCopyContentStr(
-    selectedComponents,
-    modulePositions,
-    enterpriseInfo,
-    selectedTemplateKey,
-    selectedTemplateInfo,
-    templateRawModules,
-  )
-}
 </script>
 
 <template>
@@ -2284,10 +2173,6 @@ const buildCopyContent =()=>{
           >
             {{ hasEnterpriseInfo ? '🏢 已填写' : '🏢 企业信息' }}
           </button>
-          <!-- 复制方案按钮 -->
-          <button class="selection-copy-btn" @click="copyPlanToClipboard">
-            {{ copySuccess ? '✅ 已生成方案' : '📋 生成方案' }}
-          </button>
         </div>
         <!-- 关闭面板按钮 -->
         <button class="selection-panel-close" @click="toggleSelectionPanel" title="关闭面板">
@@ -2304,6 +2189,10 @@ const buildCopyContent =()=>{
           :enterprise-info="enterpriseInfo"
           :module-positions="modulePositions"
           :get-components-by-position="getComponentsByPosition"
+          :selected-components-raw="selectedComponents"
+          :vue-modules="vueModules"
+          :readme-modules="readmeModules"
+          :template-raw-modules="templateRawModules"
         />
       </div>
       <!-- 已选组件标题 -->
@@ -2842,65 +2731,6 @@ const buildCopyContent =()=>{
           </div>
           <div class="template-modal-footer">
             <button class="btn btn-primary" @click="closeTemplateModal">✓ 确认</button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
-
-    <!-- 复制到 meoo AI 弹层 -->
-    <Teleport to="body">
-      <div v-if="showCopyModal" class="copy-modal-overlay" @click.self="closeCopyModal">
-        <div class="copy-modal">
-          <div class="copy-modal-header">
-            <div class="modal-title">
-              <h3>📋 复制到 meoo AI</h3>
-              <p>直接编辑内容，然后点击「复制完整信息」粘贴到 meoo AI</p>
-            </div>
-            <button class="close-btn" @click="closeCopyModal">×</button>
-          </div>
-
-          <!-- 摘要信息 -->
-          <div class="copy-summary">
-            <div class="summary-item">
-              <span class="summary-label">已选组件</span>
-              <span class="summary-value">{{ selectedComponents.length }}个</span>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">页面模板</span>
-              <span class="summary-value">{{ selectedTemplateKey.length > 0 ? `${selectedTemplateKey.length}个` : '未选择' }}</span>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">企业名称</span>
-              <span class="summary-value">{{ enterpriseInfo.name || '未填写' }}</span>
-            </div>
-          </div>
-
-          <!-- 错误提示 -->
-          <div v-if="errorMessage" class="copy-error">
-            <p>{{ errorMessage }}</p>
-          </div>
-
-          <!-- 可编辑内容 -->
-          <div class="copy-content-wrapper">
-            <h4>📝 可编辑内容（直接修改后再复制）</h4>
-            <textarea
-              v-model="editablePlanContent"
-              class="copy-textarea"
-              placeholder="编辑内容..."
-              rows="20"
-            ></textarea>
-          </div>
-
-          <!-- 操作按钮 -->
-          <div class="copy-modal-footer">
-            <button class="btn btn-ghost" @click="closeCopyModal">取消</button>
-            <button class="btn btn-secondary download-btn" @click="downloadPlan">
-              💾 下载方案
-            </button>
-            <button class="btn btn-primary copy-btn" @click="copyContent">
-              {{ copySuccess ? '✅ 已复制' : '📋 复制完整信息' }}
-            </button>
-            <button class="btn btn-primary meoo-btn" @click="OpenMeoo">去 meoo AI</button>
           </div>
         </div>
       </div>
@@ -4463,7 +4293,7 @@ const buildCopyContent =()=>{
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 610px;
+  width: 500px;
   //max-height: 60vh;
   background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
   backdrop-filter: blur(20px);
@@ -5050,23 +4880,6 @@ const buildCopyContent =()=>{
   }
 }
 
-.selection-copy-btn {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  }
-}
-
 // 已选组件标题栏
 .selection-title {
   display: flex;
@@ -5531,192 +5344,6 @@ const buildCopyContent =()=>{
   padding: 20px 28px;
   background: rgba(255, 255, 255, 0.03);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-// ==================== 复制到 meoo AI 弹层 ====================
-.copy-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999999;
-  backdrop-filter: blur(12px);
-  animation: fadeIn 0.2s ease-out;
-}
-
-.copy-modal {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  border-radius: 24px;
-  width: 95%;
-  max-width: 900px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow:
-    0 30px 100px rgba(0, 0, 0, 0.5),
-    0 0 60px rgba(102, 126, 234, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.copy-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 32px;
-  background: rgba(102, 126, 234, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-  .modal-title {
-    h3 {
-      color: #fff;
-      font-size: 1.4rem;
-      margin: 0 0 6px;
-    }
-    p {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.95rem;
-      margin: 0;
-    }
-  }
-
-  .close-btn {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 12px;
-    color: rgba(255, 255, 255, 0.7);
-    cursor: pointer;
-    font-size: 1.5rem;
-    transition: all 0.3s;
-
-    &:hover {
-      background: rgba(255, 100, 100, 0.3);
-      color: #ff6b6b;
-      transform: rotate(90deg);
-    }
-  }
-}
-
-.copy-summary {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  padding: 24px 32px;
-  background: rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-  .summary-item {
-    text-align: center;
-
-    .summary-label {
-      display: block;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 0.9rem;
-      margin-bottom: 5px;
-    }
-
-    .summary-value {
-      color: #fff;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-  }
-}
-
-.copy-error {
-  padding: 16px 32px;
-  background: rgba(255, 100, 100, 0.15);
-  border-bottom: 1px solid rgba(255, 100, 100, 0.2);
-
-  p {
-    color: #ff6b6b;
-    margin: 0;
-    font-size: 0.9rem;
-  }
-}
-
-.copy-content-wrapper {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 32px;
-
-  h4 {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.95rem;
-    font-weight: 500;
-    margin: 0 0 16px;
-  }
-}
-
-.copy-textarea {
-  width: 100%;
-  min-height: 400px;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  color: #e0e0e0;
-  font-family: 'Fira Code', 'Consolas', monospace;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  resize: vertical;
-  transition: all 0.3s;
-
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
-  }
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-}
-
-.copy-modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 32px;
-  background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-
-  .download-btn {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: #fff;
-    font-weight: 600;
-
-    &:hover {
-      box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
-      transform: translateY(-2px);
-    }
-  }
-
-  .copy-btn {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    color: #1a1a2e;
-    font-weight: 600;
-
-    &:hover {
-      box-shadow: 0 5px 20px rgba(67, 233, 123, 0.4);
-    }
-  }
-
-  .meoo-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    margin-left: 8px;
-  }
 }
 
 // ==================== 错误提示弹窗 ====================

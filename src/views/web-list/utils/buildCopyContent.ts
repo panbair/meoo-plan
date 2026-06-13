@@ -1,6 +1,6 @@
 /**
  * 构建复制内容 - 供 meoo AI 使用的完整信息生成器
- * 将 Vue 组件转换为 React 代码的提示词构建
+ * 基于 Vue 3 组件的方案内容构建器 — 供 meoo AI 使用
  */
 
 // ============================================================
@@ -82,23 +82,20 @@ const enterpriseInfoFields = [
   { key: 'designPhilosophy', label: '设计理念', fallback: '未填写' },
 ] as const
 
-/** Vue → React 转换规则 */
-const vueToReactRules = [
-  { vue: 'v-for="item in list"', react: '{list.map(item => (...))}' },
-  { vue: 'v-if="condition"', react: '{condition && (...)}' },
-  { vue: 'ref="elementRef"', react: 'const elementRef = useRef<HTMLDivElement>(null)' },
-  { vue: 'onMounted(() => {...})', react: 'useEffect(() => {...}, [])' },
-  { vue: 'onUnmounted(() => {...})', react: 'useEffect(() => { return () => {...} }, [])' },
-  {
-    vue: 'defineProps<Props>()',
-    react: 'interface Props {...}; const Component: React.FC<Props> = (props) => {...}',
-  },
+/** Vue 3 技术规范 */
+const vueTechNotes = [
+  '组件使用 `<script setup lang="ts">` + Composition API',
+  'Props 定义用 `defineProps<{...}>()` + `withDefaults()`',
+  '模板引用用 `const el = ref<HTMLDivElement>()` + `v-el` 或 ref 属性',
+  '生命周期：`onMounted` / `onUnmounted` / `onActivated` / `onDeactivated`',
+  '组件懒加载：`defineAsyncComponent(() => import(\'./Section.vue\'))`',
+  '状态管理：`ref` / `reactive` / `computed` / `watch`（复杂场景可用 Pinia）',
 ]
 
 /** 技术要求清单 */
 const techRequirements = [
-  { num: 1, text: '**技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
-  { num: 2, text: '**Vue → React 转换规则**:', indent: true },
+  { num: 1, text: '**技术栈**: Vue 3 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)' },
+  { num: 2, text: '**组件规范**: `<script setup lang="ts">` + Composition API', indent: true },
   {
     num: 3,
     text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
@@ -109,7 +106,7 @@ const techRequirements = [
   },
   {
     num: 5,
-    text: '**Canvas API**: 如果组件使用 Canvas，必须在 React 中用 `useRef` + `useEffect` 完整重写',
+    text: '**Canvas API**: 如果组件使用 Canvas，必须在 Vue 中用 `ref<HTMLCanvasElement>()` + `onMounted` 完整实现',
   },
   {
     num: 6,
@@ -121,11 +118,11 @@ const techRequirements = [
   },
   {
     num: 8,
-    text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，使用 `useEffect(() => { gsap.fromTo(...) }, [])` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
+    text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，在 `onMounted` 中调用 `gsap.fromTo(...)` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
   },
   {
     num: 9,
-    text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imageRef.current, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
+    text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imgRef, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
   },
   {
     num: 10,
@@ -135,27 +132,28 @@ const techRequirements = [
 
 /** 输出文件清单 */
 const outputFiles = [
-  { file: 'App.tsx', desc: '主应用组件（包含所有 Section 的组合）' },
-  { file: 'main.tsx', desc: '入口文件' },
-  { file: 'components/Navbar.tsx', desc: '导航栏组件' },
-  { file: 'components/Footer.tsx', desc: '页脚组件' },
-  { file: 'sections/[模块名].tsx', desc: '各模块的 Section 组件' },
-  { file: 'components/[组件名]/index.tsx', desc: '转换后的 React 组件' },
-  { file: 'index.css', desc: '全局样式（含 Tailwind 配置、CSS 变量）' },
+  { file: 'App.vue', desc: '根组件' },
+  { file: 'main.ts', desc: '入口文件（createApp + router + GSAP 注册）' },
+  { file: 'router/index.ts', desc: 'Vue Router 配置（hash 模式）' },
+  { file: 'components/Navbar.vue', desc: '导航栏组件' },
+  { file: 'components/Footer.vue', desc: '页脚组件' },
+  { file: 'sections/[模块名].vue', desc: '各模块的 Section 组件' },
+  { file: 'components/[组件名]/index.vue', desc: '转换后的 Vue 3 组件' },
+  { file: 'style.css', desc: '全局样式（含 Tailwind 配置、CSS 变量）' },
   { file: 'tailwind.config.js', desc: 'Tailwind 配置文件' },
 ]
 
 /** 代码要求清单 */
 const codeRequirements = [
   '每个文件必须是完整可运行的代码，包含所有 import/export',
-  '组件内部的 GSAP 动画逻辑必须完整实现，不能省略',
-  'Canvas 渲染逻辑必须用 useRef + useEffect 完整重写',
-  '所有 ScrollTrigger 必须在 useEffect 中正确初始化和清理',
-  '使用 TypeScript，所有组件必须有明确的类型定义',
+  '组件使用 `<script setup lang="ts">` + Composition API',
+  'GSAP 动画在 `onMounted` 中初始化，在 `onUnmounted` 中通过 `ScrollTrigger.getAll().forEach(t => t.kill())` 清理',
+  'Canvas 渲染逻辑必须用 `ref<HTMLCanvasElement>()` + `onMounted` 完整实现',
+  '使用 TypeScript，所有组件通过 `defineProps<{...}>()` 定义类型',
   '样式使用 Tailwind CSS + 自定义 CSS 变量',
   '**性能优化**: 确保动画流畅度 ≥60fps，使用 will-change 提示浏览器，避免在滚动事件中执行重计算，Canvas 动画需在页面不可见时暂停（监听 visibilitychange），GSAP 动画需在组件卸载时 kill() 释放资源',
   '**错误处理**: 图片加载失败时显示占位图或纯色背景，GSAP 初始化失败时有降级方案（纯 CSS 动画或静态展示），Canvas 不支持时显示备用内容',
-  '**ScrollTrigger 清理模板**: 必须在 useEffect cleanup 中调用清理函数，示例：`return () => { tweens.forEach(t => t.kill()); ScrollTrigger.getAll().forEach(t => t.kill()); }`',
+  '**ScrollTrigger 清理模板**: 必须在 onUnmounted 中调用清理函数，示例：`onUnmounted(() => { tweens.forEach(t => t.kill()); ScrollTrigger.getAll().forEach(t => t.kill()); })`',
 ]
 
 /** 品牌主色约束 */
@@ -295,10 +293,10 @@ function analyzeCanvasComponent(sourceCode: string): string | null {
 
   if (hasGetContext) {
     result.push('⚠️ 使用 Canvas 2D API')
-    result.push('   1. React 中必须使用 useRef<HTMLCanvasElement>() 获取画布引用')
-    result.push('   2. Canvas 绑定必须在 useEffect 中执行（DOM 渲染后）')
-    result.push('   3. 动画循环需在 useEffect 中设置 requestAnimationFrame')
-    result.push('   4. 清理函数中必须取消动画帧 cancelAnimationFrame')
+    result.push('   1. Vue 3 中使用 `const canvasRef = ref<HTMLCanvasElement>()` 获取画布引用')
+    result.push('   2. Canvas 绑定必须在 `onMounted` 中执行（DOM 渲染后）')
+    result.push('   3. 动画循环需在 `onMounted` 中设置 `requestAnimationFrame`')
+    result.push('   4. 在 `onUnmounted` 中取消动画帧 `cancelAnimationFrame`')
     result.push('   5. 监听 resize 事件，及时更新 canvas 尺寸')
 
     if (/ctx\.drawImage/.test(sourceCode)) {
@@ -320,11 +318,11 @@ function analyzeCanvasComponent(sourceCode: string): string | null {
     /THREE\.WebGLRenderer|new WebGLRenderer/.test(sourceCode)
   ) {
     result.push('⚠️ 使用 WebGL/Three.js 渲染')
-    result.push('   1. 必须在 useEffect + useRef 模式下初始化渲染器')
+    result.push('   1. 在 `onMounted` + `ref` 模式下初始化渲染器')
     result.push('   2. 需要处理 WebGL 上下文丢失事件 webglcontextlost')
     result.push('   3. 动画循环中调用 renderer.render(scene, camera)')
-    result.push('   4. 组件卸载时调用 renderer.dispose() 释放资源')
-    result.push('   5. 考虑使用 @react-three/fiber 简化 Three.js 集成')
+    result.push('   4. 在 `onUnmounted` 中调用 renderer.dispose() 释放资源')
+    result.push('   5. 考虑使用 TresJS（Vue 3 的 Three.js 封装）简化集成')
   }
 
   if (hasRequestAnimationFrame && sourceCode.includes('gsap.')) {
@@ -413,7 +411,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   const lines: string[] = []
 
   // 标题
-  lines.push(sep('='), '🎯 企业网站开发需求 - 请在 meoo AI 平台生成 React 代码', sep('='), blank())
+  lines.push(sep('='), '🎯 企业网站开发需求 - 请在 meoo AI 平台生成 Vue 3 代码', sep('='), blank())
 
   // ===== 优先级说明 =====
   lines.push('📌 **优先级说明**：')
@@ -455,17 +453,14 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push(
     '📌 角色设定',
     sep('-'),
-    '你是一位资深的 React + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
-    '直接开发完整的、可运行的 React 企业网站代码。',
+    '你是一位资深的 Vue 3 + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
+    '直接开发完整的、可运行的 Vue 3 企业网站代码。',
+    '组件无需转换，可直接集成到项目中，只需根据模板布局调整位置和样式。',
     blank(),
   )
 
   lines.push('⚙️ 核心技术要求（必须遵守）', sep('-'))
-  lines.push('1. **技术栈**: React 18 + TypeScript + Tailwind CSS + GSAP (ScrollTrigger)')
-  lines.push('2. **Vue → React 转换规则**:')
-  vueToReactRules.forEach((rule) => lines.push(`   - \`${rule.vue}\` → \`${rule.react}\``))
-  const otherTechReqs = techRequirements.filter((t) => t.num > 2)
-  otherTechReqs.forEach((req, idx) => lines.push(`${idx + 3}. ${req.text}`))
+  techRequirements.forEach((req) => lines.push(`${req.num}. ${req.text}`))
   lines.push(blank())
 
   // ===== 企业信息 =====
@@ -646,17 +641,17 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     lines.push(blank())
 
     lines.push('##### 3.5.2 核心技术要求（必须遵守）')
-    lines.push('1. **Vue3 → React 转换规则**：')
-    lines.push('   - 使用 `useRef` 替代 `ref()` 获取 DOM 元素')
-    lines.push('   - 在 `useEffect` 中初始化 GSAP 动画，确保 DOM 已渲染')
+    lines.push('1. **Vue 3 原生开发**（组件无需转换）：')
+    lines.push('   - 使用 `ref<HTMLDivElement>()` 获取 DOM 元素引用')
+    lines.push('   - 在 `onMounted` 中初始化 GSAP 动画，确保 DOM 已渲染')
     lines.push('   - 使用 `gsap.context()` 包裹所有动画代码，便于清理')
-    lines.push('   - 在 `return () => ctx.revert()` 中清理所有动画')
+    lines.push('   - 在 `onUnmounted` 中调用 `ctx.revert()` 清理所有动画')
     lines.push(blank())
 
     lines.push('2. **ScrollTrigger 配置标准**：')
-    lines.push('   ```tsx')
+    lines.push('   ```ts')
     lines.push('   scrollTrigger: {')
-    lines.push('     trigger: sectionRef.current,')
+    lines.push('     trigger: sectionRef.value,')
     lines.push('     start: "top 80%",  // 元素顶部到达视口80%时开始')
     lines.push('     end: "top 20%",    // 元素顶部到达视口20%时结束')
     lines.push('     scrub: 1.5,        // 平滑系数，值越大动画越平滑')
@@ -687,76 +682,71 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     lines.push('   - 超小屏幕（<480px）：禁用复杂动画，确保可读性')
     lines.push(blank())
 
-    lines.push('##### 3.5.3 完整代码示例（React + GSAP）')
-    lines.push('```tsx')
-    lines.push('import { useRef, useEffect } from "react"')
+    lines.push('##### 3.5.3 完整代码示例（Vue 3 + GSAP）')
+    lines.push('```vue')
+    lines.push('<script setup lang="ts">')
+    lines.push('import { ref, onMounted, onUnmounted } from "vue"')
     lines.push('import gsap from "gsap"')
     lines.push('import { ScrollTrigger } from "gsap/ScrollTrigger"')
     lines.push(blank())
     lines.push('gsap.registerPlugin(ScrollTrigger)')
     lines.push(blank())
-    lines.push('const TextSection = () => {')
-    lines.push('  const sectionRef = useRef<HTMLElement>(null)')
-    lines.push('  const titleRef = useRef<HTMLHeadingElement>(null)')
-    lines.push('  const paragraphRefs = useRef<(HTMLParagraphElement | null)[]>([])')
+    lines.push('const sectionRef = ref<HTMLElement>()')
+    lines.push('const titleRef = ref<HTMLHeadingElement>()')
+    lines.push('const p1Ref = ref<HTMLParagraphElement>()')
+    lines.push('const p2Ref = ref<HTMLParagraphElement>()')
+    lines.push('const p3Ref = ref<HTMLParagraphElement>()')
     lines.push(blank())
-    lines.push('  useEffect(() => {')
-    lines.push('    const ctx = gsap.context(() => {')
-    lines.push('      // 标题动画 - 模糊揭示')
-    lines.push('      if (titleRef.current) {')
-    lines.push('        gsap.fromTo(titleRef.current,')
-    lines.push('          { y: 120, opacity: 0, filter: "blur(20px)" },')
-    lines.push('          {')
-    lines.push('            y: 0,')
-    lines.push('            opacity: 1,')
-    lines.push('            filter: "blur(0px)",')
-    lines.push('            duration: 1.2,')
-    lines.push('            ease: "power3.out",')
-    lines.push('            scrollTrigger: {')
-    lines.push('              trigger: sectionRef.current,')
-    lines.push('              start: "top 80%",')
-    lines.push('              end: "top 20%",')
-    lines.push('              scrub: 1.5')
-    lines.push('            }')
+    lines.push('let ctx: gsap.Context | null = null')
+    lines.push(blank())
+    lines.push('onMounted(() => {')
+    lines.push('  ctx = gsap.context(() => {')
+    lines.push('    // 标题动画 - 模糊揭示')
+    lines.push('    if (titleRef.value) {')
+    lines.push('      gsap.fromTo(titleRef.value,')
+    lines.push('        { y: 120, opacity: 0, filter: "blur(20px)" },')
+    lines.push('        {')
+    lines.push('          y: 0, opacity: 1, filter: "blur(0px)",')
+    lines.push('          duration: 1.2, ease: "power3.out",')
+    lines.push('          scrollTrigger: {')
+    lines.push('            trigger: sectionRef.value,')
+    lines.push('            start: "top 80%", end: "top 20%", scrub: 1.5')
     lines.push('          }')
-    lines.push('        )')
-    lines.push('      }')
+    lines.push('        }')
+    lines.push('      )')
+    lines.push('    }')
     lines.push(blank())
-    lines.push('      // 段落交错动画')
-    lines.push('      const validParagraphs = paragraphRefs.current.filter(Boolean)')
-    lines.push('      if (validParagraphs.length > 0) {')
-    lines.push('        gsap.fromTo(validParagraphs,')
-    lines.push('          { y: 150, opacity: 0, filter: "blur(25px)" },')
-    lines.push('          {')
-    lines.push('            y: 0,')
-    lines.push('            opacity: 1,')
-    lines.push('            filter: "blur(0px)",')
-    lines.push('            duration: 1.2,')
-    lines.push('            ease: "power3.out",')
-    lines.push('            stagger: 0.15,')
-    lines.push('            scrollTrigger: {')
-    lines.push('              trigger: sectionRef.current,')
-    lines.push('              start: "top 80%",')
-    lines.push('              end: "top 20%",')
-    lines.push('              scrub: 1.5')
-    lines.push('            }')
+    lines.push('    // 段落交错动画')
+    lines.push('    const validPs = [p1Ref.value, p2Ref.value, p3Ref.value].filter(Boolean)')
+    lines.push('    if (validPs.length > 0) {')
+    lines.push('      gsap.fromTo(validPs,')
+    lines.push('        { y: 150, opacity: 0, filter: "blur(25px)" },')
+    lines.push('        {')
+    lines.push('          y: 0, opacity: 1, filter: "blur(0px)",')
+    lines.push('          duration: 1.2, ease: "power3.out", stagger: 0.15,')
+    lines.push('          scrollTrigger: {')
+    lines.push('            trigger: sectionRef.value,')
+    lines.push('            start: "top 80%", end: "top 20%", scrub: 1.5')
     lines.push('          }')
-    lines.push('        )')
-    lines.push('      }')
-    lines.push('    }, sectionRef)')
+    lines.push('        }')
+    lines.push('      )')
+    lines.push('    }')
+    lines.push('  }, sectionRef.value)')
+    lines.push('})')
     lines.push(blank())
-    lines.push('    return () => ctx.revert() // ✅ 清理所有动画')
-    lines.push('  }, [])')
+    lines.push('onUnmounted(() => {')
+    lines.push('  ctx?.revert() // ✅ 清理所有动画')
+    lines.push('})')
+    lines.push('</script>')
     lines.push(blank())
-    lines.push('  return (')
-    lines.push('    <section ref={sectionRef} className="text-section">')
-    lines.push('      <h2 ref={titleRef}>企业核心价值</h2>')
-    lines.push('      <p ref={el => paragraphRefs.current[0] = el}>第一段内容...</p>')
-    lines.push('      <p ref={el => paragraphRefs.current[1] = el}>第二段内容...</p>')
-    lines.push('      <p ref={el => paragraphRefs.current[2] = el}>第三段内容...</p>')
-    lines.push('    </section>')
-    lines.push('  )')
-    lines.push('}')
+    lines.push('<template>')
+    lines.push('  <section ref="sectionRef" class="text-section">')
+    lines.push('    <h2 ref="titleRef">企业核心价值</h2>')
+    lines.push('    <p ref="p1Ref">第一段内容...</p>')
+    lines.push('    <p ref="p2Ref">第二段内容...</p>')
+    lines.push('    <p ref="p3Ref">第三段内容...</p>')
+    lines.push('  </section>')
+    lines.push('</template>')
     lines.push('```')
     lines.push(blank())
 
@@ -774,7 +764,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
 
     lines.push('##### 3.5.5 常见错误警告')
     lines.push('❌ **禁止的做法**：')
-    lines.push('- 直接在 render 中执行 GSAP 动画（必须在 useEffect 中）')
+    lines.push('- 直接在 template 中执行 GSAP 动画（必须在 onMounted 中）')
     lines.push('- 使用 className 选择器（如 `.title`），应使用 ref 引用具体元素')
     lines.push('- 忘记清理 ScrollTrigger（导致内存泄漏）')
     lines.push('- 对所有文字使用相同动画（应根据内容层次差异化）')
@@ -783,7 +773,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     lines.push(blank())
 
     lines.push('✅ **正确的做法**：')
-    lines.push('- 使用 `gsap.context()` 包裹动画，便于批量清理')
+    lines.push('- 使用 `gsap.context()` 包裹动画，在 `onUnmounted` 中 `ctx.revert()`')
     lines.push('- 为每个文字元素设置唯一的 ref（避免冲突）')
     lines.push('- ScrollTrigger 配置 `scrub: 1.5` 实现平滑滚动绑定')
     lines.push('- 标题用强动画（blur + scale + y），段落用弱动画（仅 y + opacity）')
@@ -890,28 +880,29 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('##### 4.8 TypeScript 类型定义规范')
   lines.push('**🟢 所有组件必须严格遵循 TypeScript 类型定义：**')
   lines.push(blank())
-  lines.push('```tsx')
+  lines.push('```vue')
+  lines.push('<script setup lang="ts">')
   lines.push('// 1. Props 接口定义')
-  lines.push('interface HeroSectionProps {')
+  lines.push('interface Props {')
   lines.push('  title: string')
   lines.push('  subtitle?: string  // 可选属性')
   lines.push('  imageUrl: string')
-  lines.push('  onCtaClick?: () => void  // 回调函数')
   lines.push('}')
   lines.push(blank())
-  lines.push('// 2. 组件定义')
-  lines.push('const HeroSection: React.FC<HeroSectionProps> = ({')
-  lines.push('  title,')
-  lines.push('  subtitle,')
-  lines.push('  imageUrl,')
-  lines.push('  onCtaClick')
-  lines.push('}) => {')
-  lines.push('  // ... 组件逻辑')
-  lines.push('}')
+  lines.push('// 2. Props 声明（支持默认值）')
+  lines.push('const props = withDefaults(defineProps<Props>(), {')
+  lines.push('  subtitle: \'\'')
+  lines.push('})')
   lines.push(blank())
-  lines.push('// 3. Ref 类型')
-  lines.push('const sectionRef = useRef<HTMLElement>(null)')
-  lines.push('const canvasRef = useRef<HTMLCanvasElement>(null)')
+  lines.push('// 3. Emits 定义')
+  lines.push('const emit = defineEmits<{')
+  lines.push('  ctaClick: []')
+  lines.push('}>()')
+  lines.push(blank())
+  lines.push('// 4. Template Ref 类型')
+  lines.push('const sectionRef = ref<HTMLElement>()')
+  lines.push('const canvasRef = ref<HTMLCanvasElement>()')
+  lines.push('</script>')
   lines.push('```')
   lines.push(blank())
   lines.push('**🔴 禁止的做法：**')
@@ -982,7 +973,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push(blank())
   lines.push('##### 5.2 技术可行性检查')
   lines.push('- [ ] 确认每个组件的 ScrollTrigger 模式（scrub 或 toggleActions）')
-  lines.push('- [ ] 检查 Canvas 组件的复杂度，评估 React 重写难度')
+  lines.push('- [ ] 检查 Canvas 组件的复杂度，评估 Vue 3 实现难度')
   lines.push('- [ ] 确认 GSAP 动画时长在合理范围内（≤2s）')
   lines.push('- [ ] 检查是否有性能瓶颈（如大量粒子动画）')
   lines.push(blank())
@@ -996,12 +987,12 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('- 不要省略 ScrollTrigger 的清理逻辑（scrollTrigger.kill()）')
   lines.push(blank())
   lines.push('✅ **正确的做法：**')
-  lines.push('- 首屏使用 `useEffect(() => { gsap.fromTo(...) }, [])`')
+  lines.push('- 首屏在 `onMounted` 中调用 `gsap.fromTo(...)`')
   lines.push('- 非首屏使用 ScrollTrigger：`scrollTrigger: { trigger: el, start: "top 80%" }`')
   lines.push('- 每个组件文件顶部注册插件：`gsap.registerPlugin(ScrollTrigger)`')
   lines.push('- 使用 Unsplash 原始 URL：`https://images.unsplash.com/photo-XXX?w=1920&q=80`')
-  lines.push('- Canvas 清理：`return () => cancelAnimationFrame(id)`')
-  lines.push('- ScrollTrigger 清理：`ScrollTrigger.getAll().forEach(t => t.kill())`')
+  lines.push('- Canvas 清理：`onUnmounted(() => cancelAnimationFrame(id))`')
+  lines.push('- ScrollTrigger 清理：`onUnmounted(() => ScrollTrigger.getAll().forEach(t => t.kill()))`')
   lines.push(blank())
 
   // ===== 设计规范 =====
@@ -1109,8 +1100,8 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push(blank())
 
   lines.push('- [ ] **清理机制检查**：')
-  lines.push('  - useEffect return 中是否正确调用 scrollTrigger.kill()')
-  lines.push('  - 是否使用 gsap.context() 包裹动画代码并调用 ctx.revert()')
+  lines.push('  - onUnmounted 中是否正确调用 scrollTrigger.kill()')
+  lines.push('  - 是否使用 gsap.context() 包裹动画代码并在 onUnmounted 中 ctx.revert()')
   lines.push('  - Canvas 动画是否正确取消 requestAnimationFrame')
   lines.push('  - 页面隐藏时是否暂停动画（visibilitychange 监听）')
   lines.push(blank())
@@ -1214,7 +1205,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('- [ ] 所有图片使用 `loading="lazy"` + `decoding="async"`')
   lines.push('- [ ] GSAP 动画使用 `will-change: transform, opacity`')
   lines.push('- [ ] Canvas 动画在不可见时暂停（`visibilitychange` 监听）')
-  lines.push('- [ ] 使用 `React.memo()` 包裹纯展示组件')
+  lines.push('- [ ] 使用 `defineAsyncComponent` 懒加载非首屏组件，用 `v-memo` 优化重复渲染')
   lines.push('- [ ] 避免在滚动事件中执行昂贵操作（使用 throttle/debounce）')
   lines.push('- [ ] 使用 `IntersectionObserver` 替代部分 ScrollTrigger 场景')
   lines.push(blank())
@@ -1223,61 +1214,78 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('🟡 **必须为以下场景提供降级方案：**')
   lines.push(blank())
   lines.push('###### 9.7.1 GSAP 加载失败')
-  lines.push('```tsx')
-  lines.push('const [gsapLoaded, setGsapLoaded] = useState(false)')
+  lines.push('```vue')
+  lines.push('<script setup lang="ts">')
+  lines.push('import { ref, onMounted } from \'vue\'')
   lines.push(blank())
-  lines.push('useEffect(() => {')
-  lines.push('  import("gsap").then(() => {')
-  lines.push('    setGsapLoaded(true)')
-  lines.push('  }).catch(() => {')
-  lines.push('    document.documentElement.classList.add("no-gsap")')
-  lines.push('  })')
-  lines.push('}, [])')
-  lines.push('// CSS fallback')
-  lines.push('// .no-gsap .animated-element { animation: fadeIn 0.6s ease-out; }')
+  lines.push('const gsapLoaded = ref(false)')
+  lines.push(blank())
+  lines.push('onMounted(async () => {')
+  lines.push('  try {')
+  lines.push('    await import(\'gsap\')')
+  lines.push('    gsapLoaded.value = true')
+  lines.push('  } catch {')
+  lines.push('    document.documentElement.classList.add(\'no-gsap\')')
+  lines.push('  }')
+  lines.push('})')
+  lines.push('</script>')
   lines.push('```')
+  lines.push('// CSS fallback: .no-gsap .animated-element { animation: fadeIn 0.6s ease-out; }')
   lines.push(blank())
   lines.push('###### 9.7.2 图片加载失败')
-  lines.push('```tsx')
-  lines.push('const [imgError, setImgError] = useState(false)')
+  lines.push('```vue')
+  lines.push('<script setup lang="ts">')
+  lines.push('import { ref } from \'vue\'')
   lines.push(blank())
-  lines.push('<img')
-  lines.push('  src={imageUrl}')
-  lines.push('  alt={altText}')
-  lines.push('  onError={() => setImgError(true)}')
-  lines.push('  className={imgError ? "fallback-bg" : ""}')
-  lines.push('/>')
+  lines.push('const imgError = ref(false)')
+  lines.push('</script>')
+  lines.push('')
+  lines.push('<template>')
+  lines.push('  <img')
+  lines.push('    :src="imageUrl"')
+  lines.push('    :alt="altText"')
+  lines.push('    @error="imgError = true"')
+  lines.push('    :class="{ \'fallback-bg\': imgError }"')
+  lines.push('  />')
+  lines.push('</template>')
   lines.push('```')
   lines.push(blank())
   lines.push('###### 9.7.3 ScrollTrigger 初始化失败')
-  lines.push('```tsx')
-  lines.push('useEffect(() => {')
+  lines.push('```vue')
+  lines.push('<script setup lang="ts">')
+  lines.push('import { onMounted } from \'vue\'')
+  lines.push('import gsap from \'gsap\'')
+  lines.push('import { ScrollTrigger } from \'gsap/ScrollTrigger\'')
+  lines.push(blank())
+  lines.push('onMounted(() => {')
   lines.push('  try {')
   lines.push('    gsap.registerPlugin(ScrollTrigger)')
   lines.push('    // ... 动画代码')
   lines.push('  } catch (error) {')
-  lines.push('    console.warn("ScrollTrigger 初始化失败，使用简化动画", error)')
+  lines.push('    console.warn(\'ScrollTrigger 初始化失败，使用简化动画\', error)')
   lines.push('    gsap.from(element, { opacity: 0, duration: 0.6 })')
-  lines.push('  })')
-  lines.push('}, [])')
+  lines.push('  }')
+  lines.push('})')
+  lines.push('</script>')
   lines.push('```')
   lines.push(blank())
 
   lines.push('### 输出顺序')
-  lines.push('请按以下顺序输出代码文件（每个文件用 ```tsx 或 ```css 包裹）：')
+  lines.push('请按以下顺序输出代码文件（每个文件用 ```vue 或 ```css 包裹）：')
   ;[
     'tailwind.config.js',
-    'index.css',
-    '各个 React 组件（按依赖顺序）',
-    'App.tsx',
-    'main.tsx',
+    'style.css',
+    '各个 Vue 3 组件（按依赖顺序）',
+    'router/index.ts',
+    'App.vue',
+    'main.ts',
   ].forEach((f, i) => lines.push(`${i + 1}. ${f}`))
   lines.push(blank())
 
   // 提示
   lines.push(
     sep('='),
-    '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 React 网站代码',
+    '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 Vue 3 网站代码',
     sep('='),
   )
 
