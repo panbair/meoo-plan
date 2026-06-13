@@ -21,7 +21,7 @@ import AIPlanPanel from './components/AIPlanPanel.vue'
 gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用，按需加载）====================
-const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other}/*/*.vue', {
+const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other,video}/*/*.vue', {
   query: '?raw',
   import: 'default'
 })
@@ -34,7 +34,7 @@ const templateRawModules = import.meta.glob('../web-template/template/*/*.vue', 
 })
 
 // 动态导入所有README
-const readmeModules = import.meta.glob('./card-{image,img,text,3d,time,list,other}/*/README.md', {
+const readmeModules = import.meta.glob('./card-{image,img,text,3d,time,list,other,video}/*/README.md', {
   query: '?raw',
   import: 'default'
 })
@@ -376,15 +376,31 @@ const copyComponentCode = async (cardInfo: any) => {
     if (selectedComp && selectedComp.sourceCode) {
       sourceCode = selectedComp.sourceCode as string
     } else {
-      // 如果没有源码，尝试动态加载
-      const moduleLoader = vueModules[cardInfo.path]
+      // 如果没有源码，尝试动态加载（带 fallback）
+      let moduleLoader = vueModules[cardInfo.path]
+      if (!moduleLoader) {
+        // fallback: 模糊匹配
+        const vueModuleKeys = Object.keys(vueModules)
+        const fuzzyKey = vueModuleKeys.find(k => k.includes(cardInfo.dirName) && k.endsWith('.vue'))
+        if (fuzzyKey) {
+          moduleLoader = vueModules[fuzzyKey]
+          console.warn(`[copyCode] 精确路径未找到 "${cardInfo.path}"，使用模糊匹配 "${fuzzyKey}"`)
+        }
+      }
       if (moduleLoader && typeof moduleLoader === 'function') {
         try {
           const module = await moduleLoader()
-          sourceCode = module.default || module
+          sourceCode = (module as any).default || module
         } catch (error) {
           console.error(`Failed to load source code for ${cardInfo.path}:`, error)
         }
+      } else {
+        console.error(
+          `[copyCode] 无法找到组件源码: ${cardInfo.dirName}`,
+          `\n  路径: ${cardInfo.path}`,
+          `\n  vueModules 中匹配的 key:`,
+          Object.keys(vueModules).filter(k => k.includes(cardInfo.dirName))
+        )
       }
     }
 
@@ -783,8 +799,73 @@ const sortedTemplateList = computed(() => {
 
 
 
+// 确保所有已选组件的源码已加载（带 fallback 查找）
+async function ensureAllSourcesLoaded(): Promise<boolean> {
+  const missingComps = selectedComponents.value.filter(c => !c.sourceCode)
+  if (missingComps.length === 0) return true
+
+  // 预构建 vueModules key 的快速查找 Map（用于 fallback 路径匹配）
+  const vueModuleKeys = Object.keys(vueModules)
+
+  for (const comp of missingComps) {
+    // 先尝试精确匹配
+    let moduleLoader = vueModules[comp.path]
+
+    // 如果精确匹配失败，尝试多种 fallback 路径格式
+    if (!moduleLoader) {
+      const altPaths = [
+        comp.path,
+        './' + comp.path.replace(/^\.\//, ''),
+        comp.path.replace(/^\.\//, './'),
+        // 尝试从 dirName 和 type 重建路径
+        `./${comp.type}/${comp.dirName}/${comp.dirName}.vue`,
+      ]
+
+      for (const altPath of altPaths) {
+        moduleLoader = vueModules[altPath]
+        if (moduleLoader) {
+          console.warn(`[ensureSources] 精确路径未找到 "${comp.path}"，使用 fallback 路径 "${altPath}"`)
+          break
+        }
+      }
+
+      // 最后尝试模糊匹配：从所有 vueModules key 中找包含 dirName 的
+      if (!moduleLoader) {
+        const fuzzyKey = vueModuleKeys.find(k => k.includes(comp.dirName) && k.endsWith('.vue'))
+        if (fuzzyKey) {
+          moduleLoader = vueModules[fuzzyKey]
+          console.warn(`[ensureSources] 使用模糊匹配找到 "${comp.dirName}" → "${fuzzyKey}"`)
+        }
+      }
+    }
+
+    if (!moduleLoader) {
+      console.error(
+        `[ensureSources] 无法找到组件源码: ${comp.dirName}`,
+        `\n  尝试路径: ${comp.path}`,
+        `\n  vueModules 中匹配的 key:`,
+        vueModuleKeys.filter(k => k.includes(comp.dirName))
+      )
+      continue
+    }
+
+    try {
+      const module = await moduleLoader()
+      comp.sourceCode = (module as any).default || module
+    } catch (error) {
+      console.error(`[ensureSources] 加载源码失败 ${comp.dirName}:`, error)
+    }
+  }
+
+  const stillMissing = selectedComponents.value.filter(c => !c.sourceCode)
+  if (stillMissing.length > 0) {
+    console.warn(`[ensureSources] ${stillMissing.length} 个组件源码仍缺失:`, stillMissing.map(c => c.dirName))
+  }
+  return stillMissing.length === 0
+}
+
 // 打开复制方案弹层
-function openCopyModal() {
+async function openCopyModal() {
   // 清除之前的错误消息
   errorMessage.value = ''
   if (selectedComponents.value.length === 0) {
@@ -802,6 +883,9 @@ function openCopyModal() {
     showCopyErrorModal('⚠️ 提示', '请先填写企业信息后再复制')
     return
   }
+
+  // 确保所有源码已加载再生成方案
+  await ensureAllSourcesLoaded()
   editablePlanContent.value = buildCopyContent()
   showCopyModal.value = true
 }
@@ -990,6 +1074,12 @@ const preloadComponentSourcesBatch = async (components: ComponentSelectInfo[]) =
             if (moduleLoader && typeof moduleLoader === 'function') {
               const module = await moduleLoader()
               comp.sourceCode = module.default || module
+            } else if (!moduleLoader) {
+              console.warn(
+                `[preloadSources] vueModules 中未找到: "${comp.path}" (组件: ${comp.dirName})`,
+                `\n  可用的 vueModules key 示例:`,
+                Object.keys(vueModules).filter(k => k.includes(comp.dirName) || k.includes(comp.type)).slice(0, 5)
+              )
             }
           } catch (error) {
             console.error(`Failed to load source code for ${comp.path}:`, error)
@@ -1003,6 +1093,9 @@ const preloadComponentSourcesBatch = async (components: ComponentSelectInfo[]) =
             if (readmeLoader && typeof readmeLoader === 'function') {
               const module = await readmeLoader()
               comp.readme = module.default || module
+            } else if (!readmeLoader) {
+              // README 缺失不是严重问题，仅 debug 级别
+              console.debug(`[preloadSources] README 未找到: "${readmePath}"`)
             }
           } catch (error) {
             console.error(`Failed to load README for ${comp.path}:`, error)
