@@ -79,7 +79,7 @@ const enterpriseInfoFields = [
   { key: 'targetAudience', label: '目标受众' },
   { key: 'mainColors', label: '品牌主色', fallback: '未设置' },
   { key: 'websiteType', label: '网站类型' },
-  { key: 'designPhilosophy', label: '设计理念', fallback: '未填写' },
+  { key: 'designPhilosophy', label: '设计理念', fallback: '未填写' }
 ] as const
 
 /** Vue 3 技术规范 */
@@ -88,8 +88,8 @@ const vueTechNotes = [
   'Props 定义用 `defineProps<{...}>()` + `withDefaults()`',
   '模板引用用 `const el = ref<HTMLDivElement>()` + `v-el` 或 ref 属性',
   '生命周期：`onMounted` / `onUnmounted` / `onActivated` / `onDeactivated`',
-  '组件懒加载：`defineAsyncComponent(() => import(\'./Section.vue\'))`',
-  '状态管理：`ref` / `reactive` / `computed` / `watch`（复杂场景可用 Pinia）',
+  "组件懒加载：`defineAsyncComponent(() => import('./Section.vue'))`",
+  '状态管理：`ref` / `reactive` / `computed` / `watch`（复杂场景可用 Pinia）'
 ]
 
 /** 技术要求清单 */
@@ -98,36 +98,36 @@ const techRequirements = [
   { num: 2, text: '**组件规范**: `<script setup lang="ts">` + Composition API', indent: true },
   {
     num: 3,
-    text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`',
+    text: '**GSAP 插件注册**: 每个使用 ScrollTrigger 的组件文件顶部必须写 `gsap.registerPlugin(ScrollTrigger)`'
   },
   {
     num: 4,
-    text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图',
+    text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图'
   },
   {
     num: 5,
-    text: '**Canvas API**: 如果组件使用 Canvas，必须在 Vue 中用 `ref<HTMLCanvasElement>()` + `onMounted` 完整实现',
+    text: '**Canvas API**: 如果组件使用 Canvas，必须在 Vue 中用 `ref<HTMLCanvasElement>()` + `onMounted` 完整实现'
   },
   {
     num: 6,
-    text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断',
+    text: '**ScrollTrigger 模式**: 必须严格基于源码判断 `scrub` 或 `toggleActions`，不可推断'
   },
   {
     num: 7,
-    text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建',
+    text: '**Section 层处理**: 如果组件内部已有 scrollTrigger 配置，Section 层不要重复创建'
   },
   {
     num: 8,
-    text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，在 `onMounted` 中调用 `gsap.fromTo(...)` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发',
+    text: '**首屏动画时机**: 首屏（Hero）模块的 GSAP 动画必须在页面加载时立即执行，在 `onMounted` 中调用 `gsap.fromTo(...)` 确保组件挂载后自动播放动画，禁止使用 ScrollTrigger 控制首屏动画。只有非首屏模块才使用 ScrollTrigger 根据滚动触发'
   },
   {
     num: 9,
-    text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imgRef, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`',
+    text: '**图片与动画结合**: 图片必须参与 GSAP 动画（如滚动时缩放、平移、淡入），不能只是静态展示。例如：`gsap.from(imgRef, { scale: 0.8, opacity: 0, scrollTrigger: { trigger: sectionRef, start: "top 80%" } })`'
   },
   {
     num: 10,
-    text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验',
-  },
+    text: '**动画时长约束**: 基础动画 0.3-0.6s，复杂入场动画 0.8-1.2s，ScrollTrigger 持续动画根据内容长度计算，禁止使用过长动画（>2s），过度动画影响用户体验'
+  }
 ]
 
 /** 输出文件清单 */
@@ -140,7 +140,7 @@ const outputFiles = [
   { file: 'sections/[模块名].vue', desc: '各模块的 Section 组件' },
   { file: 'components/[组件名]/index.vue', desc: '转换后的 Vue 3 组件' },
   { file: 'style.css', desc: '全局样式（含 Tailwind 配置、CSS 变量）' },
-  { file: 'tailwind.config.js', desc: 'Tailwind 配置文件' },
+  { file: 'tailwind.config.js', desc: 'Tailwind 配置文件' }
 ]
 
 /** 代码要求清单 */
@@ -153,7 +153,7 @@ const codeRequirements = [
   '样式使用 Tailwind CSS + 自定义 CSS 变量',
   '**性能优化**: 确保动画流畅度 ≥60fps，使用 will-change 提示浏览器，避免在滚动事件中执行重计算，Canvas 动画需在页面不可见时暂停（监听 visibilitychange），GSAP 动画需在组件卸载时 kill() 释放资源',
   '**错误处理**: 图片加载失败时显示占位图或纯色背景，GSAP 初始化失败时有降级方案（纯 CSS 动画或静态展示），Canvas 不支持时显示备用内容',
-  '**ScrollTrigger 清理模板**: 必须在 onUnmounted 中调用清理函数，示例：`onUnmounted(() => { tweens.forEach(t => t.kill()); ScrollTrigger.getAll().forEach(t => t.kill()); })`',
+  '**ScrollTrigger 清理模板**: 必须在 onUnmounted 中调用清理函数，示例：`onUnmounted(() => { tweens.forEach(t => t.kill()); ScrollTrigger.getAll().forEach(t => t.kill()); })`'
 ]
 
 /** 品牌主色约束 */
@@ -161,14 +161,14 @@ const mainColorConstraints = [
   '可使用 CSS 变量 `--primary-color` 统一管理',
   '按钮、强调色使用品牌主色',
   'Hover 状态可加深/加亮 10-20%',
-  '渐变色使用 `tint()` 或 `shade()` 派生辅助色',
+  '渐变色使用 `tint()` 或 `shade()` 派生辅助色'
 ]
 
 /** 设计理念约束 */
 const designConstraints = [
   '排版间距、圆角大小、阴影强度需统一',
   '动画曲线(ease)选择应匹配设计调性',
-  '图片风格、图标粗细保持一致',
+  '图片风格、图标粗细保持一致'
 ]
 
 // ============================================================
@@ -224,7 +224,7 @@ function analyzeScrollTriggerMode(sourceCode: string): string | null {
             restart: '🔄重播',
             reset: '🔚重置',
             complete: '✅完成',
-            none: '❌无',
+            none: '❌无'
           }
           return map[a] || a
         })
@@ -350,7 +350,7 @@ function extractPropsInfo(sourceCode: string): string | null {
   }
 
   const withDefaultsMatch = sourceCode.match(
-    /withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s,
+    /withDefaults\(defineProps<[^>]+>\(\)\s*,\s*\{([^}]+)\}/s
   )
   if (withDefaultsMatch) {
     const defaultsContent = withDefaultsMatch[1].trim()
@@ -376,11 +376,17 @@ function extractPropsInfo(sourceCode: string): string | null {
 // 辅助函数：获取组件源码
 // ============================================================
 
-function getComponentSourceCode(comp: ComponentSelectInfo, vueModules: Record<string, string>): string {
+function getComponentSourceCode(
+  comp: ComponentSelectInfo,
+  vueModules: Record<string, string>
+): string {
   return (comp.sourceCode as string) || vueModules[comp.path] || ''
 }
 
-function getComponentReadme(comp: ComponentSelectInfo, readmeModules: Record<string, string>): string {
+function getComponentReadme(
+  comp: ComponentSelectInfo,
+  readmeModules: Record<string, string>
+): string {
   const readmePath = comp.path.replace(/\.vue$/, '/README.md')
   return (comp.readme as string) || readmeModules[readmePath] || ''
 }
@@ -400,7 +406,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     vueModules,
     readmeModules,
     propsMap,
-    cardComponents,
+    cardComponents
   } = config
 
   if (selectedComponents.length === 0) {
@@ -440,9 +446,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     lines.push(blank())
   } else if (estimatedTokens > 50000) {
     lines.push('⚠️ **Token 警告**', sep('-'))
-    lines.push(
-      `当前内容约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`,
-    )
+    lines.push(`当前内容约 ${estimatedTokens.toLocaleString()} tokens，可能超出模型上下文限制。`)
     lines.push('建议：')
     lines.push('1. 减少选中组件数量')
     lines.push('2. 或分批生成（先生成部分模块的代码）')
@@ -456,7 +460,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     '你是一位资深的 Vue 3 + GSAP 动画专家。你必须基于用户选配的 Vue 组件，',
     '直接开发完整的、可运行的 Vue 3 企业网站代码。',
     '组件无需转换，可直接集成到项目中，只需根据模板布局调整位置和样式。',
-    blank(),
+    blank()
   )
 
   lines.push('⚙️ 核心技术要求（必须遵守）', sep('-'))
@@ -487,7 +491,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('🗺️ 模块组件规划', sep('-'))
   lines.push(
     '**重要：请为每个模块位置分配一个或多个组件，每个模块内可以有多个组件组合使用。**',
-    blank(),
+    blank()
   )
 
   // 构建模块组件映射
@@ -592,6 +596,17 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   // ===== 内容创作指南 =====
   lines.push('### 📝 内容创作指南', sep('-'))
 
+  lines.push('#### 0. 创作要有文化')
+  lines.push('- **根植于企，形显于牌**：创作须深植企业文化土壤，对外展示统一的品牌风貌；')
+  lines.push('- **去伪存真，力避浮浅**：摒弃苍白空洞的口号，让每一段文字都拥有文化的质感；')
+  lines.push('- **心中有光，笔下有温**：注入人文关怀，让内容可感、可知、可亲。')
+  lines.push('- 紧扣企业文化，保持品牌调性统一；')
+  lines.push('- 内容充实饱满，避免苍白无力的叙述；')
+  lines.push('- 注重情感表达，赋予内容温暖底色。')
+  lines.push('- **品牌对齐**：深度融入企业文化，保持品牌一致性；')
+  lines.push('- **内容厚实**：拒绝浅薄苍白，确保每个模块都承载文化分量；')
+  lines.push('- **情感共鸣**：赋予内容温度，实现从“传递信息”到“传递价值”的升级。')
+
   lines.push('#### 1. 标题创作要求')
   lines.push('- 每页 1 个主标题（H1），2-3 个副标题（H2）')
   lines.push('- 标题必须包含企业/品牌名称或核心业务关键词')
@@ -621,7 +636,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push(blank())
 
   // ===== 文字组件设计规范（自动检测 card-text 类型） =====
-  const hasTextComponents = selectedComponents.some(comp => comp.type === 'card-text')
+  const hasTextComponents = selectedComponents.some((comp) => comp.type === 'card-text')
   if (hasTextComponents) {
     lines.push('#### 3.5 🎨 GSAP 文字动画组件设计规范（重要）')
     lines.push('**检测到您选择了 card-text 类型的文字动画组件，请严格遵循以下设计规范：**')
@@ -661,10 +676,14 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     lines.push(blank())
 
     lines.push('3. **文字动画常见模式**：')
-    lines.push('   - **模糊揭示**：`{ filter: "blur(20px)", opacity: 0, y: 120 }` → `{ filter: "blur(0px)", opacity: 1, y: 0 }`')
+    lines.push(
+      '   - **模糊揭示**：`{ filter: "blur(20px)", opacity: 0, y: 120 }` → `{ filter: "blur(0px)", opacity: 1, y: 0 }`'
+    )
     lines.push('   - **缩放入场**：`{ scale: 0.8, opacity: 0 }` → `{ scale: 1, opacity: 1 }`')
     lines.push('   - **交错延迟**：使用 `stagger: 0.15` 让多个段落依次动画')
-    lines.push('   - **3D 旋转**：`{ rotationX: -45, opacity: 0 }` → `{ rotationX: 0, opacity: 1 }`')
+    lines.push(
+      '   - **3D 旋转**：`{ rotationX: -45, opacity: 0 }` → `{ rotationX: 0, opacity: 1 }`'
+    )
     lines.push('   - **渐变遮罩**：使用 `background-clip: text` + animated gradient')
     lines.push(blank())
 
@@ -794,7 +813,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push(blank())
   lines.push('##### 4.2 图片与动画的结合方式')
   lines.push(
-    '- **粒子效果 + 星空/科技图片**：背景使用深空、星系、电路板等图片，前景叠加粒子动画，营造科技感',
+    '- **粒子效果 + 星空/科技图片**：背景使用深空、星系、电路板等图片，前景叠加粒子动画，营造科技感'
   )
   lines.push('- **流体动画 + 自然/抽象图片**：使用水流、烟雾、渐变抽象图片，与流体动画呼应')
   lines.push('- **3D旋转 + 产品实拍图**：将企业真实产品图片放入3D卡片中旋转展示')
@@ -805,19 +824,19 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('根据企业行业和模块主题，组合以下关键词搜索：')
   lines.push('```')
   lines.push(
-    '科技行业：technology + innovation, AI + data, digital + transformation, startup + office',
+    '科技行业：technology + innovation, AI + data, digital + transformation, startup + office'
   )
   lines.push(
-    '金融行业：finance + professional, business + meeting, trust + handshake, investment + growth',
+    '金融行业：finance + professional, business + meeting, trust + handshake, investment + growth'
   )
   lines.push(
-    '教育行业：education + learning, students + classroom, graduation + success, online + course',
+    '教育行业：education + learning, students + classroom, graduation + success, online + course'
   )
   lines.push(
-    '医疗行业：healthcare + doctor, medical + technology, patient + care, hospital + modern',
+    '医疗行业：healthcare + doctor, medical + technology, patient + care, hospital + modern'
   )
   lines.push(
-    '制造业：manufacturing + factory, industrial + automation, production + quality, engineer + work',
+    '制造业：manufacturing + factory, industrial + automation, production + quality, engineer + work'
   )
   lines.push('```')
   lines.push(blank())
@@ -891,7 +910,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push(blank())
   lines.push('// 2. Props 声明（支持默认值）')
   lines.push('const props = withDefaults(defineProps<Props>(), {')
-  lines.push('  subtitle: \'\'')
+  lines.push("  subtitle: ''")
   lines.push('})')
   lines.push(blank())
   lines.push('// 3. Emits 定义')
@@ -929,12 +948,12 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('```tsx')
   lines.push('// 入场动画 - 自然舒适')
   lines.push(
-    'gsap.fromTo(element, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })',
+    'gsap.fromTo(element, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" })'
   )
   lines.push(blank())
   lines.push('// 弹跳入场 - 有活力')
   lines.push(
-    'gsap.fromTo(element, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.2)" })',
+    'gsap.fromTo(element, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.2)" })'
   )
   lines.push(blank())
   lines.push('// 滚动绑定 - 平滑同步')
@@ -956,7 +975,9 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('|------|------|---------|----------|')
   lines.push('| 首屏动画 | 立即播放 | `paused: true` + `.play()` | 页面加载时自动播放 |')
   lines.push('| 滚动入场 | scrub | `scrub: 1.5` | 元素进入视口时动画 |')
-  lines.push('| 滚动入场 | toggleActions | `toggleActions: "play none none reverse"` | 元素进入时播放，离开时回退 |')
+  lines.push(
+    '| 滚动入场 | toggleActions | `toggleActions: "play none none reverse"` | 元素进入时播放，离开时回退 |'
+  )
   lines.push('| 滚动固定 | pin | `pin: true` | 滚动时固定元素位置 |')
   lines.push(blank())
 
@@ -992,7 +1013,9 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('- 每个组件文件顶部注册插件：`gsap.registerPlugin(ScrollTrigger)`')
   lines.push('- 使用 Unsplash 原始 URL：`https://images.unsplash.com/photo-XXX?w=1920&q=80`')
   lines.push('- Canvas 清理：`onUnmounted(() => cancelAnimationFrame(id))`')
-  lines.push('- ScrollTrigger 清理：`onUnmounted(() => ScrollTrigger.getAll().forEach(t => t.kill()))`')
+  lines.push(
+    '- ScrollTrigger 清理：`onUnmounted(() => ScrollTrigger.getAll().forEach(t => t.kill()))`'
+  )
   lines.push(blank())
 
   // ===== 设计规范 =====
@@ -1050,7 +1073,9 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push(blank())
   lines.push('##### 7.4 颜色对比度')
   lines.push('- 文字与背景的对比度至少 4.5:1（普通文字）或 3:1（大文字）')
-  lines.push('- 使用工具检查对比度：[WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)')
+  lines.push(
+    '- 使用工具检查对比度：[WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)'
+  )
   lines.push(blank())
 
   // ===== SEO 规范 =====
@@ -1058,7 +1083,9 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('**原则：生成的网站必须对搜索引擎友好，便于收录和排名。**')
   lines.push(blank())
   lines.push('##### 8.1 语义化 HTML')
-  lines.push('- 使用 `<header>`、`<main>`、`<footer>`、`<nav>`、`<section>`、`<article>` 等语义标签')
+  lines.push(
+    '- 使用 `<header>`、`<main>`、`<footer>`、`<nav>`、`<section>`、`<article>` 等语义标签'
+  )
   lines.push('- 标题层级正确：每个页面只有一个 `<h1>`，标题按层级递减')
   lines.push('- 列表使用 `<ul>`、`<ol>`、`<li>`')
   lines.push(blank())
@@ -1216,16 +1243,16 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('###### 9.7.1 GSAP 加载失败')
   lines.push('```vue')
   lines.push('<script setup lang="ts">')
-  lines.push('import { ref, onMounted } from \'vue\'')
+  lines.push("import { ref, onMounted } from 'vue'")
   lines.push(blank())
   lines.push('const gsapLoaded = ref(false)')
   lines.push(blank())
   lines.push('onMounted(async () => {')
   lines.push('  try {')
-  lines.push('    await import(\'gsap\')')
+  lines.push("    await import('gsap')")
   lines.push('    gsapLoaded.value = true')
   lines.push('  } catch {')
-  lines.push('    document.documentElement.classList.add(\'no-gsap\')')
+  lines.push("    document.documentElement.classList.add('no-gsap')")
   lines.push('  }')
   lines.push('})')
   lines.push('</script>')
@@ -1235,7 +1262,7 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('###### 9.7.2 图片加载失败')
   lines.push('```vue')
   lines.push('<script setup lang="ts">')
-  lines.push('import { ref } from \'vue\'')
+  lines.push("import { ref } from 'vue'")
   lines.push(blank())
   lines.push('const imgError = ref(false)')
   lines.push('</script>')
@@ -1253,16 +1280,16 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
   lines.push('###### 9.7.3 ScrollTrigger 初始化失败')
   lines.push('```vue')
   lines.push('<script setup lang="ts">')
-  lines.push('import { onMounted } from \'vue\'')
-  lines.push('import gsap from \'gsap\'')
-  lines.push('import { ScrollTrigger } from \'gsap/ScrollTrigger\'')
+  lines.push("import { onMounted } from 'vue'")
+  lines.push("import gsap from 'gsap'")
+  lines.push("import { ScrollTrigger } from 'gsap/ScrollTrigger'")
   lines.push(blank())
   lines.push('onMounted(() => {')
   lines.push('  try {')
   lines.push('    gsap.registerPlugin(ScrollTrigger)')
   lines.push('    // ... 动画代码')
   lines.push('  } catch (error) {')
-  lines.push('    console.warn(\'ScrollTrigger 初始化失败，使用简化动画\', error)')
+  lines.push("    console.warn('ScrollTrigger 初始化失败，使用简化动画', error)")
   lines.push('    gsap.from(element, { opacity: 0, duration: 0.6 })')
   lines.push('  }')
   lines.push('})')
@@ -1278,16 +1305,12 @@ export function buildCopyContent(config: BuildCopyContentConfig): string {
     '各个 Vue 3 组件（按依赖顺序）',
     'router/index.ts',
     'App.vue',
-    'main.ts',
+    'main.ts'
   ].forEach((f, i) => lines.push(`${i + 1}. ${f}`))
   lines.push(blank())
 
   // 提示
-  lines.push(
-    sep('='),
-    '💡 提示：请复制上方完整信息到 meoo AI 平台，我将直接为您生成完整的 Vue 3 网站代码',
-    sep('='),
-  )
+  lines.push(sep('='), '生成完整的 Vue 3 网站代码', sep('='))
 
   return lines.join('\n')
 }

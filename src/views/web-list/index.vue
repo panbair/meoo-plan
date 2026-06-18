@@ -14,7 +14,7 @@ import { useRouter } from 'vue-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import NProgress from 'nprogress'
-import { componentsList, goodComponentsList } from '@/views/web-list/config.ts'
+import { componentsList, goodComponentsList, homePageComponentsList } from '@/views/web-list/config.ts'
 import { templates as templateList } from '@/views/web-template/template/registry'
 import AIPlanPanel from './components/AIPlanPanel.vue'
 
@@ -1185,6 +1185,8 @@ const showReferenceExample = ref(false)
 // 添加收藏和已选分类
 const categories = [
   { key: 'all', label: '全部' },
+  { key: 'home', label: '首屏' },
+  { key: 'good', label: '精品' },
   { key: 'card-image', label: '图片' },
   { key: 'card-video', label: '视频' },
   { key: 'card-img', label: '图像' },
@@ -1193,7 +1195,6 @@ const categories = [
   { key: 'card-time', label: '时间' },
   { key: 'card-list', label: '基础' },
   { key: 'card-other', label: '其他' },
-  { key: 'good', label: '精品' },
   { key: 'favorite', label: '我的收藏' },
   { key: 'selected', label: '已选组件' }
 ]
@@ -1460,6 +1461,9 @@ const filteredComponents = computed(() => {
   } else if (activeCategory.value === 'good') {
     const goodSet = new Set(goodComponentsList)
     list = cardComponents.value.filter((comp) => goodSet.has(comp.dirName))
+  } else if (activeCategory.value === 'home') {
+    const homeSet = new Set(homePageComponentsList)
+    list = cardComponents.value.filter((comp) => homeSet.has(comp.dirName))
   } else if (activeCategory.value === 'selected') {
     const selectedNames = new Set(selectedComponents.value.map((c) => c.dirName))
     list = cardComponents.value.filter((comp) => selectedNames.has(comp.dirName))
