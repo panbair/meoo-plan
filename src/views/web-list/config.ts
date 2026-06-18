@@ -789,7 +789,7 @@ const techRequirements = [
   },
   {
     num: 4,
-    text: '**图片地址**: 使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图'
+    text: '**图片地址**: 先到src/data里面找，一般=是bas64，没有就使用 Unsplash 格式 `https://images.unsplash.com/photo-XXXXXXXX?w=1920&q=80`，每个模块至少1-2张图片，首屏必须有震撼的背景图'
   },
   {
     num: 5,
