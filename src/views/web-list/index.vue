@@ -21,7 +21,7 @@ import AIPlanPanel from './components/AIPlanPanel.vue'
 gsap.registerPlugin(ScrollTrigger)
 
 // ==================== 源码和README导入（供 AI 方案使用，按需加载）====================
-const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other,video}/*/*.vue', {
+const vueModules = import.meta.glob('./card-{image,img,text,3d,time,list,other,scroll,video}/*/*.vue', {
   query: '?raw',
   import: 'default'
 })
@@ -34,7 +34,7 @@ const templateRawModules = import.meta.glob('../web-template/template/*/*.vue', 
 })
 
 // 动态导入所有README
-const readmeModules = import.meta.glob('./card-{image,img,text,3d,time,list,other,video}/*/README.md', {
+const readmeModules = import.meta.glob('./card-{image,img,text,3d,time,list,other,scroll,video}/*/README.md', {
   query: '?raw',
   import: 'default'
 })
@@ -137,7 +137,7 @@ const resetPagination = () => {
 
 // ==================== 分类筛选 ====================
 // 当前选中的分类（默认全部）
-const activeCategory = ref('good')
+const activeCategory = ref('all')
 
 // ==================== 本地搜索 ====================
 const searchQuery = ref('')
@@ -1195,6 +1195,7 @@ const categories = [
   { key: 'card-time', label: '时间' },
   { key: 'card-list', label: '基础' },
   { key: 'card-other', label: '其他' },
+  { key: 'card-scroll', label: '滚动' },
   { key: 'favorite', label: '我的收藏' },
   { key: 'selected', label: '已选组件' }
 ]
@@ -1224,6 +1225,8 @@ const modulesVideo = import.meta.glob('./card-video/*/[^/]*.vue')
 const modulesText = import.meta.glob('./card-text/*/[^/]*.vue')
 // card-other 目录组件
 const modulesOther = import.meta.glob('./card-other/*/*.vue')
+// card-scroll 目录组件
+const modulesScroll = import.meta.glob('./card-scroll/*/[^/]*.vue')
 
 /**
  * 自动化构建组件列表
@@ -1428,6 +1431,30 @@ const cardComponents = computed(() => {
     })
     .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
 
+  // 处理 card-scroll 目录组件
+  const scrollComponents = Object.entries(modulesScroll)
+    .map(([path, module]) => {
+      const match = path.match(/\/card-scroll\/([^/]+)\/[^/]+\.vue$/)
+      const dirName = match?.[1] || ''
+      const name = dirName
+        .replace(/Card/g, '')
+        .replace(/Scroll/g, ' Scroll')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^/, '')
+        .trim()
+
+      return {
+        dirName,
+        name: name || dirName,
+        path,
+        component: LAZY_MODE ?
+          defineAsyncComponent(module as any) :
+          (module as any)?.default || null,
+        type: 'card-scroll'
+      }
+    })
+    .filter((item) => !dirNameList.includes(item.dirName) && item.component !== null)
+
   console.log(imageComponents.map((item) => item.dirName))
   console.log(imgComponents.map((item) => item.dirName))
   console.log(textComponents.map((item) => item.dirName))
@@ -1436,7 +1463,8 @@ const cardComponents = computed(() => {
   console.log(listComponents.map((item) => item.dirName))
   console.log(otherComponents.map((item) => item.dirName))
   console.log(videoComponents.map((item) => item.dirName))
-  // 合并数组：card-image > card-video > card-img > card-text > card-3d > card-time > card-list > card-other
+  console.log(scrollComponents.map((item) => item.dirName))
+  // 合并数组：card-image > card-video > card-img > card-text > card-3d > card-time > card-list > card-scroll > card-other
   return [
     ...imageComponents,
     ...videoComponents,
@@ -1445,6 +1473,7 @@ const cardComponents = computed(() => {
     ...d3dComponents,
     ...timeComponents,
     ...listComponents,
+    ...scrollComponents,
     ...otherComponents
   ]
 })
@@ -3117,11 +3146,11 @@ const initPage1Animations = () => {
 
   .page {
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     position: relative;
     box-sizing: border-box;
   }

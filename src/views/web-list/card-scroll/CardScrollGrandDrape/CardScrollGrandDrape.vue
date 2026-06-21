@@ -1,0 +1,320 @@
+<template>
+  <section ref="rootRef" class="gd-root">
+    <div ref="particlesRef" class="gd-particles">
+      <span v-for="p in plist" :key="p.id" class="gd-particle" :style="p.style"></span>
+    </div>
+
+    <div ref="stageRef" class="gd-stage">
+      <!-- ══════ 背景光 ══════ -->
+      <div ref="bgLightRef" class="gd-bg-light"></div>
+
+      <!-- ══════ 第一层幕后内容 ══════ -->
+      <div ref="content1Ref" class="gd-content" style="z-index:3">
+        <div ref="c1InnerRef" class="gd-content__inner">
+          <h2 ref="c1TitleRef" class="gd-content__title">第一幕</h2>
+          <p ref="c1DescRef" class="gd-content__desc">帷幕轻启 · 光影初现</p>
+          <div ref="c1GridRef" class="gd-content__grid">
+            <div v-for="t in thumbs1" :key="t.label" class="gd-card">
+              <img :src="t.url" class="gd-card__img" /><span class="gd-card__label">{{ t.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ 第1层帷幕 ══════ -->
+      <div ref="drape1Ref" class="gd-drape-layer" style="z-index:5">
+        <div ref="d1L" class="gd-drape gd-drape--left"><img :src="imgs.i2" class="gd-drape__img gd-drape__img--left" /><div class="gd-drape__trim gd-drape__trim--left"></div></div>
+        <div ref="d1R" class="gd-drape gd-drape--right"><img :src="imgs.i2" class="gd-drape__img gd-drape__img--right" /><div class="gd-drape__trim gd-drape__trim--right"></div></div>
+      </div>
+
+      <!-- ══════ 第二层幕后内容 ══════ -->
+      <div ref="content2Ref" class="gd-content" style="z-index:6">
+        <div ref="c2InnerRef" class="gd-content__inner">
+          <h2 ref="c2TitleRef" class="gd-content__title">第二幕</h2>
+          <p ref="c2DescRef" class="gd-content__desc">层叠绽放 · 万象更新</p>
+          <div ref="c2GridRef" class="gd-content__grid">
+            <div v-for="t in thumbs2" :key="t.label" class="gd-card">
+              <img :src="t.url" class="gd-card__img" /><span class="gd-card__label">{{ t.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ 第2层帷幕 ══════ -->
+      <div ref="drape2Ref" class="gd-drape-layer" style="z-index:8">
+        <div ref="d2L" class="gd-drape gd-drape--left"><img :src="imgs.i3" class="gd-drape__img gd-drape__img--left" /><div class="gd-drape__trim gd-drape__trim--left"></div></div>
+        <div ref="d2R" class="gd-drape gd-drape--right"><img :src="imgs.i3" class="gd-drape__img gd-drape__img--right" /><div class="gd-drape__trim gd-drape__trim--right"></div></div>
+      </div>
+
+      <!-- ══════ 第三层幕后内容 ══════ -->
+      <div ref="content3Ref" class="gd-content" style="z-index:9">
+        <div ref="c3InnerRef" class="gd-content__inner">
+          <h2 ref="c3TitleRef" class="gd-content__title">终 幕</h2>
+          <p ref="c3DescRef" class="gd-content__desc">盛幕垂帘 · 一切尽现</p>
+          <div ref="c3GridRef" class="gd-content__grid">
+            <div v-for="t in thumbs3" :key="t.label" class="gd-card">
+              <img :src="t.url" class="gd-card__img" /><span class="gd-card__label">{{ t.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ 第3层帷幕 ══════ -->
+      <div ref="drape3Ref" class="gd-drape-layer" style="z-index:11">
+        <div ref="d3L" class="gd-drape gd-drape--left"><img :src="imgs.i4" class="gd-drape__img gd-drape__img--left" /><div class="gd-drape__trim gd-drape__trim--left"></div></div>
+        <div ref="d3R" class="gd-drape gd-drape--right"><img :src="imgs.i4" class="gd-drape__img gd-drape__img--right" /><div class="gd-drape__trim gd-drape__trim--right"></div></div>
+      </div>
+
+      <!-- ══════ 中心光柱 ══════ -->
+      <div ref="lightRayRef" class="gd-light-ray"></div>
+
+      <!-- ══════ 标题 ══════ -->
+      <header ref="hRef" class="gd-header">
+        <span ref="kRef" class="gd-kicker">◈ 向下滚动 · 盛幕垂帘 ◈</span>
+        <h1 class="gd-title">
+          <span ref="t1Ref" class="gd-t__w gd-t__w--1">盛</span>
+          <span ref="t2Ref" class="gd-t__w gd-t__w--2">幕</span>
+          <span ref="t3Ref" class="gd-t__w gd-t__w--3">垂</span>
+          <span ref="t4Ref" class="gd-t__w gd-t__w--1">帘</span>
+        </h1>
+        <div ref="dRef" class="gd-divider"></div>
+        <p ref="sRef" class="gd-sub">帷幕层层揭开 · 每一幕都是新世界</p>
+      </header>
+
+      <div ref="dotsRef" class="gd-dots">
+        <span ref="dot1Ref" class="gd-dots__d gd-dots__d--on"></span><span ref="dot2Ref" class="gd-dots__d"></span>
+        <span ref="dot3Ref" class="gd-dots__d"></span><span ref="dot4Ref" class="gd-dots__d"></span>
+      </div>
+      <div class="gd-progress"><div ref="pfRef" class="gd-progress__fill"></div></div>
+    </div>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+gsap.registerPlugin(ScrollTrigger)
+type TC = () => void
+
+const imgs = {
+  i2: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
+  i3: 'https://images.unsplash.com/photo-1498579150354-977475b7ea0b?w=1920&q=80',
+  i4: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80',
+}
+const url = 'https://images.unsplash.com/photo'
+const thumbs1 = [
+  { url: `${url}-1470770903676-69b98201ea1c?w=300&q=80`, label: '湖 泊' },
+  { url: `${url}-1441974231531-c6227db76b6e?w=300&q=80`, label: '森 林' },
+  { url: `${url}-1465146344425-f00d5f5c8f07?w=300&q=80`, label: '花 卉' },
+  { url: `${url}-1490750967868-88aa4486c946?w=300&q=80`, label: '草 原' },
+]
+const thumbs2 = [
+  { url: `${url}-1501785888041-af3ef285b470?w=300&q=80`, label: '山 色' },
+  { url: `${url}-1518837695005-2083093ee35b?w=300&q=80`, label: '海 浪' },
+  { url: `${url}-1472214103451-9374bd1c798e?w=300&q=80`, label: '秋 色' },
+  { url: `${url}-1500382017468-9049fed747ef?w=300&q=80`, label: '田 野' },
+]
+const thumbs3 = [
+  { url: `${url}-1505144808419-1957a94ca61e?w=300&q=80`, label: '湖 光' },
+  { url: `${url}-1469474968028-56623f02e42e?w=300&q=80`, label: '瀑 布' },
+  { url: `${url}-1426604966848-d7adac402bff?w=300&q=80`, label: '旷 野' },
+  { url: `${url}-1447752875215-b2761acb3c5d?w=300&q=80`, label: '秘 境' },
+]
+
+interface P { id: number; style: Record<string, string> }
+const pr = (s: number) => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x) }
+const plist = ref<P[]>(Array.from({ length: 25 }, (_, i) => ({
+  id: i, style: { '--px': `${pr(i * 3 + 1) * 100}%`, '--py': `${pr(i * 3 + 2) * 100}%`, '--ps': `${2 + pr(i * 3 + 3) * 3}px`, '--pd': `${8 + pr(i * 5 + 7) * 14}s`, '--pdl': `${pr(i * 7 + 13) * -15}s`, '--po': `${.08 + pr(i * 2 + 5) * .28}` },
+})))
+
+// Refs
+const rootRef = ref<HTMLElement | null>(null), stageRef = ref<HTMLElement | null>(null)
+const bgLightRef = ref<HTMLElement | null>(null), lightRayRef = ref<HTMLElement | null>(null)
+const drape1Ref = ref<HTMLElement | null>(null), d1L = ref<HTMLElement | null>(null), d1R = ref<HTMLElement | null>(null)
+const drape2Ref = ref<HTMLElement | null>(null), d2L = ref<HTMLElement | null>(null), d2R = ref<HTMLElement | null>(null)
+const drape3Ref = ref<HTMLElement | null>(null), d3L = ref<HTMLElement | null>(null), d3R = ref<HTMLElement | null>(null)
+const content1Ref = ref<HTMLElement | null>(null), c1InnerRef = ref<HTMLElement | null>(null), c1TitleRef = ref<HTMLElement | null>(null), c1DescRef = ref<HTMLElement | null>(null), c1GridRef = ref<HTMLElement | null>(null)
+const content2Ref = ref<HTMLElement | null>(null), c2InnerRef = ref<HTMLElement | null>(null), c2TitleRef = ref<HTMLElement | null>(null), c2DescRef = ref<HTMLElement | null>(null), c2GridRef = ref<HTMLElement | null>(null)
+const content3Ref = ref<HTMLElement | null>(null), c3InnerRef = ref<HTMLElement | null>(null), c3TitleRef = ref<HTMLElement | null>(null), c3DescRef = ref<HTMLElement | null>(null), c3GridRef = ref<HTMLElement | null>(null)
+const hRef = ref<HTMLElement | null>(null), kRef = ref<HTMLElement | null>(null)
+const t1Ref = ref<HTMLElement | null>(null), t2Ref = ref<HTMLElement | null>(null), t3Ref = ref<HTMLElement | null>(null), t4Ref = ref<HTMLElement | null>(null)
+const dRef = ref<HTMLElement | null>(null), sRef = ref<HTMLElement | null>(null), dotsRef = ref<HTMLElement | null>(null)
+const dot1Ref = ref<HTMLElement | null>(null), dot2Ref = ref<HTMLElement | null>(null), dot3Ref = ref<HTMLElement | null>(null), dot4Ref = ref<HTMLElement | null>(null)
+const pfRef = ref<HTMLElement | null>(null), particlesRef = ref<HTMLElement | null>(null)
+const cleanupFns: TC[] = []
+
+// 帷幕拉开：两阶段 motion
+function drapeOpen(tl: gsap.core.Timeline, left: HTMLElement, right: HTMLElement, startT: number) {
+  gsap.set(left, { x: 0, autoAlpha: 1 })
+  gsap.set(right, { x: 0, autoAlpha: 1 })
+  // 第一阶段：缓缓裂开 ~300px
+  tl.to(left, { x: -300, duration: 0.10, ease: 'power3.out' }, startT)
+  tl.to(right, { x: 300, duration: 0.10, ease: 'power3.out' }, startT)
+  // 第二阶段：加速拉满到边缘
+  tl.to(left, { x: '-52vw', duration: 0.14, ease: 'power3.in' }, startT + 0.12)
+  tl.to(right, { x: '52vw', duration: 0.14, ease: 'power3.in' }, startT + 0.12)
+  // 淡出隐藏
+  tl.to([left, right], { autoAlpha: 0, duration: 0.06, ease: 'power2.in' }, startT + 0.26)
+}
+
+function setup() {
+  const p = rootRef.value, st = stageRef.value
+  if (!p || !st || !drape1Ref.value) return
+
+  gsap.set(st, { opacity: 0 })
+
+  // 帷幕初始闭合
+  ;[d1L.value,d1R.value,d2L.value,d2R.value,d3L.value,d3R.value].forEach(d => gsap.set(d, { x: 0, autoAlpha: 1 }))
+
+  // 内容初始在下方
+  const contents = [
+    { ref: content1Ref, inner: c1InnerRef, title: c1TitleRef, desc: c1DescRef, grid: c1GridRef },
+    { ref: content2Ref, inner: c2InnerRef, title: c2TitleRef, desc: c2DescRef, grid: c2GridRef },
+    { ref: content3Ref, inner: c3InnerRef, title: c3TitleRef, desc: c3DescRef, grid: c3GridRef },
+  ]
+  contents.forEach(c => {
+    gsap.set(c.ref.value, { autoAlpha: 0 })
+    gsap.set(c.inner.value, { y: '30vh' })
+    gsap.set(c.title.value, { autoAlpha: 0, y: 20 })
+    gsap.set(c.desc.value, { autoAlpha: 0, y: 12 })
+    gsap.set(c.grid.value, { autoAlpha: 0, y: 20 })
+  })
+
+  // 光
+  gsap.set(bgLightRef.value, { opacity: 0 })
+  gsap.set(lightRayRef.value, { autoAlpha: 0, scaleY: 0.05 })
+
+  // 标题
+  gsap.set(hRef.value, { autoAlpha: 0, y: 28 }); gsap.set(kRef.value, { autoAlpha: 0, scale: .7 })
+  gsap.set([t1Ref.value,t2Ref.value,t3Ref.value,t4Ref.value].filter(Boolean), { autoAlpha: 0, y: 16, scale: .5 })
+  gsap.set(dRef.value, { scaleX: 0, autoAlpha: 0 }); gsap.set(sRef.value, { autoAlpha: 0, y: 8 })
+  gsap.set(dotsRef.value, { autoAlpha: 0 }); gsap.set(particlesRef.value, { opacity: .25 })
+
+  const tl = gsap.timeline({ scrollTrigger: { trigger: p, start: 'top 100%', end: 'bottom 30%', scrub: 1.5, toggleActions: 'play reverse play reverse' } })
+
+  // —— 入场 ——
+  tl.to(st, { opacity: 1, duration: .04, ease: 'power2.out' }, .01)
+  tl.to(hRef.value, { autoAlpha: 1, y: 0, duration: .05, ease: 'power2.out' }, .02)
+  tl.to(kRef.value, { autoAlpha: 1, scale: 1, duration: .04, ease: 'power2.out' }, .03)
+  tl.to([t1Ref.value,t2Ref.value,t3Ref.value,t4Ref.value].filter(Boolean), { autoAlpha: 1, y: 0, scale: 1, duration: .05, stagger: .03, ease: 'back.out(1.8)' }, .03)
+  tl.to(dRef.value, { scaleX: 1, autoAlpha: 1, duration: .04, ease: 'power3.inOut' }, .06)
+  tl.to(sRef.value, { autoAlpha: 1, y: 0, duration: .04, ease: 'power2.out' }, .07)
+  tl.to(dotsRef.value, { autoAlpha: 1, duration: .04, ease: 'power2.out' }, .07)
+  tl.to(particlesRef.value, { opacity: .6, duration: .06, ease: 'power2.in' }, .02)
+
+  // ══════ 第1层帷幕 ══════
+  drapeOpen(tl, d1L.value!, d1R.value!, .08)
+  // 背景光照亮
+  tl.to(bgLightRef.value, { opacity: .6, duration: .08, ease: 'power2.out' }, .12)
+  tl.to(lightRayRef.value, { autoAlpha: .7, scaleY: .6, duration: .06, ease: 'power2.out' }, .14)
+  // 第1幕内容浮现
+  tl.to(content1Ref.value, { autoAlpha: 1, duration: .03 }, .16)
+  tl.to(c1InnerRef.value, { y: 0, duration: .12, ease: 'power3.out' }, .16)
+  tl.to(c1TitleRef.value, { autoAlpha: 1, y: 0, duration: .06, ease: 'power2.out' }, .18)
+  tl.to(c1DescRef.value, { autoAlpha: 1, y: 0, duration: .06, ease: 'power2.out' }, .20)
+  tl.to(c1GridRef.value, { autoAlpha: 1, y: 0, duration: .08, ease: 'power2.out' }, .22)
+  // 光收
+  tl.to(lightRayRef.value, { autoAlpha: 0, duration: .05 }, .28)
+  tl.to(bgLightRef.value, { opacity: .35, duration: .06 }, .28)
+  tl.to(dot1Ref.value, { backgroundColor: 'rgba(255,255,255,.15)', duration: .04 }, .26)
+  tl.to(dot2Ref.value, { backgroundColor: 'rgba(255,180,110,.9)', duration: .04 }, .30)
+
+  // ══════ 第2层帷幕 ══════
+  drapeOpen(tl, d2L.value!, d2R.value!, .32)
+  tl.to(bgLightRef.value, { opacity: .7, duration: .08, ease: 'power2.out' }, .36)
+  tl.to(lightRayRef.value, { autoAlpha: .7, scaleY: .6, duration: .06, ease: 'power2.out' }, .38)
+  tl.to(content2Ref.value, { autoAlpha: 1, duration: .03 }, .40)
+  tl.to(c2InnerRef.value, { y: 0, duration: .12, ease: 'power3.out' }, .40)
+  tl.to(c2TitleRef.value, { autoAlpha: 1, y: 0, duration: .06, ease: 'power2.out' }, .42)
+  tl.to(c2DescRef.value, { autoAlpha: 1, y: 0, duration: .06, ease: 'power2.out' }, .44)
+  tl.to(c2GridRef.value, { autoAlpha: 1, y: 0, duration: .08, ease: 'power2.out' }, .46)
+  tl.to(lightRayRef.value, { autoAlpha: 0, duration: .05 }, .52)
+  tl.to(bgLightRef.value, { opacity: .4, duration: .06 }, .52)
+  tl.to(dot2Ref.value, { backgroundColor: 'rgba(255,255,255,.15)', duration: .04 }, .50)
+  tl.to(dot3Ref.value, { backgroundColor: 'rgba(255,180,110,.9)', duration: .04 }, .54)
+
+  // ══════ 第3层帷幕 ══════
+  drapeOpen(tl, d3L.value!, d3R.value!, .56)
+  tl.to(bgLightRef.value, { opacity: .85, duration: .08, ease: 'power2.out' }, .60)
+  tl.to(lightRayRef.value, { autoAlpha: .7, scaleY: .6, duration: .06, ease: 'power2.out' }, .62)
+  tl.to(content3Ref.value, { autoAlpha: 1, duration: .03 }, .64)
+  tl.to(c3InnerRef.value, { y: 0, duration: .12, ease: 'power3.out' }, .64)
+  tl.to(c3TitleRef.value, { autoAlpha: 1, y: 0, duration: .06, ease: 'power2.out' }, .66)
+  tl.to(c3DescRef.value, { autoAlpha: 1, y: 0, duration: .06, ease: 'power2.out' }, .68)
+  tl.to(c3GridRef.value, { autoAlpha: 1, y: 0, duration: .08, ease: 'power2.out' }, .70)
+  tl.to(lightRayRef.value, { autoAlpha: 0, duration: .05 }, .76)
+  tl.to(bgLightRef.value, { opacity: .5, duration: .06 }, .76)
+  tl.to(dot3Ref.value, { backgroundColor: 'rgba(255,255,255,.15)', duration: .04 }, .74)
+  tl.to(dot4Ref.value, { backgroundColor: 'rgba(255,180,110,.9)', duration: .04 }, .78)
+
+  // —— 收尾 ——
+  tl.to(dot4Ref.value, { backgroundColor: 'rgba(255,255,255,.12)', duration: .04 }, .82)
+  tl.to(bgLightRef.value, { opacity: .2, duration: .08 }, .82)
+  tl.to(hRef.value, { autoAlpha: .15, y: -6, duration: .06, ease: 'power2.in' }, .84)
+  tl.to(dotsRef.value, { autoAlpha: 0, duration: .05, ease: 'power2.in' }, .84)
+  tl.to(particlesRef.value, { opacity: .12, duration: .08 }, .86)
+  tl.to(st, { opacity: .4, duration: .08 }, .88)
+  tl.to(pfRef.value, { width: '100%', duration: 1, ease: 'none' }, 0)
+  cleanupFns.push(() => { tl.scrollTrigger?.kill(); tl.kill() })
+}
+
+function hr() { ScrollTrigger.refresh(true) }
+onMounted(() => { requestAnimationFrame(() => setup()); window.addEventListener('resize', hr) })
+onUnmounted(() => { window.removeEventListener('resize', hr); ScrollTrigger.getAll().forEach(s => s.kill()); cleanupFns.forEach(f => f()); cleanupFns.length = 0 })
+</script>
+
+<style scoped lang="scss">
+.gd-root { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #060410; font-family: 'PingFang SC','Inter','Microsoft YaHei',system-ui,sans-serif }
+.gd-particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; will-change: opacity }
+.gd-particle { --px: 50%; --py: 50%; --ps: 3px; --pd: 12s; --pdl: 0s; --po: .3; position: absolute; left: var(--px); top: var(--py); width: var(--ps); height: var(--ps); border-radius: 50%; background: radial-gradient(circle, rgba(255,200,150,.85) 0%, rgba(150,120,220,.4) 40%, transparent 70%); box-shadow: 0 0 calc(var(--ps)*3) rgba(170,140,230,.4), 0 0 calc(var(--ps)*6) rgba(255,170,110,.2); opacity: var(--po); animation: gd-f var(--pd) var(--pdl) infinite ease-in-out; will-change: transform, opacity }
+@keyframes gd-f { 0% { transform: translateY(0) translateX(0) scale(1); opacity: var(--po) } 25% { transform: translateY(-10vh) translateX(2vw) scale(1.5); opacity: calc(var(--po)*1.4) } 50% { transform: translateY(-20vh) translateX(-3vw) scale(.7); opacity: calc(var(--po)*.5) } 75% { transform: translateY(-7vh) translateX(4vw) scale(1.3); opacity: calc(var(--po)*1.1) } 100% { transform: translateY(0) translateX(0) scale(1); opacity: var(--po) } }
+.gd-stage { position: relative; width: 100%; height: 100vh; overflow: hidden; z-index: 2; will-change: opacity }
+
+/* ── 背景光 ── */
+.gd-bg-light { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse 40% 60% at 50% 50%, rgba(180,140,240,.15) 0%, transparent 60%), radial-gradient(ellipse 30% 30% at 50% 45%, rgba(255,170,100,.1) 0%, transparent 50%); will-change: opacity }
+
+/* ── 光柱 ── */
+.gd-light-ray { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 100%; z-index: 12; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(255,220,160,.06) 30%, rgba(255,240,210,.12) 50%, rgba(255,220,160,.06) 70%, transparent); filter: blur(40px); will-change: transform, opacity }
+
+/* ── 内容层 ── */
+.gd-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; will-change: opacity }
+.gd-content__inner { text-align: center; width: 90vw; will-change: transform }
+.gd-content__title { margin: 0 0 .2rem; font-size: clamp(1.6rem,3.5vw,2.6rem); font-weight: 900; background: linear-gradient(180deg,#ffe0b0,#d09038); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter: drop-shadow(0 2px 12px rgba(240,180,100,.45)); will-change: transform, opacity }
+.gd-content__desc { margin: 0 0 1.2rem; font-size: clamp(.55rem,.8vw,.7rem); color: rgba(200,170,150,.4); will-change: transform, opacity }
+.gd-content__grid { display: flex; justify-content: center; gap: 1.2vw; will-change: transform, opacity }
+
+/* ── 卡片 ── */
+.gd-card { width: clamp(100px,18vw,220px); text-align: center }
+.gd-card__img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 8px; display: block; box-shadow: 0 0 0 2px rgba(255,190,140,.2), 0 12px 36px rgba(0,0,0,.4) }
+.gd-card__label { display: block; margin-top: .3rem; font-size: .55rem; font-weight: 700; letter-spacing: .12em; color: rgba(200,160,140,.55) }
+
+/* ── 帷幕层 ── */
+.gd-drape-layer { position: absolute; inset: 0 }
+.gd-drape { position: absolute; top: 0; width: 50vw; height: 100vh; overflow: hidden; will-change: transform, opacity }
+.gd-drape--left { left: 0 }
+.gd-drape--right { right: 0 }
+.gd-drape__img { position: absolute; top: 0; width: 200%; height: 100%; object-fit: cover; display: block }
+.gd-drape__img--left { left: 0 }
+.gd-drape__img--right { right: 0 }
+
+/* 帷幕金边 */
+.gd-drape__trim { position: absolute; top: 0; width: 3px; height: 100%; pointer-events: none; background: linear-gradient(180deg, transparent 5%, rgba(200,160,100,.4) 20%, rgba(255,210,150,.8) 50%, rgba(200,160,100,.4) 80%, transparent 95%); box-shadow: 0 0 10px rgba(255,180,120,.35) }
+.gd-drape__trim--left { right: 0 }
+.gd-drape__trim--right { left: 0 }
+
+/* ═══════════════════════ 标题 ═══════════════════════ */
+.gd-header { position: absolute; top: 4vh; left: 50%; transform: translateX(-50%); z-index: 20; text-align: center; width: min(88vw,520px); pointer-events: none; will-change: transform, opacity }
+.gd-kicker { display: inline-block; font-size: .54rem; font-weight: 700; letter-spacing: .22em; color: rgba(200,165,140,.6); background: rgba(10,5,20,.45); backdrop-filter: blur(8px); border: 1px solid rgba(170,130,220,.16); border-radius: 999px; padding: .2rem .8rem; margin-bottom: .4rem; will-change: transform, opacity }
+.gd-title { margin: 0; display: flex; justify-content: center; gap: .04em }
+.gd-t__w { font-size: clamp(2rem,5vw,3.8rem); font-weight: 900; will-change: transform, opacity; &--1 { background: linear-gradient(180deg,#ffa880,#f06848); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text } &--2 { background: linear-gradient(180deg,#90b0f0,#5078d8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text } &--3 { background: linear-gradient(180deg,#ffe0a8,#d09038); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter: drop-shadow(0 2px 10px rgba(240,180,100,.5)) } }
+.gd-divider { width: 60px; height: 1.5px; margin: .3rem auto .4rem; border-radius: 2px; background: linear-gradient(90deg,transparent,#f09060,#b080d8,#6098e0,transparent); transform-origin: center; will-change: transform, opacity }
+.gd-sub { margin: 0; font-size: clamp(.52rem,.78vw,.66rem); color: rgba(185,155,135,.36); max-width: 420px; margin-inline: auto; will-change: transform, opacity }
+.gd-dots { position: absolute; bottom: 10vh; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: .6rem; pointer-events: none; will-change: opacity }
+.gd-dots__d { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.15); transition: background-color .3s }
+.gd-dots__d--on { background: rgba(255,170,110,.9) }
+.gd-progress { position: absolute; left: 0; bottom: 0; z-index: 25; width: 100%; height: 2px; background: rgba(255,170,110,.02) }
+.gd-progress__fill { width: 0; height: 100%; background: linear-gradient(90deg,#f06848,#f0a060,#b080d8,#5078d8,#b080d8,#f0a060); background-size: 300% 100%; box-shadow: 0 0 10px rgba(240,130,80,.4); animation: gd-ps 4s linear infinite }
+@keyframes gd-ps { 0% { background-position: 0% 50% } 100% { background-position: 300% 50% } }
+@media (max-width: 768px) { .gd-header { top: 2.5vh } .gd-kicker { font-size: .44rem } .gd-t__w { font-size: 1.5rem } .gd-sub { font-size: .48rem } .gd-card { width: 80px } }
+</style>

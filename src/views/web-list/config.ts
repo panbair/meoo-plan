@@ -141,17 +141,61 @@ export const homePageComponentsList = [
   'CardImageAnaglyph3D'
 ]
 
-export const componentsList = []
+// export const componentsList = []
 
-/*
 export const componentsList = [
   // 'CardImageCorridor3D',
   // 'CardImage3DHelix',
   // 'CardImageVinylRecord',
   // 'CardImageDeepSea',
   // 'CardImageCosmicDrift',
-  /!* 'CardImageFilmStrip',
-  'CardImage3DAlbum',*!/
+  /* 'CardImageFilmStrip',
+  'CardImage3DAlbum',*/
+  'CardScrollConverge',
+  'CardScrollCornerCollect',
+  'CardScrollCrossFlow',
+  'CardScrollDisperse',
+  'CardScrollWaveSurge',
+  'CardScrollCenterLineUp',
+  'CardScrollDualLineUp',
+  'CardScrollFanLineUp',
+  'CardScrollLineUp',
+  'CardScrollStackLineUp',
+  'CardScrollZigzagLineUp',
+  'CardScrollCascadeGallery',
+  'CardScrollCurtainDrop',
+  'CardScrollGridShift',
+  'CardScrollOrbitReveal',
+  'CardScrollPrismShift',
+  'CardScrollSpiralGallery',
+  'CardScrollFlowSplit',
+  'CardScrollOverlayReveal',
+  'CardScrollSideGallery',
+  'CardScrollWingReveal',
+  'CardScrollGateOpen',
+  'CardScrollGrandDrape',
+  'CardScrollLineSplit',
+  'CardScrollSplitReveal',
+  'CardScrollBlindsFlow',
+  'CardScrollCrossSplit',
+  'CardScrollShatterRebuild',
+  'CardScrollSpiralUnfold',
+  'CardScrollWaveRipple',
+  'CardScrollZoomTunnel',
+  'CardScrollLineExpand',
+  'CardScrollMerge',
+  'CardScrollNestedReveal',
+  'CardScrollSideFlow',
+  'CardImage3DDeckSpread',
+  'CardImage3DDepthOverlap',
+  'CardImage3DDominoCascade',
+  'CardImage3DFragmentReconstruct',
+  'CardImage3DShapeAirplane',
+  'CardImage3DShapeButterfly',
+  'CardImage3DShapeKite',
+  'CardImage3DSpringCoil',
+  'CardImage3DVortexSwirl',
+  'CardImage3DWaveGrid',
   'CardImage3DConstellationOrbit',
   'CardImage3DLayeredRealm',
   'CardImage3DSpotlightSweep',
@@ -668,8 +712,8 @@ export const componentsList = [
   'CardTimeTypography',
   'CardTimeVoyage',
   'CardTimeWave',
-  /!*'Card3DFlipGallery',
-  'CardAbstractGeometry',*!/
+  /*'Card3DFlipGallery',
+  'CardAbstractGeometry',*/
   'CardAllInOne',
   'CardAudioWave',
   'CardAurora',
@@ -735,7 +779,6 @@ export const componentsList = [
   'CardVortex',
   'CardWave'
 ]
-*/
 
 // 已选择组件的模块位置
 interface ComponentSelectInfo {
